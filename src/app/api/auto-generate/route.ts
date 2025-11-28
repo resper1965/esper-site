@@ -124,15 +124,18 @@ export async function GET(request: Request) {
       autoPublished: false
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ Erro na geração automática:', error);
     
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+    const errorObj = error instanceof Error ? error : new Error(errorMessage);
+    
     // Enviar notificação de erro
-    await sendErrorNotification(error, 'Cron Job - Geração Automática');
+    await sendErrorNotification(errorObj, 'Cron Job - Geração Automática');
     
     return NextResponse.json({
-      error: error.message,
-      stack: error.stack
+      error: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined
     }, { status: 500 });
   }
 }

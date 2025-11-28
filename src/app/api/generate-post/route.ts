@@ -38,10 +38,10 @@ export async function POST(request: Request) {
         preview: post.content.substring(0, 500) + '...'
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ Erro:', error);
     return NextResponse.json(
-      { error: error.message },
+      { error: error instanceof Error ? error.message : 'Erro desconhecido' },
       { status: 500 }
     );
   }

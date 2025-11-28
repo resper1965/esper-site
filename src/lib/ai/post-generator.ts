@@ -168,6 +168,7 @@ async function evaluateQuality(content: string): Promise<number> {
   return Math.round(score * 10) / 10;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function savePostDraft(post: { content: string; score: number; metadata: any }) {
   const postsDir = path.join(process.cwd(), 'src/content/posts/drafts');
   

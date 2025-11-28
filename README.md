@@ -2,7 +2,7 @@
 
 > Sistema completo de blog com geração automática de posts usando IA
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.3.5-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38bdf8)](https://tailwindcss.com/)
 [![Claude AI](https://img.shields.io/badge/Claude-Sonnet%204-orange)](https://www.anthropic.com/)
@@ -28,7 +28,7 @@ Blog pessoal de **Ricardo Esper**, especialista em cibersegurança com 34 anos d
 ## 🚀 Stack Tecnológica
 
 ### Frontend
-- **Next.js 16** (App Router)
+- **Next.js 15.3.5** (App Router)
 - **TypeScript** 5
 - **Tailwind CSS** 3 (tema greyscale customizado)
 - **MDX** para posts

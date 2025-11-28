@@ -1,103 +1,158 @@
-import Layout from '@/components/layout/Layout';
-import MDXContent from '@/components/MDXContent';
-import { getPostBySlug, getAllPosts } from '@/lib/posts';
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
+import { docs, meta } from "@/.source";
+import { DocsBody } from "fumadocs-ui/page";
+import { loader } from "fumadocs-core/source";
+import { createMDXSource } from "fumadocs-mdx";
+import { notFound } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import Image from "next/image";
 
-interface PostPageProps {
+import { TableOfContents } from "@/components/table-of-contents";
+import { MobileTableOfContents } from "@/components/mobile-toc";
+import { AuthorCard } from "@/components/author-card";
+import { ReadMoreSection } from "@/components/read-more-section";
+import { PromoContent } from "@/components/promo-content";
+import { getAuthor, isValidAuthor } from "@/lib/authors";
+import { FlickeringGrid } from "@/components/magicui/flickering-grid";
+import { HashScrollHandler } from "@/components/hash-scroll-handler";
+
+interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-const categoryMap: Record<string, string> = {
-  cybersecurity: 'Cibersegurança',
-  counterespionage: 'Contraespionagem',
-  forensics: 'Forensics',
-  intelligence: 'Inteligência',
-  compliance: 'Compliance',
-  leadership: 'Liderança',
-  general: 'Geral',
-  homeautomation: 'Automação Residencial',
-  travel: 'Viagens',
+const blogSource = loader({
+  baseUrl: "/blog",
+  source: createMDXSource(docs, meta),
+});
+
+const formatDate = (date: Date): string => {
+  return date.toLocaleDateString("pt-BR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 };
 
-export async function generateStaticParams() {
-  const posts = await getAllPosts();
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
-}
-
-export default async function PostPage({ params }: PostPageProps) {
+export default async function BlogPost({ params }: PageProps) {
   const { slug } = await params;
-  const post = await getPostBySlug(slug);
 
-  if (!post) {
+  if (!slug || slug.length === 0) {
     notFound();
   }
 
-  const categoryLabel = categoryMap[post.frontMatter.category] || post.frontMatter.category;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let page: any = null;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    page = blogSource.getPage([slug]) as any;
+  } catch (error) {
+    console.error('Error getting page:', error);
+    notFound();
+  }
+
+  if (!page) {
+    notFound();
+  }
+
+  const MDX = page.data.body;
+  const date = new Date(page.data.date);
+  const formattedDate = formatDate(date);
 
   return (
-    <Layout>
-      <article className="bg-white">
-        <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          {/* Header */}
-          <header className="mb-12">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="text-sm font-medium text-grey-500 uppercase tracking-wide">
-                {categoryLabel}
-              </span>
-              <span className="text-sm text-grey-400">•</span>
-              <time 
-                className="text-sm text-grey-500" 
-                dateTime={post.frontMatter.date}
-              >
-                {new Date(post.frontMatter.date).toLocaleDateString('pt-BR', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </time>
-            </div>
+    <div className="min-h-screen bg-background relative">
+      <HashScrollHandler />
+      <div className="absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)]">
+        <FlickeringGrid
+          className="absolute top-0 left-0 size-full"
+          squareSize={4}
+          gridGap={6}
+          color="#6B7280"
+          maxOpacity={0.2}
+          flickerChance={0.05}
+        />
+      </div>
 
-            <h1 className="mb-6 text-4xl font-bold text-grey-900 sm:text-5xl">
-              {post.frontMatter.title}
-            </h1>
-
-            {post.frontMatter.excerpt && (
-              <p className="text-xl leading-relaxed text-grey-600">
-                {post.frontMatter.excerpt}
-              </p>
+      <div className="space-y-4 border-b border-border relative z-10">
+        <div className="max-w-7xl mx-auto flex flex-col gap-6 p-6">
+          <div className="flex flex-wrap items-center gap-3 gap-y-5 text-sm text-muted-foreground">
+            <Button variant="outline" asChild className="h-6 w-6">
+              <Link href="/">
+                <ArrowLeft className="w-4 h-4" />
+                <span className="sr-only">Voltar para todos os artigos</span>
+              </Link>
+            </Button>
+            {page.data.tags && page.data.tags.length > 0 && (
+              <div className="flex flex-wrap gap-3 text-muted-foreground">
+                {page.data.tags.map((tag: string) => (
+                  <span
+                    key={tag}
+                    className="h-6 w-fit px-3 text-sm font-medium bg-muted text-muted-foreground rounded-md border flex items-center justify-center"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
             )}
-          </header>
-
-          {/* Content */}
-          <div className="border-t border-grey-200 pt-12">
-            <MDXContent htmlContent={post.htmlContent} />
+            <time className="font-medium text-muted-foreground">
+              {formattedDate}
+            </time>
           </div>
 
-          {/* Footer */}
-          <footer className="mt-16 border-t border-grey-200 pt-8">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                {post.frontMatter.author && (
-                  <p className="text-sm text-grey-600">
-                    Por <span className="font-medium text-grey-900">{post.frontMatter.author}</span>
-                  </p>
-                )}
-              </div>
-              <Link
-                href="/blog"
-                className="inline-flex items-center text-sm font-medium text-grey-700 transition-colors hover:text-grey-900"
-              >
-                ← Voltar para o blog
-              </Link>
-            </div>
-          </footer>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tighter text-balance">
+            {page.data.title}
+          </h1>
+
+          {page.data.description && (
+            <p className="text-muted-foreground max-w-4xl md:text-lg md:text-balance">
+              {page.data.description}
+            </p>
+          )}
         </div>
-      </article>
-    </Layout>
+      </div>
+      <div className="flex divide-x divide-border relative max-w-7xl mx-auto px-4 md:px-0 z-10">
+        <div className="absolute max-w-7xl mx-auto left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] lg:w-full h-full border-x border-border p-0 pointer-events-none" />
+        <main className="w-full p-0 overflow-hidden">
+          {page.data.thumbnail && (
+            <div className="relative w-full h-[500px] overflow-hidden object-cover border border-transparent">
+              <Image
+                src={page.data.thumbnail}
+                alt={page.data.title}
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+          )}
+          <div className="p-6 lg:p-10">
+            <div className="prose dark:prose-invert max-w-none prose-headings:scroll-mt-8 prose-headings:font-semibold prose-a:no-underline prose-headings:tracking-tight prose-headings:text-balance prose-p:tracking-tight prose-p:text-balance prose-lg">
+              <DocsBody>
+                <MDX />
+              </DocsBody>
+            </div>
+          </div>
+          <div className="mt-10">
+            <ReadMoreSection
+              currentSlug={[slug]}
+              currentTags={page.data.tags}
+            />
+          </div>
+        </main>
+
+        <aside className="hidden lg:block w-[350px] flex-shrink-0 p-6 lg:p-10 bg-muted/60 dark:bg-muted/20">
+          <div className="sticky top-20 space-y-8">
+            {page.data.author && isValidAuthor(page.data.author) && (
+              <AuthorCard author={getAuthor(page.data.author)} />
+            )}
+            <div className="border border-border rounded-lg p-6 bg-card">
+              <TableOfContents />
+            </div>
+            <PromoContent variant="desktop" />
+          </div>
+        </aside>
+      </div>
+
+      <MobileTableOfContents />
+    </div>
   );
 }
-
-

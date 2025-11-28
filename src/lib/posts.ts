@@ -86,7 +86,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
       htmlContent,
       slug: data.slug || slug,
     };
-  } catch (error) {
+  } catch {
     return null;
   }
 }

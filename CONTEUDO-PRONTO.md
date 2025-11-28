@@ -42,7 +42,7 @@
 
 ### 3. Configurações
 - Tailwind config com tema greyscale ✓
-- Next.js 16 configurado ✓
+- Next.js 15.3.5 configurado ✓
 - TypeScript pronto ✓
 
 ## 📊 Estatísticas

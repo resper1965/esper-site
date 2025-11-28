@@ -1,20 +1,25 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+import { ThemeProvider } from "@/components/theme-provider";
+import { siteConfig } from "@/lib/site";
+import { metadataKeywords } from "./metadata";
+import { SiteNav } from "@/components/site-nav";
+import Footer from "@/components/footer";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+export const viewport: Viewport = {
+  themeColor: "black",
+};
 
 export const metadata: Metadata = {
-  title: "Ricardo Esper - Blog de Cibersegurança",
-  description: "Especialista em cibersegurança com mais de três décadas de experiência. Artigos sobre segurança digital, contraespionagem e tecnologia.",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: siteConfig.name,
+    template: `%s - ${siteConfig.name}`,  
+  },
+  description: siteConfig.description,
+  keywords: metadataKeywords,
 };
 
 export default function RootLayout({
@@ -23,11 +28,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html
+      lang="pt-BR"
+      className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}
+      suppressHydrationWarning
+    >
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SiteNav />
+          {children}
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

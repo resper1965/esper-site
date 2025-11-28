@@ -3,9 +3,18 @@
 import { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 
+interface GenerateResult {
+  title: string;
+  content: string;
+  slug: string;
+  score: number;
+  filepath: string;
+  preview: string;
+}
+
 export default function GenerateDashboard() {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<GenerateResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
@@ -38,8 +47,8 @@ export default function GenerateDashboard() {
       }
 
       setResult(data.post);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
       setLoading(false);
     }
@@ -141,7 +150,7 @@ export default function GenerateDashboard() {
               <li>Digite o tema do post que deseja gerar</li>
               <li>Escolha a categoria apropriada</li>
               <li>Adicione keywords relevantes (opcional)</li>
-              <li>Clique em "Gerar Post"</li>
+              <li>Clique em &quot;Gerar Post&quot;</li>
               <li>Aguarde ~30 segundos (IA está escrevendo)</li>
               <li>Post salvo em <code>src/content/posts/drafts/</code></li>
               <li>Revise e mova para <code>src/content/posts/</code> se aprovar</li>
