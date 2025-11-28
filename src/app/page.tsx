@@ -1,6 +1,6 @@
 import { docs, meta } from "@/.source";
 import { loader } from "fumadocs-core/source";
-import { createMDXSource } from "fumadocs-mdx";
+import { createMDXSource } from "fumadocs-mdx/runtime/next";
 import { Suspense } from "react";
 import { BlogCard } from "@/components/blog-card";
 import { TagFilter } from "@/components/tag-filter";
@@ -42,7 +42,7 @@ export default async function HomePage({
   searchParams: Promise<{ tag?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
-  
+
   let allPages: BlogPage[] = [];
   try {
     const pages = blogSource.getPages();
@@ -59,7 +59,7 @@ export default async function HomePage({
     console.error('Error getting pages:', error);
     allPages = [];
   }
-  
+
   const sortedBlogs = allPages.sort((a, b) => {
     const dateA = new Date(a.data.date).getTime();
     const dateB = new Date(b.data.date).getTime();
@@ -109,7 +109,7 @@ export default async function HomePage({
               Ricardo Esper
             </h1>
             <p className="text-muted-foreground text-sm md:text-base lg:text-lg">
-              Especialista em cibersegurança com mais de três décadas de experiência. 
+              Especialista em cibersegurança com mais de três décadas de experiência.
               Artigos sobre segurança digital, contraespionagem e tecnologia.
             </p>
           </div>
@@ -128,9 +128,8 @@ export default async function HomePage({
       <div className="max-w-7xl mx-auto w-full px-6 lg:px-0">
         <Suspense fallback={<div>Carregando artigos...</div>}>
           <div
-            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-x border-border ${
-              filteredBlogs.length < 4 ? "border-b" : "border-b-0"
-            }`}
+            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-x border-border ${filteredBlogs.length < 4 ? "border-b" : "border-b-0"
+              }`}
           >
             {filteredBlogs.map((blog) => {
               const date = new Date(blog.data.date);
