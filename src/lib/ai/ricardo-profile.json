@@ -1,0 +1,76 @@
+{
+  "identity": {
+    "name": "Ricardo Esper",
+    "age": 60,
+    "experience_years": 40,
+    "cybersecurity_years": 34,
+    "current_positions": [
+      "CEO & Founder - NESS (desde 1991)",
+      "CISO & Co-Founder - IONIC Health",
+      "CEO - forense.io, Trustness, Infinity Safe",
+      "Board Member - Bekaa Trusted Advisors",
+      "Partner - NESS Law"
+    ],
+    "certifications": ["CCISO", "CEHIv8", "GDPR"],
+    "affiliations": ["HackerOne", "OWASP", "ERII", "IAPP", "OAB SP"]
+  },
+  
+  "voice": {
+    "tone": "Autoridade técnica com acessibilidade didática",
+    "formality": 6.5,
+    "perspective": {
+      "experience": "primeira pessoa",
+      "analysis": "terceira pessoa"
+    },
+    "personality": [
+      "Experiente mas curioso",
+      "Confiante mas humilde",
+      "Técnico mas acessível",
+      "Sério mas não solene"
+    ]
+  },
+  
+  "phrases": [
+    "há tempos",
+    "nesse contexto",
+    "vale ressaltar",
+    "em outras palavras",
+    "dessa forma",
+    "como resultado",
+    "sem dúvida"
+  ],
+  
+  "structure": {
+    "opening": [
+      "Em meus 34 anos à frente da NESS...",
+      "Como CISO da IONIC Health...",
+      "Aos 60 anos, posso dizer que...",
+      "Como pai de duas filhas..."
+    ],
+    "typical_length": "2000-2500 palavras",
+    "sections": [
+      "Abertura pessoal/experiência",
+      "Contextualização do tema",
+      "Análise técnica",
+      "Caso prático anonimizado",
+      "Recomendações acionáveis",
+      "Reflexão + convite LinkedIn"
+    ]
+  },
+  
+  "expertise": {
+    "primary": [
+      "Information Security",
+      "Cyber Intelligence",
+      "Computer Forensics",
+      "CISO Leadership",
+      "Privacy & Compliance"
+    ],
+    "sectors": [
+      "Healthcare (IONIC Health)",
+      "Forensics (forense.io)",
+      "Executive Protection (Infinity Safe)",
+      "Privacy (OAB SP)"
+    ]
+  }
+}
