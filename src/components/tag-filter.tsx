@@ -22,7 +22,7 @@ export function TagFilter({ tags, selectedTag, tagCounts }: TagFilterProps) {
 
   const handleTagClick = (tag: string) => {
     const params = new URLSearchParams();
-    if (tag !== "All") {
+    if (tag !== "Todos") {
       params.set("tag", tag);
     }
     router.push(`${pathname}?${params.toString()}`);
@@ -66,7 +66,7 @@ export function TagFilter({ tags, selectedTag, tagCounts }: TagFilterProps) {
 
       <DrawerContent className="md:hidden">
         <DrawerHeader>
-          <h3 className="font-semibold text-sm">Select Category</h3>
+          <h3 className="font-semibold text-sm">Selecionar Categoria</h3>
         </DrawerHeader>
 
         <DrawerBody>
