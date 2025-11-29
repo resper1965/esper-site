@@ -1,5 +1,6 @@
-import { docs } from "fumadocs-mdx:collections/server";
+import { docs, meta } from "@/.source";
 import { loader } from "fumadocs-core/source";
+import { createMDXSource } from "fumadocs-mdx";
 import { Suspense } from "react";
 import { BlogCard } from "@/components/blog-card";
 import { TagFilter } from "@/components/tag-filter";
@@ -24,7 +25,7 @@ interface BlogPage {
 
 const blogSource = loader({
   baseUrl: "/blog",
-  source: docs,
+  source: createMDXSource(docs, meta),
 });
 
 const formatDate = (date: Date): string => {

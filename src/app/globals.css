@@ -86,7 +86,7 @@
   
   /* Muted */
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.42 0 0);
+  --muted-foreground: oklch(0.38 0 0); /* Ajustado para garantir contraste WCAG AA (4.5:1) */
   
   /* Accent - Variação sutil do primary */
   --accent: oklch(0.95 0.05 220);
@@ -145,7 +145,7 @@
   
   /* Muted */
   --muted: oklch(0.27 0 0);
-  --muted-foreground: oklch(0.78 0 0);
+  --muted-foreground: oklch(0.75 0 0); /* Ajustado para garantir contraste WCAG AA (4.5:1) */
   
   /* Accent */
   --accent: oklch(0.30 0.05 220);
