@@ -46,6 +46,12 @@ export default {
           900: '#171717',
           950: '#0a0a0a',
         },
+        category: {
+          cybersecurity: 'oklch(var(--category-cybersecurity))',
+          counterespionage: 'oklch(var(--category-counterespionage))',
+          automation: 'oklch(var(--category-automation))',
+          travel: 'oklch(var(--category-travel))',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -53,8 +59,8 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        mono: ['IBM Plex Mono', 'monospace'],
+        sans: ['var(--font-montserrat)', 'Montserrat', 'sans-serif'],
+        mono: ['var(--font-geist-mono)', 'IBM Plex Mono', 'monospace'],
       },
     },
   },
