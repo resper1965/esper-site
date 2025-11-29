@@ -26,8 +26,8 @@
       "@/*": [
         "./src/*"
       ],
-      "@/.source": [
-        "./source.config.ts"
+      "fumadocs-mdx:collections/*": [
+        "./.source/*"
       ]
     }
   },

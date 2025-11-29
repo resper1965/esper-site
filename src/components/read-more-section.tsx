@@ -1,12 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
-import { docs, meta } from "@/.source";
+import { docs } from "fumadocs-mdx:collections/server";
 import { loader } from "fumadocs-core/source";
-import { createMDXSource } from "fumadocs-mdx/runtime/next";
 import Link from "next/link";
 
 const blogSource = loader({
   baseUrl: "/blog",
-  source: createMDXSource(docs, meta),
+  source: docs,
 });
 
 const formatDate = (date: Date): string => {
