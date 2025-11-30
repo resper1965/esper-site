@@ -69,7 +69,9 @@ export function trackEvent({
   label: string;
   value?: number;
 }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (typeof window !== 'undefined' && (window as any).gtag) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).gtag('event', action, {
       event_category: category,
       event_label: label,
@@ -87,7 +89,9 @@ export function trackEvent({
  * }, [pathname]);
  */
 export function trackPageView(url: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (typeof window !== 'undefined' && (window as any).gtag) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).gtag('config', process.env.NEXT_PUBLIC_GA_ID, {
       page_path: url,
     });

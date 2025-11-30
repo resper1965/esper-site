@@ -26,12 +26,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a
+                <Link
                   href="/sobre"
                   className="text-sm text-grey-600 transition-colors hover:text-grey-900"
                 >
                   Sobre
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

@@ -243,7 +243,9 @@ async function evaluateQuality(content: string, language: 'pt-BR' | 'en'): Promi
 }
 
 export async function saveBilingualPosts(posts: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ptBR: { content: string; score: number; language: string; metadata: any };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   en: { content: string; score: number; language: string; metadata: any };
 }) {
   const draftsDir = path.join(process.cwd(), 'blog/content/drafts');

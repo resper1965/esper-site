@@ -213,8 +213,7 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
  * Generates JSON-LD BreadcrumbList structured data
  */
 export function generateBreadcrumbSchema(
-  items: Array<{ name: string; url: string }>,
-  lang: Locale = 'pt-BR'
+  items: Array<{ name: string; url: string }>
 ) {
   return {
     '@context': 'https://schema.org',

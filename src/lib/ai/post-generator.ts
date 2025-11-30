@@ -20,9 +20,7 @@ interface GeneratePostParams {
 }
 
 export async function generatePost(params: GeneratePostParams) {
-  const { topic, category, sources, keywords = [], language = 'pt-BR' } = params;
-
-  const isEnglish = language === 'en';
+  const { topic, category, sources, keywords = [] } = params;
 
   // Construir prompt com perfil do Ricardo
   const prompt = `

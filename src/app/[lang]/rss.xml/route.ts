@@ -16,11 +16,14 @@ export async function GET(
   const { lang } = await params;
 
   // Filter posts by language
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const posts = (docs as any)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .filter((post: any) => {
       const postLang = post.data.language || 'pt-BR';
       return postLang === lang;
     })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .sort((a: any, b: any) => {
       return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
     });
@@ -43,6 +46,7 @@ export async function GET(
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${siteConfig.url}/${lang}/rss.xml" rel="self" type="application/rss+xml" />
     ${posts
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((post: any) => {
         const url = `${siteConfig.url}/${lang}/blog/${post.slugs[0]}`;
         const pubDate = new Date(post.data.date).toUTCString();

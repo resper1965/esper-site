@@ -52,7 +52,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     const keywords = page.data.keywords || [];
-    const url = `${siteConfig.url}/${lang}/blog/${slug}`;
     const image = page.data.thumbnail ? `${siteConfig.url}${page.data.thumbnail}` : undefined;
 
     return generatePageMetadata({

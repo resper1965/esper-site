@@ -5,6 +5,7 @@ import { i18n } from './i18n/config';
 function getLocale(request: NextRequest): string {
   // Check if there's a cookie preference
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (cookieLocale && i18n.locales.includes(cookieLocale as any)) {
     return cookieLocale;
   }
@@ -26,6 +27,7 @@ function getLocale(request: NextRequest): string {
 
     // Check for exact match first (e.g., pt-BR)
     for (const { locale } of languages) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (i18n.locales.includes(locale as any)) {
         return locale;
       }
