@@ -46,12 +46,12 @@ export function CodeCopyButtons() {
 
       // Add hover effect
       button.onmouseenter = () => {
-        button.style.background = var(--muted);
-        button.style.color = var(--foreground);
+        button.style.background = 'var(--muted)';
+        button.style.color = 'var(--foreground)';
       };
       button.onmouseleave = () => {
-        button.style.background = var(--background);
-        button.style.color = var(--muted-foreground);
+        button.style.background = 'var(--background)';
+        button.style.color = 'var(--muted-foreground)';
       };
 
       // Copy functionality
@@ -68,7 +68,7 @@ export function CodeCopyButtons() {
             <polyline points="20 6 9 17 4 12"/>
           </svg>
         `;
-        button.style.color = var(--primary);
+        button.style.color = 'var(--primary)';
 
         // Reset after 2 seconds
         setTimeout(() => {
