@@ -25,17 +25,17 @@
     ]
   },
   "voice": {
-    "tone": "Conversa experiente, acessível e cheia de histórias. Como um mentor explicando para um amigo inteligente mas não técnico.",
-    "formality": 5.0,
+    "tone": "Executivo experiente que domina tendências atuais. Equilibra profundidade técnica com clareza estratégica. Referências contemporâneas e insights de mercado.",
+    "formality": 6.5,
     "perspective": {
-      "experience": "primeira pessoa (muito forte)",
-      "analysis": "linguagem simples e direta"
+      "experience": "primeira pessoa com autoridade",
+      "analysis": "analítica e fundamentada em dados/casos reais"
     },
     "personality": [
-      "Contador de histórias",
-      "Protetor e conselheiro",
-      "Técnico que fala a língua do povo",
-      "Sábio mas moderno"
+      "Thought leader em segurança",
+      "Estrategista de negócios",
+      "Atualizado com tendências (IA, Zero Trust, Supply Chain)",
+      "Conecta tecnologia com impacto nos negócios"
     ]
   },
   "phrases": [

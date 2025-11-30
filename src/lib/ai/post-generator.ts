@@ -53,47 +53,50 @@ ${sources.map(s => `- ${s.title} (${s.url})\n  ${s.summary}`).join('\n')}
 ${keywords.join(', ')}
 
 # ESTRUTURA OBRIGATÓRIA
-1. **Abertura** (150-200 palavras)
-   - Comece com uma história ou analogia do dia a dia
-   - Conecte com a vida comum das pessoas
-   - Estabeleça empatia imediata
+1. **Gancho Atual** (150-200 palavras)
+   - Comece com notícia recente, tendência de mercado ou caso emblemático
+   - Conecte com impacto nos negócios ou sociedade
+   - Estabeleça relevância imediata
 
-2. **O Problema Real** (300-400 palavras)
-   - Explique o risco sem usar "tech-speak"
-   - Use analogias (ex: "Firewall é como a portaria do prédio")
-   - Por que minha tia ou vizinho deveria se importar?
+2. **Contexto e Magnitude** (300-400 palavras)
+   - Dimensione o problema: números, estatísticas, impacto financeiro
+   - Explique por que C-levels e profissionais devem se importar AGORA
+   - Conecte com tendências (IA, Cloud, Regulamentação, ESG)
 
-3. **Como Funciona (Simplificado)** (500-600 palavras)
-   - Explique o conceito como se fosse para um jornal de grande circulação
-   - ZERO código (a menos que seja algo como uma senha de exemplo)
-   - Foco no comportamento e impacto, não na tecnologia
+3. **Análise Técnica Acessível** (500-700 palavras)
+   - Explique a tecnologia/ameaça com clareza profissional
+   - Use termos atuais (Zero Trust, Supply Chain Attack, Ransomware-as-a-Service)
+   - Pode incluir exemplos de código SIMPLES se agregar valor
+   - Foco em "como funciona" e "por que importa"
 
-4. **História Real** (400-500 palavras)
-   - "Lembro de um caso onde..."
-   - Foco no drama humano e nas consequências reais
-   - Menos detalhes técnicos, mais impacto no negócio/vida
+4. **Caso Real ou Cenário** (400-500 palavras)
+   - História de consultoria, incidente público ou simulação realista
+   - Mostre consequências: financeiras, reputacionais, operacionais
+   - Anonimize mas seja específico nos aprendizados
 
-5. **O Que Fazer (Guia Prático)** (300-400 palavras)
-   - Dicas que qualquer um pode aplicar hoje
-   - Nada de "configure o iptables"
-   - Sim: "Ative a verificação em duas etapas", "Use senhas longas"
+5. **Estratégias e Recomendações** (400-500 palavras)
+   - Para indivíduos: ações práticas e imediatas
+   - Para organizações: roadmap estratégico, frameworks (NIST, ISO)
+   - Mencione ferramentas/soluções quando relevante
+   - Balanceie quick wins com visão de longo prazo
 
-6. **Reflexão de Pai/Avô** (200-300 palavras)
-   - Visão de futuro otimista
-   - Conselho de vida misturado com segurança
-   - "Proteja sua família digital como protege sua casa"
+6. **Visão de Futuro** (200-300 palavras)
+   - Tendências emergentes (IA Generativa, Quantum, Regulação)
+   - Perspectiva de quem viu 34 anos de evolução
+   - Otimismo pragmático
 
 7. **Call to Action**
-   - Convite para conversa
-   - "Compartilhe com quem você quer proteger"
+   - Convite para discussão no LinkedIn
+   - Oferta de valor (whitepaper, consultoria, networking)
 
 # REQUISITOS
-- **Público-Alvo**: Pessoas comuns, empresários não-técnicos, famílias.
-- **Proibido**: Blocos de código complexos, comandos de terminal, JSON, logs brutos.
-- **Linguagem**: Jornalística, fluida, envolvente. Use metáforas.
-- **Comprimento**: 1500-2000 palavras (mais conciso que antes).
-- **Tom**: Ricardo Esper conversando num jantar, não numa palestra técnica.
-- **Autenticidade**: Use a experiência de 34 anos para simplificar, não para complicar.
+- **Público-Alvo**: C-level, gestores de TI, profissionais de segurança, empresários modernos
+- **Tom**: Profissional sofisticado mas acessível (6.5/10 formalidade)
+- **Linguagem**: Executiva, atual, fundamentada. Use jargão quando apropriado mas explique.
+- **Temas Atuais**: IA, Deepfakes, Supply Chain, Regulação (LGPD/GDPR), Zero Trust, Cloud Security
+- **Comprimento**: 1800-2200 palavras
+- **Código**: Permitido se simples e ilustrativo (ex: exemplo de phishing, configuração básica)
+- **Dados**: Use estatísticas, pesquisas, relatórios de mercado quando possível
 
 # FRONTMATTER YAML
 \`\`\`yaml
