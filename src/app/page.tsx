@@ -109,9 +109,10 @@ export default async function HomePage({
             <h1 className="font-medium text-4xl md:text-5xl tracking-tighter">
               Ricardo Esper
             </h1>
-            <p className="text-muted-foreground text-sm md:text-base lg:text-lg">
-              Especialista em cibersegurança com mais de três décadas de experiência.
-              Artigos sobre segurança digital, contraespionagem e tecnologia.
+            <p className="text-muted-foreground text-sm md:text-base lg:text-lg max-w-3xl">
+              Três décadas moldando estratégias de segurança em escala global. CISO, forense digital e
+              especialista internacional em privacidade e compliance (LGPD/GDPR). Insights de quem viveu
+              a evolução da cibersegurança desde seus primeiros dias.
             </p>
           </div>
         </div>
