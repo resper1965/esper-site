@@ -8,20 +8,20 @@ export default async function BlogPage() {
 
   return (
     <Layout>
-      <div className="bg-white">
+      <div className="bg-background">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="mb-12">
-            <h1 className="text-4xl font-bold text-grey-900 sm:text-5xl">
+            <h1 className="text-4xl font-bold text-foreground sm:text-5xl">
               Blog
             </h1>
-            <p className="mt-4 text-lg text-grey-600">
+            <p className="mt-4 text-lg text-muted-foreground">
               Artigos sobre cibersegurança, contraespionagem e tecnologia.
             </p>
           </div>
 
           {posts.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-grey-600">Nenhum post encontrado.</p>
+              <p className="text-muted-foreground">Nenhum post encontrado.</p>
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -41,7 +41,7 @@ export default async function BlogPage() {
           <div className="mt-12 text-center">
             <Link
               href="/"
-              className="inline-flex items-center text-sm font-medium text-grey-700 transition-colors hover:text-grey-900"
+              className="inline-flex items-center text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
             >
               ← Voltar para início
             </Link>

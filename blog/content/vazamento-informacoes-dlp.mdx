@@ -1,0 +1,129 @@
+---
+title: "Data Leakage: O Inimigo Invisível Dentro de Casa"
+slug: "vazamento-informacoes-dlp"
+date: "2024-11-16"
+tags: ["Cibersegurança"]
+featured: false
+readTime: "8 min read"
+author: "dillion"
+thumbnail: "/thumbnails/ciberseguranca.png"
+---
+
+Funcionário envia planilha de clientes para email pessoal "para trabalhar em casa". Estagiário faz upload de código-fonte para GitHub público "para portfólio". Executivo discute M&A em grupo de WhatsApp.
+
+Data leakage não é sempre malicioso. Frequentemente é **inconsciente**. E igualmente devastador.
+
+## A Anatomia do Vazamento
+
+**Canais de Exfiltração:**
+- Email (pessoal, webmail)
+- Cloud storage (Dropbox, Google Drive pessoal)
+- Mensageiros (WhatsApp, Telegram, Signal)
+- USB drives
+- Impressoras
+- Screenshots/fotos de tela
+- Repositórios públicos (GitHub, GitLab)
+
+**Motivações:**
+- **Conveniência** (70%): "Mais fácil trabalhar assim"
+- **Negligência** (20%): "Não sabia que era confidencial"
+- **Malícia** (10%): Roubo intencional, sabotagem
+
+## DLP: Data Loss Prevention
+
+**Tecnologias:**
+1. **Network DLP:** Monitora tráfego de rede
+2. **Endpoint DLP:** Controla dispositivos (USB, impressoras)
+3. **Cloud DLP:** Protege SaaS (Office 365, Google Workspace)
+4. **Email DLP:** Análise de anexos e conteúdo
+
+**Técnicas de Detecção:**
+- Pattern matching (CPF, cartão de crédito, regex)
+- Fingerprinting (hash de documentos sensíveis)
+- Machine learning (classificação de conteúdo)
+- Contextual analysis (quem, quando, para onde)
+
+**Ações:**
+- Block (bloquear)
+- Quarantine (quarentena para revisão)
+- Encrypt (criptografar automaticamente)
+- Alert (notificar segurança)
+
+## Caso Real: Código-Fonte no GitHub
+
+Desenvolvedor júnior, primeiro emprego, animado. Cria repositório público no GitHub com "projeto pessoal". Código? 80% da aplicação proprietária da empresa (fintech).
+
+Descoberta: Bot de monitoramento de GitHub detectou nome da empresa em comentários de código.
+
+Impacto: Algoritmos de detecção de fraude expostos, APIs internas documentadas, credenciais hardcoded vazadas.
+
+Resposta: DMCA takedown (GitHub removeu em 4h), rotação de credenciais, análise de quem acessou (347 clones do repo).
+
+Custo: US$ 1.2M (resposta + reescrita de componentes + auditoria).
+
+Lição: Treinamento de desenvolvedores sobre propriedade intelectual é crítico.
+
+## Estratégias de Prevenção
+
+**Técnicas:**
+1. **Classificação de Dados:** Público, Interno, Confidencial, Restrito
+2. **Watermarking:** Marcas d'água invisíveis em documentos
+3. **Rights Management:** IRM/DRM (Azure RMS, Adobe RMS)
+4. **User Behavior Analytics:** Detecção de anomalias
+
+**Políticas:**
+- Clear desk policy
+- Acceptable use policy
+- BYOD policy
+- Offboarding checklist
+
+**Ferramentas:**
+- Microsoft Purview DLP
+- Symantec DLP
+- Forcepoint DLP
+- Digital Guardian
+
+## Insider Threats
+
+Nem todo vazamento é acidental. Insider malicioso é o pior cenário:
+- Acesso legítimo
+- Conhece controles
+- Motivação (vingança, ganho financeiro, ideologia)
+
+**Indicadores:**
+- Acesso a dados fora do escopo de trabalho
+- Downloads massivos antes de sair da empresa
+- Uso de ferramentas de evasão (Tor, VPN pessoal)
+- Comportamento errático
+
+**Mitigação:**
+- Least privilege
+- Separation of duties
+- Monitoramento de privileged users
+- Exit interviews + revogação imediata de acessos
+
+## Compliance e Regulamentação
+
+**LGPD/GDPR:**
+- Vazamento de dados pessoais = notificação obrigatória (72h)
+- Multas até 4% do faturamento global
+- Responsabilidade do controlador
+
+**PCI-DSS:**
+- Dados de cartão = controles rígidos
+- Vazamento = perda de certificação = não pode processar cartões
+
+**HIPAA (Saúde - EUA):**
+- Dados de saúde = multas até US$ 1.5M por violação
+
+## Reflexão
+
+Data leakage é o equivalente digital de deixar documentos confidenciais no táxi. Acontece todo dia, em todas as empresas.
+
+A diferença entre empresas seguras e inseguras não é a ausência de vazamentos, mas a **capacidade de detectar e responder rapidamente**.
+
+Proteja seus dados. Eles são seu ativo mais valioso.
+
+---
+
+**Ricardo Esper** | *Data Protection Officer | LGPD Specialist*

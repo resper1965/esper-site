@@ -1,0 +1,97 @@
+---
+title: "OT Security: Quando um Hack Pode Matar"
+slug: "ot-security-ambientes-industriais"
+date: "2024-11-18"
+tags: ["Cibersegurança"]
+featured: true
+readTime: "9 min read"
+author: "dillion"
+thumbnail: "/thumbnails/ciberseguranca.png"
+---
+
+Stuxnet (2010) destruiu centrífugas nucleares iranianas. Triton (2017) tentou causar explosão em refinaria saudita. Não são filmes, são ataques reais a sistemas OT (Operational Technology).
+
+A diferença entre IT e OT? Em IT, um hack rouba dados. Em OT, um hack pode **matar pessoas**.
+
+## O Abismo entre IT e OT
+
+**IT (Information Technology)**
+- Prioridade: Confidencialidade, Integridade, Disponibilidade (nessa ordem)
+- Ciclo de vida: 3-5 anos
+- Patches: Mensais
+- Downtime: Aceitável em janelas de manutenção
+
+**OT (Operational Technology)**
+- Prioridade: Disponibilidade, Integridade, Confidencialidade (ordem invertida!)
+- Ciclo de vida: 15-25 anos
+- Patches: Raramente (medo de quebrar produção)
+- Downtime: Inaceitável (US$ 100k-1M por hora parada)
+
+Resultado: PLCs rodando Windows XP sem patch há 10 anos, conectados à internet corporativa "para facilitar o suporte remoto".
+
+## Vetores de Ataque em Ambientes Industriais
+
+**1. Convergência IT/OT**
+Redes antes isoladas (air-gapped) agora conectadas para "Indústria 4.0". Porta de entrada para atacantes.
+
+**2. Supply Chain**
+Firmware comprometido em equipamentos, backdoors em softwares de terceiros (ex: SolarWinds afetou OT).
+
+**3. Insider Threats**
+Engenheiros com acesso físico e lógico irrestrito. Sabotagem ou negligência.
+
+**4. Protocolos Legados Inseguros**
+Modbus, DNP3, Profinet projetados sem segurança. Autenticação? Criptografia? Não existem.
+
+## Caso Real: Quase-Catástrofe em Planta Química
+
+Cliente da NESS, indústria química, detectou anomalia: válvulas abrindo e fechando sem comando. Investigação revelou: malware no SCADA (Supervisory Control and Data Acquisition).
+
+**Vetor:** Laptop de engenheiro infectado via USB (trazido de casa), conectado à rede OT para atualização de firmware.
+
+**Impacto potencial:** Mistura de químicos incompatíveis = explosão + nuvem tóxica. Raio de evacuação: 5km.
+
+**Resposta:** Isolamento imediato, operação manual, forense, reimplantação completa do SCADA. Custo: US$ 4.2M. Vidas salvas: Incalculáveis.
+
+## Framework de Defesa OT
+
+**Nível 1: Segmentação (Purdue Model)**
+- Nível 0-2: Processos físicos (isolados)
+- Nível 3-4: Supervisão e controle (DMZ)
+- Nível 5: Corporativo (separado)
+
+**Nível 2: Visibilidade**
+- Asset inventory completo (Nozomi, Claroty, Dragos)
+- Monitoramento de tráfego OT
+- Detecção de anomalias comportamentais
+
+**Nível 3: Controles**
+- Whitelisting de aplicações
+- Gestão rigorosa de mudanças
+- Backup de configurações de PLCs
+
+**Nível 4: Resposta**
+- Runbooks para cenários de ataque OT
+- Simulações (tabletop + técnicas)
+- Coordenação com equipes de segurança física
+
+## Regulamentação e Compliance
+
+**IEC 62443:** Padrão global para segurança OT  
+**NERC CIP:** Energia elétrica (EUA)  
+**TSA Security Directives:** Transporte  
+**FDA Guidance:** Dispositivos médicos
+
+Não é mais opcional. Multas chegam a dezenas de milhões.
+
+## O Futuro: OT na Era da IA
+
+IA para detecção de anomalias em processos industriais já é realidade. Mas também cria novos riscos: adversarial attacks contra modelos de ML que controlam processos críticos.
+
+Quantum computing pode quebrar criptografia de sistemas OT legados. A janela para atualização é agora.
+
+---
+
+**Trabalha com OT?** Vamos conversar sobre estratégias de proteção. [LinkedIn](https://br.linkedin.com/in/ricardoesper)
+
+**Ricardo Esper** | *OT Security Specialist | Incident Response*
