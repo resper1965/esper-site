@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { getCategoryConfig } from "@/lib/categories";
@@ -10,9 +10,13 @@ interface BlogCardProps {
   title: string;
   description: string;
   date: string;
+  dateString: string;
   thumbnail?: string;
   showRightBorder?: boolean;
   tags?: string[];
+  readingTime?: number;
+  isNew?: boolean;
+  lang?: 'pt-BR' | 'en';
 }
 
 export function BlogCard({
@@ -20,14 +24,22 @@ export function BlogCard({
   title,
   description,
   date,
+  dateString,
   thumbnail,
   showRightBorder = true,
   tags = [],
+  readingTime,
+  isNew = false,
+  lang = 'pt-BR',
 }: BlogCardProps) {
   // Get primary category (first tag)
   const primaryTag = tags[0];
   const categoryConfig = primaryTag ? getCategoryConfig(primaryTag) : null;
   const CategoryIcon = categoryConfig?.icon;
+
+  const readMoreText = lang === 'pt-BR' ? 'Ler mais' : 'Read more';
+  const newText = lang === 'pt-BR' ? 'Novo' : 'New';
+  const readingTimeText = lang === 'pt-BR' ? 'min' : 'min';
 
   return (
     <Link
@@ -49,34 +61,58 @@ export function BlogCard({
               className="object-cover transition-transform duration-300 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+            {/* New badge */}
+            {isNew && (
+              <div className="absolute top-3 right-3">
+                <Badge className="bg-primary text-primary-foreground font-semibold shadow-lg flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  {newText}
+                </Badge>
+              </div>
+            )}
           </div>
         )}
 
         <div className="p-6 flex flex-col gap-3 flex-1">
-          {/* Category Badge with Icon */}
-          {categoryConfig && (
+          {/* Category Badge with Icon and Reading Time */}
+          <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              {CategoryIcon && (
-                <div className={cn(
-                  "rounded-full p-1.5",
-                  categoryConfig.bgColor
-                )}>
-                  <CategoryIcon className={cn("w-4 h-4", categoryConfig.color)} />
-                </div>
+              {categoryConfig && (
+                <>
+                  {CategoryIcon && (
+                    <div className={cn(
+                      "rounded-full p-1.5",
+                      categoryConfig.bgColor
+                    )}>
+                      <CategoryIcon className={cn("w-4 h-4", categoryConfig.color)} />
+                    </div>
+                  )}
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "font-medium",
+                      categoryConfig.borderColor,
+                      categoryConfig.color,
+                      categoryConfig.bgColor
+                    )}
+                  >
+                    {categoryConfig.label}
+                  </Badge>
+                </>
               )}
-              <Badge
-                variant="outline"
-                className={cn(
-                  "font-medium",
-                  categoryConfig.borderColor,
-                  categoryConfig.color,
-                  categoryConfig.bgColor
-                )}
-              >
-                {categoryConfig.label}
-              </Badge>
             </div>
-          )}
+
+            {/* Reading time */}
+            {readingTime && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Clock className="w-3 h-3" />
+                <span>{readingTime} {readingTimeText}</span>
+              </div>
+            )}
+          </div>
 
           <h3 className="text-xl font-semibold text-card-foreground group-hover:text-primary transition-colors duration-200">
             {title}
@@ -89,7 +125,7 @@ export function BlogCard({
               {date}
             </time>
             <div className="flex items-center gap-1 text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <span>Ler mais</span>
+              <span>{readMoreText}</span>
               <ArrowRight className="w-4 h-4" />
             </div>
           </div>

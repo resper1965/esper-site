@@ -6,8 +6,10 @@ import { BlogCard } from "@/components/blog-card";
 import { BlogCardSkeleton } from "@/components/blog-card-skeleton";
 import { TagFilter } from "@/components/tag-filter";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
+import { FadeIn } from "@/components/fade-in";
 import { getDictionary } from "@/i18n/dictionaries";
 import { Locale } from "@/i18n/config";
+import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
 
 interface BlogData {
   title: string;
@@ -143,21 +145,33 @@ export default async function HomePage({
             className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-x border-border ${filteredBlogs.length < 4 ? "border-b" : "border-b-0"
               }`}
           >
-            {filteredBlogs.map((blog) => {
+            {filteredBlogs.map((blog, index) => {
               const date = new Date(blog.data.date);
               const formattedDate = formatDate(date, lang);
+              const description = blog.data.description || "";
+
+              // Calculate reading time (estimate based on description length, or use a default)
+              const readingTime = calculateReadingTime(description + " " + blog.data.title);
+
+              // Check if post is new (less than 7 days old)
+              const isNew = isNewPost(blog.data.date);
 
               return (
-                <BlogCard
-                  key={blog.url}
-                  url={`/${lang}${blog.url}`}
-                  title={blog.data.title}
-                  description={blog.data.description || ""}
-                  date={formattedDate}
-                  thumbnail={blog.data.thumbnail}
-                  tags={blog.data.tags}
-                  showRightBorder={filteredBlogs.length < 3}
-                />
+                <FadeIn key={blog.url} delay={index * 100}>
+                  <BlogCard
+                    url={`/${lang}${blog.url}`}
+                    title={blog.data.title}
+                    description={description}
+                    date={formattedDate}
+                    dateString={blog.data.date}
+                    thumbnail={blog.data.thumbnail}
+                    tags={blog.data.tags}
+                    showRightBorder={filteredBlogs.length < 3}
+                    readingTime={readingTime}
+                    isNew={isNew}
+                    lang={lang}
+                  />
+                </FadeIn>
               );
             })}
           </div>
