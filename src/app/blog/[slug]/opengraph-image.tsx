@@ -1,9 +1,9 @@
 import { ImageResponse } from 'next/og';
-import { docs } from '@/.source';
+import { docs, meta } from '@/.source';
 import { loader } from 'fumadocs-core/source';
 import { createMDXSource } from 'fumadocs-mdx';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export const alt = 'Ricardo Esper - Cybersecurity Blog';
 export const size = {
@@ -15,7 +15,7 @@ export const contentType = 'image/png';
 
 const blogSource = loader({
   baseUrl: '/blog',
-  source: createMDXSource(docs, []),
+  source: createMDXSource(docs, meta),
 });
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
