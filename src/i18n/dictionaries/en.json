@@ -1,0 +1,38 @@
+{
+  "site": {
+    "name": "Ricardo Esper - Blog",
+    "description": "Perspectives from over three decades dedicated to information security. CISO, digital forensics expert, and international consultant in privacy and compliance. Global experience in corporate data protection and cyber defense."
+  },
+  "home": {
+    "title": "Ricardo Esper",
+    "bio": "Three decades shaping security strategies on a global scale. CISO, digital forensics expert, and international privacy and compliance specialist (LGPD/GDPR). Insights from someone who has lived through cybersecurity's evolution from its earliest days.",
+    "loading": "Loading articles...",
+    "allTags": "All"
+  },
+  "about": {
+    "title": "About",
+    "intro1": "Over three decades dedicated to information security, I've witnessed the complete transformation of the digital threat landscape—from early boot viruses to ransomware campaigns orchestrated by nation-states. This temporal perspective has taught me that security is not just about technology, but about people, processes, and the wisdom to anticipate what has yet to be seen.",
+    "intro2": "As founder of NESS since 1991 and CISO of IONIC Health, I've built my career at the intersection of technology and corporate governance. My work extends beyond Brazilian borders—I serve as an international consultant in privacy and compliance, navigating the complex regulatory frameworks of LGPD, GDPR, HIPAA, and SOC 2.",
+    "intro3": "At 60, as a father of two daughters, I viscerally understand that protecting corporate data means protecting lives, reputations, and legacies. Every security policy I design, every defense strategy I implement, carries this conviction.",
+    "globalPresence": "Global Presence",
+    "internationalCommunity": "International Community",
+    "internationalCommunityText": "Active member of leading global security organizations: HackerOne (Bug Bounty), OWASP (Application Security), IAPP (Privacy Professionals), ERII (International Affairs), and OAB/SP (Legal Practice).",
+    "certifications": "Certifications and Expertise",
+    "certificationsText": "Certifications: CCISO (Chief Information Security Officer), CEHIv8 (Ethical Hacking), GDPR Compliance, Cybersecurity Awareness",
+    "contact": "Contact",
+    "contactText": "Connect with me on",
+    "linkedin": "LinkedIn"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "blog": "Blog",
+    "skipToContent": "Skip to main content"
+  },
+  "blog": {
+    "readMore": "Read more",
+    "backToArticles": "Back to all articles",
+    "publishedOn": "Published on",
+    "minRead": "min read"
+  }
+}
