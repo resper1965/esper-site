@@ -7,6 +7,8 @@ import { getDictionary } from '@/i18n/dictionaries';
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteNav } from "@/components/site-nav";
 import Footer from "@/components/footer";
+import { Analytics } from "@/components/analytics";
+import { generatePageMetadata, generatePersonSchema, generateWebSiteSchema } from "@/lib/metadata";
 import "../globals.css";
 
 const montserrat = Montserrat({
@@ -32,12 +34,22 @@ export async function generateMetadata({
   const { lang } = await params;
   const dict = await getDictionary(lang);
 
+  const keywords = lang === 'pt-BR'
+    ? ['cibersegurança', 'CISO', 'segurança da informação', 'privacidade', 'LGPD', 'forense digital', 'Ricardo Esper']
+    : ['cybersecurity', 'CISO', 'information security', 'privacy', 'GDPR', 'digital forensics', 'Ricardo Esper'];
+
   return {
+    ...generatePageMetadata({
+      title: dict.site.name,
+      description: dict.site.description,
+      path: '',
+      lang,
+      keywords,
+    }),
     title: {
       default: dict.site.name,
       template: `%s - ${dict.site.name}`,
     },
-    description: dict.site.description,
   };
 }
 
@@ -51,12 +63,27 @@ export default async function LangLayout({
   const { lang } = await params;
   const dict = await getDictionary(lang);
 
+  // Generate structured data for the site
+  const personSchema = generatePersonSchema(lang);
+  const websiteSchema = generateWebSiteSchema(lang);
+
   return (
     <html
       lang={lang}
       className={`${montserrat.variable} ${GeistSans.variable} ${GeistMono.variable} antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+      </head>
       <body>
         {/* Skip to main content link for accessibility */}
         <a
@@ -65,6 +92,8 @@ export default async function LangLayout({
         >
           {dict.nav.skipToContent}
         </a>
+
+        <Analytics />
 
         <ThemeProvider
           attribute="class"

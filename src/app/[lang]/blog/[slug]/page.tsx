@@ -19,6 +19,9 @@ import { HashScrollHandler } from "@/components/hash-scroll-handler";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { getDictionary } from "@/i18n/dictionaries";
 import { Locale } from "@/i18n/config";
+import { generatePageMetadata, generateArticleSchema, generateBreadcrumbSchema } from "@/lib/metadata";
+import { siteConfig } from "@/lib/site";
+import type { Metadata } from "next";
 
 interface PageProps {
   params: Promise<{ lang: Locale; slug: string }>;
@@ -36,6 +39,38 @@ const formatDate = (date: Date, locale: string): string => {
     day: "numeric",
   });
 };
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { lang, slug } = await params;
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const page = blogSource.getPage([slug]) as any;
+
+    if (!page) {
+      return {};
+    }
+
+    const keywords = page.data.keywords || [];
+    const url = `${siteConfig.url}/${lang}/blog/${slug}`;
+    const image = page.data.thumbnail ? `${siteConfig.url}${page.data.thumbnail}` : undefined;
+
+    return generatePageMetadata({
+      title: page.data.title,
+      description: page.data.description || page.data.excerpt || '',
+      path: `/blog/${slug}`,
+      image,
+      lang,
+      type: 'article',
+      publishedTime: page.data.date,
+      modifiedTime: page.data.date,
+      keywords,
+      authors: [page.data.author || 'Ricardo Esper'],
+    });
+  } catch {
+    return {};
+  }
+}
 
 export default async function BlogPost({ params }: PageProps) {
   const { lang, slug } = await params;
@@ -63,39 +98,40 @@ export default async function BlogPost({ params }: PageProps) {
   const date = new Date(page.data.date);
   const formattedDate = formatDate(date, lang);
 
-  // Structured Data (JSON-LD) for SEO
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: page.data.title,
-    description: page.data.description || page.data.excerpt,
-    author: {
-      '@type': 'Person',
-      name: 'Ricardo Esper',
-      jobTitle: 'CISO & Cybersecurity Expert',
-      url: `https://esper.ws/${lang}/sobre`,
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'Ricardo Esper',
-      logo: {
-        '@type': 'ImageObject',
-        url: 'https://esper.ws/logo.png',
-      },
-    },
+  // Generate structured data
+  const url = `${siteConfig.url}/${lang}/blog/${slug}`;
+  const image = page.data.thumbnail ? `${siteConfig.url}${page.data.thumbnail}` : undefined;
+
+  const articleSchema = generateArticleSchema({
+    title: page.data.title,
+    description: page.data.description || page.data.excerpt || '',
+    url,
+    image,
     datePublished: page.data.date,
     dateModified: page.data.date,
-    image: page.data.thumbnail ? `https://esper.ws${page.data.thumbnail}` : undefined,
-    keywords: page.data.keywords?.join(', '),
-    articleSection: page.data.tags?.[0],
-    inLanguage: lang,
-  };
+    keywords: page.data.keywords || [],
+    lang,
+  });
+
+  // Breadcrumb schema
+  const breadcrumbItems = [
+    { name: dict.nav.home, url: `/${lang}` },
+    ...(page.data.tags && page.data.tags.length > 0
+      ? [{ name: page.data.tags[0], url: `/${lang}?tag=${page.data.tags[0]}` }]
+      : []),
+    { name: page.data.title, url },
+  ];
+  const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems, lang);
 
   return (
     <div className="min-h-screen bg-background relative">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <HashScrollHandler />
       <div className="absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)]">

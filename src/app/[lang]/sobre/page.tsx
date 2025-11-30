@@ -1,6 +1,31 @@
 import Layout from '@/components/layout/Layout';
 import { getDictionary } from '@/i18n/dictionaries';
 import { Locale } from '@/i18n/config';
+import { generatePageMetadata } from '@/lib/metadata';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: Locale }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+
+  const keywords = lang === 'pt-BR'
+    ? ['Ricardo Esper', 'CISO', 'cibersegurança', 'forense digital', 'NESS', 'IONIC Health', 'consultor internacional', 'LGPD', 'privacidade']
+    : ['Ricardo Esper', 'CISO', 'cybersecurity', 'digital forensics', 'NESS', 'IONIC Health', 'international consultant', 'GDPR', 'privacy'];
+
+  return generatePageMetadata({
+    title: dict.about.title,
+    description: lang === 'pt-BR'
+      ? 'Conheça Ricardo Esper: CISO, forense digital e consultor internacional. Mais de 34 anos de experiência em cibersegurança, privacidade e compliance (LGPD, GDPR, HIPAA, SOC 2).'
+      : 'Meet Ricardo Esper: CISO, digital forensics expert and international consultant. Over 34 years of experience in cybersecurity, privacy and compliance (LGPD, GDPR, HIPAA, SOC 2).',
+    path: '/sobre',
+    lang,
+    keywords,
+  });
+}
 
 export default async function Sobre({
   params,
