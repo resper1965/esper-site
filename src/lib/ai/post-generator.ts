@@ -111,8 +111,19 @@ author: "Ricardo Esper"
 keywords: [${keywords.map(k => '"' + k + '"').join(', ')}]
 generatedBy: "ai"
 sources: [${sources.map(s => '"' + s.url + '"').join(', ')}]
+thumbnail: "/thumbnails/[categoria].png"
+thumbnailPrompt: "[Prompt minimalista para geração de thumbnail - máximo 50 palavras]"
 ---
 \`\`\`
+
+# PROMPT DE THUMBNAIL
+Inclua um campo "thumbnailPrompt" com uma descrição simples e minimalista para gerar a imagem de capa:
+- Estilo: Minimalista, elegante, moderno
+- Elementos: Máximo 2-3 elementos visuais
+- Cores: Escala de cinza (gray-950 #030712 como base escura) com acento cyan (#00ade8)
+- Composição: Clean, espaço negativo abundante, tipografia moderna
+- Evitar: Pessoas, elementos muito detalhados, múltiplas cores
+- Exemplo: "Abstract geometric lock icon in cyan on dark gray-950 background, minimal composition, modern tech aesthetic"
 
 # OUTPUT
 Gere APENAS o post completo em Markdown com frontmatter.
