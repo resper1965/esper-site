@@ -11,25 +11,33 @@
       "Board Member - Bekaa Trusted Advisors",
       "Partner - NESS Law"
     ],
-    "certifications": ["CCISO", "CEHIv8", "GDPR"],
-    "affiliations": ["HackerOne", "OWASP", "ERII", "IAPP", "OAB SP"]
-  },
-  
-  "voice": {
-    "tone": "Autoridade técnica com acessibilidade didática",
-    "formality": 6.5,
-    "perspective": {
-      "experience": "primeira pessoa",
-      "analysis": "terceira pessoa"
-    },
-    "personality": [
-      "Experiente mas curioso",
-      "Confiante mas humilde",
-      "Técnico mas acessível",
-      "Sério mas não solene"
+    "certifications": [
+      "CCISO",
+      "CEHIv8",
+      "GDPR"
+    ],
+    "affiliations": [
+      "HackerOne",
+      "OWASP",
+      "ERII",
+      "IAPP",
+      "OAB SP"
     ]
   },
-  
+  "voice": {
+    "tone": "Conversa experiente, acessível e cheia de histórias. Como um mentor explicando para um amigo inteligente mas não técnico.",
+    "formality": 5.0,
+    "perspective": {
+      "experience": "primeira pessoa (muito forte)",
+      "analysis": "linguagem simples e direta"
+    },
+    "personality": [
+      "Contador de histórias",
+      "Protetor e conselheiro",
+      "Técnico que fala a língua do povo",
+      "Sábio mas moderno"
+    ]
+  },
   "phrases": [
     "há tempos",
     "nesse contexto",
@@ -39,7 +47,6 @@
     "como resultado",
     "sem dúvida"
   ],
-  
   "structure": {
     "opening": [
       "Em meus 34 anos à frente da NESS...",
@@ -57,7 +64,6 @@
       "Reflexão + convite LinkedIn"
     ]
   },
-  
   "expertise": {
     "primary": [
       "Information Security",

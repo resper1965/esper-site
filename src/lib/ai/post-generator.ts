@@ -54,57 +54,56 @@ ${keywords.join(', ')}
 
 # ESTRUTURA OBRIGATÓRIA
 1. **Abertura** (150-200 palavras)
-   - Estabeleça credibilidade pessoal
-   - Gancho com experiência recente ou reflexão
-   - Primeira pessoa natural
+   - Comece com uma história ou analogia do dia a dia
+   - Conecte com a vida comum das pessoas
+   - Estabeleça empatia imediata
 
-2. **Contextualização** (300-400 palavras)
-   - Explique o tema para leigos técnicos
-   - Use analogias se necessário
-   - Progrida do conhecido para o desconhecido
+2. **O Problema Real** (300-400 palavras)
+   - Explique o risco sem usar "tech-speak"
+   - Use analogias (ex: "Firewall é como a portaria do prédio")
+   - Por que minha tia ou vizinho deveria se importar?
 
-3. **Análise Técnica** (600-800 palavras)
-   - Aprofunde aspectos técnicos
-   - Mantenha acessível (explique termos)
-   - Use exemplos concretos
+3. **Como Funciona (Simplificado)** (500-600 palavras)
+   - Explique o conceito como se fosse para um jornal de grande circulação
+   - ZERO código (a menos que seja algo como uma senha de exemplo)
+   - Foco no comportamento e impacto, não na tecnologia
 
-4. **Caso Prático** (400-500 palavras)
-   - "Recentemente, durante uma consultoria através da [empresa]..."
-   - Anonimize completamente
-   - Demonstre expertise sem revelar confidências
+4. **História Real** (400-500 palavras)
+   - "Lembro de um caso onde..."
+   - Foco no drama humano e nas consequências reais
+   - Menos detalhes técnicos, mais impacto no negócio/vida
 
-5. **Recomendações** (300-400 palavras)
-   - 3-5 recomendações acionáveis
-   - Balanceie técnico e prático
-   - Para indivíduos E empresas
+5. **O Que Fazer (Guia Prático)** (300-400 palavras)
+   - Dicas que qualquer um pode aplicar hoje
+   - Nada de "configure o iptables"
+   - Sim: "Ative a verificação em duas etapas", "Use senhas longas"
 
-6. **Reflexão Final** (200-300 palavras)
-   - Perspectiva de longo prazo
-   - Como pai/profissional 60 anos
-   - Otimista cauteloso
+6. **Reflexão de Pai/Avô** (200-300 palavras)
+   - Visão de futuro otimista
+   - Conselho de vida misturado com segurança
+   - "Proteja sua família digital como protege sua casa"
 
 7. **Call to Action**
-   - Natural, não forçado
-   - Convite para conectar no LinkedIn
-   - Ofereça valor adicional
+   - Convite para conversa
+   - "Compartilhe com quem você quer proteger"
 
 # REQUISITOS
-- **Comprimento**: 2000-2500 palavras
-- **Formato**: Markdown com frontmatter YAML
-- **Tom**: Profissional acessível (6.5/10 formalidade)
-- **Citações**: Máximo 1 por fonte, sempre < 15 palavras
-- **Paráfrase**: Nunca copie estrutura ou frases das fontes
-- **Autenticidade**: Soe como Ricardo, não como IA genérica
+- **Público-Alvo**: Pessoas comuns, empresários não-técnicos, famílias.
+- **Proibido**: Blocos de código complexos, comandos de terminal, JSON, logs brutos.
+- **Linguagem**: Jornalística, fluida, envolvente. Use metáforas.
+- **Comprimento**: 1500-2000 palavras (mais conciso que antes).
+- **Tom**: Ricardo Esper conversando num jantar, não numa palestra técnica.
+- **Autenticidade**: Use a experiência de 34 anos para simplificar, não para complicar.
 
 # FRONTMATTER YAML
 \`\`\`yaml
 ---
-title: "[Título impactante mas profissional]"
+title: "[Título chamativo e popular]"
 slug: "[slug-kebab-case]"
 date: "${new Date().toISOString().split('T')[0]}"
 category: "${category}"
 language: "pt-br"
-excerpt: "[150-160 caracteres que capturam essência]"
+excerpt: "[Resumo que gera curiosidade e identificação imediata]"
 author: "Ricardo Esper"
 keywords: [${keywords.map(k => '"' + k + '"').join(', ')}]
 generatedBy: "ai"
@@ -114,7 +113,7 @@ sources: [${sources.map(s => '"' + s.url + '"').join(', ')}]
 
 # OUTPUT
 Gere APENAS o post completo em Markdown com frontmatter.
-NÃO inclua meta-comentários, explicações ou qualquer texto fora do post.
+NÃO inclua meta-comentários.
 `;
 
   try {
