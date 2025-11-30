@@ -64,7 +64,13 @@ export default async function HomePage({
     allPages = [];
   }
 
-  const sortedBlogs = allPages.sort((a, b) => {
+  // Filter posts by language
+  const filteredByLanguage = allPages.filter((page) => {
+    const postLang = page.data.language || 'pt-BR';
+    return postLang === lang;
+  });
+
+  const sortedBlogs = filteredByLanguage.sort((a, b) => {
     const dateA = new Date(a.data.date).getTime();
     const dateB = new Date(b.data.date).getTime();
     return dateB - dateA;
