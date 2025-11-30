@@ -16,6 +16,7 @@ import { PromoContent } from "@/components/promo-content";
 import { getAuthor, isValidAuthor } from "@/lib/authors";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 import { HashScrollHandler } from "@/components/hash-scroll-handler";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -59,8 +60,40 @@ export default async function BlogPost({ params }: PageProps) {
   const date = new Date(page.data.date);
   const formattedDate = formatDate(date);
 
+  // Structured Data (JSON-LD) for SEO
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: page.data.title,
+    description: page.data.description || page.data.excerpt,
+    author: {
+      '@type': 'Person',
+      name: 'Ricardo Esper',
+      jobTitle: 'CISO & Cybersecurity Expert',
+      url: 'https://esper.ws/sobre',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Ricardo Esper',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://esper.ws/logo.png',
+      },
+    },
+    datePublished: page.data.date,
+    dateModified: page.data.date,
+    image: page.data.thumbnail ? `https://esper.ws${page.data.thumbnail}` : undefined,
+    keywords: page.data.keywords?.join(', '),
+    articleSection: page.data.tags?.[0],
+    inLanguage: 'pt-BR',
+  };
+
   return (
     <div className="min-h-screen bg-background relative">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <HashScrollHandler />
       <div className="absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)]">
         <FlickeringGrid
@@ -75,6 +108,17 @@ export default async function BlogPost({ params }: PageProps) {
 
       <div className="space-y-4 border-b border-border relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col gap-6 p-6">
+          {/* Breadcrumbs */}
+          <Breadcrumbs
+            items={[
+              { label: 'Home', href: '/' },
+              ...(page.data.tags && page.data.tags.length > 0
+                ? [{ label: page.data.tags[0], href: `/?tag=${page.data.tags[0]}` }]
+                : []),
+              { label: page.data.title },
+            ]}
+          />
+
           <div className="flex flex-wrap items-center gap-3 gap-y-5 text-sm text-muted-foreground">
             <Button variant="outline" asChild className="h-6 w-6">
               <Link href="/">
