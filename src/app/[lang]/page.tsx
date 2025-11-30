@@ -115,14 +115,9 @@ export default async function HomePage({
       </div>
       <div className="p-6 border-b border-border flex flex-col gap-6 min-h-[250px] justify-center relative z-10">
         <div className="max-w-7xl mx-auto w-full">
-          <div className="flex flex-col gap-2">
-            <h1 className="font-medium text-4xl md:text-5xl tracking-tighter">
-              {dict.home.title}
-            </h1>
-            <p className="text-muted-foreground text-sm md:text-base lg:text-lg max-w-3xl">
-              {dict.home.bio}
-            </p>
-          </div>
+          <h1 className="font-medium text-4xl md:text-5xl tracking-tighter">
+            {dict.home.title}
+          </h1>
         </div>
         {allTags.length > 1 && (
           <div className="max-w-7xl mx-auto w-full">
