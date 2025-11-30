@@ -17,6 +17,9 @@ import { getAuthor, isValidAuthor } from "@/lib/authors";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 import { HashScrollHandler } from "@/components/hash-scroll-handler";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { ReadingProgress } from "@/components/reading-progress";
+import { BackToTop } from "@/components/back-to-top";
+import { CodeCopyButtons } from "@/components/code-copy-button";
 import { getDictionary } from "@/i18n/dictionaries";
 import { Locale } from "@/i18n/config";
 import { generatePageMetadata, generateArticleSchema, generateBreadcrumbSchema } from "@/lib/metadata";
@@ -132,6 +135,9 @@ export default async function BlogPost({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
+      <ReadingProgress />
+      <BackToTop />
+      <CodeCopyButtons />
       <HashScrollHandler />
       <div className="absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)]">
         <FlickeringGrid
