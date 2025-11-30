@@ -20,7 +20,7 @@ interface GeneratePostParams {
 
 export async function generatePost(params: GeneratePostParams) {
   const { topic, category, sources, keywords = [] } = params;
-  
+
   // Construir prompt com perfil do Ricardo
   const prompt = `
 Você é Ricardo Esper escrevendo um post para seu blog profissional de cibersegurança.
@@ -124,8 +124,8 @@ NÃO inclua meta-comentários, explicações ou qualquer texto fora do post.
       messages: [{ role: 'user', content: prompt }],
     });
 
-    const content = message.content[0].type === 'text' 
-      ? message.content[0].text 
+    const content = message.content[0].type === 'text'
+      ? message.content[0].text
       : '';
 
     // Avaliar qualidade
@@ -154,7 +154,7 @@ async function evaluateQuality(content: string): Promise<number> {
   const checks = {
     hasProperLength: content.length >= 8000 && content.length <= 15000, // ~2000-2500 palavras
     hasFrontmatter: content.includes('---') && content.includes('title:'),
-    hasCharacteristicPhrases: RICARDO_PROFILE.phrases.some((phrase: string) => 
+    hasCharacteristicPhrases: RICARDO_PROFILE.phrases.some((phrase: string) =>
       content.toLowerCase().includes(phrase)
     ),
     hasPersonalExperience: /em meus|aos 60 anos|como pai|34 anos/i.test(content),
@@ -164,17 +164,18 @@ async function evaluateQuality(content: string): Promise<number> {
   };
 
   const score = Object.values(checks).filter(Boolean).length / Object.keys(checks).length * 10;
-  
+
   return Math.round(score * 10) / 10;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function savePostDraft(post: { content: string; score: number; metadata: any }) {
-  const postsDir = path.join(process.cwd(), 'src/content/posts/drafts');
-  
+  // Caminho correto para o projeto: blog/content/drafts
+  const draftsDir = path.join(process.cwd(), 'blog/content/drafts');
+
   // Criar diretório se não existir
-  if (!fs.existsSync(postsDir)) {
-    fs.mkdirSync(postsDir, { recursive: true });
+  if (!fs.existsSync(draftsDir)) {
+    fs.mkdirSync(draftsDir, { recursive: true });
   }
 
   // Extrair slug do frontmatter
@@ -182,7 +183,7 @@ export async function savePostDraft(post: { content: string; score: number; meta
   const slug = slugMatch ? slugMatch[1] : `draft-${Date.now()}`;
 
   const filename = `${slug}.mdx`;
-  const filepath = path.join(postsDir, filename);
+  const filepath = path.join(draftsDir, filename);
 
   // Adicionar metadata ao final
   const contentWithMeta = `${post.content}
@@ -203,5 +204,20 @@ METADATA DE GERAÇÃO:
     filepath,
     filename,
     slug
+  };
+}
+
+export async function publishPost(draftPath: string) {
+  const contentDir = path.join(process.cwd(), 'blog/content');
+  const filename = path.basename(draftPath);
+  const targetPath = path.join(contentDir, filename);
+
+  // Mover arquivo
+  fs.renameSync(draftPath, targetPath);
+
+  return {
+    filepath: targetPath,
+    filename,
+    published: true
   };
 }
