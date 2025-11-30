@@ -54,52 +54,21 @@ Blog pessoal de **Ricardo Esper**, especialista em cibersegurança com 34 anos d
 ```
 ricardo-esper-blog/
 ├── src/
-│   ├── app/
-│   │   ├── page.tsx                    # Home
-│   │   ├── sobre/page.tsx              # Página sobre
-│   │   ├── blog/
-│   │   │   ├── page.tsx                # Lista de posts
-│   │   │   └── [slug]/page.tsx         # Post individual
-│   │   ├── admin/
-│   │   │   ├── generate/page.tsx       # Dashboard geração manual
-│   │   │   └── analytics/page.tsx      # Analytics
-│   │   └── api/
-│   │       ├── generate-post/          # API geração manual
-│   │       └── auto-generate/          # Cron handler
-│   │
-│   ├── components/
-│   │   ├── layout/
-│   │   │   ├── Header.tsx              # Navegação
-│   │   │   ├── Footer.tsx              # Footer
-│   │   │   └── Layout.tsx              # Wrapper
-│   │   └── PostCard.tsx                # Card de post
-│   │
-│   ├── lib/
-│   │   ├── ai/
-│   │   │   ├── ricardo-profile.json    # Perfil tonal completo
-│   │   │   ├── post-generator.ts       # Motor de geração IA
-│   │   │   ├── source-fetcher.ts       # Coleta RSS/scraping
-│   │   │   ├── topic-analyzer.ts       # IA análise de tendências
-│   │   │   ├── scheduler.ts            # Distribuição inteligente
-│   │   │   ├── email-notifier.ts       # Notificações (opcional)
-│   │   │   └── sources.ts              # Fontes confiáveis
-│   │   └── posts.ts                    # Utilitários MDX
-│   │
-│   └── content/
-│       └── posts/
-│           ├── ransomware-2025.mdx
-│           ├── osint-contraespionagem.mdx
-│           ├── smart-home-seguranca.mdx
-│           ├── shenzhen-huaqiangbei.mdx
-│           ├── lgpd-3-anos.mdx
-│           └── drafts/                 # Posts gerados pela IA
+│   ├── app/                    # Next.js App Router
+│   ├── components/             # React Components
+│   ├── lib/                    # Utilities & AI Logic
+│   └── content/                # Blog Content (MDX)
 │
-├── public/                              # Assets estáticos
-├── vercel.json                          # Config cron Vercel
-├── tailwind.config.ts                   # Tema greyscale
-├── .env.local.template                  # Template env vars
-├── AUTO_GENERATE_README.md              # Doc Fase 1
-└── FASE2_README.md                      # Doc Fase 2
+├── docs/                       # Documentação do Projeto
+│   ├── design-system.md        # Design System Completo
+│   ├── automation.md           # Detalhes da Automação (Fase 2)
+│   ├── manual-generation.md    # Guia de Geração Manual
+│   └── bio.md                  # Bio do Ricardo Esper
+│
+├── public/                     # Assets estáticos
+├── vercel.json                 # Config cron Vercel
+├── tailwind.config.ts          # Tema greyscale
+└── .env.local.template         # Template env vars
 ```
 
 ---
@@ -359,12 +328,12 @@ curl -X POST http://localhost:3000/api/generate-post \
 
 ---
 
-## 📚 Documentação Adicional
+## 📚 Documentação Detalhada
 
-- **AUTO_GENERATE_README.md** - Sistema de geração manual (Fase 1)
-- **FASE2_README.md** - Automação completa (Fase 2)
-- **.env.local.template** - Template variáveis de ambiente
-- **BIO-RICARDO-ESPER.md** - Bio completa do Ricardo
+- **[Design System](docs/design-system.md)** - Guia de estilos, cores e componentes
+- **[Automação (Fase 2)](docs/automation.md)** - Detalhes técnicos do sistema de cron e IA
+- **[Geração Manual](docs/manual-generation.md)** - Guia para uso do dashboard e API manual
+- **[Bio Ricardo Esper](docs/bio.md)** - Textos biográficos oficiais
 
 ---
 
