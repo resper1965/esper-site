@@ -16,10 +16,13 @@ interface GeneratePostParams {
   category: string;
   sources: Array<{ title: string; url: string; summary: string }>;
   keywords?: string[];
+  language?: 'pt-BR' | 'en';
 }
 
 export async function generatePost(params: GeneratePostParams) {
-  const { topic, category, sources, keywords = [] } = params;
+  const { topic, category, sources, keywords = [], language = 'pt-BR' } = params;
+
+  const isEnglish = language === 'en';
 
   // Construir prompt com perfil do Ricardo
   const prompt = `

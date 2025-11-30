@@ -1,0 +1,38 @@
+{
+  "site": {
+    "name": "Ricardo Esper - Blog",
+    "description": "Perspectivas de quem dedica mais de três décadas à segurança da informação. CISO, forense digital e consultor internacional em privacidade e compliance. Experiência global em proteção de dados corporativos e defesa cibernética."
+  },
+  "home": {
+    "title": "Ricardo Esper",
+    "bio": "Três décadas moldando estratégias de segurança em escala global. CISO, forense digital e especialista internacional em privacidade e compliance (LGPD/GDPR). Insights de quem viveu a evolução da cibersegurança desde seus primeiros dias.",
+    "loading": "Carregando artigos...",
+    "allTags": "Todos"
+  },
+  "about": {
+    "title": "Sobre",
+    "intro1": "Em mais de três décadas dedicadas à segurança da informação, testemunhei a transformação completa do cenário de ameaças digitais—desde os primeiros vírus de boot até campanhas de ransomware orquestradas por estados-nação. Essa perspectiva temporal me ensinou que segurança não é apenas sobre tecnologia, mas sobre pessoas, processos e a sabedoria de antecipar o que ainda não foi visto.",
+    "intro2": "Como fundador da NESS desde 1991 e CISO da IONIC Health, construí minha carreira na intersecção entre tecnologia e governança corporativa. Meu trabalho se estende além das fronteiras brasileiras—atuo como consultor internacional em privacidade e compliance, navegando os complexos frameworks regulatórios da LGPD, GDPR, HIPAA e SOC 2.",
+    "intro3": "Aos 60 anos, pai de duas filhas, compreendo visceralmente que proteger dados corporativos é proteger vidas, reputações e legados. Cada política de segurança que desenho, cada estratégia de defesa que implemento, carrega essa convicção.",
+    "globalPresence": "Atuação Global",
+    "internationalCommunity": "Comunidade Internacional",
+    "internationalCommunityText": "Membro ativo das principais organizações globais de segurança: HackerOne (Bug Bounty), OWASP (Application Security), IAPP (Privacy Professionals), ERII (International Affairs), e OAB/SP (Legal Practice).",
+    "certifications": "Certificações e Expertise",
+    "certificationsText": "Certificações: CCISO (Chief Information Security Officer), CEHIv8 (Ethical Hacking), GDPR Compliance, Cybersecurity Awareness",
+    "contact": "Contato",
+    "contactText": "Conecte-se comigo no",
+    "linkedin": "LinkedIn"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "Sobre",
+    "blog": "Blog",
+    "skipToContent": "Pular para o conteúdo principal"
+  },
+  "blog": {
+    "readMore": "Ler mais",
+    "backToArticles": "Voltar para todos os artigos",
+    "publishedOn": "Publicado em",
+    "minRead": "min de leitura"
+  }
+}

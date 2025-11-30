@@ -21,6 +21,7 @@ export const { docs, meta } = defineDocs({
       readTime: z.string().optional(),
       author: z.string().optional(),
       thumbnail: z.string().optional(),
+      language: z.enum(["pt-BR", "en"]).optional().default("pt-BR"),
     }),
   },
 });

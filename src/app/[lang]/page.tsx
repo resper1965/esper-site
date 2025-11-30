@@ -6,6 +6,8 @@ import { BlogCard } from "@/components/blog-card";
 import { BlogCardSkeleton } from "@/components/blog-card-skeleton";
 import { TagFilter } from "@/components/tag-filter";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
+import { getDictionary } from "@/i18n/dictionaries";
+import { Locale } from "@/i18n/config";
 
 interface BlogData {
   title: string;
@@ -29,8 +31,8 @@ const blogSource = loader({
   source: createMDXSource(docs, meta),
 });
 
-const formatDate = (date: Date): string => {
-  return date.toLocaleDateString("pt-BR", {
+const formatDate = (date: Date, locale: string): string => {
+  return date.toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -38,21 +40,22 @@ const formatDate = (date: Date): string => {
 };
 
 export default async function HomePage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ lang: Locale }>;
   searchParams: Promise<{ tag?: string }>;
 }) {
+  const { lang } = await params;
   const resolvedSearchParams = await searchParams;
+  const dict = await getDictionary(lang);
 
   let allPages: BlogPage[] = [];
   try {
     const pages = blogSource.getPages();
-    // Ensure pages is an array
     if (Array.isArray(pages)) {
       allPages = pages;
     } else if (pages && typeof pages === 'object' && 'files' in pages) {
-      // Handle case where pages might be an object with files property
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const files = (pages as any).files;
       allPages = Array.isArray(files) ? files : [];
     }
@@ -61,27 +64,33 @@ export default async function HomePage({
     allPages = [];
   }
 
-  const sortedBlogs = allPages.sort((a, b) => {
+  // Filter posts by language
+  const filteredByLanguage = allPages.filter((page) => {
+    const postLang = page.data.language || 'pt-BR';
+    return postLang === lang;
+  });
+
+  const sortedBlogs = filteredByLanguage.sort((a, b) => {
     const dateA = new Date(a.data.date).getTime();
     const dateB = new Date(b.data.date).getTime();
     return dateB - dateA;
   });
 
   const allTags = [
-    "Todos",
+    dict.home.allTags,
     ...Array.from(
       new Set(sortedBlogs.flatMap((blog) => blog.data.tags || []))
     ).sort(),
   ];
 
-  const selectedTag = resolvedSearchParams.tag || "Todos";
+  const selectedTag = resolvedSearchParams.tag || dict.home.allTags;
   const filteredBlogs =
-    selectedTag === "Todos"
+    selectedTag === dict.home.allTags
       ? sortedBlogs
       : sortedBlogs.filter((blog) => blog.data.tags?.includes(selectedTag));
 
   const tagCounts = allTags.reduce((acc, tag) => {
-    if (tag === "Todos") {
+    if (tag === dict.home.allTags) {
       acc[tag] = sortedBlogs.length;
     } else {
       acc[tag] = sortedBlogs.filter((blog) =>
@@ -107,12 +116,10 @@ export default async function HomePage({
         <div className="max-w-7xl mx-auto w-full">
           <div className="flex flex-col gap-2">
             <h1 className="font-medium text-4xl md:text-5xl tracking-tighter">
-              Ricardo Esper
+              {dict.home.title}
             </h1>
             <p className="text-muted-foreground text-sm md:text-base lg:text-lg max-w-3xl">
-              Três décadas moldando estratégias de segurança em escala global. CISO, forense digital e
-              especialista internacional em privacidade e compliance (LGPD/GDPR). Insights de quem viveu
-              a evolução da cibersegurança desde seus primeiros dias.
+              {dict.home.bio}
             </p>
           </div>
         </div>
@@ -143,12 +150,12 @@ export default async function HomePage({
           >
             {filteredBlogs.map((blog) => {
               const date = new Date(blog.data.date);
-              const formattedDate = formatDate(date);
+              const formattedDate = formatDate(date, lang);
 
               return (
                 <BlogCard
                   key={blog.url}
-                  url={blog.url}
+                  url={`/${lang}${blog.url}`}
                   title={blog.data.title}
                   description={blog.data.description || ""}
                   date={formattedDate}
