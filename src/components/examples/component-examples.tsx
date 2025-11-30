@@ -20,7 +20,7 @@ export function ButtonExamples() {
   return (
     <div className="space-y-4">
       <h3 className="text-2xl font-semibold mb-4">Botões</h3>
-      
+
       {/* Primary Button */}
       <Button variant="default" className="bg-primary hover:bg-primary/90 text-primary-foreground">
         Ação Principal
@@ -57,8 +57,8 @@ export function CardExamples() {
       {/* Post Card */}
       <Card className="group hover:shadow-lg transition-all duration-200">
         <CardHeader>
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className="border-[#0088C7]/30 text-[#0088C7] bg-[#0088C7]/5 mb-2"
           >
             Cibersegurança
@@ -115,11 +115,11 @@ export function BadgeExamples() {
   return (
     <div className="space-y-4">
       <h3 className="text-2xl font-semibold mb-4">Badges por Categoria</h3>
-      
+
       <div className="flex flex-wrap gap-2">
         {/* Cibersegurança */}
-        <Badge 
-          variant="outline" 
+        <Badge
+          variant="outline"
           className="border-[#0088C7]/30 text-[#0088C7] bg-[#0088C7]/5"
         >
           <Shield className="w-3 h-3 mr-1" />
@@ -127,8 +127,8 @@ export function BadgeExamples() {
         </Badge>
 
         {/* Contraespionagem */}
-        <Badge 
-          variant="outline" 
+        <Badge
+          variant="outline"
           className="border-[#006B9E]/30 text-[#006B9E] bg-[#006B9E]/5"
         >
           <Lock className="w-3 h-3 mr-1" />
@@ -136,8 +136,8 @@ export function BadgeExamples() {
         </Badge>
 
         {/* Automação Residencial */}
-        <Badge 
-          variant="outline" 
+        <Badge
+          variant="outline"
           className="border-[#33B8E8]/30 text-[#33B8E8] bg-[#33B8E8]/5"
         >
           <Home className="w-3 h-3 mr-1" />
@@ -145,8 +145,8 @@ export function BadgeExamples() {
         </Badge>
 
         {/* Viagens */}
-        <Badge 
-          variant="outline" 
+        <Badge
+          variant="outline"
           className="border-[#00B5D4]/30 text-[#00B5D4] bg-[#00B5D4]/5"
         >
           <Plane className="w-3 h-3 mr-1" />
@@ -171,7 +171,7 @@ export function AlertExamples() {
         <Shield className="h-4 w-4 text-primary" />
         <AlertTitle>Atenção - Segurança</AlertTitle>
         <AlertDescription>
-          Este procedimento requer conhecimento técnico avançado. 
+          Este procedimento requer conhecimento técnico avançado.
           Execute apenas se tiver experiência adequada.
         </AlertDescription>
       </Alert>
@@ -200,7 +200,7 @@ export function IconExamples() {
       <div className="flex items-center gap-6">
         {/* Outline padrão */}
         <Shield className="w-5 h-5 text-muted-foreground" />
-        
+
         {/* Estado ativo com preenchimento sutil */}
         <div className="bg-primary/10 rounded-full p-1.5">
           <Lock className="w-5 h-5 text-primary" />
@@ -240,15 +240,15 @@ export function TypographyExamples() {
 
       {/* Corpo */}
       <p>
-        Este é um parágrafo de exemplo usando Montserrat como fonte principal. 
-        O texto está configurado com tamanho de 18px (1.125rem) e line-height 
+        Este é um parágrafo de exemplo usando Montserrat como fonte principal.
+        O texto está configurado com tamanho de 18px (1.125rem) e line-height
         de 1.75 para uma leitura confortável em posts longos.
       </p>
 
       {/* Citação */}
       <blockquote>
-        "Esta é uma citação técnica destacada. Use para alertas importantes, 
-        recomendações de segurança ou insights relevantes."
+        &ldquo;Esta é uma citação técnica destacada. Use para alertas importantes,
+        recomendações de segurança ou insights relevantes.&rdquo;
       </blockquote>
 
       {/* Metadados */}
@@ -265,7 +265,7 @@ export default function ComponentExamples() {
   return (
     <div className="max-w-4xl mx-auto p-8 space-y-12">
       <h1 className="text-5xl font-bold mb-8">Design System - Exemplos</h1>
-      
+
       <ButtonExamples />
       <CardExamples />
       <BadgeExamples />

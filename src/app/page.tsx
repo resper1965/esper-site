@@ -8,7 +8,7 @@ import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 
 interface BlogData {
   title: string;
-  description: string;
+  description?: string;
   date: string;
   tags?: string[];
   featured?: boolean;
@@ -140,9 +140,10 @@ export default async function HomePage({
                   key={blog.url}
                   url={blog.url}
                   title={blog.data.title}
-                  description={blog.data.description}
+                  description={blog.data.description || ""}
                   date={formattedDate}
                   thumbnail={blog.data.thumbnail}
+                  tags={blog.data.tags}
                   showRightBorder={filteredBlogs.length < 3}
                 />
               );

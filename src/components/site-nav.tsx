@@ -4,22 +4,28 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export function SiteNav() {
   return (
     <header className="sticky top-0 z-20 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="max-w-7xl mx-auto w-full flex h-14 items-center justify-between px-6">
+      <div className="max-w-7xl mx-auto w-full flex h-16 items-center justify-between px-6">
         <div className="mr-4 flex">
           <Link
             href="/"
-            className="mr-6 flex items-center space-x-2 font-medium text-lg tracking-tighter"
+            className="mr-6 flex items-center space-x-2 font-bold text-xl tracking-tight transition-colors hover:opacity-80"
           >
-            <span>Ricardo Esper</span>
+            <span>Ricardo <span className="text-primary">Esper</span></span>
           </Link>
         </div>
 
         <div className="flex flex-1 w-full justify-end">
-          <nav className="flex items-center gap-4">
-            <Link href="/blog" className="text-sm hover:underline">
+          <nav className="flex items-center gap-6">
+            <Link
+              href="/blog"
+              className="text-sm font-medium transition-colors duration-150 hover:text-primary"
+            >
               Blog
             </Link>
-            <Link href="/sobre" className="text-sm hover:underline">
+            <Link
+              href="/sobre"
+              className="text-sm font-medium transition-colors duration-150 hover:text-primary"
+            >
               Sobre
             </Link>
             <ThemeToggle />

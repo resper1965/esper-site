@@ -1,0 +1,415 @@
+---
+title: "Automação Residencial Segura: Smart Home sem Comprometer Privacidade"
+description: "Guia completo para implementar automação residencial inteligente mantendo segurança e privacidade em primeiro lugar."
+date: "2024-11-26"
+tags: ["Automação Residencial"]
+featured: false
+readTime: "12 min read"
+author: "dillion"
+thumbnail: "/thumbnails/automacao.png"
+---
+
+A automação residencial oferece conveniência incomparável, mas também introduz novos vetores de ataque e preocupações de privacidade. Este guia mostra como aproveitar a tecnologia smart home sem comprometer sua segurança.
+
+## O Paradoxo da Casa Inteligente
+
+Dispositivos IoT (Internet of Things) tornaram nossas casas mais confortáveis e eficientes, mas cada dispositivo conectado é um potencial ponto de entrada para atacantes.
+
+### Estatísticas Preocupantes
+
+- **57%** dos dispositivos IoT são vulneráveis a ataques de média ou alta severidade
+- Câmeras de segurança são os dispositivos mais atacados
+- Botnets IoT como Mirai comprometeram milhões de dispositivos
+
+## Princípios de Segurança para Smart Home
+
+### 1. Segmentação de Rede
+
+Isole dispositivos IoT em uma rede separada:
+
+```
+Internet
+   |
+Router Principal
+   |
+   +-- VLAN 10: Rede Principal (computadores, smartphones)
+   +-- VLAN 20: Rede IoT (dispositivos smart home)
+   +-- VLAN 30: Rede Convidados
+```
+
+**Configuração Básica (pfSense/OPNsense):**
+
+```bash
+# Criar VLAN para IoT
+Interfaces > Assignments > VLANs > Add
+VLAN Tag: 20
+Description: IoT_Network
+
+# Regras de firewall
+Firewall > Rules > IoT_Network
+- Block: IoT -> LAN (impede acesso à rede principal)
+- Allow: IoT -> Internet (permite atualização de dispositivos)
+- Allow: LAN -> IoT (permite controle dos dispositivos)
+```
+
+### 2. Escolha de Dispositivos Seguros
+
+Priorize dispositivos com:
+- Atualizações regulares de firmware
+- Criptografia de comunicação
+- Autenticação forte
+- Suporte a padrões abertos (Matter, Thread)
+
+**Checklist de Avaliação:**
+
+| Critério | Peso | Exemplo Bom | Exemplo Ruim |
+|----------|------|-------------|--------------|
+| Atualizações | Alto | Philips Hue | Câmeras genéricas |
+| Criptografia | Alto | Ring | Dispositivos sem HTTPS |
+| Privacidade | Alto | Apple HomeKit | Dispositivos com cloud obrigatório |
+| Padrões abertos | Médio | Matter-compatible | Protocolos proprietários |
+
+## Arquitetura Segura de Smart Home
+
+### Hub Local vs. Cloud
+
+Prefira soluções que funcionem localmente:
+
+**Home Assistant (Recomendado):**
+
+```yaml
+# configuration.yaml
+homeassistant:
+  name: Casa
+  latitude: !secret latitude
+  longitude: !secret longitude
+  elevation: 100
+  unit_system: metric
+  time_zone: America/Sao_Paulo
+  
+# Desabilitar cloud externo
+cloud:
+  
+# Usar apenas integrações locais
+mqtt:
+  broker: localhost
+  port: 1883
+  username: !secret mqtt_user
+  password: !secret mqtt_pass
+  
+zigbee2mqtt:
+  base_topic: zigbee2mqtt
+```
+
+### Protocolos de Comunicação
+
+**Zigbee/Z-Wave (Recomendado):**
+- Comunicação local
+- Mesh network
+- Baixo consumo de energia
+- Não sobrecarrega WiFi
+
+**WiFi:**
+- Maior largura de banda
+- Mais fácil de configurar
+- Requer segmentação adequada
+
+**Thread/Matter:**
+- Novo padrão unificado
+- Segurança por design
+- Interoperabilidade
+
+## Implementação Prática
+
+### Projeto: Sistema de Iluminação Seguro
+
+**Componentes:**
+- Philips Hue Bridge (local)
+- Lâmpadas Zigbee
+- Home Assistant
+- Automações locais
+
+**Configuração:**
+
+```yaml
+# Home Assistant - lights.yaml
+light:
+  - platform: hue
+    host: 192.168.20.10  # IP fixo na VLAN IoT
+    allow_unreachable: false
+    allow_hue_groups: false
+
+# Automação: Acender ao anoitecer
+automation:
+  - alias: "Luzes ao Anoitecer"
+    trigger:
+      platform: sun
+      event: sunset
+      offset: "-00:30:00"
+    action:
+      service: light.turn_on
+      target:
+        entity_id: light.sala
+      data:
+        brightness_pct: 80
+        color_temp: 370
+```
+
+### Projeto: Câmeras de Segurança Privadas
+
+**Solução: Frigate NVR**
+
+```yaml
+# frigate.yml
+mqtt:
+  host: 192.168.20.5
+  
+cameras:
+  camera_entrada:
+    ffmpeg:
+      inputs:
+        - path: rtsp://admin:senha@192.168.20.20:554/stream1
+          roles:
+            - detect
+            - record
+    detect:
+      width: 1920
+      height: 1080
+      fps: 5
+    objects:
+      track:
+        - person
+        - car
+    record:
+      enabled: true
+      retain:
+        days: 7
+        mode: motion
+    snapshots:
+      enabled: true
+      retain:
+        default: 7
+```
+
+**Armazenamento Local:**
+- NAS ou servidor dedicado
+- Sem upload para cloud
+- Acesso via VPN quando fora de casa
+
+## Controle de Acesso e Autenticação
+
+### Autenticação Multifator
+
+Configure MFA para todos os serviços:
+
+```yaml
+# Home Assistant - configuration.yaml
+homeassistant:
+  auth_providers:
+    - type: homeassistant
+    - type: trusted_networks
+      trusted_networks:
+        - 192.168.10.0/24  # Apenas rede principal
+      allow_bypass_login: false
+
+# Habilitar MFA
+auth:
+  mfa_setup_flow_id: totp
+```
+
+### Gestão de Usuários
+
+Crie usuários separados para cada membro da família:
+
+```python
+# Exemplo de automação baseada em usuário
+automation:
+  - alias: "Modo Ausente - João"
+    trigger:
+      platform: state
+      entity_id: person.joao
+      from: 'home'
+      to: 'not_home'
+      for: '00:05:00'
+    condition:
+      - condition: state
+        entity_id: person.maria
+        state: 'not_home'
+    action:
+      - service: scene.turn_on
+        target:
+          entity_id: scene.ausente
+```
+
+## Privacidade de Dados
+
+### Assistentes de Voz Locais
+
+Evite Amazon Alexa e Google Assistant. Use alternativas locais:
+
+**Rhasspy (Voice Assistant Local):**
+
+```yaml
+# profile.yml
+intent_recognition:
+  system: fsticuffs
+  
+speech_to_text:
+  system: pocketsphinx
+  pocketsphinx:
+    acoustic_model: pt-br
+    
+text_to_speech:
+  system: larynx
+  larynx:
+    voice: pt-br
+    
+home_assistant:
+  url: http://localhost:8123
+  access_token: !secret ha_token
+```
+
+### Análise de Tráfego
+
+Monitore o que seus dispositivos estão enviando:
+
+```bash
+# Capturar tráfego de dispositivo específico
+sudo tcpdump -i eth0 host 192.168.20.15 -w dispositivo.pcap
+
+# Analisar com Wireshark
+wireshark dispositivo.pcap
+
+# Verificar conexões DNS
+sudo tcpdump -i eth0 port 53 -n
+```
+
+## Automações Inteligentes e Seguras
+
+### Geofencing Seguro
+
+Use presença sem compartilhar localização com cloud:
+
+```yaml
+# Home Assistant - device_tracker.yaml
+device_tracker:
+  - platform: bluetooth_tracker
+    track_new_devices: false
+    
+  - platform: ping
+    hosts:
+      joao_phone: 192.168.10.50
+      maria_phone: 192.168.10.51
+    
+zone:
+  - name: Casa
+    latitude: !secret home_lat
+    longitude: !secret home_lon
+    radius: 100
+    icon: mdi:home
+```
+
+### Automações Baseadas em Sensores
+
+```yaml
+# Segurança: Alertar sobre porta aberta
+automation:
+  - alias: "Alerta Porta Aberta Noite"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.porta_entrada
+      to: 'on'
+    condition:
+      - condition: time
+        after: '22:00:00'
+        before: '06:00:00'
+      - condition: state
+        entity_id: alarm_control_panel.casa
+        state: 'armed_night'
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "⚠️ Alerta de Segurança"
+          message: "Porta de entrada aberta durante a noite!"
+      - service: light.turn_on
+        target:
+          entity_id: light.todos
+        data:
+          brightness_pct: 100
+```
+
+## Backup e Recuperação
+
+### Estratégia de Backup
+
+```bash
+#!/bin/bash
+# backup_homeassistant.sh
+
+BACKUP_DIR="/mnt/nas/backups/homeassistant"
+DATE=$(date +%Y%m%d_%H%M%S)
+
+# Backup completo
+docker exec homeassistant ha backup new --name "backup_$DATE"
+
+# Copiar para NAS
+cp /usr/share/hassio/backup/*.tar $BACKUP_DIR/
+
+# Manter apenas últimos 30 dias
+find $BACKUP_DIR -name "*.tar" -mtime +30 -delete
+
+# Testar integridade
+tar -tzf $BACKUP_DIR/backup_$DATE.tar > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+    echo "Backup OK: $DATE"
+else
+    echo "ERRO no backup: $DATE"
+    # Enviar alerta
+fi
+```
+
+## Manutenção e Atualizações
+
+### Processo de Atualização Seguro
+
+1. **Teste em ambiente separado** (se possível)
+2. **Backup completo antes de atualizar**
+3. **Leia changelog e breaking changes**
+4. **Atualize em horário de baixo uso**
+5. **Monitore por 24h após atualização**
+
+```yaml
+# Automação: Notificar sobre atualizações
+automation:
+  - alias: "Notificar Atualização Disponível"
+    trigger:
+      platform: state
+      entity_id: update.home_assistant_core_update
+      to: 'on'
+    action:
+      service: notify.admin
+      data:
+        title: "Atualização Disponível"
+        message: >
+          Nova versão do Home Assistant disponível.
+          Versão atual: {{ state_attr('update.home_assistant_core_update', 'installed_version') }}
+          Nova versão: {{ state_attr('update.home_assistant_core_update', 'latest_version') }}
+```
+
+## Conclusão
+
+Uma casa inteligente segura é possível com as escolhas certas:
+
+**Checklist Final:**
+- [ ] Rede IoT segregada
+- [ ] Dispositivos com bom histórico de segurança
+- [ ] Processamento local sempre que possível
+- [ ] Autenticação forte e MFA
+- [ ] Backups regulares e testados
+- [ ] Monitoramento de tráfego
+- [ ] Atualizações regulares
+- [ ] Plano de resposta a incidentes
+
+A conveniência da automação não precisa vir às custas da segurança e privacidade. Com planejamento adequado e as ferramentas certas, você pode ter o melhor dos dois mundos.
+
+**Lembre-se**: Cada dispositivo conectado é uma responsabilidade de segurança. Escolha sabiamente e configure adequadamente.
