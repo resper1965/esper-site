@@ -164,7 +164,6 @@ export default async function HomePage({
                     title={blog.data.title}
                     description={description}
                     date={formattedDate}
-                    dateString={blog.data.date}
                     thumbnail={blog.data.thumbnail}
                     tags={blog.data.tags}
                     showRightBorder={filteredBlogs.length < 3}
