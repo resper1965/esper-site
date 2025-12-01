@@ -135,6 +135,5 @@ export default async function Sobre({
           </div>
         </div>
       </div>
-    </div>
   );
 }
