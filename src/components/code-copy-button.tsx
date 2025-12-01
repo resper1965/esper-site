@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Check, Copy } from 'lucide-react';
-import { useState } from 'react';
 
 /**
  * Code Copy Button Enhancement

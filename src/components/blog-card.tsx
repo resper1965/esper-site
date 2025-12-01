@@ -10,7 +10,6 @@ interface BlogCardProps {
   title: string;
   description: string;
   date: string;
-  dateString: string;
   thumbnail?: string;
   showRightBorder?: boolean;
   tags?: string[];
@@ -24,7 +23,6 @@ export function BlogCard({
   title,
   description,
   date,
-  dateString,
   thumbnail,
   showRightBorder = true,
   tags = [],
