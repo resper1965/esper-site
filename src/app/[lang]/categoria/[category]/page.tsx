@@ -54,7 +54,6 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { lang, category } = await params;
-  const dict = await getDictionary(lang);
 
   const categoryInfo = categoryMap[category];
   if (!categoryInfo) {
@@ -64,6 +63,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const categoryName = lang === 'pt-BR' ? categoryInfo.pt : categoryInfo.en;
 
   // Get all posts for this category
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let categoryPosts: any[] = [];
   try {
     const pages = blogSource.getPages();

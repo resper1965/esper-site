@@ -35,6 +35,7 @@ export default async function NotFound({ params }: NotFoundProps) {
   const dict = await getDictionary(lang);
 
   // Get latest posts for suggestions
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let suggestedPosts: any[] = [];
   try {
     const pages = blogSource.getPages();

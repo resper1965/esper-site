@@ -218,7 +218,7 @@ export default async function BlogPost({ params }: PageProps) {
             <div className="relative w-full h-[500px] overflow-hidden object-cover border border-transparent">
               <Image
                 src={page.data.coverImage || page.data.thumbnail}
-                alt={page.data.imageAlt || page.data.title || 'Imagem do artigo'}
+                alt={imageAlt}
                 fill
                 className="object-cover"
                 priority
