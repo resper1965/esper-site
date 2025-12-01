@@ -31,7 +31,16 @@ export async function generateMetadata({
 }: {
   params: Promise<{ lang: Locale }>;
 }): Promise<Metadata> {
-  const { lang } = await params;
+  let lang: Locale = 'pt-BR';
+  try {
+    const resolvedParams = await params;
+    if (resolvedParams && resolvedParams.lang && (resolvedParams.lang === 'pt-BR' || resolvedParams.lang === 'en')) {
+      lang = resolvedParams.lang;
+    }
+  } catch (error) {
+    console.error('Error in layout generateMetadata params:', error);
+    lang = 'pt-BR';
+  }
   const dict = await getDictionary(lang);
 
   const keywords = lang === 'pt-BR'
@@ -60,7 +69,16 @@ export default async function LangLayout({
   children: React.ReactNode;
   params: Promise<{ lang: Locale }>;
 }>) {
-  const { lang } = await params;
+  let lang: Locale = 'pt-BR';
+  try {
+    const resolvedParams = await params;
+    if (resolvedParams && resolvedParams.lang && (resolvedParams.lang === 'pt-BR' || resolvedParams.lang === 'en')) {
+      lang = resolvedParams.lang;
+    }
+  } catch (error) {
+    console.error('Error in layout params:', error);
+    lang = 'pt-BR';
+  }
   const dict = await getDictionary(lang);
 
   // Generate structured data for the site

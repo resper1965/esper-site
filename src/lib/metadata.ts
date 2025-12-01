@@ -37,8 +37,11 @@ export function generatePageMetadata({
   authors = ['Ricardo Esper'],
   noindex = false,
 }: PageMetadataProps): Metadata {
-  // Ensure lang is valid
-  const validLang = (lang && (lang === 'pt-BR' || lang === 'en')) ? lang : 'pt-BR';
+  // Ensure lang is valid - defensive check
+  let validLang: 'pt-BR' | 'en' = 'pt-BR';
+  if (lang && (lang === 'pt-BR' || lang === 'en')) {
+    validLang = lang;
+  }
   const url = `${siteConfig.url}/${validLang}${path}`;
   const defaultImage = `${siteConfig.url}/og-image.png`;
   const ogImage = image || defaultImage;

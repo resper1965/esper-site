@@ -1,7 +1,11 @@
 import { getDictionary } from '@/i18n/dictionaries';
-import { Locale } from '@/i18n/config';
+import { Locale, i18n } from '@/i18n/config';
 import { generatePageMetadata } from '@/lib/metadata';
 import type { Metadata } from 'next';
+
+export async function generateStaticParams() {
+  return i18n.locales.map((locale) => ({ lang: locale }));
+}
 
 export async function generateMetadata({
   params,
@@ -11,7 +15,7 @@ export async function generateMetadata({
   let lang: Locale = 'pt-BR';
   try {
     const resolvedParams = await params;
-    if (resolvedParams && resolvedParams.lang) {
+    if (resolvedParams && resolvedParams.lang && (resolvedParams.lang === 'pt-BR' || resolvedParams.lang === 'en')) {
       lang = resolvedParams.lang;
     }
   } catch (error) {
@@ -43,7 +47,7 @@ export default async function Sobre({
   let lang: Locale = 'pt-BR';
   try {
     const resolvedParams = await params;
-    if (resolvedParams && resolvedParams.lang) {
+    if (resolvedParams && resolvedParams.lang && (resolvedParams.lang === 'pt-BR' || resolvedParams.lang === 'en')) {
       lang = resolvedParams.lang;
     }
   } catch (error) {
