@@ -8,7 +8,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ lang: Locale }>;
 }): Promise<Metadata> {
-  const { lang } = await params;
+  const resolvedParams = await params;
+  const lang = resolvedParams?.lang || 'pt-BR';
   const dict = await getDictionary(lang);
 
   const keywords = lang === 'pt-BR'
@@ -31,7 +32,8 @@ export default async function Sobre({
 }: {
   params: Promise<{ lang: Locale }>;
 }) {
-  const { lang } = await params;
+  const resolvedParams = await params;
+  const lang = resolvedParams?.lang || 'pt-BR';
   const dict = await getDictionary(lang);
 
   return (
