@@ -34,5 +34,12 @@
     "backToArticles": "Voltar para todos os artigos",
     "publishedOn": "Publicado em",
     "minRead": "min de leitura"
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "description": "A página que você está procurando não foi encontrada ou foi movida.",
+    "backHome": "Voltar para o início",
+    "viewBlog": "Ver todos os artigos",
+    "suggestedPosts": "Artigos que podem interessar:"
   }
 }

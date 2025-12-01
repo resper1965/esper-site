@@ -34,5 +34,12 @@
     "backToArticles": "Back to all articles",
     "publishedOn": "Published on",
     "minRead": "min read"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for was not found or has been moved.",
+    "backHome": "Back to home",
+    "viewBlog": "View all articles",
+    "suggestedPosts": "Articles you might like:"
   }
 }

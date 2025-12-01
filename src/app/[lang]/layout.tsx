@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SiteNav } from "@/components/site-nav";
 import Footer from "@/components/footer";
 import { Analytics } from "@/components/analytics";
-import { generatePageMetadata, generatePersonSchema, generateWebSiteSchema } from "@/lib/metadata";
+import { generatePageMetadata, generatePersonSchema, generateWebSiteSchema, generateOrganizationSchema } from "@/lib/metadata";
 import "../globals.css";
 
 const montserrat = Montserrat({
@@ -66,6 +66,7 @@ export default async function LangLayout({
   // Generate structured data for the site
   const personSchema = generatePersonSchema(lang);
   const websiteSchema = generateWebSiteSchema(lang);
+  const organizationSchema = generateOrganizationSchema(lang);
 
   return (
     <html
@@ -82,6 +83,10 @@ export default async function LangLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
       </head>
       <body>

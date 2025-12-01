@@ -107,6 +107,13 @@ export default async function BlogPost({ params }: PageProps) {
   // Support both coverImage and thumbnail for post images
   const postImage = page.data.coverImage || page.data.thumbnail;
   const image = postImage ? `${siteConfig.url}${postImage}` : undefined;
+  const imageAlt = page.data.imageAlt || page.data.title;
+
+  // Calculate word count from content
+  const contentText = page.data.body?.toString() || '';
+  const wordCount = contentText.split(/\s+/).filter(word => word.length > 0).length;
+  const readingTimeMinutes = Math.ceil(wordCount / 200); // Average reading speed: 200 words/min
+  const timeRequired = readingTimeMinutes > 0 ? `PT${readingTimeMinutes}M` : undefined;
 
   const articleSchema = generateArticleSchema({
     title: page.data.title,
@@ -117,6 +124,8 @@ export default async function BlogPost({ params }: PageProps) {
     dateModified: page.data.date,
     keywords: page.data.keywords || [],
     lang,
+    wordCount,
+    timeRequired,
   });
 
   // Breadcrumb schema
@@ -127,7 +136,7 @@ export default async function BlogPost({ params }: PageProps) {
       : []),
     { name: page.data.title, url },
   ];
-  const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems, lang);
+  const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -209,10 +218,11 @@ export default async function BlogPost({ params }: PageProps) {
             <div className="relative w-full h-[500px] overflow-hidden object-cover border border-transparent">
               <Image
                 src={page.data.coverImage || page.data.thumbnail}
-                alt={page.data.title}
+                alt={page.data.imageAlt || page.data.title || 'Imagem do artigo'}
                 fill
                 className="object-cover"
                 priority
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
               />
             </div>
           )}
