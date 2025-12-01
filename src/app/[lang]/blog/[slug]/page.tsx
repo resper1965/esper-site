@@ -55,7 +55,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     const keywords = page.data.keywords || [];
-    const image = page.data.thumbnail ? `${siteConfig.url}${page.data.thumbnail}` : undefined;
+    // Support both coverImage and thumbnail for post images
+    const postImage = page.data.coverImage || page.data.thumbnail;
+    const image = postImage ? `${siteConfig.url}${postImage}` : undefined;
 
     return generatePageMetadata({
       title: page.data.title,
@@ -102,7 +104,9 @@ export default async function BlogPost({ params }: PageProps) {
 
   // Generate structured data
   const url = `${siteConfig.url}/${lang}/blog/${slug}`;
-  const image = page.data.thumbnail ? `${siteConfig.url}${page.data.thumbnail}` : undefined;
+  // Support both coverImage and thumbnail for post images
+  const postImage = page.data.coverImage || page.data.thumbnail;
+  const image = postImage ? `${siteConfig.url}${postImage}` : undefined;
 
   const articleSchema = generateArticleSchema({
     title: page.data.title,
@@ -201,10 +205,10 @@ export default async function BlogPost({ params }: PageProps) {
       <div className="flex divide-x divide-border relative max-w-7xl mx-auto px-4 md:px-0 z-10">
         <div className="absolute max-w-7xl mx-auto left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] lg:w-full h-full border-x border-border p-0 pointer-events-none" />
         <main className="w-full p-0 overflow-hidden">
-          {page.data.thumbnail && (
+          {(page.data.coverImage || page.data.thumbnail) && (
             <div className="relative w-full h-[500px] overflow-hidden object-cover border border-transparent">
               <Image
-                src={page.data.thumbnail}
+                src={page.data.coverImage || page.data.thumbnail}
                 alt={page.data.title}
                 fill
                 className="object-cover"

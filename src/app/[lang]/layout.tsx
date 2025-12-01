@@ -105,7 +105,7 @@ export default async function LangLayout({
           <main id="main-content">
             {children}
           </main>
-          <Footer />
+          <Footer lang={lang} />
         </ThemeProvider>
       </body>
     </html>
