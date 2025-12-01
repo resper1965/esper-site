@@ -37,7 +37,9 @@ export function generatePageMetadata({
   authors = ['Ricardo Esper'],
   noindex = false,
 }: PageMetadataProps): Metadata {
-  const url = `${siteConfig.url}/${lang}${path}`;
+  // Ensure lang is valid
+  const validLang = (lang && (lang === 'pt-BR' || lang === 'en')) ? lang : 'pt-BR';
+  const url = `${siteConfig.url}/${validLang}${path}`;
   const defaultImage = `${siteConfig.url}/og-image.png`;
   const ogImage = image || defaultImage;
 
@@ -66,8 +68,8 @@ export function generatePageMetadata({
     // Open Graph
     openGraph: {
       type,
-      locale: lang,
-      alternateLocale: i18n.locales.filter(l => l !== lang),
+      locale: validLang as 'pt-BR' | 'en',
+      alternateLocale: i18n.locales.filter(l => l !== validLang) as ('pt-BR' | 'en')[],
       url,
       title,
       description,

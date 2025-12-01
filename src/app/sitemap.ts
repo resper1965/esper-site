@@ -1,6 +1,13 @@
 import { MetadataRoute } from 'next';
-import { docs } from '@/.source';
+import { docs, meta } from '@/.source';
+import { loader } from 'fumadocs-core/source';
+import { createMDXSource } from 'fumadocs-mdx';
 import { i18n } from '@/i18n/config';
+
+const blogSource = loader({
+  baseUrl: '/blog',
+  source: createMDXSource(docs, meta),
+});
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://esper.ws';
@@ -8,16 +15,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Get all blog posts for all languages
   let posts: MetadataRoute.Sitemap = [];
   try {
-    const pages = docs.getPages();
-    posts = pages.map((post) => {
-      const lang = post.data.language || 'pt-BR';
-      return {
-        url: `${baseUrl}/${lang}/blog/${post.slugs[0]}`,
-        lastModified: new Date(post.data.date),
-        changeFrequency: 'monthly' as const,
-        priority: 0.8,
-      };
-    });
+    const pages = blogSource.getPages();
+    if (Array.isArray(pages)) {
+      posts = pages.map((post) => {
+        const lang = post.data.language || 'pt-BR';
+        return {
+          url: `${baseUrl}/${lang}/blog/${post.slugs[0]}`,
+          lastModified: new Date(post.data.date),
+          changeFrequency: 'monthly' as const,
+          priority: 0.8,
+        };
+      });
+    }
   } catch (error) {
     console.error('Error generating sitemap:', error);
   }

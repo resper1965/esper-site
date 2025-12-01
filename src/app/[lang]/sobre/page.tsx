@@ -8,8 +8,16 @@ export async function generateMetadata({
 }: {
   params: Promise<{ lang: Locale }>;
 }): Promise<Metadata> {
-  const resolvedParams = await params;
-  const lang = resolvedParams?.lang || 'pt-BR';
+  let lang: Locale = 'pt-BR';
+  try {
+    const resolvedParams = await params;
+    if (resolvedParams && resolvedParams.lang) {
+      lang = resolvedParams.lang;
+    }
+  } catch (error) {
+    console.error('Error in generateMetadata params:', error);
+    lang = 'pt-BR';
+  }
   const dict = await getDictionary(lang);
 
   const keywords = lang === 'pt-BR'
@@ -32,8 +40,16 @@ export default async function Sobre({
 }: {
   params: Promise<{ lang: Locale }>;
 }) {
-  const resolvedParams = await params;
-  const lang = resolvedParams?.lang || 'pt-BR';
+  let lang: Locale = 'pt-BR';
+  try {
+    const resolvedParams = await params;
+    if (resolvedParams && resolvedParams.lang) {
+      lang = resolvedParams.lang;
+    }
+  } catch (error) {
+    console.error('Error in Sobre params:', error);
+    lang = 'pt-BR';
+  }
   const dict = await getDictionary(lang);
 
   return (
