@@ -55,9 +55,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     const keywords = page.data.keywords || [];
-    // Support both coverImage and thumbnail for post images
-    const postImage = page.data.coverImage || page.data.thumbnail;
-    const image = postImage ? `${siteConfig.url}${postImage}` : undefined;
+    // Use dynamic Open Graph image
+    const image = `${siteConfig.url}/${lang}/blog/${slug}/opengraph-image`;
 
     return generatePageMetadata({
       title: page.data.title,
