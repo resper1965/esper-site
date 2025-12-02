@@ -76,10 +76,12 @@ export default async function HomePage({
     return postLang === normalizedLang;
   });
 
+  // Sort: most recent first (newest to oldest)
   const sortedBlogs = filteredByLanguage.sort((a, b) => {
     const dateA = new Date(a.data.date).getTime();
     const dateB = new Date(b.data.date).getTime();
-    return dateB - dateA;
+    // dateB - dateA: if dateB is newer (larger), result is positive, so B comes first
+    return dateB - dateA; // Newest first
   });
 
   const allTags = [
