@@ -18,6 +18,7 @@ const categoryMap: Record<string, string> = {
   general: 'Geral',
   homeautomation: 'Automação Residencial',
   travel: 'Viagens',
+  vida: 'Vida',
 };
 
 export default function PostCard({
