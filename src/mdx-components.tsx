@@ -1,6 +1,7 @@
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
 import React from "react";
+import Image from "next/image";
 import {
   MediaViewer,
   ImageViewer,
@@ -37,6 +38,48 @@ function Author({ id }: AuthorProps) {
   return <AuthorCard author={author} className="my-8" />;
 }
 
+// Componente para imagens no MDX
+function MDXImage({
+  src,
+  alt,
+  width,
+  height,
+  ...props
+}: React.ImgHTMLAttributes<HTMLImageElement> & {
+  width?: number;
+  height?: number;
+}) {
+  if (!src) return null;
+  
+  // Se for uma URL externa, usar img normal
+  if (src.startsWith('http://') || src.startsWith('https://')) {
+    return (
+      <img
+        src={src}
+        alt={alt || ''}
+        width={width}
+        height={height}
+        className="rounded-lg my-8 mx-auto max-w-full h-auto"
+        {...props}
+      />
+    );
+  }
+  
+  // Se for uma imagem local, usar Next.js Image
+  return (
+    <div className="my-8 flex justify-center">
+      <Image
+        src={src}
+        alt={alt || ''}
+        width={width || 1200}
+        height={height || 630}
+        className="rounded-lg max-w-full h-auto"
+        {...props}
+      />
+    </div>
+  );
+}
+
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,
@@ -48,6 +91,8 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     AccordionItem,
     AccordionTrigger,
     Author,
+    img: MDXImage,
+    Image: MDXImage,
     h1: createHeading(1),
     h2: createHeading(2),
     h3: createHeading(3),
