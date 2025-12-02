@@ -20,8 +20,9 @@ export async function GET(
   const posts = (docs as any)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .filter((post: any) => {
-      const postLang = post.data.language || 'pt-BR';
-      return postLang === lang;
+      const postLang = (post.data.language || 'pt-BR').toLowerCase();
+      const normalizedLang = lang.toLowerCase();
+      return postLang === normalizedLang;
     })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .sort((a: any, b: any) => {

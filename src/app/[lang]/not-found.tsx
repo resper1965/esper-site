@@ -41,8 +41,9 @@ export default async function NotFound({ params }: NotFoundProps) {
     const pages = blogSource.getPages();
     const allPages = Array.isArray(pages) ? pages : [];
     const filteredByLanguage = allPages.filter((page) => {
-      const postLang = page.data.language || 'pt-BR';
-      return postLang === lang;
+      const postLang = (page.data.language || 'pt-BR').toLowerCase();
+      const normalizedLang = lang.toLowerCase();
+      return postLang === normalizedLang;
     });
     suggestedPosts = filteredByLanguage
       .sort((a, b) => {

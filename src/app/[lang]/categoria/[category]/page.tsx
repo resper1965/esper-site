@@ -69,8 +69,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     const pages = blogSource.getPages();
     const allPages = Array.isArray(pages) ? pages : [];
     const filteredByLanguage = allPages.filter((page) => {
-      const postLang = page.data.language || 'pt-BR';
-      return postLang === lang;
+      const postLang = (page.data.language || 'pt-BR').toLowerCase();
+      const normalizedLang = lang.toLowerCase();
+    return postLang === normalizedLang;
     });
     categoryPosts = filteredByLanguage
       .filter((page) => {
