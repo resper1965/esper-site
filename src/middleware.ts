@@ -1,6 +1,44 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { i18n } from './i18n/config';
+import crypto from 'crypto';
+
+// Verificar autenticação para rotas admin
+function checkAdminAuth(request: NextRequest): boolean {
+  const { pathname } = request.nextUrl;
+  
+  // Permitir acesso à página de login
+  if (pathname === '/admin/login' || pathname.startsWith('/api/auth/')) {
+    return true;
+  }
+
+  // Verificar autenticação para outras rotas admin
+  if (pathname.startsWith('/admin/') || pathname.startsWith('/api/generate')) {
+    // Criar um objeto de cookies compatível
+    const cookieHeader = request.headers.get('cookie') || '';
+    const cookies: { [key: string]: string } = {};
+    cookieHeader.split(';').forEach(cookie => {
+      const [key, value] = cookie.trim().split('=');
+      if (key && value) cookies[key] = value;
+    });
+
+    // Verificar se há sessão válida
+    const sessionToken = cookies['admin_session'];
+    const sessionHash = cookies['admin_session_hash'];
+    
+    if (!sessionToken || !sessionHash) {
+      return false;
+    }
+
+    // Verificação básica
+    const SESSION_SECRET = process.env.SESSION_SECRET || 'change-me-in-production';
+    const expectedHash = crypto.createHash('sha256').update(sessionToken + SESSION_SECRET).digest('hex');
+    
+    return expectedHash === sessionHash;
+  }
+
+  return true;
+}
 
 function getLocale(request: NextRequest): string {
   // Check if there's a cookie preference
@@ -47,6 +85,26 @@ function getLocale(request: NextRequest): string {
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Verificar autenticação para rotas admin (antes do i18n)
+  if (pathname.startsWith('/admin/') && pathname !== '/admin/login') {
+    const isAuthenticated = checkAdminAuth(request);
+    if (!isAuthenticated) {
+      const loginUrl = new URL('/admin/login', request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  // Verificar autenticação para APIs de geração (exceto auth)
+  if (pathname.startsWith('/api/generate') || pathname.startsWith('/api/auto-generate')) {
+    const isAuthenticated = checkAdminAuth(request);
+    if (!isAuthenticated) {
+      return NextResponse.json(
+        { error: 'Não autorizado. Faça login em /admin/login' },
+        { status: 401 }
+      );
+    }
+  }
 
   // Check if the pathname already has a locale
   const pathnameHasLocale = i18n.locales.some(

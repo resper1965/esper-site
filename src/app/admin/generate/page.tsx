@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 
 interface GenerateResult {
@@ -13,15 +14,47 @@ interface GenerateResult {
 }
 
 export default function GenerateDashboard() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GenerateResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   const [formData, setFormData] = useState({
     topic: '',
     category: 'cybersecurity',
     keywords: ''
   });
+
+  // Verificar autenticação ao carregar
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/check');
+        const data = await response.json();
+        
+        if (!data.authenticated) {
+          router.push('/admin/login');
+        } else {
+          setCheckingAuth(false);
+        }
+      } catch {
+        router.push('/admin/login');
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  if (checkingAuth) {
+    return (
+      <Layout>
+        <div className="py-16 text-center">
+          <p className="text-grey-600">Verificando autenticação...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -58,9 +91,20 @@ export default function GenerateDashboard() {
     <Layout>
       <div className="py-16">
         <div className="container mx-auto px-4 max-w-4xl">
-          <h1 className="text-4xl font-bold text-grey-900 mb-8">
-            Gerador de Posts com IA
-          </h1>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-4xl font-bold text-grey-900">
+              Gerador de Posts com IA
+            </h1>
+            <button
+              onClick={async () => {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                router.push('/admin/login');
+              }}
+              className="px-4 py-2 text-sm text-grey-700 hover:text-grey-900 border border-grey-300 rounded-lg"
+            >
+              Sair
+            </button>
+          </div>
 
           <div className="bg-white border border-grey-200 rounded-lg p-8">
             {/* Form */}

@@ -10,6 +10,18 @@ const RICARDO_PROFILE = JSON.parse(
   fs.readFileSync(path.join(process.cwd(), 'src/lib/ai/ricardo-profile.json'), 'utf-8')
 );
 
+interface VoiceProfile {
+  tone: string;
+  formality: number;
+  perspective: {
+    experience: string;
+    analysis: string;
+  };
+  personality: string[];
+  phrases: string[];
+  opening: string[];
+}
+
 interface GeneratePostParams {
   topic: string;
   category: string;
@@ -39,6 +51,10 @@ async function generateSinglePost(params: GeneratePostParams) {
   const { topic, category, sources, keywords = [], language } = params;
   const isEnglish = language === 'en';
 
+  // Selecionar voz baseada na categoria
+  const voiceProfiles = RICARDO_PROFILE.voice as Record<string, VoiceProfile>;
+  const voiceProfile: VoiceProfile = voiceProfiles[category] || voiceProfiles.default || voiceProfiles;
+
   const languageInstructions = isEnglish
     ? `
 # LANGUAGE: ENGLISH
@@ -46,7 +62,7 @@ Write the ENTIRE post in ENGLISH. All content, titles, and metadata must be in E
 
 # TONE ADJUSTMENTS FOR ENGLISH:
 - Use "I" instead of "Eu" for personal experiences
-- Professional yet approachable tone (6.5/10 formality)
+- Professional yet approachable tone (${voiceProfile.formality}/10 formality)
 - Executive language, current, grounded
 - Use jargon when appropriate but explain
 - Examples of phrases:
@@ -130,10 +146,12 @@ ${languageInstructions}
 # IDENTITY
 ${JSON.stringify(RICARDO_PROFILE.identity, null, 2)}
 
-# VOICE
-- Formality level: ${RICARDO_PROFILE.voice.formality}/10
-- Tone: ${RICARDO_PROFILE.voice.tone}
-- Perspective: First person for experiences, third person for technical analysis
+# VOICE (specific for category "${category}")
+- Formality level: ${voiceProfile.formality}/10
+- Tone: ${voiceProfile.tone}
+- Perspective: ${voiceProfile.perspective.experience} for experiences, ${voiceProfile.perspective.analysis} for analysis
+- Personality: ${voiceProfile.personality.join(', ')}
+- Characteristic phrases: ${voiceProfile.phrases.slice(0, 5).join(', ')}
 
 # TOPIC
 ${topic}

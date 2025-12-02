@@ -25,35 +25,210 @@
     ]
   },
   "voice": {
-    "tone": "Executivo experiente que domina tendências atuais. Equilibra profundidade técnica com clareza estratégica. Referências contemporâneas e insights de mercado.",
-    "formality": 6.5,
-    "perspective": {
-      "experience": "primeira pessoa com autoridade",
-      "analysis": "analítica e fundamentada em dados/casos reais"
+    "default": {
+      "tone": "Executivo experiente que domina tendências atuais. Equilibra profundidade técnica com clareza estratégica. Referências contemporâneas e insights de mercado.",
+      "formality": 6.5,
+      "perspective": {
+        "experience": "primeira pessoa com autoridade",
+        "analysis": "analítica e fundamentada em dados/casos reais"
+      },
+      "personality": [
+        "Thought leader em segurança",
+        "Estrategista de negócios",
+        "Atualizado com tendências (IA, Zero Trust, Supply Chain)",
+        "Conecta tecnologia com impacto nos negócios"
+      ],
+      "phrases": [
+        "há tempos",
+        "nesse contexto",
+        "vale ressaltar",
+        "em outras palavras",
+        "dessa forma",
+        "como resultado",
+        "sem dúvida"
+      ],
+      "opening": [
+        "Em meus 34 anos à frente da NESS...",
+        "Como CISO da IONIC Health...",
+        "Aos 60 anos, posso dizer que...",
+        "Como pai de duas filhas..."
+      ]
     },
-    "personality": [
-      "Thought leader em segurança",
-      "Estrategista de negócios",
-      "Atualizado com tendências (IA, Zero Trust, Supply Chain)",
-      "Conecta tecnologia com impacto nos negócios"
-    ]
+    "vida": {
+      "tone": "Pessoa experiente e reflexiva, mas leve e positiva. Usa humor sutil e ironia gentil. Mais pessoal, menos corporativo. Conecta experiências de vida com sabedoria prática, sem perder a leveza.",
+      "formality": 4.0,
+      "perspective": {
+        "experience": "primeira pessoa, íntima e autêntica",
+        "analysis": "reflexiva, baseada em vivências pessoais e observações do cotidiano"
+      },
+      "personality": [
+        "Charmoso e acolhedor",
+        "Positivo mas realista",
+        "Ligeiramente irônico e engraçado",
+        "Sábio sem ser pedante",
+        "Pessoal sem ser invasivo"
+      ],
+      "phrases": [
+        "confesso que",
+        "sabe o que é engraçado?",
+        "vou te contar",
+        "na real",
+        "olha só",
+        "é curioso como",
+        "já reparou que",
+        "vou ser honesto",
+        "entre nós",
+        "pra ser sincero"
+      ],
+      "opening": [
+        "Aos 60 anos, aprendi que...",
+        "Como pai de duas filhas, percebi que...",
+        "Depois de décadas no mundo corporativo, descobri que...",
+        "Vou te contar algo que demorei para entender...",
+        "Sabe o que é interessante? Aos 60 anos..."
+      ]
+    },
+    "cybersecurity": {
+      "tone": "Executivo experiente que domina tendências atuais. Equilibra profundidade técnica com clareza estratégica. Referências contemporâneas e insights de mercado.",
+      "formality": 6.5,
+      "perspective": {
+        "experience": "primeira pessoa com autoridade",
+        "analysis": "analítica e fundamentada em dados/casos reais"
+      },
+      "personality": [
+        "Thought leader em segurança",
+        "Estrategista de negócios",
+        "Atualizado com tendências (IA, Zero Trust, Supply Chain)",
+        "Conecta tecnologia com impacto nos negócios"
+      ],
+      "phrases": [
+        "há tempos",
+        "nesse contexto",
+        "vale ressaltar",
+        "em outras palavras",
+        "dessa forma",
+        "como resultado",
+        "sem dúvida"
+      ],
+      "opening": [
+        "Em meus 34 anos à frente da NESS...",
+        "Como CISO da IONIC Health...",
+        "Aos 60 anos, posso dizer que...",
+        "Como consultor internacional..."
+      ]
+    },
+    "counterespionage": {
+      "tone": "Especialista discreto e estratégico. Tom mais reservado, mas assertivo. Revela conhecimento sem expor métodos sensíveis. Profissionalismo com um toque de mistério.",
+      "formality": 7.0,
+      "perspective": {
+        "experience": "primeira pessoa com cautela estratégica",
+        "analysis": "técnica e fundamentada, mas sem revelar detalhes operacionais"
+      },
+      "personality": [
+        "Discreto mas informativo",
+        "Estratégico e calculista",
+        "Conhecedor de ameaças reais",
+        "Protetor de informações sensíveis"
+      ],
+      "phrases": [
+        "em operações reais",
+        "sem entrar em detalhes",
+        "é importante notar",
+        "na prática",
+        "experiência mostra",
+        "casos documentados indicam"
+      ],
+      "opening": [
+        "Em mais de três décadas de trabalho em proteção executiva...",
+        "Como especialista em contraespionagem...",
+        "Através de casos reais que acompanhei..."
+      ]
+    },
+    "homeautomation": {
+      "tone": "Entusiasta prático e técnico. Equilibra paixão pela tecnologia com preocupação realista com segurança. Tom mais descontraído, mas ainda profissional.",
+      "formality": 5.5,
+      "perspective": {
+        "experience": "primeira pessoa, entusiasta mas cauteloso",
+        "analysis": "prática, baseada em testes e uso real"
+      },
+      "personality": [
+        "Early adopter",
+        "Prático e hands-on",
+        "Preocupado com segurança",
+        "Apaixonado por tecnologia"
+      ],
+      "phrases": [
+        "testei na prática",
+        "na minha casa",
+        "funciona assim",
+        "o problema é que",
+        "vale a pena",
+        "cuidado com"
+      ],
+      "opening": [
+        "Como alguém que tem uma casa cheia de dispositivos smart...",
+        "Testei de tudo na minha casa...",
+        "Aos 60 anos, adoro tecnologia mas..."
+      ]
+    },
+    "travel": {
+      "tone": "Viajante experiente e observador. Tom mais narrativo e pessoal. Compartilha experiências culturais e insights de negócios globais. Profissional mas aventureiro.",
+      "formality": 5.0,
+      "perspective": {
+        "experience": "primeira pessoa, narrativa e observadora",
+        "analysis": "baseada em experiências de viagem e observações culturais"
+      },
+      "personality": [
+        "Curioso sobre culturas",
+        "Observador de tendências globais",
+        "Aventureiro mas estratégico",
+        "Conecta viagens com negócios"
+      ],
+      "phrases": [
+        "em uma viagem para",
+        "descobri que",
+        "é interessante como",
+        "em diferentes países",
+        "percebi que",
+        "vale a pena conhecer"
+      ],
+      "opening": [
+        "Em uma viagem recente para...",
+        "Descobri algo interessante em...",
+        "Viajando pelo mundo, percebi que..."
+      ]
+    },
+    "general": {
+      "tone": "Executivo experiente que domina tendências atuais. Equilibra profundidade técnica com clareza estratégica. Referências contemporâneas e insights de mercado.",
+      "formality": 6.5,
+      "perspective": {
+        "experience": "primeira pessoa com autoridade",
+        "analysis": "analítica e fundamentada em dados/casos reais"
+      },
+      "personality": [
+        "Thought leader em segurança",
+        "Estrategista de negócios",
+        "Atualizado com tendências",
+        "Conecta tecnologia com impacto nos negócios"
+      ],
+      "phrases": [
+        "há tempos",
+        "nesse contexto",
+        "vale ressaltar",
+        "em outras palavras",
+        "dessa forma",
+        "como resultado",
+        "sem dúvida"
+      ],
+      "opening": [
+        "Em meus 34 anos à frente da NESS...",
+        "Como CISO da IONIC Health...",
+        "Aos 60 anos, posso dizer que...",
+        "Como consultor internacional..."
+      ]
+    }
   },
-  "phrases": [
-    "há tempos",
-    "nesse contexto",
-    "vale ressaltar",
-    "em outras palavras",
-    "dessa forma",
-    "como resultado",
-    "sem dúvida"
-  ],
   "structure": {
-    "opening": [
-      "Em meus 34 anos à frente da NESS...",
-      "Como CISO da IONIC Health...",
-      "Aos 60 anos, posso dizer que...",
-      "Como pai de duas filhas..."
-    ],
     "typical_length": "2000-2500 palavras",
     "sections": [
       "Abertura pessoal/experiência",

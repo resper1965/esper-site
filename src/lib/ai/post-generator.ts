@@ -19,27 +19,43 @@ interface GeneratePostParams {
   language?: 'pt-BR' | 'en';
 }
 
+interface VoiceProfile {
+  tone: string;
+  formality: number;
+  perspective: {
+    experience: string;
+    analysis: string;
+  };
+  personality: string[];
+  phrases: string[];
+  opening: string[];
+}
+
 export async function generatePost(params: GeneratePostParams) {
   const { topic, category, sources, keywords = [] } = params;
 
+  // Selecionar voz baseada na categoria
+  const voiceProfiles = RICARDO_PROFILE.voice as Record<string, VoiceProfile>;
+  const voiceProfile: VoiceProfile = voiceProfiles[category] || voiceProfiles.default || voiceProfiles;
+
   // Construir prompt com perfil do Ricardo
   const prompt = `
-Você é Ricardo Esper escrevendo um post para seu blog profissional de cibersegurança.
+Você é Ricardo Esper escrevendo um post para seu blog profissional.
 
 # IDENTIDADE
 ${JSON.stringify(RICARDO_PROFILE.identity, null, 2)}
 
-# TOM DE VOZ
-- Nível de formalidade: ${RICARDO_PROFILE.voice.formality}/10
-- Tom: ${RICARDO_PROFILE.voice.tone}
-- Perspectiva: Primeira pessoa para experiências, terceira pessoa para análises técnicas
-- Personalidade: ${RICARDO_PROFILE.voice.personality.join(', ')}
+# TOM DE VOZ (específico para categoria "${category}")
+- Nível de formalidade: ${voiceProfile.formality}/10
+- Tom: ${voiceProfile.tone}
+- Perspectiva: ${voiceProfile.perspective.experience} para experiências, ${voiceProfile.perspective.analysis} para análises
+- Personalidade: ${voiceProfile.personality.join(', ')}
 
-# FRASES CARACTERÍSTICAS (use naturalmente)
-${RICARDO_PROFILE.phrases.map((p: string) => '- "' + p + '"').join('\n')}
+# FRASES CARACTERÍSTICAS (use naturalmente, especialmente para esta categoria)
+${voiceProfile.phrases.map((p: string) => '- "' + p + '"').join('\n')}
 
-# ABERTURAS TÍPICAS (escolha uma adequada)
-${RICARDO_PROFILE.structure.opening.map((o: string) => '- ' + o).join('\n')}
+# ABERTURAS TÍPICAS (escolha uma adequada para esta categoria)
+${voiceProfile.opening.map((o: string) => '- ' + o).join('\n')}
 
 # TEMA DO POST
 ${topic}
@@ -90,13 +106,20 @@ ${keywords.join(', ')}
    - Convite para discussão no LinkedIn
    - Oferta de valor (whitepaper, consultoria, networking)
 
-# REQUISITOS
+# REQUISITOS ESPECÍFICOS POR CATEGORIA
+${category === 'vida' ? `
+- **Tom**: Mais positivo, charmoso, ligeiramente irônico e engraçado. Menos profissional, mais pessoal.
+- **Linguagem**: Conversacional, autêntica, com toques de humor sutil. Evite jargão corporativo.
+- **Abordagem**: Reflexiva, baseada em experiências pessoais. Use ironia gentil e observações engraçadas.
+- **Comprimento**: 1500-2000 palavras (pode ser mais curto e direto)
+` : `
 - **Público-Alvo**: C-level, gestores de TI, profissionais de segurança, empresários modernos
-- **Tom**: Profissional sofisticado mas acessível (6.5/10 formalidade)
+- **Tom**: Profissional sofisticado mas acessível (${voiceProfile.formality}/10 formalidade)
 - **Linguagem**: Executiva, atual, fundamentada. Use jargão quando apropriado mas explique.
 - **Temas Atuais**: IA, Deepfakes, Supply Chain, Regulação (LGPD/GDPR), Zero Trust, Cloud Security
 - **Comprimento**: 1800-2200 palavras
 - **Código**: Permitido se simples e ilustrativo (ex: exemplo de phishing, configuração básica)
+`}
 - **Dados**: Use estatísticas, pesquisas, relatórios de mercado quando possível
 
 # FRONTMATTER YAML

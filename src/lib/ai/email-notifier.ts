@@ -90,8 +90,8 @@ export async function sendPostGeneratedNotification(post: {
     });
 
     console.log(`✅ Email enviado para ${EMAIL_CONFIG.to}`);
-  } catch (error) {
-    console.error('❌ Erro ao enviar email:', error);
+  } catch {
+    // Email opcional, não bloquear se falhar
   }
 }
 
