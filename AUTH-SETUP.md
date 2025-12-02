@@ -22,16 +22,27 @@ Para gerar o hash de uma nova senha, execute:
 node -e "console.log(require('crypto').createHash('sha256').update('sua-senha-aqui').digest('hex'))"
 ```
 
-**Senha configurada:** `Gordinh@29` (hash será gerado abaixo)
+**Senha configurada:** `Gordinh@29`
+
+**Hash SHA256:** `afa7720f11282278890c8966dce4c9e6d44bbc2ace60910e81ae2d98f14b3d6f`
 
 ⚠️ **IMPORTANTE:** Configure essas variáveis na Vercel antes de fazer deploy!
+
+## Configurar na Vercel
+
+1. Acesse o dashboard da Vercel
+2. Vá em Settings → Environment Variables
+3. Adicione as seguintes variáveis:
+   - `ADMIN_USERNAME` = `admin`
+   - `ADMIN_PASSWORD_HASH` = `afa7720f11282278890c8966dce4c9e6d44bbc2ace60910e81ae2d98f14b3d6f`
+   - `SESSION_SECRET` = (gere um valor aleatório seguro)
 
 ## Como Usar
 
 1. Acesse `/admin/login`
 2. Faça login com:
-   - Usuário: `admin` (ou o valor de `ADMIN_USERNAME`)
-   - Senha: `admin123` (ou a senha que você configurou)
+   - Usuário: `admin`
+   - Senha: `Gordinh@29`
 3. Após login, você será redirecionado para `/admin/generate`
 
 ## Rotas Protegidas
