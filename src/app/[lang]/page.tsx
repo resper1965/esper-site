@@ -67,30 +67,14 @@ export default async function HomePage({
     allPages = [];
   }
 
-  // Debug: log all pages and their languages
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`[DEBUG] Total pages loaded: ${allPages.length}`);
-    allPages.forEach((page) => {
-      console.log(`[DEBUG] Page: ${page.url}, Language: ${page.data.language || 'undefined'}, Title: ${page.data.title}`);
-    });
-  }
-
   // Filter posts by language (normalize to handle case variations)
   const filteredByLanguage = allPages.filter((page) => {
     const postLang = (page.data.language || 'pt-BR').toLowerCase();
     const normalizedLang = lang.toLowerCase();
     // Normalize both to lowercase for comparison
     // Handle both 'pt-br' and 'pt-BR' variations - both should match 'pt-br'
-    const matches = postLang === normalizedLang;
-    if (process.env.NODE_ENV === 'development' && !matches) {
-      console.log(`[DEBUG] Filtered out: ${page.data.title} (lang: ${postLang}, expected: ${normalizedLang})`);
-    }
-    return matches;
+    return postLang === normalizedLang;
   });
-
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`[DEBUG] Filtered pages for ${lang}: ${filteredByLanguage.length}`);
-  }
 
   // Sort: most recent first (newest to oldest)
   const sortedBlogs = filteredByLanguage.sort((a, b) => {
