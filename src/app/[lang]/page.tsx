@@ -67,10 +67,13 @@ export default async function HomePage({
     allPages = [];
   }
 
-  // Filter posts by language
+  // Filter posts by language (normalize to handle case variations)
   const filteredByLanguage = allPages.filter((page) => {
-    const postLang = page.data.language || 'pt-BR';
-    return postLang === lang;
+    const postLang = (page.data.language || 'pt-BR').toLowerCase();
+    const normalizedLang = lang.toLowerCase();
+    // Normalize both to lowercase for comparison
+    // Handle both 'pt-br' and 'pt-BR' variations - both should match 'pt-br'
+    return postLang === normalizedLang;
   });
 
   const sortedBlogs = filteredByLanguage.sort((a, b) => {
