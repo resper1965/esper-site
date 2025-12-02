@@ -128,7 +128,7 @@
 
 .dark {
   /* Base neutra - Dark Mode (Shadcn Gray Scale) */
-  --background: oklch(0.13 0 0); /* gray-900 */
+  --background: #111827; /* gray-900 */
   --foreground: oklch(0.99 0 0); /* gray-50 */
   --card: oklch(0.20 0 0); /* gray-850 */
   --card-foreground: oklch(0.99 0 0); /* gray-50 */
@@ -137,7 +137,7 @@
 
   /* Primary - Versão mais clara para dark mode */
   --primary: oklch(0.75 0.16 220);
-  --primary-foreground: oklch(0.13 0 0); /* gray-900 */
+  --primary-foreground: #111827; /* gray-900 */
 
   /* Secondary */
   --secondary: oklch(0.25 0 0); /* gray-800 */
@@ -172,7 +172,7 @@
   --sidebar: oklch(0.20 0 0); /* gray-850 */
   --sidebar-foreground: oklch(0.99 0 0); /* gray-50 */
   --sidebar-primary: oklch(0.75 0.16 220);
-  --sidebar-primary-foreground: oklch(0.13 0 0); /* gray-900 */
+  --sidebar-primary-foreground: #111827; /* gray-900 */
   --sidebar-accent: oklch(0.25 0 0); /* gray-800 */
   --sidebar-accent-foreground: oklch(0.99 0 0); /* gray-50 */
   --sidebar-border: oklch(0.25 0 0); /* gray-800 */
