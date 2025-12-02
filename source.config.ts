@@ -16,6 +16,17 @@ export const { docs, meta } = defineDocs({
   docs: {
     schema: frontmatterSchema.extend({
       date: z.string(),
+      category: z.enum([
+        "cybersecurity",
+        "counterespionage",
+        "forensics",
+        "intelligence",
+        "compliance",
+        "leadership",
+        "homeautomation",
+        "general",
+        "vida",
+      ]).optional(),
       tags: z.array(z.string()).optional(),
       featured: z.boolean().optional().default(false),
       readTime: z.string().optional(),

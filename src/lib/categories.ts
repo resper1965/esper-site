@@ -1,4 +1,4 @@
-import { Shield, Eye, Home, Plane, Code, Smartphone } from "lucide-react";
+import { Shield, Eye, Home, Plane, Code, Smartphone, Heart } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export interface CategoryConfig {
@@ -58,6 +58,13 @@ export const categoryConfig: Record<string, CategoryConfig> = {
         borderColor: "border-primary/30",
         icon: Smartphone,
         label: "Mobile",
+    },
+    "Vida": {
+        color: "text-[oklch(0.70_0.12_55)]",
+        bgColor: "bg-[oklch(0.70_0.12_55)]/5",
+        borderColor: "border-[oklch(0.70_0.12_55)]/30",
+        icon: Heart,
+        label: "Vida",
     },
 };
 
