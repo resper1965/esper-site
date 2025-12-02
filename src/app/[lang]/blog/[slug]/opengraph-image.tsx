@@ -1,5 +1,4 @@
 import { ImageResponse } from '@vercel/og';
-import { NextRequest } from 'next/server';
 import { docs, meta } from "@/.source";
 import { loader } from "fumadocs-core/source";
 import { createMDXSource } from "fumadocs-mdx";
@@ -53,12 +52,19 @@ const categoryColors: Record<string, { bg: string; accent: string; icon: string 
   },
 };
 
+export const alt = 'Ricardo Esper Blog Post';
+export const size = {
+  width: 1200,
+  height: 630,
+};
+export const contentType = 'image/png';
 export const runtime = 'nodejs';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
+export default async function Image({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   try {
     const { slug } = await params;
     
@@ -244,10 +250,7 @@ export async function GET(
           <div style={{ fontSize: 40, fontWeight: 600 }}>Ricardo Esper</div>
         </div>
       ),
-      {
-        width: 1200,
-        height: 630,
-      }
+      size
     );
   }
 }

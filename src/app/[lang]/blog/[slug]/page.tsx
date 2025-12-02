@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     const keywords = page.data.keywords || [];
-    // Use dynamic Open Graph image
+    // Use dynamic Open Graph image (Next.js will automatically use opengraph-image.tsx)
     const image = `${siteConfig.url}/${lang}/blog/${slug}/opengraph-image`;
 
     return generatePageMetadata({
