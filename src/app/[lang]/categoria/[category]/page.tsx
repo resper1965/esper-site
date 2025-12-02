@@ -23,6 +23,8 @@ const categoryMap: Record<string, { pt: string; en: string }> = {
   leadership: { pt: 'Liderança', en: 'Leadership' },
   homeautomation: { pt: 'Automação Residencial', en: 'Home Automation' },
   general: { pt: 'Geral', en: 'General' },
+  vida: { pt: 'Vida', en: 'Life' },
+  travel: { pt: 'Viagens', en: 'Travel' },
 };
 
 interface CategoryPageProps {

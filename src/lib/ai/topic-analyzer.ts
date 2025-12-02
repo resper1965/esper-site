@@ -44,6 +44,7 @@ ${i + 1}. [${s.source}] ${s.title}
 - homeautomation (IoT, smart home security)
 - travel (tecnologia em viagens, mercados globais)
 - general (LGPD, compliance, tendências)
+- vida (reflexões pessoais, autoconhecimento, maturidade emocional)
 
 # CRITÉRIOS
 1. Relevância atual (aconteceu recentemente)

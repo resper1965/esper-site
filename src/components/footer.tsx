@@ -87,6 +87,14 @@ export default function Footer({ lang }: FooterProps) {
           <p className="text-sm text-muted-foreground text-center">
             &copy; {new Date().getFullYear()} Ricardo Esper. {dict.copyright}
           </p>
+          <div className="mt-2 text-center">
+            <Link
+              href="/admin/generate"
+              className="text-xs text-muted-foreground/50 hover:text-muted-foreground/70 transition-colors"
+            >
+              Admin
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

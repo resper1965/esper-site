@@ -16,11 +16,12 @@ const DEFAULT_CONFIG: ScheduleConfig = {
   minHoursBetweenSameCategory: 48,
   preferredHours: [6], // 6h da manhã
   categoryDistribution: {
-    cybersecurity: 0.40,
+    cybersecurity: 0.35,
     counterespionage: 0.20,
     homeautomation: 0.15,
     travel: 0.10,
-    general: 0.15
+    general: 0.15,
+    vida: 0.05
   }
 };
 
