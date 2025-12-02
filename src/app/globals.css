@@ -128,7 +128,7 @@
 
 .dark {
   /* Base neutra - Dark Mode (Shadcn Gray Scale) */
-  --background: oklch(0.06 0 0); /* gray-900 #111827 */
+  --background: #111827; /* gray-900 */
   --foreground: oklch(0.99 0 0); /* gray-50 */
   --card: oklch(0.20 0 0); /* gray-850 */
   --card-foreground: oklch(0.99 0 0); /* gray-50 */

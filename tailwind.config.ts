@@ -9,7 +9,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: 'oklch(var(--background))',
+        background: 'var(--background)',
         foreground: 'oklch(var(--foreground))',
         card: {
           DEFAULT: 'oklch(var(--card))',
