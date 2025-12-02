@@ -12,7 +12,7 @@ export default defineConfig({
 });
 
 export const { docs, meta } = defineDocs({
-  dir: "blog/content",
+  dir: "src/content/posts",
   docs: {
     schema: frontmatterSchema.extend({
       date: z.string(),

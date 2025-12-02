@@ -11,7 +11,7 @@ var source_config_default = defineConfig({
   }
 });
 var { docs, meta } = defineDocs({
-  dir: "blog/content",
+  dir: "src/content/posts",
   docs: {
     schema: frontmatterSchema.extend({
       date: z.string(),
