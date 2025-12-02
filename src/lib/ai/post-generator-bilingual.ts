@@ -65,7 +65,9 @@ Write the ENTIRE post in ENGLISH. All content, titles, and metadata must be in E
 - Professional yet approachable tone (${voiceProfile.formality}/10 formality)
 - Executive language, current, grounded
 - Use jargon when appropriate but explain
-- Examples of phrases:
+- Characteristic phrases for this category: ${voiceProfile.phrases.slice(0, 5).join(', ')}
+- Opening styles for this category:
+${voiceProfile.opening.map((o: string) => `  - ${o}`).join('\n')}
   - "In my 34 years leading NESS..."
   - "As CISO of IONIC Health..."
   - "At 60, as a father of two daughters..."

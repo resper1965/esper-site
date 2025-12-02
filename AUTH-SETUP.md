@@ -7,7 +7,7 @@ Adicione as seguintes variáveis no seu `.env.local` e na Vercel:
 ```bash
 # Autenticação Admin
 ADMIN_USERNAME=admin
-ADMIN_PASSWORD_HASH=240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9
+ADMIN_PASSWORD_HASH=afa7720f11282278890c8966dce4c9e6d44bbc2ace60910e81ae2d98f14b3d6f
 SESSION_SECRET=seu-secret-aleatorio-aqui-mude-em-producao
 
 # API Key Anthropic (já existe)
@@ -22,9 +22,9 @@ Para gerar o hash de uma nova senha, execute:
 node -e "console.log(require('crypto').createHash('sha256').update('sua-senha-aqui').digest('hex'))"
 ```
 
-**Senha padrão configurada:** `admin123` (hash: `240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9`)
+**Senha configurada:** `Gordinh@29` (hash será gerado abaixo)
 
-⚠️ **IMPORTANTE:** Mude a senha padrão em produção!
+⚠️ **IMPORTANTE:** Configure essas variáveis na Vercel antes de fazer deploy!
 
 ## Como Usar
 
