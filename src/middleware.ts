@@ -106,6 +106,11 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // Excluir rotas admin do redirecionamento de locale
+  if (pathname.startsWith('/admin/') || pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+
   // Check if the pathname already has a locale
   const pathnameHasLocale = i18n.locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
