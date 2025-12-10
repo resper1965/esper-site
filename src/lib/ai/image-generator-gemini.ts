@@ -1,7 +1,6 @@
 import { generatePostImageWithOG } from './image-generator-og.tsx';
 import { generateThemedAbstractImage } from './abstract-image-generator';
 import path from 'path';
-import fs from 'fs';
 
 /**
  * Gera imagem de capa para post conectada ao tema

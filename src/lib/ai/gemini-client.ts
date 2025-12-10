@@ -6,7 +6,7 @@ import path from 'path';
 const envPath = path.join(process.cwd(), '.env.local');
 try {
   config({ path: envPath, override: false });
-} catch (error) {
+} catch {
   // Ignorar erro se arquivo não existir
 }
 

@@ -77,7 +77,6 @@ function extractVisualElements(
   colors: string[];
   theme: string;
 } {
-  const descLower = description.toLowerCase();
   const allText = `${description} ${keywords.join(' ')} ${category}`.toLowerCase();
 
   const icons: string[] = [];
