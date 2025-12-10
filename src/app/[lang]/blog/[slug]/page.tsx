@@ -222,7 +222,7 @@ export default async function BlogPost({ params }: PageProps) {
                 className="object-cover"
                 priority
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
-                onError={(e) => {
+                onError={() => {
                   console.error('Erro ao carregar imagem:', page.data.coverImage || page.data.thumbnail);
                 }}
               />
