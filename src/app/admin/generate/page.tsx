@@ -131,15 +131,23 @@ export default function GenerateDashboard() {
             <h1 className="text-4xl font-bold text-grey-900">
               Gerador de Posts com IA
             </h1>
-            <button
-              onClick={async () => {
-                await fetch('/api/auth/logout', { method: 'POST' });
-                router.push('/admin/login');
-              }}
-              className="px-4 py-2 text-sm text-grey-700 hover:text-grey-900 border border-grey-300 rounded-lg"
-            >
-              Sair
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={() => router.push('/admin/regenerate-image')}
+                className="px-4 py-2 text-sm text-grey-700 hover:text-grey-900 border border-grey-300 rounded-lg"
+              >
+                🔄 Regenerar Imagem
+              </button>
+              <button
+                onClick={async () => {
+                  await fetch('/api/auth/logout', { method: 'POST' });
+                  router.push('/admin/login');
+                }}
+                className="px-4 py-2 text-sm text-grey-700 hover:text-grey-900 border border-grey-300 rounded-lg"
+              >
+                Sair
+              </button>
+            </div>
           </div>
 
           {/* Tabs */}
@@ -287,7 +295,44 @@ export default function GenerateDashboard() {
                   <p><strong>Slug:</strong> {result.slug}</p>
                   <p><strong>Score:</strong> {result.score}/10</p>
                   <p><strong>Arquivo:</strong> <code className="bg-white px-2 py-1 rounded">{result.filepath}</code></p>
+                  {result.coverImage && (
+                    <p><strong>Imagem:</strong> <code className="bg-white px-2 py-1 rounded">{result.coverImage}</code></p>
+                  )}
                 </div>
+                {result.coverImage && (
+                  <div className="mt-4">
+                    <img 
+                      src={result.coverImage} 
+                      alt="Cover" 
+                      className="w-full max-w-md rounded-lg border border-grey-300"
+                    />
+                    <button
+                      onClick={async () => {
+                        setLoading(true);
+                        setError(null);
+                        try {
+                          const response = await fetch('/api/regenerate-image', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ slug: result.slug })
+                          });
+                          const data = await response.json();
+                          if (!response.ok) throw new Error(data.error);
+                          setResult({ ...result, coverImage: data.coverImage });
+                          alert('✅ Imagem regenerada com sucesso!');
+                        } catch (err) {
+                          setError(err instanceof Error ? err.message : 'Erro ao regenerar imagem');
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      disabled={loading}
+                      className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-grey-400 text-sm"
+                    >
+                      🔄 Regenerar Imagem
+                    </button>
+                  </div>
+                )}
                 <div className="mt-4 p-4 bg-white rounded border border-grey-300">
                   <p className="text-xs text-grey-600 mb-2"><strong>Preview:</strong></p>
                   <pre className="text-xs overflow-x-auto whitespace-pre-wrap">{result.preview}</pre>
