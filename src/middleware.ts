@@ -13,28 +13,44 @@ function checkAdminAuth(request: NextRequest): boolean {
   }
 
   // Verificar autenticação para outras rotas admin
-  if (pathname.startsWith('/admin/') || pathname.startsWith('/api/generate')) {
-    // Criar um objeto de cookies compatível
+  if (pathname.startsWith('/admin/') || pathname.startsWith('/api/generate') || pathname.startsWith('/api/auto-generate')) {
     const cookieHeader = request.headers.get('cookie') || '';
     const cookies: { [key: string]: string } = {};
     cookieHeader.split(';').forEach(cookie => {
       const [key, value] = cookie.trim().split('=');
-      if (key && value) cookies[key] = value;
+      if (key && value) cookies[key] = decodeURIComponent(value);
     });
 
-    // Verificar se há sessão válida
     const sessionToken = cookies['admin_session'];
-    const sessionHash = cookies['admin_session_hash'];
     
-    if (!sessionToken || !sessionHash) {
+    if (!sessionToken) {
       return false;
     }
 
-    // Verificação básica
-    const SESSION_SECRET = process.env.SESSION_SECRET || 'change-me-in-production';
-    const expectedHash = crypto.createHash('sha256').update(sessionToken + SESSION_SECRET).digest('hex');
-    
-    return expectedHash === sessionHash;
+    // Verificar token usando o mesmo método do auth.ts
+    try {
+      const SESSION_SECRET = process.env.SESSION_SECRET || '';
+      if (!SESSION_SECRET) return false;
+
+      const [payload, signature] = sessionToken.split('.');
+      if (!payload || !signature) return false;
+
+      const expectedSignature = crypto
+        .createHmac('sha256', SESSION_SECRET)
+        .update(payload)
+        .digest('hex');
+
+      if (signature !== expectedSignature) return false;
+
+      const decoded = JSON.parse(Buffer.from(payload, 'base64').toString());
+      const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 dias
+      const isExpired = Date.now() - decoded.timestamp > maxAge;
+
+      const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+      return !isExpired && decoded.username === ADMIN_USERNAME;
+    } catch {
+      return false;
+    }
   }
 
   return true;

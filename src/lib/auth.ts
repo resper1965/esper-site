@@ -1,89 +1,114 @@
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
 
-// Senha hash (SHA256) - configure ADMIN_PASSWORD no .env
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || '';
+// Configurações de autenticação
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const SESSION_SECRET = process.env.SESSION_SECRET || 'change-me-in-production';
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || '';
+const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 
-// Gerar hash da senha (use: node -e "console.log(require('crypto').createHash('sha256').update('sua-senha').digest('hex'))")
+// Gerar hash da senha
 export function hashPassword(password: string): string {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
 // Verificar credenciais
 export function verifyCredentials(username: string, password: string): boolean {
+  // Verificar se as variáveis de ambiente estão configuradas
+  if (!ADMIN_PASSWORD_HASH || ADMIN_PASSWORD_HASH === '') {
+    console.error('❌ ADMIN_PASSWORD_HASH não está configurado');
+    return false;
+  }
+
   const passwordHash = hashPassword(password);
-  const usernameMatch = username === ADMIN_USERNAME;
-  const passwordMatch = passwordHash === ADMIN_PASSWORD_HASH;
-  
-  // Debug logs sempre (para identificar problemas em produção)
-  console.log('Auth Debug:', {
-    providedUsername: username,
-    expectedUsername: ADMIN_USERNAME,
-    usernameMatch,
-    passwordHashProvided: passwordHash.substring(0, 10) + '...',
-    passwordHashExpected: ADMIN_PASSWORD_HASH ? ADMIN_PASSWORD_HASH.substring(0, 10) + '...' : 'NOT SET',
-    passwordMatch,
-    hasEnvVars: !!ADMIN_USERNAME && !!ADMIN_PASSWORD_HASH,
-    envUsername: ADMIN_USERNAME,
-    envHashSet: !!ADMIN_PASSWORD_HASH
-  });
-  
-  return usernameMatch && passwordMatch;
+  const usernameMatch = username.trim() === ADMIN_USERNAME.trim();
+  const passwordMatch = passwordHash === ADMIN_PASSWORD_HASH.trim();
+
+  if (!usernameMatch || !passwordMatch) {
+    console.log('❌ Credenciais inválidas:', {
+      usernameMatch,
+      passwordMatch,
+      providedUsername: username,
+      expectedUsername: ADMIN_USERNAME
+    });
+    return false;
+  }
+
+  return true;
 }
 
-// Gerar token de sessão
-export function generateSessionToken(): string {
-  return crypto.randomBytes(32).toString('hex');
+// Criar token de sessão simples
+function createSessionToken(): string {
+  const payload = {
+    username: ADMIN_USERNAME,
+    timestamp: Date.now(),
+    random: crypto.randomBytes(16).toString('hex')
+  };
+  
+  const token = Buffer.from(JSON.stringify(payload)).toString('base64');
+  const signature = crypto
+    .createHmac('sha256', SESSION_SECRET)
+    .update(token)
+    .digest('hex');
+  
+  return `${token}.${signature}`;
 }
 
 // Verificar token de sessão
-export async function verifySession(): Promise<boolean> {
-  const cookieStore = await cookies();
-  const sessionToken = cookieStore.get('admin_session')?.value;
-  
-  if (!sessionToken) {
+function verifySessionToken(token: string): boolean {
+  try {
+    const [payload, signature] = token.split('.');
+    if (!payload || !signature) return false;
+
+    const expectedSignature = crypto
+      .createHmac('sha256', SESSION_SECRET)
+      .update(payload)
+      .digest('hex');
+
+    if (signature !== expectedSignature) return false;
+
+    const decoded = JSON.parse(Buffer.from(payload, 'base64').toString());
+    const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 dias
+    const isExpired = Date.now() - decoded.timestamp > maxAge;
+
+    return !isExpired && decoded.username === ADMIN_USERNAME;
+  } catch {
     return false;
   }
-
-  // Verificar se o token está válido (comparar com hash armazenado)
-  const expectedHash = cookieStore.get('admin_session_hash')?.value;
-  if (!expectedHash) {
-    return false;
-  }
-
-  const tokenHash = crypto.createHash('sha256').update(sessionToken + SESSION_SECRET).digest('hex');
-  return tokenHash === expectedHash;
 }
 
 // Criar sessão
-export async function createSession(): Promise<string> {
-  const token = generateSessionToken();
-  const tokenHash = crypto.createHash('sha256').update(token + SESSION_SECRET).digest('hex');
-  
+export async function createSession(): Promise<void> {
+  const token = createSessionToken();
   const cookieStore = await cookies();
+  
   cookieStore.set('admin_session', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7, // 7 dias
+    path: '/',
   });
-  
-  cookieStore.set('admin_session_hash', tokenHash, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7, // 7 dias
-  });
+}
 
-  return token;
+// Verificar sessão
+export async function verifySession(): Promise<boolean> {
+  try {
+    const cookieStore = await cookies();
+    const sessionToken = cookieStore.get('admin_session')?.value;
+    
+    if (!sessionToken) {
+      return false;
+    }
+
+    return verifySessionToken(sessionToken);
+  } catch (error) {
+    console.error('Erro ao verificar sessão:', error);
+    return false;
+  }
 }
 
 // Destruir sessão
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete('admin_session');
-  cookieStore.delete('admin_session_hash');
 }
-

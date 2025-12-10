@@ -6,6 +6,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { username, password } = body;
 
+    // Validação básica
     if (!username || !password) {
       return NextResponse.json(
         { error: 'Username e password são obrigatórios' },
@@ -13,25 +14,26 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verificar se variáveis de ambiente estão configuradas
+    // Verificar variáveis de ambiente
     if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD_HASH) {
-      console.error('Variáveis de ambiente não configuradas:', {
-        hasUsername: !!process.env.ADMIN_USERNAME,
-        hasPasswordHash: !!process.env.ADMIN_PASSWORD_HASH
-      });
+      console.error('❌ Variáveis de ambiente não configuradas');
       return NextResponse.json(
-        { error: 'Configuração do servidor incompleta. Contate o administrador.' },
+        { error: 'Configuração do servidor incompleta' },
         { status: 500 }
       );
     }
 
-    if (!verifyCredentials(username, password)) {
+    // Verificar credenciais
+    const isValid = verifyCredentials(username, password);
+    
+    if (!isValid) {
       return NextResponse.json(
         { error: 'Credenciais inválidas' },
         { status: 401 }
       );
     }
 
+    // Criar sessão
     await createSession();
 
     return NextResponse.json({
@@ -39,11 +41,10 @@ export async function POST(request: Request) {
       message: 'Login realizado com sucesso'
     });
   } catch (error) {
-    console.error('Erro no login:', error);
+    console.error('❌ Erro no login:', error);
     return NextResponse.json(
       { error: 'Erro ao processar login' },
       { status: 500 }
     );
   }
 }
-
