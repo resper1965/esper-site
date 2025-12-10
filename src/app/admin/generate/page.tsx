@@ -26,6 +26,12 @@ export default function GenerateDashboard() {
     keywords: ''
   });
 
+  const [urlFormData, setUrlFormData] = useState({
+    url: '',
+    category: 'general',
+    keywords: ''
+  });
+
   // Verificar autenticação ao carregar
   useEffect(() => {
     const checkAuth = async () => {
@@ -87,6 +93,36 @@ export default function GenerateDashboard() {
     }
   };
 
+  const handleGenerateFromUrl = async () => {
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      const response = await fetch('/api/generate-from-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: urlFormData.url,
+          category: urlFormData.category,
+          keywords: urlFormData.keywords.split(',').map(k => k.trim()).filter(Boolean)
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao gerar post da URL');
+      }
+
+      setResult(data.post);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro desconhecido');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="py-16">
@@ -106,9 +142,89 @@ export default function GenerateDashboard() {
             </button>
           </div>
 
+          {/* Tabs */}
+          <div className="mb-6 border-b border-grey-200">
+            <div className="flex space-x-4">
+              <button
+                className="px-4 py-2 font-medium text-grey-700 border-b-2 border-grey-900"
+              >
+                Gerar por Tema
+              </button>
+              <button
+                className="px-4 py-2 font-medium text-grey-500 hover:text-grey-700"
+                onClick={() => {
+                  setResult(null);
+                  setError(null);
+                }}
+              >
+                Gerar de URL
+              </button>
+            </div>
+          </div>
+
           <div className="bg-white border border-grey-200 rounded-lg p-8">
-            {/* Form */}
+            {/* Form - Gerar de URL */}
+            <div className="space-y-6 mb-8 pb-8 border-b border-grey-200">
+              <h2 className="text-2xl font-bold text-grey-900 mb-4">
+                📰 Gerar Post a partir de URL
+              </h2>
+              <div>
+                <label className="block text-sm font-medium text-grey-700 mb-2">
+                  URL do Artigo
+                </label>
+                <input
+                  type="url"
+                  value={urlFormData.url}
+                  onChange={(e) => setUrlFormData({ ...urlFormData, url: e.target.value })}
+                  placeholder="https://exemplo.com/artigo"
+                  className="w-full px-4 py-2 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-grey-700 mb-2">
+                  Categoria
+                </label>
+                <select
+                  value={urlFormData.category}
+                  onChange={(e) => setUrlFormData({ ...urlFormData, category: e.target.value })}
+                  className="w-full px-4 py-2 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-500"
+                >
+                  <option value="cybersecurity">Cibersegurança</option>
+                  <option value="counterespionage">Contraespionagem</option>
+                  <option value="homeautomation">Automação Residencial</option>
+                  <option value="travel">Viagens</option>
+                  <option value="general">Geral</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-grey-700 mb-2">
+                  Keywords (separadas por vírgula, opcional)
+                </label>
+                <input
+                  type="text"
+                  value={urlFormData.keywords}
+                  onChange={(e) => setUrlFormData({ ...urlFormData, keywords: e.target.value })}
+                  placeholder="keyword1, keyword2, keyword3"
+                  className="w-full px-4 py-2 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-500"
+                />
+              </div>
+
+              <button
+                onClick={handleGenerateFromUrl}
+                disabled={loading || !urlFormData.url}
+                className="w-full bg-grey-900 text-white py-3 rounded-lg font-medium hover:bg-grey-800 disabled:bg-grey-400 disabled:cursor-not-allowed transition"
+              >
+                {loading ? '⏳ Lendo URL e gerando post...' : '🚀 Gerar Post da URL'}
+              </button>
+            </div>
+
+            {/* Form - Gerar por Tema */}
             <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-grey-900 mb-4">
+                ✍️ Gerar Post por Tema
+              </h2>
               <div>
                 <label className="block text-sm font-medium text-grey-700 mb-2">
                   Tema do Post
