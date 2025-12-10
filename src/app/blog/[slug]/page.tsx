@@ -6,7 +6,6 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import Image from "next/image";
 
 import { TableOfContents } from "@/components/table-of-contents";
 import { MobileTableOfContents } from "@/components/mobile-toc";
