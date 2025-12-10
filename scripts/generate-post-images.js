@@ -7,157 +7,280 @@
 
 const fs = require('fs');
 const path = require('path');
+const React = require('react');
 const { ImageResponse } = require('@vercel/og');
+
+const { createElement: h } = React;
 
 const postsDir = path.join(process.cwd(), 'src/content/posts');
 const imagesDir = path.join(process.cwd(), 'public/images');
 
-// Cores por categoria
-const categoryColors = {
+const fontStack =
+  '"Geist", "Inter", "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+const textureBackground =
+  'linear-gradient(120deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 45%, transparent 80%)';
+
+const themeStyles = {
   cybersecurity: {
-    bg: '#0f172a',
-    accent: '#3b82f6',
-    icon: '🛡️',
+    label: 'Cibersegurança',
+    descriptor: 'Infraestrutura crítica',
+    background: '#050505',
+    panel: '#0b0b0b',
+    accent: '#f5f5f5',
+    border: '#1f1f1f',
+    gradient: 'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 55%)',
+    patternOpacity: 0.22,
   },
   counterespionage: {
-    bg: '#1e1b4b',
-    accent: '#6366f1',
-    icon: '👁️',
+    label: 'Contraespionagem',
+    descriptor: 'Contrainteligência ativa',
+    background: '#040404',
+    panel: '#0a0a0a',
+    accent: '#f3f4f6',
+    border: '#252525',
+    gradient: 'radial-gradient(circle at 80% 25%, rgba(255,255,255,0.12), transparent 60%)',
+    patternOpacity: 0.24,
   },
   forensics: {
-    bg: '#1c1917',
-    accent: '#78716c',
-    icon: '🔍',
+    label: 'Forense Digital',
+    descriptor: 'Investigação técnica',
+    background: '#060606',
+    panel: '#0c0c0c',
+    accent: '#f7f7f7',
+    border: '#262626',
+    gradient: 'radial-gradient(circle at 30% 70%, rgba(255,255,255,0.12), transparent 65%)',
+    patternOpacity: 0.18,
   },
   compliance: {
-    bg: '#1e293b',
-    accent: '#64748b',
-    icon: '📋',
+    label: 'Compliance',
+    descriptor: 'Governança & risco',
+    background: '#050505',
+    panel: '#0a0a0a',
+    accent: '#e5e5e5',
+    border: '#1f1f1f',
+    gradient: 'radial-gradient(circle at 50% 10%, rgba(255,255,255,0.1), transparent 70%)',
+    patternOpacity: 0.16,
   },
   homeautomation: {
-    bg: '#0c4a6e',
-    accent: '#0ea5e9',
-    icon: '🏠',
+    label: 'Automação Residencial',
+    descriptor: 'Residências conectadas',
+    background: '#050505',
+    panel: '#0d0d0d',
+    accent: '#f5f5f4',
+    border: '#2a2a2a',
+    gradient: 'radial-gradient(circle at 15% 80%, rgba(255,255,255,0.12), transparent 60%)',
+    patternOpacity: 0.2,
   },
   travel: {
-    bg: '#1e3a8a',
-    accent: '#60a5fa',
-    icon: '✈️',
+    label: 'Viagens',
+    descriptor: 'Operações em rota',
+    background: '#070707',
+    panel: '#0d0d0d',
+    accent: '#f3f3f3',
+    border: '#2c2c2c',
+    gradient: 'radial-gradient(circle at 80% 10%, rgba(255,255,255,0.13), transparent 60%)',
+    patternOpacity: 0.18,
   },
   vida: {
-    bg: '#7c2d12',
-    accent: '#fb923c',
-    icon: '💭',
+    label: 'Vida',
+    descriptor: 'Vida digital segura',
+    background: '#060606',
+    panel: '#0c0c0c',
+    accent: '#f5f5f5',
+    border: '#232323',
+    gradient: 'radial-gradient(circle at 35% 35%, rgba(255,255,255,0.1), transparent 60%)',
+    patternOpacity: 0.15,
   },
   general: {
-    bg: '#111827',
-    accent: '#6b7280',
-    icon: '📝',
+    label: 'Pesquisa',
+    descriptor: 'Análises & insights',
+    background: '#050505',
+    panel: '#0b0b0b',
+    accent: '#e4e4e7',
+    border: '#1f1f1f',
+    gradient: 'radial-gradient(circle at 70% 20%, rgba(255,255,255,0.1), transparent 65%)',
+    patternOpacity: 0.14,
   },
 };
 
-const categoryLabels = {
-  cybersecurity: 'Cibersegurança',
-  counterespionage: 'Contraespionagem',
-  forensics: 'Forense Digital',
-  compliance: 'Compliance',
-  homeautomation: 'Automação Residencial',
-  travel: 'Viagens',
-  vida: 'Vida',
-  general: 'Geral',
-};
+const getTheme = category => themeStyles[category] || themeStyles.general;
+
+function buildTemplate(theme, displayTitle) {
+  const overlay = h('div', {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      backgroundImage: theme.gradient,
+      opacity: 1,
+    },
+  });
+
+  const pattern = h('div', {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      backgroundImage: textureBackground,
+      opacity: theme.patternOpacity,
+    },
+  });
+
+  const headerRow = h(
+    'div',
+    {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        textTransform: 'uppercase',
+        letterSpacing: '0.45em',
+        fontSize: '18px',
+        color: '#e4e4e7',
+        gap: '12px',
+      },
+    },
+    h(
+      'span',
+      {
+        style: {
+          fontWeight: 500,
+        },
+      },
+      theme.label
+    ),
+    h(
+      'span',
+      {
+        style: {
+          marginLeft: 'auto',
+          fontSize: '13px',
+          letterSpacing: '0.4em',
+          color: '#a3a3a3',
+          fontWeight: 400,
+        },
+      },
+      theme.descriptor
+    )
+  );
+
+  const accentRule = h('div', {
+    style: {
+      height: '2px',
+      width: '80px',
+      backgroundColor: theme.accent,
+      opacity: 0.9,
+    },
+  });
+
+  const titleBlock = h(
+    'div',
+    {
+      style: {
+        fontSize: '64px',
+        fontWeight: 600,
+        lineHeight: 1.2,
+        color: '#f5f5f5',
+      },
+    },
+    displayTitle
+  );
+
+  const footerRow = h(
+    'div',
+    {
+      style: {
+        marginTop: 'auto',
+        display: 'flex',
+        alignItems: 'center',
+        color: '#d4d4d8',
+        fontSize: '22px',
+      },
+    },
+    h(
+      'div',
+      {
+        style: {
+          fontWeight: 600,
+          color: theme.accent,
+        },
+      },
+      'Ricardo Esper'
+    ),
+    h(
+      'div',
+      {
+        style: {
+          marginLeft: 'auto',
+          fontSize: '16px',
+          letterSpacing: '0.35em',
+          color: '#a1a1aa',
+        },
+      },
+      'esper.ws'
+    )
+  );
+
+  const panel = h(
+    'div',
+    {
+      style: {
+        flex: 1,
+        borderRadius: '32px',
+        border: `1px solid ${theme.border}`,
+        backgroundColor: theme.panel,
+        padding: '60px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '28px',
+        boxShadow: '0 30px 60px rgba(0, 0, 0, 0.45)',
+      },
+    },
+    headerRow,
+    accentRule,
+    titleBlock,
+    footerRow
+  );
+
+  return h(
+    'div',
+    {
+      style: {
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        position: 'relative',
+        backgroundColor: theme.background,
+        color: '#f5f5f5',
+        fontFamily: fontStack,
+      },
+    },
+    overlay,
+    pattern,
+    h(
+      'div',
+      {
+        style: {
+          position: 'relative',
+          flex: 1,
+          display: 'flex',
+          padding: '48px',
+        },
+      },
+      panel
+    )
+  );
+}
 
 async function generateImage(title, category, outputPath) {
-  const colors = categoryColors[category] || categoryColors.general;
-  const label = categoryLabels[category] || 'Geral';
-  
+  const theme = getTheme(category);
+
   // Truncate title if too long
   const displayTitle = title.length > 60 ? title.substring(0, 57) + '...' : title;
 
   try {
-    const imageResponse = new ImageResponse(
-      (
-        <div
-          style={{
-            height: '100%',
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            backgroundColor: colors.bg,
-            color: '#f9fafb',
-            padding: '80px',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '16px',
-              marginBottom: '40px',
-            }}
-          >
-            <div style={{ fontSize: '48px' }}>{colors.icon}</div>
-            <div
-              style={{
-                fontSize: '24px',
-                color: colors.accent,
-                fontWeight: 500,
-                textTransform: 'uppercase',
-                letterSpacing: '2px',
-              }}
-            >
-              {label}
-            </div>
-          </div>
-
-          <div
-            style={{
-              fontSize: '64px',
-              fontWeight: 700,
-              lineHeight: 1.2,
-              marginBottom: '40px',
-              color: '#ffffff',
-            }}
-          >
-            {displayTitle}
-          </div>
-
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginTop: 'auto',
-              paddingTop: '40px',
-              borderTop: `2px solid ${colors.accent}40`,
-            }}
-          >
-            <div
-              style={{
-                fontSize: '28px',
-                color: colors.accent,
-                fontWeight: 600,
-              }}
-            >
-              Ricardo Esper
-            </div>
-            <div
-              style={{
-                fontSize: '20px',
-                color: '#9ca3af',
-                marginLeft: 'auto',
-              }}
-            >
-              esper.ws
-            </div>
-          </div>
-        </div>
-      ),
-      {
-        width: 1200,
-        height: 630,
-      }
-    );
+    const template = buildTemplate(theme, displayTitle);
+    const imageResponse = new ImageResponse(template, {
+      width: 1200,
+      height: 630,
+    });
 
     const buffer = await imageResponse.arrayBuffer();
     fs.writeFileSync(outputPath, Buffer.from(buffer));
@@ -189,7 +312,7 @@ async function main() {
     const frontmatter = frontmatterMatch[1];
     const titleMatch = frontmatter.match(/^title:\s*["'](.+?)["']/m);
     const categoryMatch = frontmatter.match(/^category:\s*(\S+)/m);
-    const slugMatch = frontmatter.match(/^slug:\s*["']?(\S+?)["']?/m);
+    const slugMatch = frontmatter.match(/^slug:\s*["']?([^"'\s]+)["']?/m);
 
     if (!titleMatch || !categoryMatch || !slugMatch) {
       console.log(`⚠ Pulando ${file} - frontmatter incompleto`);
