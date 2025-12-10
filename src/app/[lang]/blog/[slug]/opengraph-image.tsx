@@ -1,5 +1,4 @@
 import React from 'react';
-import React from 'react';
 import { ImageResponse } from '@vercel/og';
 import { docs, meta } from "@/.source";
 import { loader } from "fumadocs-core/source";
