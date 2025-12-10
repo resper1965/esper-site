@@ -8,21 +8,21 @@ const replicate = new Replicate({
 
 /**
  * Gera uma imagem abstrata em greyscale baseada no slug
- * @param prompt - Descrição da imagem (não usado, mantido para compatibilidade)
+ * @param _prompt - Descrição da imagem (não usado, mantido para compatibilidade)
  * @param slug - Slug do post (obrigatório para gerar imagem consistente)
- * @param title - Título do post (não usado, mantido para compatibilidade)
- * @param content - Conteúdo do post (não usado, mantido para compatibilidade)
- * @param excerpt - Excerpt do post (não usado, mantido para compatibilidade)
- * @param keywords - Keywords do frontmatter (não usado, mantido para compatibilidade)
+ * @param _title - Título do post (não usado, mantido para compatibilidade)
+ * @param _content - Conteúdo do post (não usado, mantido para compatibilidade)
+ * @param _excerpt - Excerpt do post (não usado, mantido para compatibilidade)
+ * @param _keywords - Keywords do frontmatter (não usado, mantido para compatibilidade)
  * @returns Caminho relativo da imagem gerada
  */
 export async function generateImage(
-  prompt: string, 
+  _prompt: string, 
   slug?: string, 
-  title?: string,
-  content?: string,
-  excerpt?: string,
-  keywords?: string[]
+  _title?: string,
+  _content?: string,
+  _excerpt?: string,
+  _keywords?: string[]
 ): Promise<string> {
   if (!slug) {
     throw new Error('Slug é obrigatório para gerar imagem abstrata');
