@@ -74,9 +74,9 @@ export async function POST(request: Request) {
     if (!prompt) {
       // Se não tem prompt, criar um baseado no título e categoria
       const category = frontmatter.category || 'general';
-      const title = frontmatter.title || 'Post';
+      const postTitle = frontmatter.title || 'Post';
       
-      prompt = `Professional illustration for blog post about ${title}, ${category} theme, high quality, clean design, modern style`;
+      prompt = `Professional illustration for blog post about ${postTitle}, ${category} theme, high quality, clean design, modern style`;
     }
 
     console.log('🎨 Regenerando imagem para:', slug);
