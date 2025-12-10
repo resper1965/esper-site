@@ -1,4 +1,5 @@
 import React from 'react';
+import React from 'react';
 import { ImageResponse } from '@vercel/og';
 import { docs, meta } from "@/.source";
 import { loader } from "fumadocs-core/source";
@@ -64,7 +65,7 @@ export const runtime = 'nodejs';
 export default async function Image({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ lang: string; slug: string }>;
 }) {
   try {
     const { slug } = await params;

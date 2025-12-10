@@ -226,17 +226,6 @@ export default async function BlogPost({ params }: PageProps) {
                   display: 'block'
                 }}
                 loading="eager"
-                onError={(e) => {
-                  console.error('❌ Erro ao carregar imagem:', page.data.coverImage || page.data.thumbnail);
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  if (target.parentElement) {
-                    target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center text-grey-500">Imagem não disponível</div>';
-                  }
-                }}
-                onLoad={() => {
-                  console.log('✅ Imagem carregada:', page.data.coverImage || page.data.thumbnail);
-                }}
               />
             </div>
           )}
