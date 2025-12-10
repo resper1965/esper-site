@@ -16,7 +16,7 @@ async function searchUnsplashFree(query: string, slug?: string, title?: string):
       // Slug geralmente tem palavras separadas por hífen
       keywords = slug
         .split('-')
-        .filter(word => word.length > 3) // Filtrar palavras muito curtas
+        .filter(word => word && word.length > 3 && !/^\d+$/.test(word)) // Filtrar palavras muito curtas e números
         .slice(0, 3); // Pegar até 3 palavras do slug
     }
     
@@ -26,13 +26,13 @@ async function searchUnsplashFree(query: string, slug?: string, title?: string):
         .toLowerCase()
         .replace(/[^\w\s]/g, ' ') // Remover pontuação
         .split(/\s+/)
-        .filter(word => word.length > 3 && !['para', 'com', 'que', 'uma', 'the', 'and', 'for'].includes(word))
+        .filter(word => word && word.length > 3 && !['para', 'com', 'que', 'uma', 'the', 'and', 'for', 'are', 'you', 'need', 'know'].includes(word))
         .slice(0, 3);
       keywords = [...keywords, ...titleWords].slice(0, 3);
     }
     
     // Fallback: usar query original
-    if (keywords.length === 0) {
+    if (keywords.length === 0 && query) {
       keywords = query
         .toLowerCase()
         .replace(/professional illustration for blog post about/gi, '')
@@ -40,13 +40,17 @@ async function searchUnsplashFree(query: string, slug?: string, title?: string):
         .replace(/high quality|clean design|modern style/gi, '')
         .trim()
         .split(' ')
-        .filter(word => word.length > 3)
+        .filter(word => word && word.length > 3)
         .slice(0, 3);
+    }
+
+    if (keywords.length === 0) {
+      return null;
     }
 
     const searchQuery = keywords.join(',');
     
-    if (!searchQuery) {
+    if (!searchQuery || searchQuery.trim().length === 0) {
       return null;
     }
 
@@ -54,14 +58,23 @@ async function searchUnsplashFree(query: string, slug?: string, title?: string):
     // Usa palavras-chave separadas por vírgula para melhor busca
     const imageUrl = `https://source.unsplash.com/1200x630/?${encodeURIComponent(searchQuery)}&sig=${Date.now()}`;
     
-    console.log(`   🔍 Query: "${searchQuery}"`);
+    // Verificar se a imagem existe fazendo uma requisição HEAD com timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
     
-    // Verificar se a imagem existe fazendo uma requisição HEAD
-    const response = await fetch(imageUrl, { method: 'HEAD' });
-    
-    if (response.ok) {
-      console.log(`✅ Imagem encontrada no Unsplash`);
-      return imageUrl;
+    try {
+      const response = await fetch(imageUrl, { 
+        method: 'HEAD',
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        return imageUrl;
+      }
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      // Timeout ou erro de rede - continuar para fallback
     }
   } catch (error) {
     console.error('Erro ao buscar no Unsplash:', error);
@@ -77,16 +90,18 @@ async function searchUnsplashFree(query: string, slug?: string, title?: string):
 async function searchPicsumFree(query: string, slug?: string): Promise<string | null> {
   try {
     // Usar slug para gerar seed mais consistente e relacionado ao conteúdo
-    const seedSource = slug || query;
+    const seedSource = slug || query || 'default';
     const seed = seedSource
       .toLowerCase()
       .split('')
       .reduce((acc, char) => acc + char.charCodeAt(0), 0);
 
+    // Garantir que seed seja positivo
+    const finalSeed = Math.abs(seed) || 1;
+
     // Lorem Picsum com greyscale - mesma seed = mesma imagem
-    const imageUrl = `https://picsum.photos/seed/${seed}/1200/630?grayscale`;
+    const imageUrl = `https://picsum.photos/seed/${finalSeed}/1200/630?grayscale`;
     
-    console.log(`✅ Usando Lorem Picsum (greyscale, seed: ${seed})`);
     return imageUrl;
   } catch (error) {
     console.error('Erro ao buscar no Picsum:', error);
