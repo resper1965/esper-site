@@ -289,11 +289,15 @@ ${coverImagePath ? `- Imagem: ${coverImagePath}` : ''}
 
   fs.writeFileSync(filepath, contentWithMeta, 'utf-8');
 
+  // Extrair thumbnailPrompt do frontmatter para retornar
+  const { data: finalFrontmatter } = matter(finalContent);
+  
   return {
     filepath,
     filename,
     slug,
-    coverImage: coverImagePath
+    coverImage: coverImagePath,
+    thumbnailPrompt: finalFrontmatter.thumbnailPrompt
   };
 }
 

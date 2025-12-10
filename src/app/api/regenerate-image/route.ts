@@ -7,7 +7,7 @@ import matter from 'gray-matter';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { slug } = body;
+    const { slug, customPrompt } = body;
 
     if (!slug) {
       return NextResponse.json(
@@ -69,7 +69,8 @@ export async function POST(request: Request) {
     const { data: frontmatter } = matter(postContent);
 
     // Obter ou gerar prompt para imagem
-    let prompt = frontmatter.thumbnailPrompt;
+    // Se customPrompt foi fornecido, usar ele; senão usar o do frontmatter
+    let prompt = customPrompt || frontmatter.thumbnailPrompt;
     
     if (!prompt) {
       // Se não tem prompt, criar um baseado no título e categoria
@@ -77,6 +78,26 @@ export async function POST(request: Request) {
       const postTitle = frontmatter.title || 'Post';
       
       prompt = `Professional illustration for blog post about ${postTitle}, ${category} theme, high quality, clean design, modern style`;
+    }
+    
+    // Se customPrompt foi usado, atualizar o frontmatter
+    if (customPrompt) {
+      // Atualizar ou adicionar thumbnailPrompt no frontmatter
+      if (frontmatter.thumbnailPrompt) {
+        postContent = postContent.replace(
+          /thumbnailPrompt:\s*["'][^"']*["']/,
+          `thumbnailPrompt: "${customPrompt}"`
+        );
+      } else {
+        // Adicionar thumbnailPrompt antes do fechamento do frontmatter
+        const frontmatterEnd = postContent.indexOf('---', 3);
+        if (frontmatterEnd > 0) {
+          const beforeFrontmatter = postContent.substring(0, frontmatterEnd);
+          const afterFrontmatter = postContent.substring(frontmatterEnd);
+          const thumbnailPromptLine = `thumbnailPrompt: "${customPrompt}"\n`;
+          postContent = beforeFrontmatter + thumbnailPromptLine + afterFrontmatter;
+        }
+      }
     }
 
     console.log('🎨 Regenerando imagem para:', slug);
@@ -98,7 +119,7 @@ export async function POST(request: Request) {
     const coverImagePath = `/images/${imageFilename}`;
     console.log('✅ Imagem regenerada:', coverImagePath);
 
-    // Atualizar frontmatter
+    // Atualizar frontmatter (já pode ter sido atualizado acima se customPrompt foi usado)
     let updatedContent = postContent;
     
     // Atualizar ou adicionar coverImage
@@ -126,7 +147,8 @@ export async function POST(request: Request) {
       message: 'Imagem regenerada com sucesso',
       coverImage: coverImagePath,
       slug,
-      isDraft
+      isDraft,
+      prompt: prompt
     });
   } catch (error) {
     console.error('❌ Erro ao regenerar imagem:', error);

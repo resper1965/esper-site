@@ -10,6 +10,9 @@ export default function RegenerateImagePage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [slug, setSlug] = useState('');
+  const [customPrompt, setCustomPrompt] = useState('');
+  const [useCustomPrompt, setUseCustomPrompt] = useState(false);
+  const [currentPrompt, setCurrentPrompt] = useState<string | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
@@ -51,7 +54,10 @@ export default function RegenerateImagePage() {
       const response = await fetch('/api/regenerate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug })
+        body: JSON.stringify({ 
+          slug,
+          customPrompt: useCustomPrompt ? customPrompt : undefined
+        })
       });
 
       const data = await response.json();
@@ -61,6 +67,9 @@ export default function RegenerateImagePage() {
       }
 
       setSuccess(`✅ Imagem regenerada com sucesso! Nova imagem: ${data.coverImage}`);
+      if (data.prompt) {
+        setCurrentPrompt(data.prompt);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
@@ -113,6 +122,44 @@ export default function RegenerateImagePage() {
                   Digite o slug do post (encontrado no frontmatter do arquivo .mdx)
                 </p>
               </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="useCustomPrompt"
+                  checked={useCustomPrompt}
+                  onChange={(e) => setUseCustomPrompt(e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="useCustomPrompt" className="text-sm font-medium text-grey-700">
+                  Usar prompt customizado
+                </label>
+              </div>
+
+              {useCustomPrompt && (
+                <div>
+                  <label className="block text-sm font-medium text-grey-700 mb-2">
+                    Prompt Customizado para a Imagem
+                  </label>
+                  <textarea
+                    value={customPrompt}
+                    onChange={(e) => setCustomPrompt(e.target.value)}
+                    placeholder="Ex: Abstract geometric lock icon in cyan on dark gray-950 background, minimal composition, modern tech aesthetic"
+                    className="w-full px-4 py-2 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-500"
+                    rows={4}
+                  />
+                  <p className="mt-2 text-sm text-grey-500">
+                    Descreva a imagem que deseja gerar. Se deixar vazio, será usado o prompt do frontmatter.
+                  </p>
+                </div>
+              )}
+
+              {currentPrompt && !useCustomPrompt && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded">
+                  <p className="text-xs font-semibold text-blue-900 mb-1">📝 Prompt Atual:</p>
+                  <p className="text-xs text-blue-800 italic">&quot;{currentPrompt}&quot;</p>
+                </div>
+              )}
 
               <button
                 type="submit"

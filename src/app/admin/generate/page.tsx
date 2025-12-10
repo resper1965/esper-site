@@ -298,6 +298,12 @@ export default function GenerateDashboard() {
                   {result.coverImage && (
                     <p><strong>Imagem:</strong> <code className="bg-white px-2 py-1 rounded">{result.coverImage}</code></p>
                   )}
+                  {result.thumbnailPrompt && (
+                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
+                      <p className="text-xs font-semibold text-blue-900 mb-1">📝 Prompt da Imagem:</p>
+                      <p className="text-xs text-blue-800 italic">&quot;{result.thumbnailPrompt}&quot;</p>
+                    </div>
+                  )}
                 </div>
                 {result.coverImage && (
                   <div className="mt-4">
@@ -306,31 +312,14 @@ export default function GenerateDashboard() {
                       alt="Cover" 
                       className="w-full max-w-md rounded-lg border border-grey-300"
                     />
-                    <button
-                      onClick={async () => {
-                        setLoading(true);
-                        setError(null);
-                        try {
-                          const response = await fetch('/api/regenerate-image', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ slug: result.slug })
-                          });
-                          const data = await response.json();
-                          if (!response.ok) throw new Error(data.error);
-                          setResult({ ...result, coverImage: data.coverImage });
-                          alert('✅ Imagem regenerada com sucesso!');
-                        } catch (err) {
-                          setError(err instanceof Error ? err.message : 'Erro ao regenerar imagem');
-                        } finally {
-                          setLoading(false);
-                        }
-                      }}
-                      disabled={loading}
-                      className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-grey-400 text-sm"
-                    >
-                      🔄 Regenerar Imagem
-                    </button>
+                    <RegenerateImageButton 
+                      slug={result.slug}
+                      currentPrompt={result.thumbnailPrompt}
+                      onSuccess={(newImage) => setResult({ ...result, coverImage: newImage })}
+                      loading={loading}
+                      setLoading={setLoading}
+                      setError={setError}
+                    />
                   </div>
                 )}
                 <div className="mt-4 p-4 bg-white rounded border border-grey-300">
