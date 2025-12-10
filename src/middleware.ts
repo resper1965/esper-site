@@ -86,6 +86,15 @@ function getLocale(request: NextRequest): string {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Remover locale de rotas admin se presente (ex: /pt-BR/admin/login -> /admin/login)
+  for (const locale of i18n.locales) {
+    if (pathname.startsWith(`/${locale}/admin/`)) {
+      const adminPath = pathname.replace(`/${locale}`, '');
+      request.nextUrl.pathname = adminPath;
+      return NextResponse.redirect(request.nextUrl);
+    }
+  }
+
   // Verificar autenticação para rotas admin (antes do i18n)
   if (pathname.startsWith('/admin/') && pathname !== '/admin/login') {
     const isAuthenticated = checkAdminAuth(request);
