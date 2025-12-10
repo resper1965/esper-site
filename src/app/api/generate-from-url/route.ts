@@ -86,7 +86,8 @@ Instruções:
         filepath: saved.filepath,
         preview: post.content.substring(0, 500) + '...',
         originalTitle: sourceContent.title,
-        originalUrl: url
+        originalUrl: url,
+        coverImage: saved.coverImage
       }
     });
   } catch (error) {

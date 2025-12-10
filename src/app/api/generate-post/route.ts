@@ -35,7 +35,8 @@ export async function POST(request: Request) {
         slug: saved.slug,
         score: post.score,
         filepath: saved.filepath,
-        preview: post.content.substring(0, 500) + '...'
+        preview: post.content.substring(0, 500) + '...',
+        coverImage: saved.coverImage
       }
     });
   } catch (error) {
