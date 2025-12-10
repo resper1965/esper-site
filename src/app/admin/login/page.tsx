@@ -70,6 +70,7 @@ export default function LoginPage() {
                   id="username"
                   name="username"
                   type="text"
+                  autoComplete="username"
                   required
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-grey-300 placeholder-grey-500 text-grey-900 rounded-t-md focus:outline-none focus:ring-grey-500 focus:border-grey-500 focus:z-10 sm:text-sm"
                   placeholder="Usuário"
@@ -85,6 +86,7 @@ export default function LoginPage() {
                   id="password"
                   name="password"
                   type="password"
+                  autoComplete="current-password"
                   required
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-grey-300 placeholder-grey-500 text-grey-900 rounded-b-md focus:outline-none focus:ring-grey-500 focus:border-grey-500 focus:z-10 sm:text-sm"
                   placeholder="Senha"
