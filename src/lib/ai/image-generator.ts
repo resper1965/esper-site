@@ -1,3 +1,4 @@
+import { searchFreeImage, downloadAndSaveImage as saveImage } from './image-fetcher';
 import Replicate from 'replicate';
 
 const replicate = new Replicate({
@@ -5,12 +6,21 @@ const replicate = new Replicate({
 });
 
 /**
- * Gera uma imagem ilustrada usando Hugging Face (GRATUITO) ou Replicate
- * @param prompt - Descrição da imagem a ser gerada
- * @returns URL da imagem gerada
+ * Busca ou gera uma imagem
+ * Prioridade: 1) Busca em bancos gratuitos, 2) Gera com IA
+ * @param prompt - Descrição da imagem a ser buscada/gerada
+ * @returns URL da imagem (data URL se gerada, URL direta se baixada)
  */
 export async function generateImage(prompt: string): Promise<string> {
-  // Tentar usar Hugging Face primeiro (gratuito)
+  // Primeiro, tentar buscar em bancos gratuitos
+  const searchResult = await searchFreeImage(prompt);
+  
+  if (searchResult) {
+    // Se encontrou, retornar a URL para download
+    return searchResult.url;
+  }
+
+  // Se não encontrou, tentar gerar com IA (Hugging Face ou Replicate)
   const HF_API_KEY = process.env.HUGGINGFACE_API_KEY || '';
   
   if (HF_API_KEY || !process.env.REPLICATE_API_TOKEN) {
@@ -153,4 +163,7 @@ export async function downloadAndSaveImage(
     throw error;
   }
 }
+
+// Re-exportar função de busca
+export { searchFreeImage } from './image-fetcher';
 

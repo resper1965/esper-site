@@ -3,12 +3,12 @@ import path from 'path';
 import matter from 'gray-matter';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import dotenv from 'dotenv';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+dotenv.config({ path: path.join(dirname(fileURLToPath(import.meta.url)), '..', '.env.local') });
 
-const postsDir = path.join(__dirname, '..', 'src/content/posts');
-const imagesDir = path.join(__dirname, '..', 'public/images');
+const postsDir = path.join(dirname(fileURLToPath(import.meta.url)), '..', 'src/content/posts');
+const imagesDir = path.join(dirname(fileURLToPath(import.meta.url)), '..', 'public/images');
 
 // Garantir que o diretório de imagens existe
 if (!fs.existsSync(imagesDir)) {
@@ -16,84 +16,109 @@ if (!fs.existsSync(imagesDir)) {
 }
 
 /**
- * Gera imagem usando Hugging Face Inference API (GRATUITA)
- * Modelo: stabilityai/stable-diffusion-xl-base-1.0
+ * Busca imagem em bancos gratuitos
  */
-async function generateImageWithHuggingFace(prompt) {
-  const HF_API_KEY = process.env.HUGGINGFACE_API_KEY || '';
-  
-  // Se não tiver API key, usar endpoint público (mais lento, mas funciona)
-  const apiUrl = `https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0`;
+async function searchFreeImage(query) {
+  // Criar query otimizada
+  const searchQuery = query
+    .toLowerCase()
+    .replace(/professional illustration for blog post about/gi, '')
+    .replace(/greyscale|black and white|monochrome/gi, '')
+    .replace(/high quality|clean design|modern style/gi, '')
+    .trim()
+    .substring(0, 100);
 
-  const headers = {
-    'Content-Type': 'application/json',
-  };
+  console.log(`🔍 Buscando imagem: "${searchQuery}"`);
 
-  if (HF_API_KEY) {
-    headers['Authorization'] = `Bearer ${HF_API_KEY}`;
-  }
-
-  // Adicionar instruções de greyscale ao prompt
-  const greyscalePrompt = `${prompt}, greyscale, black and white, monochrome`;
-
-  console.log('🎨 Gerando imagem via Hugging Face (GRATUITO)...');
-  console.log(`   📝 Prompt: ${greyscalePrompt.substring(0, 80)}...`);
-
-  try {
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify({
-        inputs: greyscalePrompt,
-        parameters: {
-          num_inference_steps: 30,
-          guidance_scale: 7.5,
-          width: 1024,
-          height: 576, // 16:9 aspect ratio
+  // Tentar Unsplash
+  const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY;
+  if (UNSPLASH_KEY) {
+    try {
+      const response = await fetch(
+        `https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=1&orientation=landscape&color=black_and_white`,
+        {
+          headers: { 'Authorization': `Client-ID ${UNSPLASH_KEY}` }
         }
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      
-      // Se o modelo estiver carregando, aguardar
-      if (response.status === 503) {
-        const retryAfter = response.headers.get('retry-after') || 20;
-        console.log(`   ⏳ Modelo carregando, aguardando ${retryAfter}s...`);
-        await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
-        return generateImageWithHuggingFace(prompt); // Retry
+      );
+      if (response.ok) {
+        const data = await response.json();
+        if (data.results && data.results.length > 0) {
+          console.log(`✅ Imagem encontrada no Unsplash`);
+          return data.results[0].urls.regular;
+        }
       }
-      
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    } catch (error) {
+      console.log(`   ⚠️ Erro no Unsplash: ${error.message}`);
     }
-
-    const imageBuffer = await response.arrayBuffer();
-    return Buffer.from(imageBuffer);
-  } catch (error) {
-    console.error('❌ Erro ao gerar imagem:', error.message);
-    throw error;
   }
+
+  // Tentar Pexels
+  const PEXELS_KEY = process.env.PEXELS_API_KEY;
+  if (PEXELS_KEY) {
+    try {
+      const response = await fetch(
+        `https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=1&orientation=landscape`,
+        {
+          headers: { 'Authorization': PEXELS_KEY }
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        if (data.photos && data.photos.length > 0) {
+          console.log(`✅ Imagem encontrada no Pexels`);
+          return data.photos[0].src.large;
+        }
+      }
+    } catch (error) {
+      console.log(`   ⚠️ Erro no Pexels: ${error.message}`);
+    }
+  }
+
+  // Tentar Pixabay
+  const PIXABAY_KEY = process.env.PIXABAY_API_KEY;
+  if (PIXABAY_KEY) {
+    try {
+      const response = await fetch(
+        `https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${encodeURIComponent(searchQuery)}&image_type=photo&orientation=horizontal&per_page=1&safesearch=true`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        if (data.hits && data.hits.length > 0) {
+          console.log(`✅ Imagem encontrada no Pixabay`);
+          return data.hits[0].largeImageURL || data.hits[0].webformatURL;
+        }
+      }
+    } catch (error) {
+      console.log(`   ⚠️ Erro no Pixabay: ${error.message}`);
+    }
+  }
+
+  console.log(`❌ Nenhuma imagem encontrada`);
+  return null;
 }
 
-async function saveImage(imageBuffer, filePath) {
+async function downloadAndSaveImage(imageUrl, filePath) {
+  const response = await fetch(imageUrl);
+  if (!response.ok) {
+    throw new Error(`Erro ao baixar: ${response.statusText}`);
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
   const dir = path.dirname(filePath);
   
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 
-  fs.writeFileSync(filePath, imageBuffer);
-  console.log('✅ Imagem salva em:', filePath);
+  fs.writeFileSync(filePath, buffer);
+  console.log('✅ Imagem salva');
 }
 
 async function regenerateAllImages() {
-  console.log('🔄 Iniciando regeneração de todas as imagens (GRATUITO via Hugging Face)...\n');
-  console.log('ℹ️  Nota: Sem API key, o modelo pode demorar para carregar na primeira vez\n');
+  console.log('🔄 Buscando imagens em bancos gratuitos...\n');
+  console.log('ℹ️  Usando: Unsplash, Pexels, Pixabay\n');
 
-  // Ler todos os arquivos .mdx
   const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.mdx'));
-  
   console.log(`📝 Encontrados ${files.length} posts\n`);
 
   let successCount = 0;
@@ -102,32 +127,32 @@ async function regenerateAllImages() {
   for (const file of files) {
     const filePath = path.join(postsDir, file);
     const content = fs.readFileSync(filePath, 'utf-8');
-    const { data: frontmatter, content: markdownContent } = matter(content);
+    const { data: frontmatter } = matter(content);
 
     const slug = frontmatter.slug || file.replace(/\.mdx$/, '');
     const title = frontmatter.title || 'Post';
     const category = frontmatter.category || 'general';
     
-    console.log(`\n📄 Processando: ${title}`);
+    console.log(`\n📄 ${title}`);
     console.log(`   Slug: ${slug}`);
 
     try {
-      // Criar prompt baseado no conteúdo
       let prompt = frontmatter.thumbnailPrompt;
-      
       if (!prompt) {
-        // Criar prompt baseado no título e categoria
-        prompt = `Professional illustration for blog post about ${title}, ${category} theme, high quality, clean design, modern style`;
+        prompt = `${title}, ${category}`;
       }
 
-      // Gerar imagem
-      const imageBuffer = await generateImageWithHuggingFace(prompt);
+      const imageUrl = await searchFreeImage(prompt);
+      
+      if (!imageUrl) {
+        console.log(`   ⚠️ Pulando (nenhuma imagem encontrada)`);
+        errorCount++;
+        continue;
+      }
 
-      // Salvar imagem
       const imageFilename = `${slug}.png`;
       const imagePath = path.join(imagesDir, imageFilename);
-
-      await saveImage(imageBuffer, imagePath);
+      await downloadAndSaveImage(imageUrl, imagePath);
 
       const coverImagePath = `/images/${imageFilename}`;
       console.log(`   ✅ Imagem salva: ${coverImagePath}`);
@@ -135,14 +160,12 @@ async function regenerateAllImages() {
       // Atualizar frontmatter
       let updatedContent = content;
       
-      // Atualizar ou adicionar coverImage
       if (frontmatter.coverImage) {
         updatedContent = updatedContent.replace(
           /coverImage:\s*["'][^"']*["']/,
           `coverImage: "${coverImagePath}"`
         );
       } else {
-        // Adicionar coverImage antes do fechamento do frontmatter
         const frontmatterEnd = updatedContent.indexOf('---', 3);
         if (frontmatterEnd > 0) {
           const beforeFrontmatter = updatedContent.substring(0, frontmatterEnd);
@@ -152,33 +175,15 @@ async function regenerateAllImages() {
         }
       }
 
-      // Atualizar thumbnailPrompt se não existir
-      if (!frontmatter.thumbnailPrompt) {
-        const frontmatterEnd = updatedContent.indexOf('---', 3);
-        if (frontmatterEnd > 0) {
-          const beforeFrontmatter = updatedContent.substring(0, frontmatterEnd);
-          const afterFrontmatter = updatedContent.substring(frontmatterEnd);
-          const thumbnailPromptLine = `thumbnailPrompt: "${prompt}"\n`;
-          updatedContent = beforeFrontmatter + thumbnailPromptLine + afterFrontmatter;
-        }
-      }
-
-      // Salvar arquivo atualizado
       fs.writeFileSync(filePath, updatedContent, 'utf-8');
-      console.log(`   ✅ Post atualizado`);
-
       successCount++;
 
-      // Aguardar 5 segundos entre requisições (Hugging Face tem rate limits)
-      console.log(`   ⏳ Aguardando 5 segundos antes do próximo...`);
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      // Aguardar 1 segundo entre requisições
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
     } catch (error) {
-      console.error(`   ❌ Erro ao processar ${slug}:`, error.message);
+      console.error(`   ❌ Erro: ${error.message}`);
       errorCount++;
-      
-      // Aguardar mais tempo em caso de erro
-      await new Promise(resolve => setTimeout(resolve, 10000));
     }
   }
 
@@ -188,6 +193,4 @@ async function regenerateAllImages() {
   console.log(`   📝 Total: ${files.length}`);
 }
 
-// Executar
 regenerateAllImages().catch(console.error);
-
