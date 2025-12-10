@@ -14,7 +14,23 @@ export function hashPassword(password: string): string {
 // Verificar credenciais
 export function verifyCredentials(username: string, password: string): boolean {
   const passwordHash = hashPassword(password);
-  return username === ADMIN_USERNAME && passwordHash === ADMIN_PASSWORD_HASH;
+  const usernameMatch = username === ADMIN_USERNAME;
+  const passwordMatch = passwordHash === ADMIN_PASSWORD_HASH;
+  
+  // Debug logs (remover em produção se necessário)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Auth Debug:', {
+      providedUsername: username,
+      expectedUsername: ADMIN_USERNAME,
+      usernameMatch,
+      passwordHashProvided: passwordHash.substring(0, 10) + '...',
+      passwordHashExpected: ADMIN_PASSWORD_HASH ? ADMIN_PASSWORD_HASH.substring(0, 10) + '...' : 'NOT SET',
+      passwordMatch,
+      hasEnvVars: !!ADMIN_USERNAME && !!ADMIN_PASSWORD_HASH
+    });
+  }
+  
+  return usernameMatch && passwordMatch;
 }
 
 // Gerar token de sessão

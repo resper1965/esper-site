@@ -20,6 +20,7 @@ var { docs, meta } = defineDocs({
       readTime: z.string().optional(),
       author: z.string().optional(),
       thumbnail: z.string().optional(),
+      coverImage: z.string().optional(),
       language: z.enum(["pt-BR", "pt-br", "en"]).optional().default("pt-BR").transform((val) => val === "pt-br" ? "pt-BR" : val)
     })
   }

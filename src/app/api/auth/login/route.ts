@@ -13,6 +13,18 @@ export async function POST(request: Request) {
       );
     }
 
+    // Verificar se variáveis de ambiente estão configuradas
+    if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD_HASH) {
+      console.error('Variáveis de ambiente não configuradas:', {
+        hasUsername: !!process.env.ADMIN_USERNAME,
+        hasPasswordHash: !!process.env.ADMIN_PASSWORD_HASH
+      });
+      return NextResponse.json(
+        { error: 'Configuração do servidor incompleta. Contate o administrador.' },
+        { status: 500 }
+      );
+    }
+
     if (!verifyCredentials(username, password)) {
       return NextResponse.json(
         { error: 'Credenciais inválidas' },
