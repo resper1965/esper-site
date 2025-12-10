@@ -11,15 +11,16 @@ const blogSource = loader({
   source: createMDXSource(docs, meta),
 });
 
-const categoryColors: Record<string, { bg: string; accent: string; icon: string }> = {
-  cybersecurity: { bg: '#0f172a', accent: '#3b82f6', icon: '🛡️' },
-  counterespionage: { bg: '#1e1b4b', accent: '#6366f1', icon: '👁️' },
-  forensics: { bg: '#1c1917', accent: '#78716c', icon: '🔍' },
-  compliance: { bg: '#1e293b', accent: '#64748b', icon: '📋' },
-  homeautomation: { bg: '#0c4a6e', accent: '#0ea5e9', icon: '🏠' },
-  travel: { bg: '#1e3a8a', accent: '#60a5fa', icon: '✈️' },
-  vida: { bg: '#7c2d12', accent: '#fb923c', icon: '💭' },
-  general: { bg: '#111827', accent: '#6b7280', icon: '📝' },
+// Design em escala de cinza - discreto e elegante
+const categoryColors: Record<string, { bg: string; accent: string; pattern: string }> = {
+  cybersecurity: { bg: '#1a1a1a', accent: '#888888', pattern: 'security' },
+  counterespionage: { bg: '#0f0f0f', accent: '#999999', pattern: 'surveillance' },
+  forensics: { bg: '#1c1c1c', accent: '#8a8a8a', pattern: 'analysis' },
+  compliance: { bg: '#171717', accent: '#909090', pattern: 'compliance' },
+  homeautomation: { bg: '#1e1e1e', accent: '#858585', pattern: 'automation' },
+  travel: { bg: '#181818', accent: '#8c8c8c', pattern: 'travel' },
+  vida: { bg: '#151515', accent: '#878787', pattern: 'life' },
+  general: { bg: '#191919', accent: '#898989', pattern: 'general' },
 };
 
 const categoryLabels: Record<string, string> = {
@@ -58,6 +59,7 @@ export async function GET(request: NextRequest) {
     const label = categoryLabels[category] || 'Geral';
     const displayTitle = title.length > 60 ? title.substring(0, 57) + '...' : title;
 
+    // Design discreto em escala de cinza
     const imageResponse = new ImageResponse(
       (
         <div
@@ -67,68 +69,96 @@ export async function GET(request: NextRequest) {
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: colors.bg,
-            color: '#f9fafb',
+            color: '#e5e5e5',
             padding: '80px',
             fontFamily: 'system-ui, -apple-system, sans-serif',
+            position: 'relative',
           }}
         >
+          {/* Padrão de fundo sutil */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              opacity: 0.03,
+              background: 'repeating-linear-gradient(45deg, #ffffff 0px, #ffffff 1px, transparent 1px, transparent 10px)',
+            }}
+          />
+          
+          {/* Categoria - sutil e discreta */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '16px',
-              marginBottom: '40px',
+              marginBottom: '50px',
+              opacity: 0.7,
             }}
           >
-            <div style={{ fontSize: '48px' }}>{colors.icon}</div>
             <div
               style={{
-                fontSize: '24px',
+                fontSize: '18px',
                 color: colors.accent,
                 fontWeight: 500,
                 textTransform: 'uppercase',
-                letterSpacing: '2px',
+                letterSpacing: '4px',
               }}
             >
               {label}
             </div>
           </div>
 
+          {/* Título principal */}
           <div
             style={{
-              fontSize: '64px',
-              fontWeight: 700,
-              lineHeight: 1.2,
-              marginBottom: '40px',
-              color: '#ffffff',
+              fontSize: '58px',
+              fontWeight: 600,
+              lineHeight: 1.25,
+              marginBottom: '50px',
+              color: '#f5f5f5',
+              letterSpacing: '-0.02em',
             }}
           >
             {displayTitle}
           </div>
 
+          {/* Linha decorativa minimalista */}
+          <div
+            style={{
+              width: '120px',
+              height: '3px',
+              background: `linear-gradient(90deg, ${colors.accent} 0%, transparent 100%)`,
+              marginBottom: '40px',
+            }}
+          />
+
+          {/* Rodapé discreto */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               marginTop: 'auto',
-              paddingTop: '40px',
-              borderTop: `2px solid ${colors.accent}40`,
+              paddingTop: '50px',
             }}
           >
             <div
               style={{
-                fontSize: '28px',
-                color: colors.accent,
-                fontWeight: 600,
+                fontSize: '22px',
+                color: '#a0a0a0',
+                fontWeight: 400,
+                letterSpacing: '0.5px',
               }}
             >
               Ricardo Esper
             </div>
             <div
               style={{
-                fontSize: '20px',
-                color: '#9ca3af',
+                fontSize: '18px',
+                color: '#707070',
                 marginLeft: 'auto',
+                fontWeight: 300,
               }}
             >
               esper.ws

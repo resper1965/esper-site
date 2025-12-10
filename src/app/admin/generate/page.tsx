@@ -13,12 +13,30 @@ interface GenerateResult {
   preview: string;
 }
 
+interface ImageGenerationResult {
+  total: number;
+  successCount: number;
+  errorCount: number;
+  results: Array<{
+    slug: string;
+    title?: string;
+    status: string;
+    path?: string;
+    error?: string;
+  }>;
+}
+
 export default function GenerateDashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GenerateResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  
+  // Estados para geração de imagens
+  const [imagesLoading, setImagesLoading] = useState(false);
+  const [imagesResult, setImagesResult] = useState<ImageGenerationResult | null>(null);
+  const [imagesError, setImagesError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     topic: '',
@@ -84,6 +102,27 @@ export default function GenerateDashboard() {
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGenerateAllImages = async () => {
+    setImagesLoading(true);
+    setImagesError(null);
+    setImagesResult(null);
+
+    try {
+      const response = await fetch('/api/generate-images/all');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao gerar imagens');
+      }
+
+      setImagesResult(data);
+    } catch (err) {
+      setImagesError(err instanceof Error ? err.message : 'Erro desconhecido');
+    } finally {
+      setImagesLoading(false);
     }
   };
 
@@ -199,6 +238,89 @@ export default function GenerateDashboard() {
               <li>Post salvo em <code>src/content/posts/drafts/</code></li>
               <li>Revise e mova para <code>src/content/posts/</code> se aprovar</li>
             </ol>
+          </div>
+
+          {/* Seção de Geração de Imagens */}
+          <div className="mt-8 bg-white border border-grey-200 rounded-lg p-8">
+            <h2 className="text-2xl font-bold text-grey-900 mb-4">
+              🎨 Gerador de Imagens
+            </h2>
+            
+            <p className="text-grey-600 mb-6">
+              Gere imagens em escala de cinza, discretas e elegantes para todos os posts do blog.
+            </p>
+
+            <button
+              onClick={handleGenerateAllImages}
+              disabled={imagesLoading}
+              className="w-full bg-grey-900 text-white py-3 rounded-lg font-medium hover:bg-grey-800 disabled:bg-grey-400 disabled:cursor-not-allowed transition"
+            >
+              {imagesLoading ? '⏳ Gerando imagens...' : '🎨 Gerar Todas as Imagens'}
+            </button>
+
+            {/* Resultado da geração de imagens */}
+            {imagesResult && (
+              <div className="mt-6 p-6 bg-grey-50 rounded-lg border border-grey-200">
+                <h3 className="text-lg font-bold text-grey-900 mb-4">
+                  ✅ Imagens Geradas com Sucesso!
+                </h3>
+                <div className="space-y-2 text-sm mb-4">
+                  <p><strong>Total de posts:</strong> {imagesResult.total}</p>
+                  <p><strong>✅ Sucesso:</strong> {imagesResult.successCount}</p>
+                  <p><strong>❌ Erros:</strong> {imagesResult.errorCount}</p>
+                </div>
+                
+                {imagesResult.results.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs text-grey-600 mb-2"><strong>Detalhes:</strong></p>
+                    <div className="max-h-96 overflow-y-auto bg-white rounded border border-grey-300 p-4">
+                      {imagesResult.results.map((item, index) => (
+                        <div 
+                          key={index} 
+                          className={`mb-3 pb-3 ${index < imagesResult.results.length - 1 ? 'border-b border-grey-200' : ''}`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-grey-900">
+                                {item.status === 'success' ? '✅' : '❌'} {item.slug}
+                              </p>
+                              {item.title && (
+                                <p className="text-xs text-grey-600 mt-1">{item.title}</p>
+                              )}
+                              {item.error && (
+                                <p className="text-xs text-red-600 mt-1">{item.error}</p>
+                              )}
+                            </div>
+                            {item.path && (
+                              <code className="text-xs bg-grey-100 px-2 py-1 rounded">
+                                {item.path}
+                              </code>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Erro na geração de imagens */}
+            {imagesError && (
+              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-800 font-medium">❌ Erro: {imagesError}</p>
+              </div>
+            )}
+
+            <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <h4 className="font-bold text-blue-900 mb-2">ℹ️ Sobre as imagens:</h4>
+              <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                <li>Design minimalista em escala de cinza</li>
+                <li>Tamanho: 1200x630px (ideal para redes sociais)</li>
+                <li>Salvas em: <code className="bg-blue-100 px-1 rounded">public/images/</code></li>
+                <li>Formato: PNG com fundo em tons de cinza escuro</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>

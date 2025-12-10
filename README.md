@@ -145,6 +145,25 @@ Acesse: http://localhost:3000
   - Frases características
   - Casos práticos sempre
 
+### 🎨 Sistema de Geração de Imagens
+
+- **Imagens Automáticas:** `/admin/generate` → Gerador de Imagens
+  - Design discreto em escala de cinza
+  - Minimalista e elegante
+  - 1200x630px (otimizado para redes sociais)
+  - Geração em lote para todos os posts
+
+- **API REST:** 
+  - `/api/generate-images?slug=...` - Imagem individual
+  - `/api/generate-images/all` - Todas as imagens
+
+- **Características:**
+  - Tons de cinza elegantes
+  - Layout minimalista
+  - Categoria destacada
+  - Título proeminente
+  - Branding discreto
+
 ### 🔄 Automação Completa (Fase 2)
 
 - **Coleta Automática de Fontes:**
@@ -333,6 +352,7 @@ curl -X POST http://localhost:3000/api/generate-post \
 - **[Design System](docs/design-system.md)** - Guia de estilos, cores e componentes
 - **[Automação (Fase 2)](docs/automation.md)** - Detalhes técnicos do sistema de cron e IA
 - **[Geração Manual](docs/manual-generation.md)** - Guia para uso do dashboard e API manual
+- **[Geração de Imagens](docs/image-generation.md)** - Sistema de imagens em escala de cinza
 - **[Bio Ricardo Esper](docs/bio.md)** - Textos biográficos oficiais
 
 ---
@@ -394,14 +414,19 @@ curl -X POST http://localhost:3000/api/generate-post \
 - Cron job diário
 - Analytics dashboard
 
-### 🔜 Fase 3: Melhorias (Futuro)
+### ✅ Fase 3: Imagens (Completo)
+- Geração automática de imagens
+- Design em escala de cinza
+- Layout minimalista e discreto
+- API para geração em lote
+
+### 🔜 Fase 4: Melhorias (Futuro)
 - [ ] Auto-publish inteligente (score > 9.5)
 - [ ] A/B testing de horários
 - [ ] Google Analytics integration
 - [ ] SEO metrics dashboard
 - [ ] Multi-language (EN-US completo)
 - [ ] Webhook notifications
-- [ ] Imagens geradas com IA
 - [ ] RSS feed próprio
 
 ---
