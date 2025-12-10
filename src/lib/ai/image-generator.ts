@@ -8,22 +8,26 @@ const replicate = new Replicate({
 
 /**
  * Gera uma imagem abstrata em greyscale baseada no slug
- * @param _prompt - Descrição da imagem (não usado, mantido para compatibilidade)
+ * @param prompt - Descrição da imagem (não usado, mantido para compatibilidade)
  * @param slug - Slug do post (obrigatório para gerar imagem consistente)
- * @param _title - Título do post (não usado, mantido para compatibilidade)
- * @param _content - Conteúdo do post (não usado, mantido para compatibilidade)
- * @param _excerpt - Excerpt do post (não usado, mantido para compatibilidade)
- * @param _keywords - Keywords do frontmatter (não usado, mantido para compatibilidade)
+ * @param title - Título do post (não usado, mantido para compatibilidade)
+ * @param content - Conteúdo do post (não usado, mantido para compatibilidade)
+ * @param excerpt - Excerpt do post (não usado, mantido para compatibilidade)
+ * @param keywords - Keywords do frontmatter (não usado, mantido para compatibilidade)
  * @returns Caminho relativo da imagem gerada
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function generateImage(
-  _prompt: string, 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  prompt: string, 
   slug?: string, 
-  _title?: string,
-  _content?: string,
-  _excerpt?: string,
-  _keywords?: string[]
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  title?: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  content?: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  excerpt?: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  keywords?: string[]
 ): Promise<string> {
   if (!slug) {
     throw new Error('Slug é obrigatório para gerar imagem abstrata');
