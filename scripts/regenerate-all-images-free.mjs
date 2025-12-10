@@ -185,15 +185,20 @@ async function regenerateAllImages() {
 
   for (const file of files) {
     const filePath = path.join(postsDir, file);
-    const content = fs.readFileSync(filePath, 'utf-8');
-    const { data: frontmatter } = matter(content);
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    const { data: frontmatter, content: postContent } = matter(fileContent);
 
     const slug = frontmatter.slug || file.replace(/\.mdx$/, '');
     const title = frontmatter.title || 'Post';
     const category = frontmatter.category || 'general';
+    const excerpt = frontmatter.excerpt || '';
+    const keywords = frontmatter.keywords || [];
     
     console.log(`\n📄 ${title}`);
     console.log(`   Slug: ${slug}`);
+    if (keywords.length > 0) {
+      console.log(`   Keywords: ${keywords.join(', ')}`);
+    }
 
     try {
       let prompt = frontmatter.thumbnailPrompt;
@@ -201,8 +206,15 @@ async function regenerateAllImages() {
         prompt = `${title}, ${category}`;
       }
 
-      // Passar slug e título para melhor correlação
-      const imageUrl = await searchFreeImage(prompt, slug, title);
+      // Passar conteúdo, excerpt e keywords para melhor contextualização
+      const imageUrl = await searchFreeImage(
+        prompt, 
+        slug, 
+        title,
+        postContent, // Conteúdo completo do post
+        excerpt, // Excerpt do post
+        keywords // Keywords do frontmatter
+      );
       
       if (!imageUrl) {
         console.log(`   ⚠️ Pulando (nenhuma imagem encontrada)`);
@@ -232,7 +244,7 @@ async function regenerateAllImages() {
       console.log(`   ✅ Imagem salva: ${coverImagePath}`);
 
       // Atualizar frontmatter
-      let updatedContent = content;
+      let updatedContent = fileContent;
       
       if (frontmatter.coverImage) {
         updatedContent = updatedContent.replace(
