@@ -214,14 +214,17 @@ export default async function BlogPost({ params }: PageProps) {
         <div className="absolute max-w-7xl mx-auto left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] lg:w-full h-full border-x border-border p-0 pointer-events-none" />
         <main className="w-full p-0 overflow-hidden">
           {(page.data.coverImage || page.data.thumbnail) && (
-            <div className="relative w-full h-[500px] overflow-hidden object-cover border border-transparent">
+            <div className="relative w-full h-[500px] overflow-hidden object-cover border border-transparent bg-grey-100">
               <Image
-                src={page.data.coverImage || page.data.thumbnail}
+                src={page.data.coverImage || page.data.thumbnail || ''}
                 alt={imageAlt}
                 fill
                 className="object-cover"
                 priority
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
+                onError={(e) => {
+                  console.error('Erro ao carregar imagem:', page.data.coverImage || page.data.thumbnail);
+                }}
               />
             </div>
           )}
