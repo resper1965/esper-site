@@ -10,6 +10,12 @@ interface Source {
   relevanceScore?: number;
 }
 
+interface SourceContent {
+  title: string;
+  content: string;
+  url: string;
+}
+
 const parser = new Parser();
 
 // Fontes RSS confiáveis
@@ -121,4 +127,90 @@ export async function getAllSources(hoursBack: number = 24): Promise<Source[]> {
   ]);
 
   return [...rssSources, ...anpdNews];
+}
+
+/**
+ * Extrai conteúdo de uma URL específica
+ */
+export async function fetchSourceContent(url: string): Promise<SourceContent> {
+  try {
+    console.log(`📥 Extraindo conteúdo de: ${url}`);
+    
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const html = await response.text();
+    const $ = cheerio.load(html);
+    
+    // Remover scripts, styles, etc
+    $('script, style, nav, footer, aside, .ad, .advertisement').remove();
+    
+    // Tentar encontrar título
+    let title = $('meta[property="og:title"]').attr('content') ||
+                $('meta[name="twitter:title"]').attr('content') ||
+                $('h1').first().text().trim() ||
+                $('title').text().trim() ||
+                'Artigo';
+    
+    // Tentar encontrar conteúdo principal
+    let content = '';
+    
+    // Tentar seletores comuns de artigo
+    const articleSelectors = [
+      'article',
+      '[role="article"]',
+      '.article-content',
+      '.post-content',
+      '.entry-content',
+      'main',
+      '.content'
+    ];
+    
+    for (const selector of articleSelectors) {
+      const article = $(selector).first();
+      if (article.length > 0) {
+        content = article.text().trim();
+        if (content.length > 500) {
+          break;
+        }
+      }
+    }
+    
+    // Se não encontrou, pegar todos os parágrafos
+    if (content.length < 500) {
+      content = $('p').map((_, el) => $(el).text().trim()).get().join('\n\n');
+    }
+    
+    // Limpar e limitar conteúdo
+    content = content
+      .replace(/\s+/g, ' ')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+    
+    if (content.length > 10000) {
+      content = content.substring(0, 10000) + '...';
+    }
+    
+    if (!content || content.length < 100) {
+      throw new Error('Conteúdo insuficiente extraído da página');
+    }
+    
+    console.log(`✅ Conteúdo extraído: ${content.length} caracteres`);
+    
+    return {
+      title: title.trim(),
+      content: content.trim(),
+      url
+    };
+  } catch (error) {
+    console.error('❌ Erro ao extrair conteúdo:', error);
+    throw error;
+  }
 }
