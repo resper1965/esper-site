@@ -1,27 +1,21 @@
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
 
-// Configurações de autenticação
+// Configurações de autenticação - senha plana
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || '';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 
-// Gerar hash da senha
-export function hashPassword(password: string): string {
-  return crypto.createHash('sha256').update(password).digest('hex');
-}
-
-// Verificar credenciais
+// Verificar credenciais (senha plana)
 export function verifyCredentials(username: string, password: string): boolean {
   // Verificar se as variáveis de ambiente estão configuradas
-  if (!ADMIN_PASSWORD_HASH || ADMIN_PASSWORD_HASH === '') {
-    console.error('❌ ADMIN_PASSWORD_HASH não está configurado');
+  if (!ADMIN_PASSWORD || ADMIN_PASSWORD === '') {
+    console.error('❌ ADMIN_PASSWORD não está configurado');
     return false;
   }
 
-  const passwordHash = hashPassword(password);
   const usernameMatch = username.trim() === ADMIN_USERNAME.trim();
-  const passwordMatch = passwordHash === ADMIN_PASSWORD_HASH.trim();
+  const passwordMatch = password.trim() === ADMIN_PASSWORD.trim();
 
   if (!usernameMatch || !passwordMatch) {
     console.log('❌ Credenciais inválidas:', {
@@ -33,6 +27,7 @@ export function verifyCredentials(username: string, password: string): boolean {
     return false;
   }
 
+  console.log('✅ Credenciais válidas');
   return true;
 }
 

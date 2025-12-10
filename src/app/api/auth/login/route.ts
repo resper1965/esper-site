@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     // Verificar variáveis de ambiente
-    if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD_HASH) {
+    if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD) {
       console.error('❌ Variáveis de ambiente não configuradas');
       return NextResponse.json(
         { error: 'Configuração do servidor incompleta' },
