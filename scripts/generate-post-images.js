@@ -1,211 +1,344 @@
 #!/usr/bin/env node
 
 /**
- * Script para gerar imagens de capa para posts do blog
- * Usa o sistema de Open Graph do Next.js para gerar imagens dinamicamente
+ * Gera thumbnails discretos e em escala de cinza para cada post MDX.
+ * Por padrão lê `blog/content` e grava os PNGs em `public/thumbnails`.
+ *
+ * Exemplos:
+ *   node scripts/generate-post-images.js
+ *   node scripts/generate-post-images.js --slug=viagens-seguranca-digital
+ *   node scripts/generate-post-images.js --dir=blog/content --out=public/thumbnails
  */
 
-const fs = require('fs');
+const fs = require('fs/promises');
 const path = require('path');
-const { ImageResponse } = require('@vercel/og');
 
-const postsDir = path.join(process.cwd(), 'src/content/posts');
-const imagesDir = path.join(process.cwd(), 'public/images');
+(async () => {
+  const { ImageResponse } = await import('@vercel/og');
+  const matter = (await import('gray-matter')).default;
+  const React = await import('react');
+  const { createElement } = React;
 
-// Cores por categoria
-const categoryColors = {
-  cybersecurity: {
-    bg: '#0f172a',
-    accent: '#3b82f6',
-    icon: '🛡️',
-  },
-  counterespionage: {
-    bg: '#1e1b4b',
-    accent: '#6366f1',
-    icon: '👁️',
-  },
-  forensics: {
-    bg: '#1c1917',
-    accent: '#78716c',
-    icon: '🔍',
-  },
-  compliance: {
-    bg: '#1e293b',
-    accent: '#64748b',
-    icon: '📋',
-  },
-  homeautomation: {
-    bg: '#0c4a6e',
-    accent: '#0ea5e9',
-    icon: '🏠',
-  },
-  travel: {
-    bg: '#1e3a8a',
-    accent: '#60a5fa',
-    icon: '✈️',
-  },
-  vida: {
-    bg: '#7c2d12',
-    accent: '#fb923c',
-    icon: '💭',
-  },
-  general: {
-    bg: '#111827',
-    accent: '#6b7280',
-    icon: '📝',
-  },
-};
+  const args = process.argv.slice(2);
+  const dirArg = args.find((arg) => arg.startsWith('--dir='));
+  const outArg = args.find((arg) => arg.startsWith('--out='));
+  const slugArg = args.find((arg) => arg.startsWith('--slug='));
 
-const categoryLabels = {
-  cybersecurity: 'Cibersegurança',
-  counterespionage: 'Contraespionagem',
-  forensics: 'Forense Digital',
-  compliance: 'Compliance',
-  homeautomation: 'Automação Residencial',
-  travel: 'Viagens',
-  vida: 'Vida',
-  general: 'Geral',
-};
+  const sourceDir = dirArg
+    ? path.resolve(process.cwd(), dirArg.split('=')[1])
+    : path.join(process.cwd(), 'blog/content');
+  const outputDir = outArg
+    ? path.resolve(process.cwd(), outArg.split('=')[1])
+    : path.join(process.cwd(), 'public/thumbnails');
+  const slugFilter = slugArg ? slugArg.split('=')[1] : null;
 
-async function generateImage(title, category, outputPath) {
-  const colors = categoryColors[category] || categoryColors.general;
-  const label = categoryLabels[category] || 'Geral';
-  
-  // Truncate title if too long
-  const displayTitle = title.length > 60 ? title.substring(0, 57) + '...' : title;
+  const THEMES = {
+    cyber: {
+      label: 'Cibersegurança',
+      background: ['#040404', '#141414'],
+      glow: '#d0d0d0',
+      accent: '#f5f5f5',
+      muted: '#9ca3af',
+      motif: 'grid',
+    },
+    counter: {
+      label: 'Contraespionagem',
+      background: ['#020202', '#0d0d0d'],
+      glow: '#dcdcdc',
+      accent: '#f3f4f6',
+      muted: '#a1a1aa',
+      motif: 'scan',
+    },
+    home: {
+      label: 'Automação Segura',
+      background: ['#050505', '#111111'],
+      glow: '#d6d6d6',
+      accent: '#f4f4f5',
+      muted: '#a3a3a3',
+      motif: 'circuit',
+    },
+    travel: {
+      label: 'Segurança em Viagens',
+      background: ['#030303', '#0f0f0f'],
+      glow: '#e0e0e0',
+      accent: '#f8f8f8',
+      muted: '#b0b0b0',
+      motif: 'lines',
+    },
+    default: {
+      label: 'Segurança Digital',
+      background: ['#050505', '#151515'],
+      glow: '#d8d8d8',
+      accent: '#f2f2f2',
+      muted: '#b1b1b1',
+      motif: 'grain',
+    },
+  };
 
-  try {
-    const imageResponse = new ImageResponse(
-      (
-        <div
-          style={{
-            height: '100%',
-            width: '100%',
+  const TAG_THEME = {
+    'ciberseguranca': 'cyber',
+    'cibersegurança': 'cyber',
+    'automacao residencial': 'home',
+    'automação residencial': 'home',
+    'contraespionagem': 'counter',
+    'viagens': 'travel',
+  };
+
+  const SLUG_HINTS = [
+    { needle: 'automacao', theme: 'home' },
+    { needle: 'home', theme: 'home' },
+    { needle: 'contraespionagem', theme: 'counter' },
+    { needle: 'tscm', theme: 'counter' },
+    { needle: 'viagem', theme: 'travel' },
+    { needle: 'travel', theme: 'travel' },
+    { needle: 'ot-', theme: 'cyber' },
+    { needle: 'ransomware', theme: 'cyber' },
+  ];
+
+  const truncate = (text, limit = 92) =>
+    text.length > limit ? `${text.substring(0, limit - 3)}...` : text;
+
+  const normalize = (value = '') =>
+    value
+      .toString()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim();
+
+  const ensureDir = async (dir) => {
+    await fs.mkdir(dir, { recursive: true });
+  };
+
+  const pickThemeKey = (tags = [], slug = '') => {
+    for (const tag of tags) {
+      const key = TAG_THEME[normalize(tag)];
+      if (key) return key;
+    }
+    const normalizedSlug = normalize(slug);
+    for (const hint of SLUG_HINTS) {
+      if (normalizedSlug.includes(hint.needle)) {
+        return hint.theme;
+      }
+    }
+    return 'default';
+  };
+
+  const createPatternLayer = (theme) => {
+    const baseStyle = {
+      position: 'absolute',
+      inset: 0,
+      opacity: 0.6,
+      zIndex: 1,
+      pointerEvents: 'none',
+    };
+
+    switch (theme.motif) {
+      case 'grid':
+        return createElement('div', {
+          style: {
+            ...baseStyle,
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)',
+            backgroundSize: '140px 140px, 140px 140px',
+          },
+        });
+      case 'scan':
+        return createElement('div', {
+          style: {
+            ...baseStyle,
+            backgroundImage:
+              'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 60%)',
+            backgroundSize: '100% 120px',
+          },
+        });
+      case 'circuit':
+        return createElement('div', {
+          style: {
+            ...baseStyle,
+            backgroundImage:
+              'linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
+            backgroundSize: '90px 90px, 60px 60px',
+          },
+        });
+      case 'lines':
+        return createElement('div', {
+          style: {
+            ...baseStyle,
+            backgroundImage:
+              'linear-gradient(120deg, rgba(255,255,255,0.05) 0%, transparent 55%)',
+            backgroundSize: '220px 220px',
+          },
+        });
+      default:
+        return createElement('div', {
+          style: {
+            ...baseStyle,
+            backgroundImage:
+              'radial-gradient(circle at 25% 25%, rgba(255,255,255,0.05) 0, transparent 55%)',
+          },
+        });
+    }
+  };
+
+  const buildCard = ({ title, slug, theme, tags }) => {
+    const displayTitle = truncate(title);
+    const tagLine = tags && tags.length ? tags.join(' • ') : theme.label;
+
+    return createElement(
+      'div',
+      {
+        style: {
+          width: '1200px',
+          height: '630px',
+          display: 'flex',
+          flexDirection: 'column',
+          background: `linear-gradient(135deg, ${theme.background[0]}, ${theme.background[1]})`,
+          color: '#f8fafc',
+          padding: '80px',
+          position: 'relative',
+          fontFamily:
+            "Inter, 'IBM Plex Sans', 'Helvetica Neue', system-ui, sans-serif",
+        },
+      },
+      createElement('div', {
+        style: {
+          position: 'absolute',
+          inset: 0,
+          background: `radial-gradient(circle at 25% 20%, ${theme.glow}22, transparent 55%)`,
+          zIndex: 1,
+        },
+      }),
+      createPatternLayer(theme),
+      createElement(
+        'div',
+        {
+          style: {
+            position: 'relative',
+            zIndex: 2,
             display: 'flex',
             flexDirection: 'column',
-            backgroundColor: colors.bg,
-            color: '#f9fafb',
-            padding: '80px',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '16px',
-              marginBottom: '40px',
-            }}
-          >
-            <div style={{ fontSize: '48px' }}>{colors.icon}</div>
-            <div
-              style={{
-                fontSize: '24px',
-                color: colors.accent,
-                fontWeight: 500,
-                textTransform: 'uppercase',
-                letterSpacing: '2px',
-              }}
-            >
-              {label}
-            </div>
-          </div>
-
-          <div
-            style={{
+            height: '100%',
+            gap: '32px',
+          },
+        },
+        createElement(
+          'div',
+          {
+            style: {
+              textTransform: 'uppercase',
+              letterSpacing: '6px',
+              fontSize: '18px',
+              color: theme.muted,
+            },
+          },
+          theme.label
+        ),
+        createElement(
+          'div',
+          {
+            style: {
               fontSize: '64px',
-              fontWeight: 700,
+              fontWeight: 600,
               lineHeight: 1.2,
-              marginBottom: '40px',
-              color: '#ffffff',
-            }}
-          >
-            {displayTitle}
-          </div>
-
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginTop: 'auto',
-              paddingTop: '40px',
-              borderTop: `2px solid ${colors.accent}40`,
-            }}
-          >
-            <div
-              style={{
-                fontSize: '28px',
-                color: colors.accent,
-                fontWeight: 600,
-              }}
-            >
-              Ricardo Esper
-            </div>
-            <div
-              style={{
-                fontSize: '20px',
-                color: '#9ca3af',
-                marginLeft: 'auto',
-              }}
-            >
-              esper.ws
-            </div>
-          </div>
-        </div>
-      ),
-      {
-        width: 1200,
-        height: 630,
-      }
+              color: theme.accent,
+            },
+          },
+          displayTitle
+        ),
+        createElement('div', {
+          style: {
+            marginTop: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            color: theme.muted,
+          },
+          children: [
+            createElement(
+              'div',
+              {
+                key: 'tags',
+                style: {
+                  fontSize: '20px',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase',
+                },
+              },
+              tagLine
+            ),
+            createElement(
+              'div',
+              {
+                key: 'footer',
+                style: {
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  borderTop: '1px solid rgba(255,255,255,0.08)',
+                  paddingTop: '18px',
+                  fontSize: '18px',
+                },
+              },
+              createElement(
+                'div',
+                { key: 'slug', style: { letterSpacing: '3px' } },
+                slug.replace(/-/g, ' · ')
+              ),
+              createElement('div', { key: 'brand' }, 'esper.ws')
+            ),
+          ],
+        })
+      )
     );
+  };
 
-    const buffer = await imageResponse.arrayBuffer();
-    fs.writeFileSync(outputPath, Buffer.from(buffer));
-    console.log(`✓ Gerada: ${outputPath}`);
-  } catch (error) {
-    console.error(`✗ Erro ao gerar ${outputPath}:`, error.message);
-  }
-}
+  const files = (await fs.readdir(sourceDir)).filter((file) =>
+    file.endsWith('.mdx')
+  );
 
-async function main() {
-  // Criar diretório de imagens se não existir
-  if (!fs.existsSync(imagesDir)) {
-    fs.mkdirSync(imagesDir, { recursive: true });
+  if (!files.length) {
+    console.warn(`Nenhum post encontrado em ${sourceDir}`);
+    process.exit(0);
   }
 
-  // Ler todos os arquivos MDX
-  const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.mdx'));
+  await ensureDir(outputDir);
 
-  console.log(`Encontrados ${files.length} posts\n`);
+  let generated = 0;
 
   for (const file of files) {
-    const filePath = path.join(postsDir, file);
-    const content = fs.readFileSync(filePath, 'utf-8');
-    
-    // Extrair frontmatter
-    const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
-    if (!frontmatterMatch) continue;
+    const filePath = path.join(sourceDir, file);
+    const content = await fs.readFile(filePath, 'utf8');
+    const { data } = matter(content);
 
-    const frontmatter = frontmatterMatch[1];
-    const titleMatch = frontmatter.match(/^title:\s*["'](.+?)["']/m);
-    const categoryMatch = frontmatter.match(/^category:\s*(\S+)/m);
-    const slugMatch = frontmatter.match(/^slug:\s*["']?(\S+?)["']?/m);
+    const slug =
+      (data.slug && data.slug.toString().trim()) ||
+      file.replace(/\.mdx$/, '');
 
-    if (!titleMatch || !categoryMatch || !slugMatch) {
-      console.log(`⚠ Pulando ${file} - frontmatter incompleto`);
+    if (slugFilter && slug !== slugFilter) {
       continue;
     }
 
-    const title = titleMatch[1];
-    const category = categoryMatch[1];
-    const slug = slugMatch[1];
-    const outputPath = path.join(imagesDir, `${slug}.png`);
+    const title = data.title || slug;
+    const tags = Array.isArray(data.tags) ? data.tags : [];
+    const themeKey = pickThemeKey(tags, slug);
+    const theme = THEMES[themeKey] || THEMES.default;
 
-    await generateImage(title, category, outputPath);
+    const card = buildCard({ title, slug, theme, tags });
+    const response = new ImageResponse(card, {
+      width: 1200,
+      height: 630,
+    });
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const assetPath = path.join(outputDir, `${slug}.png`);
+    await fs.writeFile(assetPath, buffer);
+
+    generated += 1;
+    console.log(`✓ ${slug} (${theme.label})`);
   }
 
-  console.log(`\n✓ Concluído! Imagens geradas em ${imagesDir}`);
-}
-
-main().catch(console.error);
-
+  console.log(`\n${generated} thumbnail(s) gerados em ${outputDir}`);
+})().catch((error) => {
+  console.error('Erro ao gerar thumbnails:', error);
+  process.exit(1);
+});
