@@ -159,15 +159,14 @@ export default async function BlogPost({ params }: PageProps) {
         <main className="w-full p-0 overflow-hidden">
           {(page.data.coverImage || page.data.thumbnail) && (
             <div className="relative w-full h-[500px] overflow-hidden object-cover border border-transparent bg-grey-100">
-              <Image
+              <img
                 src={page.data.coverImage || page.data.thumbnail || ''}
                 alt={page.data.title}
-                fill
-                className="object-cover"
-                priority
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
-                onError={() => {
+                className="w-full h-full object-cover"
+                style={{ objectFit: 'cover' }}
+                onError={(e) => {
                   console.error('Erro ao carregar imagem:', page.data.coverImage || page.data.thumbnail);
+                  (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
             </div>

@@ -32,8 +32,7 @@ export default function LoginPage() {
       }
 
       // Redirecionar para o dashboard
-      router.push('/admin/generate');
-      router.refresh();
+      window.location.href = '/admin/generate';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
