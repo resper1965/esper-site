@@ -1,10 +1,6 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { generateTextWithGemini } from './gemini-client';
 import fs from 'fs';
 import path from 'path';
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || '',
-});
 
 const RICARDO_PROFILE = JSON.parse(
   fs.readFileSync(path.join(process.cwd(), 'src/lib/ai/ricardo-profile.json'), 'utf-8')
@@ -214,15 +210,17 @@ ${isEnglish
 `;
 
   try {
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 4096,
-      messages: [{ role: 'user', content: prompt }],
-    });
+    const systemPrompt = isEnglish
+      ? `You are Ricardo Esper, cybersecurity expert with 34 years of experience, CEO of NESS, CISO of IONIC Health, father of two daughters, 60 years old. Always write in first person, with a professional but accessible tone, based on real experience. Write everything in ENGLISH.`
+      : `Você é Ricardo Esper, especialista em cibersegurança com 34 anos de experiência, CEO da NESS, CISO da IONIC Health, pai de duas filhas, 60 anos. Escreva sempre em primeira pessoa, com tom profissional mas acessível, baseado em experiência real. Escreva tudo em PORTUGUÊS BRASILEIRO.`;
 
-    const content = message.content[0].type === 'text'
-      ? message.content[0].text
-      : '';
+    const result = await generateTextWithGemini(
+      prompt,
+      systemPrompt,
+      'gemini-1.5-pro'
+    );
+
+    const content = result.text;
 
     const score = await evaluateQuality(content, language);
 
@@ -235,8 +233,8 @@ ${isEnglish
         category,
         sources: sources.map(s => s.url),
         generatedAt: new Date().toISOString(),
-        model: 'claude-sonnet-4',
-        tokensUsed: message.usage
+        model: 'gemini-1.5-pro',
+        tokensUsed: result.tokensUsed
       }
     };
   } catch (error) {

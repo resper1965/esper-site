@@ -7,7 +7,7 @@
 Acesse o dashboard do Vercel e configure as seguintes variáveis de ambiente:
 
 **Obrigatórias:**
-- `ANTHROPIC_API_KEY` - Chave da API da Anthropic (Claude) para geração de posts
+- `GEMINI_API_KEY` - Chave da API do Google Gemini para geração de posts e descrições visuais (obter em: https://aistudio.google.com/app/apikey)
 - `CRON_SECRET` - Token secreto para proteger o endpoint de cron (`/api/auto-generate`)
 
 **Opcionais (mas recomendadas):**
@@ -226,7 +226,7 @@ curl "https://ricardoesper.com/api/auto-generate?token=SEU_CRON_SECRET"
 ## 📋 Checklist Rápido
 
 ### Configurações Essenciais
-- [ ] Configurar `ANTHROPIC_API_KEY` no Vercel
+- [ ] Configurar `GEMINI_API_KEY` no Vercel (obter em: https://aistudio.google.com/app/apikey)
 - [ ] Configurar `CRON_SECRET` no Vercel
 - [ ] Configurar Google Search Console
 - [ ] Adicionar `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`

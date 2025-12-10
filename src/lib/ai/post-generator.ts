@@ -1,12 +1,8 @@
-import Anthropic from '@anthropic-ai/sdk';
 import fs from 'fs';
 import path from 'path';
-import { generateImage } from './image-generator';
+import { generatePostImage } from './image-generator-gemini';
+import { generateTextWithGemini } from './gemini-client';
 import matter from 'gray-matter';
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || '',
-});
 
 // Carregar perfil tonal
 const RICARDO_PROFILE = JSON.parse(
@@ -157,15 +153,15 @@ NÃO inclua meta-comentários.
 `;
 
   try {
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 4096,
-      messages: [{ role: 'user', content: prompt }],
-    });
+    const systemPrompt = `Você é Ricardo Esper, especialista em cibersegurança com 34 anos de experiência, CEO da NESS, CISO da IONIC Health, pai de duas filhas, 60 anos. Escreva sempre em primeira pessoa, com tom profissional mas acessível, baseado em experiência real.`;
 
-    const content = message.content[0].type === 'text'
-      ? message.content[0].text
-      : '';
+    const result = await generateTextWithGemini(
+      prompt,
+      systemPrompt,
+      'gemini-1.5-pro'
+    );
+
+    const content = result.text;
 
     // Avaliar qualidade
     const score = await evaluateQuality(content);
@@ -178,8 +174,8 @@ NÃO inclua meta-comentários.
         category,
         sources: sources.map(s => s.url),
         generatedAt: new Date().toISOString(),
-        model: 'claude-sonnet-4',
-        tokensUsed: message.usage
+        model: 'gemini-1.5-pro',
+        tokensUsed: result.tokensUsed
       }
     };
   } catch (error) {
@@ -221,23 +217,21 @@ export async function savePostDraft(post: { content: string; score: number; meta
   const { data: frontmatter, content: postContent } = matter(post.content);
   const slug = frontmatter.slug || `draft-${Date.now()}`;
 
-  // Gerar imagem se houver thumbnailPrompt (usa Hugging Face gratuito por padrão)
+  // Gerar imagem se houver thumbnailPrompt (usa Gemini para descrição + Canvas para gerar)
   let coverImagePath: string | undefined;
   if (frontmatter.thumbnailPrompt) {
     try {
-      console.log('🎨 Gerando imagem de capa...');
+      console.log('🎨 Gerando imagem de capa conectada ao tema...');
       
-      // Melhorar o prompt para ilustração
-      const enhancedPrompt = `Professional illustration, ${frontmatter.thumbnailPrompt}, high quality, clean design, modern style, suitable for blog cover image`;
-      
-      // Gerar imagem abstrata (retorna caminho relativo diretamente)
-      coverImagePath = await generateImage(
-        enhancedPrompt, 
-        slug, 
-        frontmatter.title,
+      // Gerar imagem usando Gemini para criar descrição visual + Vercel OG para gerar imagem relevante
+      coverImagePath = await generatePostImage(
+        frontmatter.thumbnailPrompt,
+        slug,
+        frontmatter.title || 'Post',
         postContent,
-        frontmatter.excerpt,
-        frontmatter.keywords
+        frontmatter.excerpt || '',
+        category,
+        frontmatter.keywords || []
       );
       console.log('✅ Imagem de capa gerada:', coverImagePath);
     } catch (error) {
@@ -246,9 +240,12 @@ export async function savePostDraft(post: { content: string; score: number; meta
     }
   }
 
-  // Atualizar frontmatter com coverImage se gerada
+  // Atualizar frontmatter com coverImage e imageAlt se gerada
   let finalContent = post.content;
   if (coverImagePath) {
+    // Criar alt text descritivo para SEO
+    const imageAlt = `${frontmatter.title} - ${category} - ${frontmatter.excerpt || 'Post sobre cibersegurança'}`;
+    
     // Adicionar ou atualizar coverImage no frontmatter
     if (frontmatter.coverImage) {
       finalContent = finalContent.replace(
@@ -262,10 +259,27 @@ export async function savePostDraft(post: { content: string; score: number; meta
         const beforeFrontmatter = finalContent.substring(0, frontmatterEnd);
         const afterFrontmatter = finalContent.substring(frontmatterEnd);
         
-        // Adicionar coverImage antes do fechamento do frontmatter
-        const coverImageLine = `coverImage: "${coverImagePath}"\n`;
-        finalContent = beforeFrontmatter + coverImageLine + afterFrontmatter;
+        // Adicionar coverImage e imageAlt antes do fechamento do frontmatter
+        const imageLines = `coverImage: "${coverImagePath}"\nimageAlt: "${imageAlt}"\n`;
+        finalContent = beforeFrontmatter + imageLines + afterFrontmatter;
       }
+    }
+    
+    // Adicionar ou atualizar imageAlt se não existir
+    if (!finalContent.includes('imageAlt:')) {
+      const frontmatterEnd = finalContent.indexOf('---', 3);
+      if (frontmatterEnd > 0) {
+        const beforeFrontmatter = finalContent.substring(0, frontmatterEnd);
+        const afterFrontmatter = finalContent.substring(frontmatterEnd);
+        const imageAltLine = `imageAlt: "${imageAlt}"\n`;
+        finalContent = beforeFrontmatter + imageAltLine + afterFrontmatter;
+      }
+    } else {
+      // Atualizar imageAlt existente
+      finalContent = finalContent.replace(
+        /imageAlt:\s*["'][^"']*["']/,
+        `imageAlt: "${imageAlt}"`
+      );
     }
   }
 

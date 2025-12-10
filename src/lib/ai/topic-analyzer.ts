@@ -1,8 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || '',
-});
+import { generateTextWithGemini } from './gemini-client';
 
 interface Source {
   title: string;
@@ -70,20 +66,21 @@ Ordene por relevanceScore (10 = mais relevante).
 `;
 
   try {
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 2000,
-      messages: [{ role: 'user', content: prompt }],
-    });
+    const systemPrompt = `Você é um assistente especializado em análise de conteúdo de cibersegurança. Sempre retorne APENAS JSON válido, sem markdown, sem explicações adicionais.`;
 
-    const content = message.content[0].type === 'text' 
-      ? message.content[0].text 
-      : '';
+    const result = await generateTextWithGemini(
+      prompt,
+      systemPrompt,
+      'gemini-1.5-flash' // Flash é mais rápido e barato para análise
+    );
+
+    const content = result.text;
 
     // Extrair JSON (remover markdown se houver)
     const jsonMatch = content.match(/\[\s*{[\s\S]*}\s*\]/);
     if (!jsonMatch) {
       console.error('❌ Não conseguiu extrair JSON da resposta');
+      console.error('Resposta recebida:', content.substring(0, 500));
       return [];
     }
 
