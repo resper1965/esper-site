@@ -7,7 +7,8 @@
     "build": "fumadocs-mdx && next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "fumadocs-mdx"
+    "postinstall": "fumadocs-mdx",
+    "regenerate-images": "node scripts/regenerate-all-images.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
@@ -54,6 +55,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "canvas": "^3.2.0",
+    "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "15.3.6",
     "tailwindcss": "^4",
