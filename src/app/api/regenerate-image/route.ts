@@ -66,7 +66,7 @@ export async function POST(request: Request) {
 
     // Ler o post
     const postContent = fs.readFileSync(postPath, 'utf-8');
-    const { data: frontmatter, content: markdownContent } = matter(postContent);
+    const { data: frontmatter } = matter(postContent);
 
     // Obter ou gerar prompt para imagem
     let prompt = frontmatter.thumbnailPrompt;

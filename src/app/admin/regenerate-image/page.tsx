@@ -140,7 +140,7 @@ export default function RegenerateImagePage() {
               <ol className="text-sm text-grey-700 space-y-2 list-decimal list-inside">
                 <li>Encontre o slug do post no frontmatter do arquivo .mdx</li>
                 <li>Digite o slug no campo acima</li>
-                <li>Clique em "Regenerar Imagem"</li>
+                <li>Clique em &quot;Regenerar Imagem&quot;</li>
                 <li>A nova imagem será gerada e salva em <code className="bg-white px-2 py-1 rounded">public/images/</code></li>
                 <li>O frontmatter do post será atualizado automaticamente</li>
               </ol>
