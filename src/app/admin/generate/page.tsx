@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Layout from '@/components/layout/Layout';
+import AdminLayout from '@/components/layout/AdminLayout';
 
 interface GenerateResult {
   title: string;
@@ -48,11 +48,11 @@ export default function GenerateDashboard() {
 
   if (checkingAuth) {
     return (
-      <Layout>
+      <AdminLayout>
         <div className="py-16 text-center">
           <p className="text-grey-600">Verificando autenticação...</p>
         </div>
-      </Layout>
+      </AdminLayout>
     );
   }
 
@@ -88,7 +88,7 @@ export default function GenerateDashboard() {
   };
 
   return (
-    <Layout>
+    <AdminLayout>
       <div className="py-16">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="flex justify-between items-center mb-8">
@@ -202,6 +202,6 @@ export default function GenerateDashboard() {
           </div>
         </div>
       </div>
-    </Layout>
+    </AdminLayout>
   );
 }

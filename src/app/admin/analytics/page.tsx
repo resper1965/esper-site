@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Layout from '@/components/layout/Layout';
+import AdminLayout from '@/components/layout/AdminLayout';
 
 interface Stats {
   totalPosts: number;
@@ -32,7 +32,7 @@ export default function AnalyticsDashboard() {
   if (!stats) return null;
 
   return (
-    <Layout>
+    <AdminLayout>
       <div className="py-16">
         <h1 className="text-3xl font-bold mb-8">Analytics Dashboard</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -54,6 +54,6 @@ export default function AnalyticsDashboard() {
           </div>
         </div>
       </div>
-    </Layout>
+    </AdminLayout>
   );
 }

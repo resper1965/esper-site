@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Layout from '@/components/layout/Layout';
+import AdminLayout from '@/components/layout/AdminLayout';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -42,7 +42,7 @@ export default function LoginPage() {
   };
 
   return (
-    <Layout>
+    <AdminLayout>
       <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>
@@ -105,7 +105,7 @@ export default function LoginPage() {
           </form>
         </div>
       </div>
-    </Layout>
+    </AdminLayout>
   );
 }
 
