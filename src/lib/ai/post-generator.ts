@@ -230,24 +230,15 @@ export async function savePostDraft(post: { content: string; score: number; meta
       // Melhorar o prompt para ilustração
       const enhancedPrompt = `Professional illustration, ${frontmatter.thumbnailPrompt}, high quality, clean design, modern style, suitable for blog cover image`;
       
-      // Passar slug, título, conteúdo, excerpt e keywords para melhor contextualização
-      const imageUrl = await generateImage(
+      // Gerar imagem abstrata (retorna caminho relativo diretamente)
+      coverImagePath = await generateImage(
         enhancedPrompt, 
         slug, 
         frontmatter.title,
-        postContent, // Conteúdo completo do post
-        frontmatter.excerpt, // Excerpt do post
-        frontmatter.keywords // Keywords do frontmatter
+        postContent,
+        frontmatter.excerpt,
+        frontmatter.keywords
       );
-      
-      // Salvar imagem
-      const imagesDir = path.join(process.cwd(), 'public/images');
-      const imageFilename = `${slug}.png`;
-      const imagePath = path.join(imagesDir, imageFilename);
-      
-      await downloadAndSaveImage(imageUrl, imagePath);
-      
-      coverImagePath = `/images/${imageFilename}`;
       console.log('✅ Imagem de capa gerada:', coverImagePath);
     } catch (error) {
       console.error('⚠️ Erro ao gerar imagem (continuando sem imagem):', error);

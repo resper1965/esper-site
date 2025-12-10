@@ -9,7 +9,8 @@
     "lint": "next lint",
     "postinstall": "fumadocs-mdx",
     "regenerate-images": "node scripts/regenerate-all-images.mjs",
-    "regenerate-images-free": "node scripts/regenerate-all-images-free.mjs"
+    "regenerate-images-free": "node scripts/regenerate-all-images-free.mjs",
+    "generate-abstract-images": "node scripts/generate-abstract-images.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",

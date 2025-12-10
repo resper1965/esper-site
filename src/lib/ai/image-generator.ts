@@ -1,4 +1,5 @@
-import { searchFreeImage } from './image-fetcher';
+import { generateAbstractImage } from './abstract-image-generator';
+import path from 'path';
 import Replicate from 'replicate';
 
 const replicate = new Replicate({
@@ -6,15 +7,14 @@ const replicate = new Replicate({
 });
 
 /**
- * Busca ou gera uma imagem
- * Prioridade: 1) Busca em bancos gratuitos, 2) Gera com IA
- * @param prompt - Descrição da imagem a ser buscada/gerada
- * @param slug - Slug do post (para melhor correlação)
- * @param title - Título do post (para melhor correlação)
- * @param content - Conteúdo do post (para extrair palavras-chave)
- * @param excerpt - Excerpt do post
- * @param keywords - Keywords do frontmatter
- * @returns URL da imagem (data URL se gerada, URL direta se baixada)
+ * Gera uma imagem abstrata em greyscale baseada no slug
+ * @param prompt - Descrição da imagem (não usado, mantido para compatibilidade)
+ * @param slug - Slug do post (obrigatório para gerar imagem consistente)
+ * @param title - Título do post (não usado, mantido para compatibilidade)
+ * @param content - Conteúdo do post (não usado, mantido para compatibilidade)
+ * @param excerpt - Excerpt do post (não usado, mantido para compatibilidade)
+ * @param keywords - Keywords do frontmatter (não usado, mantido para compatibilidade)
+ * @returns Caminho relativo da imagem gerada
  */
 export async function generateImage(
   prompt: string, 
@@ -24,13 +24,19 @@ export async function generateImage(
   excerpt?: string,
   keywords?: string[]
 ): Promise<string> {
-  // Primeiro, tentar buscar em bancos gratuitos (usa conteúdo para melhor contextualização)
-  const searchResult = await searchFreeImage(prompt, slug, title, content, excerpt, keywords);
-  
-  if (searchResult) {
-    // Se encontrou, retornar a URL para download
-    return searchResult;
+  if (!slug) {
+    throw new Error('Slug é obrigatório para gerar imagem abstrata');
   }
+  
+  // Gerar imagem abstrata baseada no slug
+  const imagesDir = path.join(process.cwd(), 'public/images');
+  const imageFilename = `${slug}.png`;
+  const imagePath = path.join(imagesDir, imageFilename);
+  
+  await generateAbstractImage(slug, imagePath);
+  
+  // Retornar caminho relativo
+  return `/images/${imageFilename}`;
 
   // Se não encontrou, tentar gerar com IA (Hugging Face ou Replicate)
   const HF_API_KEY = process.env.HUGGINGFACE_API_KEY || '';
