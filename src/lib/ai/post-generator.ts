@@ -218,7 +218,7 @@ export async function savePostDraft(post: { content: string; score: number; meta
   }
 
   // Extrair frontmatter usando gray-matter
-  const { data: frontmatter } = matter(post.content);
+  const { data: frontmatter, content: postContent } = matter(post.content);
   const slug = frontmatter.slug || `draft-${Date.now()}`;
 
   // Gerar imagem se houver thumbnailPrompt (usa Hugging Face gratuito por padrão)
@@ -230,8 +230,15 @@ export async function savePostDraft(post: { content: string; score: number; meta
       // Melhorar o prompt para ilustração
       const enhancedPrompt = `Professional illustration, ${frontmatter.thumbnailPrompt}, high quality, clean design, modern style, suitable for blog cover image`;
       
-      // Passar slug e título para melhor correlação
-      const imageUrl = await generateImage(enhancedPrompt, slug, frontmatter.title);
+      // Passar slug, título, conteúdo, excerpt e keywords para melhor contextualização
+      const imageUrl = await generateImage(
+        enhancedPrompt, 
+        slug, 
+        frontmatter.title,
+        postContent, // Conteúdo completo do post
+        frontmatter.excerpt, // Excerpt do post
+        frontmatter.keywords // Keywords do frontmatter
+      );
       
       // Salvar imagem
       const imagesDir = path.join(process.cwd(), 'public/images');

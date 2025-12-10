@@ -11,15 +11,21 @@ const replicate = new Replicate({
  * @param prompt - Descrição da imagem a ser buscada/gerada
  * @param slug - Slug do post (para melhor correlação)
  * @param title - Título do post (para melhor correlação)
+ * @param content - Conteúdo do post (para extrair palavras-chave)
+ * @param excerpt - Excerpt do post
+ * @param keywords - Keywords do frontmatter
  * @returns URL da imagem (data URL se gerada, URL direta se baixada)
  */
 export async function generateImage(
   prompt: string, 
   slug?: string, 
-  title?: string
+  title?: string,
+  content?: string,
+  excerpt?: string,
+  keywords?: string[]
 ): Promise<string> {
-  // Primeiro, tentar buscar em bancos gratuitos (usa slug e título para melhor busca)
-  const searchResult = await searchFreeImage(prompt, slug, title);
+  // Primeiro, tentar buscar em bancos gratuitos (usa conteúdo para melhor contextualização)
+  const searchResult = await searchFreeImage(prompt, slug, title, content, excerpt, keywords);
   
   if (searchResult) {
     // Se encontrou, retornar a URL para download

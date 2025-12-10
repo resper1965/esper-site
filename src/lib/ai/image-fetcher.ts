@@ -7,31 +7,42 @@
  * Busca imagem no Unsplash usando Source API (pública, sem API key)
  * Usa palavras-chave extraídas do slug e título para melhor correlação
  */
-async function searchUnsplashFree(query: string, slug?: string, title?: string): Promise<string | null> {
+async function searchUnsplashFree(
+  query: string, 
+  slug?: string, 
+  title?: string,
+  contentKeywords?: string[]
+): Promise<string | null> {
   try {
-    // Extrair palavras-chave do slug (mais específicas)
+    // Prioridade: 1) Keywords do conteúdo, 2) Slug, 3) Título, 4) Query
     let keywords: string[] = [];
     
-    if (slug) {
-      // Slug geralmente tem palavras separadas por hífen
-      keywords = slug
-        .split('-')
-        .filter(word => word && word.length > 3 && !/^\d+$/.test(word)) // Filtrar palavras muito curtas e números
-        .slice(0, 3); // Pegar até 3 palavras do slug
+    // 1. Usar palavras-chave extraídas do conteúdo (mais relevantes)
+    if (contentKeywords && contentKeywords.length > 0) {
+      keywords = contentKeywords.slice(0, 4);
     }
     
-    // Se não tiver palavras suficientes do slug, usar do título
+    // 2. Se não tiver palavras suficientes, usar do slug
+    if (keywords.length < 2 && slug) {
+      const slugWords = slug
+        .split('-')
+        .filter(word => word && word.length > 3 && !/^\d+$/.test(word))
+        .slice(0, 3);
+      keywords = [...keywords, ...slugWords].slice(0, 4);
+    }
+    
+    // 3. Se ainda não tiver palavras suficientes, usar do título
     if (keywords.length < 2 && title) {
       const titleWords = title
         .toLowerCase()
-        .replace(/[^\w\s]/g, ' ') // Remover pontuação
+        .replace(/[^\w\s]/g, ' ')
         .split(/\s+/)
         .filter(word => word && word.length > 3 && !['para', 'com', 'que', 'uma', 'the', 'and', 'for', 'are', 'you', 'need', 'know'].includes(word))
         .slice(0, 3);
-      keywords = [...keywords, ...titleWords].slice(0, 3);
+      keywords = [...keywords, ...titleWords].slice(0, 4);
     }
     
-    // Fallback: usar query original
+    // 4. Fallback: usar query original
     if (keywords.length === 0 && query) {
       keywords = query
         .toLowerCase()
@@ -111,21 +122,81 @@ async function searchPicsumFree(query: string, slug?: string): Promise<string | 
 }
 
 /**
+ * Extrai palavras-chave relevantes do conteúdo do post
+ */
+function extractKeywordsFromContent(
+  content?: string,
+  excerpt?: string,
+  keywords?: string[]
+): string[] {
+  const extracted: string[] = [];
+  
+  // 1. Usar keywords do frontmatter (mais relevantes)
+  if (keywords && Array.isArray(keywords)) {
+    extracted.push(...keywords.filter(k => k && k.length > 2));
+  }
+  
+  // 2. Extrair do excerpt (resumo do post)
+  if (excerpt) {
+    const excerptWords = excerpt
+      .toLowerCase()
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(word => 
+        word.length > 4 && 
+        !['para', 'com', 'que', 'uma', 'the', 'and', 'for', 'are', 'you', 'need', 'know', 'this', 'that', 'from', 'with', 'have', 'been', 'will', 'would', 'could', 'should'].includes(word)
+      )
+      .slice(0, 5);
+    extracted.push(...excerptWords);
+  }
+  
+  // 3. Extrair do conteúdo (primeiras 500 palavras)
+  if (content) {
+    const contentText = content
+      .replace(/[#*`\[\]()]/g, ' ') // Remover markdown
+      .replace(/\n+/g, ' ')
+      .substring(0, 2000) // Primeiras 2000 caracteres
+      .toLowerCase();
+    
+    const contentWords = contentText
+      .split(/\s+/)
+      .filter(word => 
+        word.length > 4 && 
+        !['para', 'com', 'que', 'uma', 'the', 'and', 'for', 'are', 'you', 'need', 'know', 'this', 'that', 'from', 'with', 'have', 'been', 'will', 'would', 'could', 'should', 'como', 'mais', 'muito', 'sobre', 'sobre', 'quando', 'onde', 'porque'].includes(word)
+      )
+      .slice(0, 5);
+    extracted.push(...contentWords);
+  }
+  
+  // Remover duplicatas e retornar até 5 palavras mais relevantes
+  return Array.from(new Set(extracted)).slice(0, 5);
+}
+
+/**
  * Busca imagem em bancos gratuitos SEM API key
  * Tenta: Unsplash Source API → Lorem Picsum
  * @param query - Prompt ou descrição da imagem
  * @param slug - Slug do post (para melhor correlação)
  * @param title - Título do post (para melhor correlação)
+ * @param content - Conteúdo do post (para extrair palavras-chave)
+ * @param excerpt - Excerpt do post
+ * @param keywords - Keywords do frontmatter
  */
 export async function searchFreeImage(
   query: string, 
   slug?: string, 
-  title?: string
+  title?: string,
+  content?: string,
+  excerpt?: string,
+  keywords?: string[]
 ): Promise<string | null> {
-  console.log(`🔍 Buscando imagem: slug="${slug}", title="${title?.substring(0, 30)}..."`);
+  // Extrair palavras-chave do conteúdo
+  const contentKeywords = extractKeywordsFromContent(content, excerpt, keywords);
+  
+  console.log(`🔍 Buscando imagem: slug="${slug}", title="${title?.substring(0, 30)}...", keywords=[${contentKeywords.join(', ')}]`);
 
-  // Tentar Unsplash Source API primeiro (usa slug e título para melhor busca)
-  let result = await searchUnsplashFree(query, slug, title);
+  // Tentar Unsplash Source API primeiro (usa slug, título e palavras-chave do conteúdo)
+  let result = await searchUnsplashFree(query, slug, title, contentKeywords);
   if (result) {
     return result;
   }

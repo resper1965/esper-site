@@ -16,47 +16,106 @@ if (!fs.existsSync(imagesDir)) {
 }
 
 /**
- * Busca imagem em bancos gratuitos SEM API key
- * Usa slug e título para melhor correlação
+ * Extrai palavras-chave relevantes do conteúdo do post
  */
-async function searchFreeImage(query, slug, title) {
-  // Extrair palavras-chave do slug (mais específicas e relacionadas)
-  let keywords = [];
+function extractKeywordsFromContent(content, excerpt, keywords) {
+  const extracted = [];
   
-  if (slug) {
-    // Slug geralmente tem palavras separadas por hífen
-    keywords = slug
-      .split('-')
-      .filter(word => word.length > 3 && !['2025', '2024', '2023'].includes(word))
-      .slice(0, 3);
+  // 1. Usar keywords do frontmatter (mais relevantes)
+  if (keywords && Array.isArray(keywords)) {
+    extracted.push(...keywords.filter(k => k && k.length > 2));
   }
   
-  // Se não tiver palavras suficientes do slug, usar do título
-  if (keywords.length < 2 && title) {
+  // 2. Extrair do excerpt (resumo do post)
+  if (excerpt) {
+    const excerptWords = excerpt
+      .toLowerCase()
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(word => 
+        word.length > 4 && 
+        !['para', 'com', 'que', 'uma', 'the', 'and', 'for', 'are', 'you', 'need', 'know', 'this', 'that', 'from', 'with', 'have', 'been', 'will', 'would', 'could', 'should'].includes(word)
+      )
+      .slice(0, 5);
+    extracted.push(...excerptWords);
+  }
+  
+  // 3. Extrair do conteúdo (primeiras 2000 caracteres)
+  if (content) {
+    const contentText = content
+      .replace(/[#*`\[\]()]/g, ' ') // Remover markdown
+      .replace(/\n+/g, ' ')
+      .substring(0, 2000) // Primeiras 2000 caracteres
+      .toLowerCase();
+    
+    const contentWords = contentText
+      .split(/\s+/)
+      .filter(word => 
+        word.length > 4 && 
+        !['para', 'com', 'que', 'uma', 'the', 'and', 'for', 'are', 'you', 'need', 'know', 'this', 'that', 'from', 'with', 'have', 'been', 'will', 'would', 'could', 'should', 'como', 'mais', 'muito', 'sobre', 'quando', 'onde', 'porque'].includes(word)
+      )
+      .slice(0, 5);
+    extracted.push(...contentWords);
+  }
+  
+  // Remover duplicatas e retornar até 5 palavras mais relevantes
+  return Array.from(new Set(extracted)).slice(0, 5);
+}
+
+/**
+ * Busca imagem em bancos gratuitos SEM API key
+ * Usa conteúdo do post para melhor contextualização
+ */
+async function searchFreeImage(query, slug, title, content, excerpt, keywords) {
+  // Extrair palavras-chave do conteúdo
+  const contentKeywords = extractKeywordsFromContent(content, excerpt, keywords);
+  
+  if (contentKeywords.length > 0) {
+    console.log(`   📝 Keywords extraídas: ${contentKeywords.join(', ')}`);
+  }
+  // Prioridade: 1) Keywords do conteúdo, 2) Slug, 3) Título, 4) Query
+  let searchKeywords = [];
+  
+  // 1. Usar palavras-chave extraídas do conteúdo (mais relevantes)
+  if (contentKeywords && contentKeywords.length > 0) {
+    searchKeywords = contentKeywords.slice(0, 4);
+  }
+  
+  // 2. Se não tiver palavras suficientes, usar do slug
+  if (searchKeywords.length < 2 && slug) {
+    const slugWords = slug
+      .split('-')
+      .filter(word => word && word.length > 3 && !/^\d+$/.test(word))
+      .slice(0, 3);
+    searchKeywords = [...searchKeywords, ...slugWords].slice(0, 4);
+  }
+  
+  // 3. Se ainda não tiver palavras suficientes, usar do título
+  if (searchKeywords.length < 2 && title) {
     const titleWords = title
       .toLowerCase()
       .replace(/[^\w\s]/g, ' ')
       .split(/\s+/)
-      .filter(word => word.length > 3 && !['para', 'com', 'que', 'uma', 'the', 'and', 'for', 'are', 'you'].includes(word))
+      .filter(word => word && word.length > 3 && !['para', 'com', 'que', 'uma', 'the', 'and', 'for', 'are', 'you'].includes(word))
       .slice(0, 3);
-    keywords = [...keywords, ...titleWords].slice(0, 3);
+    searchKeywords = [...searchKeywords, ...titleWords].slice(0, 4);
   }
   
-  // Fallback: usar query original
-  if (keywords.length === 0) {
-    keywords = query
+  // 4. Fallback: usar query original
+  if (searchKeywords.length === 0) {
+    searchKeywords = query
       .toLowerCase()
       .replace(/professional illustration for blog post about/gi, '')
       .replace(/greyscale|black and white|monochrome/gi, '')
       .replace(/high quality|clean design|modern style/gi, '')
       .trim()
       .split(' ')
-      .filter(word => word.length > 3)
+      .filter(word => word && word.length > 3)
       .slice(0, 3);
   }
 
-  const searchQuery = keywords.join(',');
-  console.log(`🔍 Buscando: "${searchQuery}" (do slug: ${slug})`);
+  const searchQuery = searchKeywords.join(',');
+  console.log(`🔍 Buscando: "${searchQuery}" (do conteúdo: ${contentKeywords.length > 0 ? 'sim' : 'não'})`);
 
   // Tentar Unsplash Source API (pública, sem API key)
   try {
@@ -116,6 +175,7 @@ async function downloadAndSaveImage(imageUrl, filePath, retries = 3) {
 async function regenerateAllImages() {
   console.log('🔄 Buscando imagens em bancos gratuitos (SEM API KEY)...\n');
   console.log('ℹ️  Usando: Unsplash Source API (público) → Lorem Picsum (fallback)\n');
+  console.log('📝 Agora usando conteúdo do post para melhor contextualização!\n');
 
   const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.mdx'));
   console.log(`📝 Encontrados ${files.length} posts\n`);
