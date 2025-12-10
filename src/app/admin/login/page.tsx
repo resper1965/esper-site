@@ -6,10 +6,7 @@ import AdminLayout from '@/components/layout/AdminLayout';
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    username: '',
-    password: ''
-  });
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,32 +14,22 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      console.log('Tentando fazer login...', { username: formData.username });
-      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ password }),
         credentials: 'include'
       });
 
-      console.log('Resposta recebida:', response.status, response.statusText);
-      
       const data = await response.json();
-      console.log('Dados da resposta:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Erro ao fazer login');
       }
 
-      // Aguardar um pouco para garantir que o cookie foi definido
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Redirecionar para o dashboard
-      console.log('Redirecionando para /admin/generate...');
+      // Redirecionar
       window.location.href = '/admin/generate';
     } catch (err) {
-      console.error('Erro no login:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
       setLoading(false);
     }
@@ -57,43 +44,25 @@ export default function LoginPage() {
               Acesso Administrativo
             </h2>
             <p className="mt-2 text-center text-sm text-grey-600">
-              Gerador de Posts com IA
+              Digite a senha para continuar
             </p>
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            <div className="rounded-md shadow-sm -space-y-px">
-              <div>
-                <label htmlFor="username" className="sr-only">
-                  Usuário
-                </label>
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  autoComplete="username"
-                  required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-grey-300 placeholder-grey-500 text-grey-900 rounded-t-md focus:outline-none focus:ring-grey-500 focus:border-grey-500 focus:z-10 sm:text-sm"
-                  placeholder="Usuário"
-                  value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                />
-              </div>
-              <div>
-                <label htmlFor="password" className="sr-only">
-                  Senha
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-grey-300 placeholder-grey-500 text-grey-900 rounded-b-md focus:outline-none focus:ring-grey-500 focus:border-grey-500 focus:z-10 sm:text-sm"
-                  placeholder="Senha"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                />
-              </div>
+            <div>
+              <label htmlFor="password" className="sr-only">
+                Senha
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="appearance-none relative block w-full px-3 py-2 border border-grey-300 placeholder-grey-500 text-grey-900 rounded-md focus:outline-none focus:ring-grey-500 focus:border-grey-500 focus:z-10 sm:text-sm"
+                placeholder="Senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
 
             {error && (
@@ -117,4 +86,3 @@ export default function LoginPage() {
     </AdminLayout>
   );
 }
-

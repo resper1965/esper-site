@@ -1,73 +1,28 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { i18n } from './i18n/config';
-import crypto from 'crypto';
 
-// Verificar autenticação para rotas admin
+// Verificar autenticação simples - apenas verifica cookie
 function checkAdminAuth(request: NextRequest): boolean {
-  const { pathname } = request.nextUrl;
-  
-  // Permitir acesso à página de login
-  if (pathname === '/admin/login' || pathname.startsWith('/api/auth/')) {
-    return true;
-  }
+  const cookieHeader = request.headers.get('cookie') || '';
+  const cookies: { [key: string]: string } = {};
+  cookieHeader.split(';').forEach(cookie => {
+    const [key, value] = cookie.trim().split('=');
+    if (key && value) cookies[key] = decodeURIComponent(value);
+  });
 
-  // Verificar autenticação para outras rotas admin
-  if (pathname.startsWith('/admin/') || pathname.startsWith('/api/generate') || pathname.startsWith('/api/auto-generate')) {
-    const cookieHeader = request.headers.get('cookie') || '';
-    const cookies: { [key: string]: string } = {};
-    cookieHeader.split(';').forEach(cookie => {
-      const [key, value] = cookie.trim().split('=');
-      if (key && value) cookies[key] = decodeURIComponent(value);
-    });
-
-    const sessionToken = cookies['admin_session'];
-    
-    if (!sessionToken) {
-      return false;
-    }
-
-    // Verificar token usando o mesmo método do auth.ts
-    try {
-      const SESSION_SECRET = process.env.SESSION_SECRET || '';
-      if (!SESSION_SECRET) return false;
-
-      const [payload, signature] = sessionToken.split('.');
-      if (!payload || !signature) return false;
-
-      const expectedSignature = crypto
-        .createHmac('sha256', SESSION_SECRET)
-        .update(payload)
-        .digest('hex');
-
-      if (signature !== expectedSignature) return false;
-
-      const decoded = JSON.parse(Buffer.from(payload, 'base64').toString());
-      const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 dias
-      const isExpired = Date.now() - decoded.timestamp > maxAge;
-
-      const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-      return !isExpired && decoded.username === ADMIN_USERNAME;
-    } catch {
-      return false;
-    }
-  }
-
-  return true;
+  return cookies['admin_logged_in'] === 'true';
 }
 
 function getLocale(request: NextRequest): string {
-  // Check if there's a cookie preference
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (cookieLocale && i18n.locales.includes(cookieLocale as any)) {
     return cookieLocale;
   }
 
-  // Check browser language from Accept-Language header
   const acceptLanguage = request.headers.get('accept-language');
   if (acceptLanguage) {
-    // Parse accept-language header (e.g., "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7")
     const languages = acceptLanguage
       .split(',')
       .map((lang) => {
@@ -79,7 +34,6 @@ function getLocale(request: NextRequest): string {
       })
       .sort((a, b) => b.quality - a.quality);
 
-    // Check for exact match first (e.g., pt-BR)
     for (const { locale } of languages) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (i18n.locales.includes(locale as any)) {
@@ -87,7 +41,6 @@ function getLocale(request: NextRequest): string {
       }
     }
 
-    // Check for language match (e.g., pt matches pt-BR)
     for (const { locale } of languages) {
       const lang = locale.split('-')[0];
       if (lang === 'pt') return 'pt-BR';
@@ -95,14 +48,13 @@ function getLocale(request: NextRequest): string {
     }
   }
 
-  // Default to English if not Portuguese
   return i18n.defaultLocale;
 }
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Remover locale de rotas admin se presente (ex: /pt-BR/admin/login -> /admin/login)
+  // Remover locale de rotas admin
   for (const locale of i18n.locales) {
     if (pathname.startsWith(`/${locale}/admin/`)) {
       const adminPath = pathname.replace(`/${locale}`, '');
@@ -111,19 +63,17 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Verificar autenticação para rotas admin (antes do i18n)
+  // Verificar autenticação para rotas admin (exceto login)
   if (pathname.startsWith('/admin/') && pathname !== '/admin/login') {
-    const isAuthenticated = checkAdminAuth(request);
-    if (!isAuthenticated) {
+    if (!checkAdminAuth(request)) {
       const loginUrl = new URL('/admin/login', request.url);
       return NextResponse.redirect(loginUrl);
     }
   }
 
-  // Verificar autenticação para APIs de geração (exceto auth)
+  // Verificar autenticação para APIs de geração
   if (pathname.startsWith('/api/generate') || pathname.startsWith('/api/auto-generate')) {
-    const isAuthenticated = checkAdminAuth(request);
-    if (!isAuthenticated) {
+    if (!checkAdminAuth(request)) {
       return NextResponse.json(
         { error: 'Não autorizado. Faça login em /admin/login' },
         { status: 401 }
@@ -131,7 +81,7 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Excluir rotas admin do redirecionamento de locale
+  // Excluir rotas admin e API do redirecionamento de locale
   if (pathname.startsWith('/admin/') || pathname.startsWith('/api/')) {
     return NextResponse.next();
   }
@@ -146,7 +96,6 @@ export function middleware(request: NextRequest) {
   // Detect locale and redirect
   const locale = getLocale(request);
 
-  // Special handling for root path
   if (pathname === '/') {
     request.nextUrl.pathname = `/${locale}`;
   } else {
@@ -158,7 +107,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Skip all internal paths (_next, api, static files, images)
     '/((?!api|_next/static|_next/image|favicon.ico|images|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)).*)',
   ],
 };

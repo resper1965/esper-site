@@ -1,34 +1,34 @@
 import { NextResponse } from 'next/server';
-import { verifyCredentials, createSession } from '@/lib/auth';
+import { verifyPassword, createSession } from '@/lib/auth';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { username, password } = body;
+    const { password } = body;
 
     // Validação básica
-    if (!username || !password) {
+    if (!password) {
       return NextResponse.json(
-        { error: 'Username e password são obrigatórios' },
+        { error: 'Senha é obrigatória' },
         { status: 400 }
       );
     }
 
-    // Verificar variáveis de ambiente
-    if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD) {
-      console.error('❌ Variáveis de ambiente não configuradas');
+    // Verificar variável de ambiente
+    if (!process.env.ADMIN_PASSWORD) {
+      console.error('❌ ADMIN_PASSWORD não configurado');
       return NextResponse.json(
         { error: 'Configuração do servidor incompleta' },
         { status: 500 }
       );
     }
 
-    // Verificar credenciais
-    const isValid = verifyCredentials(username, password);
+    // Verificar senha
+    const isValid = verifyPassword(password);
     
     if (!isValid) {
       return NextResponse.json(
-        { error: 'Credenciais inválidas' },
+        { error: 'Senha incorreta' },
         { status: 401 }
       );
     }
