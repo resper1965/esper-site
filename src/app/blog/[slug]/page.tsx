@@ -157,15 +157,29 @@ export default async function BlogPost({ params }: PageProps) {
         <div className="absolute max-w-7xl mx-auto left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] lg:w-full h-full border-x border-border p-0 pointer-events-none" />
         <main className="w-full p-0 overflow-hidden">
           {(page.data.coverImage || page.data.thumbnail) && (
-            <div className="relative w-full h-[500px] overflow-hidden object-cover border border-transparent bg-grey-100">
+            <div className="relative w-full h-[500px] overflow-hidden border border-transparent bg-grey-100">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={page.data.coverImage || page.data.thumbnail || ''}
                 alt={page.data.title}
                 className="w-full h-full object-cover"
-                style={{ objectFit: 'cover' }}
+                style={{ 
+                  objectFit: 'cover',
+                  width: '100%',
+                  height: '100%',
+                  display: 'block'
+                }}
+                loading="eager"
                 onError={(e) => {
-                  console.error('Erro ao carregar imagem:', page.data.coverImage || page.data.thumbnail);
-                  (e.target as HTMLImageElement).style.display = 'none';
+                  console.error('❌ Erro ao carregar imagem:', page.data.coverImage || page.data.thumbnail);
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  if (target.parentElement) {
+                    target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center text-grey-500">Imagem não disponível</div>';
+                  }
+                }}
+                onLoad={() => {
+                  console.log('✅ Imagem carregada:', page.data.coverImage || page.data.thumbnail);
                 }}
               />
             </div>

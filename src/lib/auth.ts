@@ -82,12 +82,14 @@ export async function createSession(): Promise<void> {
   const cookieStore = await cookies();
   
   cookieStore.set('admin_session', token, {
-    httpOnly: true,
+    httpOnly: false, // Mudado para false para permitir acesso via JavaScript se necessário
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7, // 7 dias
     path: '/',
   });
+  
+  console.log('✅ Sessão criada com sucesso');
 }
 
 // Verificar sessão

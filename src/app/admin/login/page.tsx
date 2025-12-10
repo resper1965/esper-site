@@ -17,23 +17,33 @@ export default function LoginPage() {
     setError(null);
 
     try {
+      console.log('Tentando fazer login...', { username: formData.username });
+      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
+        credentials: 'include'
       });
 
+      console.log('Resposta recebida:', response.status, response.statusText);
+      
       const data = await response.json();
+      console.log('Dados da resposta:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Erro ao fazer login');
       }
 
+      // Aguardar um pouco para garantir que o cookie foi definido
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Redirecionar para o dashboard
+      console.log('Redirecionando para /admin/generate...');
       window.location.href = '/admin/generate';
     } catch (err) {
+      console.error('Erro no login:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
-    } finally {
       setLoading(false);
     }
   };
