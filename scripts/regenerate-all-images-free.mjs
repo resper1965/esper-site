@@ -17,21 +17,46 @@ if (!fs.existsSync(imagesDir)) {
 
 /**
  * Busca imagem em bancos gratuitos SEM API key
- * Usa Unsplash Source API (pública) e Lorem Picsum (fallback)
+ * Usa slug e título para melhor correlação
  */
-async function searchFreeImage(query) {
-  // Criar query otimizada
-  const searchQuery = query
-    .toLowerCase()
-    .replace(/professional illustration for blog post about/gi, '')
-    .replace(/greyscale|black and white|monochrome/gi, '')
-    .replace(/high quality|clean design|modern style/gi, '')
-    .trim()
-    .split(' ')
-    .slice(0, 3) // Pegar primeiras 3 palavras
-    .join('-');
+async function searchFreeImage(query, slug, title) {
+  // Extrair palavras-chave do slug (mais específicas e relacionadas)
+  let keywords = [];
+  
+  if (slug) {
+    // Slug geralmente tem palavras separadas por hífen
+    keywords = slug
+      .split('-')
+      .filter(word => word.length > 3 && !['2025', '2024', '2023'].includes(word))
+      .slice(0, 3);
+  }
+  
+  // Se não tiver palavras suficientes do slug, usar do título
+  if (keywords.length < 2 && title) {
+    const titleWords = title
+      .toLowerCase()
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter(word => word.length > 3 && !['para', 'com', 'que', 'uma', 'the', 'and', 'for', 'are', 'you'].includes(word))
+      .slice(0, 3);
+    keywords = [...keywords, ...titleWords].slice(0, 3);
+  }
+  
+  // Fallback: usar query original
+  if (keywords.length === 0) {
+    keywords = query
+      .toLowerCase()
+      .replace(/professional illustration for blog post about/gi, '')
+      .replace(/greyscale|black and white|monochrome/gi, '')
+      .replace(/high quality|clean design|modern style/gi, '')
+      .trim()
+      .split(' ')
+      .filter(word => word.length > 3)
+      .slice(0, 3);
+  }
 
-  console.log(`🔍 Buscando: "${searchQuery}"`);
+  const searchQuery = keywords.join(',');
+  console.log(`🔍 Buscando: "${searchQuery}" (do slug: ${slug})`);
 
   // Tentar Unsplash Source API (pública, sem API key)
   try {
@@ -39,18 +64,19 @@ async function searchFreeImage(query) {
     const response = await fetch(imageUrl, { method: 'HEAD' });
     
     if (response.ok) {
-      console.log(`✅ Imagem do Unsplash Source API`);
+      console.log(`✅ Imagem do Unsplash`);
       return imageUrl;
     }
   } catch (error) {
     console.log(`   ⚠️ Erro no Unsplash: ${error.message}`);
   }
 
-  // Fallback: Lorem Picsum (sempre funciona, greyscale)
+  // Fallback: Lorem Picsum (usa slug para seed consistente)
   try {
-    const seed = query.toLowerCase().split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const seedSource = slug || query;
+    const seed = seedSource.toLowerCase().split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const imageUrl = `https://picsum.photos/seed/${seed}/1200/630?grayscale`;
-    console.log(`✅ Usando Lorem Picsum (greyscale)`);
+    console.log(`✅ Usando Lorem Picsum (greyscale, seed baseado no slug)`);
     return imageUrl;
   } catch (error) {
     console.log(`   ⚠️ Erro no Picsum: ${error.message}`);
@@ -115,7 +141,8 @@ async function regenerateAllImages() {
         prompt = `${title}, ${category}`;
       }
 
-      const imageUrl = await searchFreeImage(prompt);
+      // Passar slug e título para melhor correlação
+      const imageUrl = await searchFreeImage(prompt, slug, title);
       
       if (!imageUrl) {
         console.log(`   ⚠️ Pulando (nenhuma imagem encontrada)`);

@@ -9,11 +9,17 @@ const replicate = new Replicate({
  * Busca ou gera uma imagem
  * Prioridade: 1) Busca em bancos gratuitos, 2) Gera com IA
  * @param prompt - Descrição da imagem a ser buscada/gerada
+ * @param slug - Slug do post (para melhor correlação)
+ * @param title - Título do post (para melhor correlação)
  * @returns URL da imagem (data URL se gerada, URL direta se baixada)
  */
-export async function generateImage(prompt: string): Promise<string> {
-  // Primeiro, tentar buscar em bancos gratuitos
-  const searchResult = await searchFreeImage(prompt);
+export async function generateImage(
+  prompt: string, 
+  slug?: string, 
+  title?: string
+): Promise<string> {
+  // Primeiro, tentar buscar em bancos gratuitos (usa slug e título para melhor busca)
+  const searchResult = await searchFreeImage(prompt, slug, title);
   
   if (searchResult) {
     // Se encontrou, retornar a URL para download

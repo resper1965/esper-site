@@ -230,7 +230,8 @@ export async function savePostDraft(post: { content: string; score: number; meta
       // Melhorar o prompt para ilustração
       const enhancedPrompt = `Professional illustration, ${frontmatter.thumbnailPrompt}, high quality, clean design, modern style, suitable for blog cover image`;
       
-      const imageUrl = await generateImage(enhancedPrompt);
+      // Passar slug e título para melhor correlação
+      const imageUrl = await generateImage(enhancedPrompt, slug, frontmatter.title);
       
       // Salvar imagem
       const imagesDir = path.join(process.cwd(), 'public/images');
