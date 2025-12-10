@@ -69,63 +69,23 @@ export default async function Image({
   try {
     const { slug } = await params;
     
+    if (!slug) {
+      return getDefaultImage();
+    }
+    
     // Get post data
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let page: any = null;
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       page = blogSource.getPage([slug]) as any;
-    } catch {
-      // Return default image if post not found
-      return new ImageResponse(
-        (
-          <div
-            style={{
-              height: '100%',
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#111827',
-              color: '#f9fafb',
-            }}
-          >
-            <div style={{ fontSize: 60, marginBottom: 20 }}>📝</div>
-            <div style={{ fontSize: 40, fontWeight: 600 }}>Ricardo Esper</div>
-          </div>
-        ),
-        {
-          width: 1200,
-          height: 630,
-        }
-      );
+    } catch (error) {
+      console.error('Error loading post for OG image:', error);
+      return getDefaultImage();
     }
 
-    if (!page) {
-      return new ImageResponse(
-        (
-          <div
-            style={{
-              height: '100%',
-              width: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#111827',
-              color: '#f9fafb',
-            }}
-          >
-            <div style={{ fontSize: 60, marginBottom: 20 }}>📝</div>
-            <div style={{ fontSize: 40, fontWeight: 600 }}>Ricardo Esper</div>
-          </div>
-        ),
-        {
-          width: 1200,
-          height: 630,
-        }
-      );
+    if (!page || !page.data) {
+      return getDefaultImage();
     }
 
     const title = page.data.title || 'Post';
@@ -233,26 +193,33 @@ export default async function Image({
     console.error('Error generating OG image:', error);
     
     // Return fallback image
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            height: '100%',
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#111827',
-            color: '#f9fafb',
-          }}
-        >
-          <div style={{ fontSize: 60, marginBottom: 20 }}>📝</div>
-          <div style={{ fontSize: 40, fontWeight: 600 }}>Ricardo Esper</div>
-        </div>
-      ),
-      size
-    );
+    return getDefaultImage();
   }
+}
+
+function getDefaultImage() {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          height: '100%',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#111827',
+          color: '#f9fafb',
+        }}
+      >
+        <div style={{ fontSize: 60, marginBottom: 20 }}>📝</div>
+        <div style={{ fontSize: 40, fontWeight: 600 }}>Ricardo Esper</div>
+      </div>
+    ),
+    {
+      width: 1200,
+      height: 630,
+    }
+  );
 }
 
