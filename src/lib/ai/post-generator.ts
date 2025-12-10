@@ -221,9 +221,9 @@ export async function savePostDraft(post: { content: string; score: number; meta
   const { data: frontmatter } = matter(post.content);
   const slug = frontmatter.slug || `draft-${Date.now()}`;
 
-  // Gerar imagem se houver thumbnailPrompt
+  // Gerar imagem se houver thumbnailPrompt (usa Hugging Face gratuito por padrão)
   let coverImagePath: string | undefined;
-  if (frontmatter.thumbnailPrompt && process.env.REPLICATE_API_TOKEN) {
+  if (frontmatter.thumbnailPrompt) {
     try {
       console.log('🎨 Gerando imagem de capa...');
       
