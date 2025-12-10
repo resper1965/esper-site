@@ -16,7 +16,8 @@ if (!fs.existsSync(imagesDir)) {
 }
 
 /**
- * Busca imagem em bancos gratuitos
+ * Busca imagem em bancos gratuitos SEM API key
+ * Usa Unsplash Source API (pública) e Lorem Picsum (fallback)
  */
 async function searchFreeImage(query) {
   // Criar query otimizada
@@ -26,97 +27,69 @@ async function searchFreeImage(query) {
     .replace(/greyscale|black and white|monochrome/gi, '')
     .replace(/high quality|clean design|modern style/gi, '')
     .trim()
-    .substring(0, 100);
+    .split(' ')
+    .slice(0, 3) // Pegar primeiras 3 palavras
+    .join('-');
 
-  console.log(`🔍 Buscando imagem: "${searchQuery}"`);
+  console.log(`🔍 Buscando: "${searchQuery}"`);
 
-  // Tentar Unsplash
-  const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY;
-  if (UNSPLASH_KEY) {
-    try {
-      const response = await fetch(
-        `https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=1&orientation=landscape&color=black_and_white`,
-        {
-          headers: { 'Authorization': `Client-ID ${UNSPLASH_KEY}` }
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        if (data.results && data.results.length > 0) {
-          console.log(`✅ Imagem encontrada no Unsplash`);
-          return data.results[0].urls.regular;
-        }
-      }
-    } catch (error) {
-      console.log(`   ⚠️ Erro no Unsplash: ${error.message}`);
+  // Tentar Unsplash Source API (pública, sem API key)
+  try {
+    const imageUrl = `https://source.unsplash.com/1200x630/?${encodeURIComponent(searchQuery)}&sig=${Date.now()}`;
+    const response = await fetch(imageUrl, { method: 'HEAD' });
+    
+    if (response.ok) {
+      console.log(`✅ Imagem do Unsplash Source API`);
+      return imageUrl;
     }
+  } catch (error) {
+    console.log(`   ⚠️ Erro no Unsplash: ${error.message}`);
   }
 
-  // Tentar Pexels
-  const PEXELS_KEY = process.env.PEXELS_API_KEY;
-  if (PEXELS_KEY) {
-    try {
-      const response = await fetch(
-        `https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=1&orientation=landscape`,
-        {
-          headers: { 'Authorization': PEXELS_KEY }
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        if (data.photos && data.photos.length > 0) {
-          console.log(`✅ Imagem encontrada no Pexels`);
-          return data.photos[0].src.large;
-        }
-      }
-    } catch (error) {
-      console.log(`   ⚠️ Erro no Pexels: ${error.message}`);
-    }
+  // Fallback: Lorem Picsum (sempre funciona, greyscale)
+  try {
+    const seed = query.toLowerCase().split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const imageUrl = `https://picsum.photos/seed/${seed}/1200/630?grayscale`;
+    console.log(`✅ Usando Lorem Picsum (greyscale)`);
+    return imageUrl;
+  } catch (error) {
+    console.log(`   ⚠️ Erro no Picsum: ${error.message}`);
   }
 
-  // Tentar Pixabay
-  const PIXABAY_KEY = process.env.PIXABAY_API_KEY;
-  if (PIXABAY_KEY) {
-    try {
-      const response = await fetch(
-        `https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${encodeURIComponent(searchQuery)}&image_type=photo&orientation=horizontal&per_page=1&safesearch=true`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        if (data.hits && data.hits.length > 0) {
-          console.log(`✅ Imagem encontrada no Pixabay`);
-          return data.hits[0].largeImageURL || data.hits[0].webformatURL;
-        }
-      }
-    } catch (error) {
-      console.log(`   ⚠️ Erro no Pixabay: ${error.message}`);
-    }
-  }
-
-  console.log(`❌ Nenhuma imagem encontrada`);
   return null;
 }
 
-async function downloadAndSaveImage(imageUrl, filePath) {
-  const response = await fetch(imageUrl);
-  if (!response.ok) {
-    throw new Error(`Erro ao baixar: ${response.statusText}`);
-  }
+async function downloadAndSaveImage(imageUrl, filePath, retries = 3) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
-  const buffer = Buffer.from(await response.arrayBuffer());
-  const dir = path.dirname(filePath);
-  
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
+      const buffer = Buffer.from(await response.arrayBuffer());
+      const dir = path.dirname(filePath);
+      
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
 
-  fs.writeFileSync(filePath, buffer);
-  console.log('✅ Imagem salva');
+      fs.writeFileSync(filePath, buffer);
+      console.log('✅ Imagem salva');
+      return;
+    } catch (error) {
+      if (attempt === retries) {
+        throw error;
+      }
+      console.log(`   ⚠️ Tentativa ${attempt} falhou, tentando novamente...`);
+      await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+    }
+  }
 }
 
 async function regenerateAllImages() {
-  console.log('🔄 Buscando imagens em bancos gratuitos...\n');
-  console.log('ℹ️  Usando: Unsplash, Pexels, Pixabay\n');
+  console.log('🔄 Buscando imagens em bancos gratuitos (SEM API KEY)...\n');
+  console.log('ℹ️  Usando: Unsplash Source API (público) → Lorem Picsum (fallback)\n');
 
   const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.mdx'));
   console.log(`📝 Encontrados ${files.length} posts\n`);
@@ -152,7 +125,21 @@ async function regenerateAllImages() {
 
       const imageFilename = `${slug}.png`;
       const imagePath = path.join(imagesDir, imageFilename);
-      await downloadAndSaveImage(imageUrl, imagePath);
+      
+      try {
+        await downloadAndSaveImage(imageUrl, imagePath);
+      } catch (downloadError) {
+        console.log(`   ⚠️ Erro ao baixar, tentando novamente...`);
+        // Tentar novamente após 3 segundos
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        try {
+          await downloadAndSaveImage(imageUrl, imagePath);
+        } catch (retryError) {
+          console.log(`   ❌ Erro persistente, pulando este post`);
+          errorCount++;
+          continue;
+        }
+      }
 
       const coverImagePath = `/images/${imageFilename}`;
       console.log(`   ✅ Imagem salva: ${coverImagePath}`);
