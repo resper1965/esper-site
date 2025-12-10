@@ -3,6 +3,8 @@ import path from 'path';
 import { generatePostImage } from './image-generator-gemini';
 import { generateTextWithGemini } from './gemini-client';
 import matter from 'gray-matter';
+import { db, schema } from '../db';
+import { eq } from 'drizzle-orm';
 
 // Carregar perfil tonal
 const RICARDO_PROFILE = JSON.parse(
@@ -204,26 +206,18 @@ async function evaluateQuality(content: string): Promise<number> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function savePostDraft(post: { content: string; score: number; metadata: any }) {
-  // Caminho correto para o projeto: blog/content/drafts
-  const draftsDir = path.join(process.cwd(), 'src/content/posts/drafts');
-
-  // Criar diretório se não existir
-  if (!fs.existsSync(draftsDir)) {
-    fs.mkdirSync(draftsDir, { recursive: true });
-  }
-
+export async function savePostDraft(post: { content: string; score: number; metadata: any }, categoryOverride?: string) {
   // Extrair frontmatter usando gray-matter
   const { data: frontmatter, content: postContent } = matter(post.content);
   const slug = frontmatter.slug || `draft-${Date.now()}`;
+  const category = categoryOverride || frontmatter.category || 'general';
 
-  // Gerar imagem se houver thumbnailPrompt (usa Gemini para descrição + Canvas para gerar)
+  // Gerar imagem se houver thumbnailPrompt
   let coverImagePath: string | undefined;
   if (frontmatter.thumbnailPrompt) {
     try {
       console.log('🎨 Gerando imagem de capa conectada ao tema...');
       
-      // Gerar imagem usando Gemini para criar descrição visual + Vercel OG para gerar imagem relevante
       coverImagePath = await generatePostImage(
         frontmatter.thumbnailPrompt,
         slug,
@@ -236,95 +230,87 @@ export async function savePostDraft(post: { content: string; score: number; meta
       console.log('✅ Imagem de capa gerada:', coverImagePath);
     } catch (error) {
       console.error('⚠️ Erro ao gerar imagem (continuando sem imagem):', error);
-      // Continua sem imagem se houver erro
     }
   }
 
-  // Atualizar frontmatter com coverImage e imageAlt se gerada
-  let finalContent = post.content;
-  if (coverImagePath) {
-    // Criar alt text descritivo para SEO
-    const imageAlt = `${frontmatter.title} - ${category} - ${frontmatter.excerpt || 'Post sobre cibersegurança'}`;
-    
-    // Adicionar ou atualizar coverImage no frontmatter
-    if (frontmatter.coverImage) {
-      finalContent = finalContent.replace(
-        /coverImage:\s*["'][^"']*["']/,
-        `coverImage: "${coverImagePath}"`
-      );
-    } else {
-      // Adicionar coverImage após thumbnailPrompt ou no final do frontmatter
-      const frontmatterEnd = finalContent.indexOf('---', 3);
-      if (frontmatterEnd > 0) {
-        const beforeFrontmatter = finalContent.substring(0, frontmatterEnd);
-        const afterFrontmatter = finalContent.substring(frontmatterEnd);
-        
-        // Adicionar coverImage e imageAlt antes do fechamento do frontmatter
-        const imageLines = `coverImage: "${coverImagePath}"\nimageAlt: "${imageAlt}"\n`;
-        finalContent = beforeFrontmatter + imageLines + afterFrontmatter;
-      }
-    }
-    
-    // Adicionar ou atualizar imageAlt se não existir
-    if (!finalContent.includes('imageAlt:')) {
-      const frontmatterEnd = finalContent.indexOf('---', 3);
-      if (frontmatterEnd > 0) {
-        const beforeFrontmatter = finalContent.substring(0, frontmatterEnd);
-        const afterFrontmatter = finalContent.substring(frontmatterEnd);
-        const imageAltLine = `imageAlt: "${imageAlt}"\n`;
-        finalContent = beforeFrontmatter + imageAltLine + afterFrontmatter;
-      }
-    } else {
-      // Atualizar imageAlt existente
-      finalContent = finalContent.replace(
-        /imageAlt:\s*["'][^"']*["']/,
-        `imageAlt: "${imageAlt}"`
-      );
-    }
-  }
+  // Criar alt text descritivo para SEO
+  const imageAlt = coverImagePath 
+    ? `${frontmatter.title} - ${category} - ${frontmatter.excerpt || 'Post sobre cibersegurança'}`
+    : null;
 
-  const filename = `${slug}.mdx`;
-  const filepath = path.join(draftsDir, filename);
+  // Preparar dados para inserção no banco
+  const postData = {
+    slug,
+    title: frontmatter.title || 'Post sem título',
+    content: postContent, // Apenas o conteúdo, sem frontmatter
+    excerpt: frontmatter.excerpt || '',
+    description: frontmatter.description || frontmatter.excerpt || '',
+    category,
+    language: frontmatter.language || 'pt-br',
+    author: frontmatter.author || 'Ricardo Esper',
+    coverImage: coverImagePath || null,
+    imageAlt,
+    keywords: frontmatter.keywords ? JSON.stringify(frontmatter.keywords) : null,
+    tags: frontmatter.tags ? JSON.stringify(frontmatter.tags) : null,
+    date: frontmatter.date || new Date().toISOString().split('T')[0],
+    published: false, // Draft por padrão
+    featured: frontmatter.featured || false,
+    readTime: frontmatter.readTime || null,
+    generatedBy: 'ai',
+    score: post.score,
+    sources: post.metadata.sources ? JSON.stringify(post.metadata.sources) : null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    publishedAt: null,
+  };
 
-  // Adicionar metadata ao final
-  const contentWithMeta = `${finalContent}
-
-<!--
-METADATA DE GERAÇÃO:
-- Score: ${post.score}/10
-- Gerado em: ${post.metadata.generatedAt}
-- Modelo: ${post.metadata.model}
-- Tokens: ${JSON.stringify(post.metadata.tokensUsed)}
-- Fontes: ${post.metadata.sources.join(', ')}
-${coverImagePath ? `- Imagem: ${coverImagePath}` : ''}
--->
-`;
-
-  fs.writeFileSync(filepath, contentWithMeta, 'utf-8');
-
-  // Extrair thumbnailPrompt do frontmatter para retornar
-  const { data: finalFrontmatter } = matter(finalContent);
+  // Verificar se já existe (update) ou criar novo
+  const existing = await db.select().from(schema.posts).where(eq(schema.posts.slug, slug)).limit(1);
   
+  if (existing.length > 0) {
+    // Atualizar post existente
+    await db.update(schema.posts)
+      .set({
+        ...postData,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(schema.posts.slug, slug));
+    console.log(`✅ Draft atualizado: ${slug}`);
+  } else {
+    // Criar novo draft
+    await db.insert(schema.posts).values(postData);
+    console.log(`✅ Draft criado: ${slug}`);
+  }
+
   return {
-    filepath,
-    filename,
     slug,
     coverImage: coverImagePath,
-    thumbnailPrompt: finalFrontmatter.thumbnailPrompt
+    thumbnailPrompt: frontmatter.thumbnailPrompt
   };
 }
 
-export async function publishPost(draftPath: string) {
-  const contentDir = path.join(process.cwd(), 'blog/content');
-  const filename = path.basename(draftPath);
-  const targetPath = path.join(contentDir, filename);
+export async function publishPost(slug: string) {
+  // Buscar post no banco
+  const [post] = await db.select().from(schema.posts).where(eq(schema.posts.slug, slug)).limit(1);
 
-  // Mover arquivo
-  fs.renameSync(draftPath, targetPath);
+  if (!post) {
+    throw new Error(`Post com slug "${slug}" não encontrado`);
+  }
+
+  // Atualizar status para publicado
+  await db.update(schema.posts)
+    .set({
+      published: true,
+      publishedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    })
+    .where(eq(schema.posts.slug, slug));
+
+  console.log(`✅ Post publicado: ${slug}`);
 
   return {
-    filepath: targetPath,
-    filename,
-    published: true
+    slug,
+    published: true,
+    publishedAt: new Date().toISOString(),
   };
 }

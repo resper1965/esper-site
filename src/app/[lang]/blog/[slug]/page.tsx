@@ -1,11 +1,9 @@
-import { docs, meta } from "@/.source";
 import { DocsBody } from "fumadocs-ui/page";
-import { loader } from "fumadocs-core/source";
-import { createMDXSource } from "fumadocs-mdx";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { getPostBySlug } from "@/lib/posts";
 
 import { TableOfContents } from "@/components/table-of-contents";
 import { MobileTableOfContents } from "@/components/mobile-toc";
@@ -29,11 +27,6 @@ interface PageProps {
   params: Promise<{ lang: Locale; slug: string }>;
 }
 
-const blogSource = loader({
-  baseUrl: "/blog",
-  source: createMDXSource(docs, meta),
-});
-
 const formatDate = (date: Date, locale: string): string => {
   return date.toLocaleDateString(locale, {
     year: "numeric",
@@ -46,28 +39,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { lang, slug } = await params;
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const page = blogSource.getPage([slug]) as any;
+    const post = await getPostBySlug(slug);
 
-    if (!page) {
+    if (!post) {
       return {};
     }
 
-    const keywords = page.data.keywords || [];
+    const keywords = post.frontMatter.keywords || [];
     // Use dynamic Open Graph image (Next.js will automatically use opengraph-image.tsx)
     const image = `${siteConfig.url}/${lang}/blog/${slug}/opengraph-image`;
 
     return generatePageMetadata({
-      title: page.data.title,
-      description: page.data.description || page.data.excerpt || '',
+      title: post.frontMatter.title,
+      description: post.frontMatter.description || post.frontMatter.excerpt || '',
       path: `/blog/${slug}`,
       image,
       lang,
       type: 'article',
-      publishedTime: page.data.date,
-      modifiedTime: page.data.date,
+      publishedTime: post.frontMatter.date,
+      modifiedTime: post.frontMatter.date,
       keywords,
-      authors: [page.data.author || 'Ricardo Esper'],
+      authors: [post.frontMatter.author || 'Ricardo Esper'],
     });
   } catch {
     return {};
@@ -82,30 +74,21 @@ export default async function BlogPost({ params }: PageProps) {
     notFound();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let page: any = null;
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    page = blogSource.getPage([slug]) as any;
-  } catch (error) {
-    console.error('Error getting page:', error);
+  // Buscar post do banco de dados
+  const post = await getPostBySlug(slug);
+
+  if (!post) {
     notFound();
   }
 
-  if (!page) {
-    notFound();
-  }
-
-  const MDX = page.data.body;
-  const date = new Date(page.data.date);
+  const date = new Date(post.frontMatter.date);
   const formattedDate = formatDate(date, lang);
 
   // Generate structured data
   const url = `${siteConfig.url}/${lang}/blog/${slug}`;
-  // Support both coverImage and thumbnail for post images
-  const postImage = page.data.coverImage || page.data.thumbnail;
+  const postImage = post.frontMatter.coverImage;
   const image = postImage ? `${siteConfig.url}${postImage}` : undefined;
-  const imageAlt = page.data.imageAlt || page.data.title;
+  const imageAlt = post.frontMatter.title;
 
   // Calculate word count from content
   const contentText = page.data.body?.toString() || '';
@@ -114,13 +97,13 @@ export default async function BlogPost({ params }: PageProps) {
   const timeRequired = readingTimeMinutes > 0 ? `PT${readingTimeMinutes}M` : undefined;
 
   const articleSchema = generateArticleSchema({
-    title: page.data.title,
-    description: page.data.description || page.data.excerpt || '',
+    title: post.frontMatter.title,
+    description: post.frontMatter.description || post.frontMatter.excerpt || '',
     url,
     image,
-    datePublished: page.data.date,
-    dateModified: page.data.date,
-    keywords: page.data.keywords || [],
+    datePublished: post.frontMatter.date,
+    dateModified: post.frontMatter.date,
+    keywords: post.frontMatter.keywords || [],
     lang,
     wordCount,
     timeRequired,
@@ -129,10 +112,10 @@ export default async function BlogPost({ params }: PageProps) {
   // Breadcrumb schema
   const breadcrumbItems = [
     { name: dict.nav.home, url: `/${lang}` },
-    ...(page.data.tags && page.data.tags.length > 0
-      ? [{ name: page.data.tags[0], url: `/${lang}?tag=${page.data.tags[0]}` }]
+    ...(post.frontMatter.tags && post.frontMatter.tags.length > 0
+      ? [{ name: post.frontMatter.tags[0], url: `/${lang}?tag=${post.frontMatter.tags[0]}` }]
       : []),
-    { name: page.data.title, url },
+    { name: post.frontMatter.title, url },
   ];
   const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
 
@@ -167,10 +150,10 @@ export default async function BlogPost({ params }: PageProps) {
           <Breadcrumbs
             items={[
               { label: dict.nav.home, href: `/${lang}` },
-              ...(page.data.tags && page.data.tags.length > 0
-                ? [{ label: page.data.tags[0], href: `/${lang}?tag=${page.data.tags[0]}` }]
+              ...(post.frontMatter.tags && post.frontMatter.tags.length > 0
+                ? [{ label: post.frontMatter.tags[0], href: `/${lang}?tag=${post.frontMatter.tags[0]}` }]
                 : []),
-              { label: page.data.title },
+              { label: post.frontMatter.title },
             ]}
           />
 
@@ -181,9 +164,9 @@ export default async function BlogPost({ params }: PageProps) {
                 <span className="sr-only">{dict.blog.backToArticles}</span>
               </Link>
             </Button>
-            {page.data.tags && page.data.tags.length > 0 && (
+            {post.frontMatter.tags && post.frontMatter.tags.length > 0 && (
               <div className="flex flex-wrap gap-3 text-muted-foreground">
-                {page.data.tags.map((tag: string) => (
+                {post.frontMatter.tags.map((tag: string) => (
                   <span
                     key={tag}
                     className="h-6 w-fit px-3 text-sm font-medium bg-muted text-muted-foreground rounded-md border flex items-center justify-center"
@@ -199,12 +182,12 @@ export default async function BlogPost({ params }: PageProps) {
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tighter text-balance">
-            {page.data.title}
+            {post.frontMatter.title}
           </h1>
 
-          {page.data.description && (
+          {post.frontMatter.description && (
             <p className="text-muted-foreground max-w-4xl md:text-lg md:text-balance">
-              {page.data.description}
+              {post.frontMatter.description}
             </p>
           )}
         </div>
@@ -212,11 +195,11 @@ export default async function BlogPost({ params }: PageProps) {
       <div className="flex divide-x divide-border relative max-w-7xl mx-auto px-4 md:px-0 z-10">
         <div className="absolute max-w-7xl mx-auto left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] lg:w-full h-full border-x border-border p-0 pointer-events-none" />
         <main className="w-full p-0 overflow-hidden">
-          {(page.data.coverImage || page.data.thumbnail) && (
+          {post.frontMatter.coverImage && (
             <div className="relative w-full h-[500px] overflow-hidden border border-transparent bg-grey-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={page.data.coverImage || page.data.thumbnail || ''}
+                src={post.frontMatter.coverImage}
                 alt={imageAlt}
                 className="w-full h-full object-cover"
                 style={{ 
@@ -232,22 +215,22 @@ export default async function BlogPost({ params }: PageProps) {
           <div className="p-6 lg:p-10">
             <div className="prose dark:prose-invert max-w-none prose-headings:scroll-mt-8 prose-headings:font-semibold prose-a:no-underline prose-headings:tracking-tight prose-headings:text-balance prose-p:tracking-tight prose-p:text-balance prose-lg">
               <DocsBody>
-                <MDX />
+                <div dangerouslySetInnerHTML={{ __html: post.htmlContent }} />
               </DocsBody>
             </div>
           </div>
           <div className="mt-10">
             <ReadMoreSection
               currentSlug={[slug]}
-              currentTags={page.data.tags}
+              currentTags={post.frontMatter.tags}
             />
           </div>
         </main>
 
         <aside className="hidden lg:block w-[350px] flex-shrink-0 p-6 lg:p-10 bg-muted/60 dark:bg-muted/20">
           <div className="sticky top-20 space-y-8">
-            {page.data.author && isValidAuthor(page.data.author) && (
-              <AuthorCard author={getAuthor(page.data.author)} />
+            {post.frontMatter.author && isValidAuthor(post.frontMatter.author) && (
+              <AuthorCard author={getAuthor(post.frontMatter.author)} />
             )}
             <div className="border border-border rounded-lg p-6 bg-card">
               <TableOfContents />

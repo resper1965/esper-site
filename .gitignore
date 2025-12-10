@@ -42,3 +42,10 @@ next-env.d.ts
 
 # generated
 .source
+
+# database
+/data
+*.db
+*.db-shm
+*.db-wal
+/drizzle

@@ -95,30 +95,28 @@ export async function GET(request: Request) {
 
     console.log(`✅ Post gerado! Score: ${post.score}/10`);
 
-    // 7. Salvar draft
-    const saved = await savePostDraft(post);
-    console.log(`✅ Draft salvo: ${saved.filepath}`);
+    // 7. Salvar draft no banco de dados
+    const saved = await savePostDraft(post, selectedTopic.category);
+    console.log(`✅ Draft salvo: ${saved.slug}`);
 
     // 8. Enviar notificação por email
     await sendPostGeneratedNotification({
       title: selectedTopic.topic,
       slug: saved.slug,
       score: post.score,
-      filepath: saved.filepath,
+      filepath: `database:${saved.slug}`, // Indica que está no banco
       category: selectedTopic.category
     });
 
     // 9. Auto-publish se score muito alto
     let isPublished = false;
-    let finalPath = saved.filepath;
 
     if (post.score >= 9.0 && process.env.AUTO_PUBLISH === 'true') {
       console.log('🚀 Score alto! Auto-publicando...');
       const { publishPost } = await import('@/lib/ai/post-generator');
-      const published = await publishPost(saved.filepath);
-      finalPath = published.filepath;
+      await publishPost(saved.slug);
       isPublished = true;
-      console.log(`✅ Post publicado automaticamente: ${finalPath}`);
+      console.log(`✅ Post publicado automaticamente: ${saved.slug}`);
     }
 
     return NextResponse.json({
@@ -127,7 +125,6 @@ export async function GET(request: Request) {
       category: selectedTopic.category,
       score: post.score,
       slug: saved.slug,
-      filepath: finalPath,
       autoPublished: isPublished
     });
 

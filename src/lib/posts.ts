@@ -1,10 +1,7 @@
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
+import { db, schema } from './db';
+import { eq, desc, and } from 'drizzle-orm';
 import { remark } from 'remark';
 import remarkHtml from 'remark-html';
-
-const postsDirectory = path.join(process.cwd(), 'src/content/posts');
 
 export interface PostFrontMatter {
   title: string;
@@ -16,6 +13,10 @@ export interface PostFrontMatter {
   author?: string;
   coverImage?: string;
   keywords?: string[];
+  tags?: string[];
+  description?: string;
+  featured?: boolean;
+  readTime?: string;
 }
 
 export interface Post {
@@ -30,69 +31,160 @@ async function processMarkdown(content: string): Promise<string> {
   return processedContent.toString();
 }
 
-export async function getAllPosts(): Promise<Post[]> {
-  const fileNames = fs.readdirSync(postsDirectory);
-  const allPostsData = await Promise.all(
-    fileNames
-      .filter((name) => name.endsWith('.mdx'))
-      .map(async (fileName) => {
-        const fullPath = path.join(postsDirectory, fileName);
-        const fileContents = fs.readFileSync(fullPath, 'utf8');
-        const { data, content } = matter(fileContents);
-        const htmlContent = await processMarkdown(content);
-
-        return {
-          frontMatter: data as PostFrontMatter,
-          content,
-          htmlContent,
-          slug: data.slug || fileName.replace(/\.mdx$/, ''),
-        };
-      })
-  );
-
-  // Sort posts by date (newest first)
-  return allPostsData.sort((a, b) => {
-    if (a.frontMatter.date < b.frontMatter.date) {
-      return 1;
-    } else {
-      return -1;
-    }
-  });
+/**
+ * Converte post do banco para formato compatível com código existente
+ */
+function dbPostToPost(dbPost: typeof schema.posts.$inferSelect): PostFrontMatter {
+  return {
+    title: dbPost.title,
+    slug: dbPost.slug,
+    date: dbPost.date,
+    category: dbPost.category,
+    language: dbPost.language,
+    excerpt: dbPost.excerpt || '',
+    author: dbPost.author || undefined,
+    coverImage: dbPost.coverImage || undefined,
+    keywords: dbPost.keywords ? JSON.parse(dbPost.keywords) : undefined,
+    tags: dbPost.tags ? JSON.parse(dbPost.tags) : undefined,
+    description: dbPost.description || undefined,
+    featured: dbPost.featured || undefined,
+    readTime: dbPost.readTime || undefined,
+  };
 }
 
+/**
+ * Busca todos os posts publicados
+ */
+export async function getAllPosts(): Promise<Post[]> {
+  const dbPosts = await db
+    .select()
+    .from(schema.posts)
+    .where(eq(schema.posts.published, true))
+    .orderBy(desc(schema.posts.date));
+
+  const posts = await Promise.all(
+    dbPosts.map(async (dbPost) => {
+      const htmlContent = await processMarkdown(dbPost.content);
+      return {
+        frontMatter: dbPostToPost(dbPost),
+        content: dbPost.content,
+        htmlContent,
+        slug: dbPost.slug,
+      };
+    })
+  );
+
+  return posts;
+}
+
+/**
+ * Busca post por slug
+ */
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   try {
-    const fileNames = fs.readdirSync(postsDirectory);
-    const fileName = fileNames.find((name) => {
-      if (!name.endsWith('.mdx')) return false;
-      const fullPath = path.join(postsDirectory, name);
-      const fileContents = fs.readFileSync(fullPath, 'utf8');
-      const { data } = matter(fileContents);
-      return data.slug === slug || name.replace(/\.mdx$/, '') === slug;
-    });
+    const [dbPost] = await db
+      .select()
+      .from(schema.posts)
+      .where(eq(schema.posts.slug, slug))
+      .limit(1);
 
-    if (!fileName) {
+    if (!dbPost) {
       return null;
     }
 
-    const fullPath = path.join(postsDirectory, fileName);
-    const fileContents = fs.readFileSync(fullPath, 'utf8');
-    const { data, content } = matter(fileContents);
-    const htmlContent = await processMarkdown(content);
+    const htmlContent = await processMarkdown(dbPost.content);
 
     return {
-      frontMatter: data as PostFrontMatter,
-      content,
+      frontMatter: dbPostToPost(dbPost),
+      content: dbPost.content,
       htmlContent,
-      slug: data.slug || slug,
+      slug: dbPost.slug,
     };
   } catch {
     return null;
   }
 }
 
+/**
+ * Busca posts mais recentes
+ */
 export async function getLatestPosts(limit: number = 3): Promise<Post[]> {
-  const allPosts = await getAllPosts();
-  return allPosts.slice(0, limit);
+  const dbPosts = await db
+    .select()
+    .from(schema.posts)
+    .where(eq(schema.posts.published, true))
+    .orderBy(desc(schema.posts.date))
+    .limit(limit);
+
+  const posts = await Promise.all(
+    dbPosts.map(async (dbPost) => {
+      const htmlContent = await processMarkdown(dbPost.content);
+      return {
+        frontMatter: dbPostToPost(dbPost),
+        content: dbPost.content,
+        htmlContent,
+        slug: dbPost.slug,
+      };
+    })
+  );
+
+  return posts;
 }
 
+/**
+ * Busca posts por categoria
+ */
+export async function getPostsByCategory(category: string): Promise<Post[]> {
+  const dbPosts = await db
+    .select()
+    .from(schema.posts)
+    .where(and(
+      eq(schema.posts.published, true),
+      eq(schema.posts.category, category)
+    ))
+    .orderBy(desc(schema.posts.date));
+
+  const posts = await Promise.all(
+    dbPosts.map(async (dbPost) => {
+      const htmlContent = await processMarkdown(dbPost.content);
+      return {
+        frontMatter: dbPostToPost(dbPost),
+        content: dbPost.content,
+        htmlContent,
+        slug: dbPost.slug,
+      };
+    })
+  );
+
+  return posts;
+}
+
+/**
+ * Busca posts por tag
+ */
+export async function getPostsByTag(tag: string): Promise<Post[]> {
+  const dbPosts = await db
+    .select()
+    .from(schema.posts)
+    .where(
+      and(
+        eq(schema.posts.published, true),
+        sql`json_extract(${schema.posts.tags}, '$') LIKE ${'%' + tag + '%'}`
+      )
+    )
+    .orderBy(desc(schema.posts.date));
+
+  const posts = await Promise.all(
+    dbPosts.map(async (dbPost) => {
+      const htmlContent = await processMarkdown(dbPost.content);
+      return {
+        frontMatter: dbPostToPost(dbPost),
+        content: dbPost.content,
+        htmlContent,
+        slug: dbPost.slug,
+      };
+    })
+  );
+
+  return posts;
+}
