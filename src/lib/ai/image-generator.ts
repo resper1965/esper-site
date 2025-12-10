@@ -1,4 +1,4 @@
-import { searchFreeImage, downloadAndSaveImage as saveImage } from './image-fetcher';
+import { searchFreeImage } from './image-fetcher';
 import Replicate from 'replicate';
 
 const replicate = new Replicate({
@@ -17,7 +17,7 @@ export async function generateImage(prompt: string): Promise<string> {
   
   if (searchResult) {
     // Se encontrou, retornar a URL para download
-    return searchResult.url;
+    return searchResult;
   }
 
   // Se não encontrou, tentar gerar com IA (Hugging Face ou Replicate)
