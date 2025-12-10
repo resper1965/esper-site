@@ -210,22 +210,71 @@ async function evaluateQuality(content: string): Promise<number> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function savePostDraft(post: { content: string; score: number; metadata: any }) {
   // Caminho correto para o projeto: blog/content/drafts
-  const draftsDir = path.join(process.cwd(), 'blog/content/drafts');
+  const draftsDir = path.join(process.cwd(), 'src/content/posts/drafts');
 
   // Criar diretório se não existir
   if (!fs.existsSync(draftsDir)) {
     fs.mkdirSync(draftsDir, { recursive: true });
   }
 
-  // Extrair slug do frontmatter
-  const slugMatch = post.content.match(/slug: "(.+)"/);
-  const slug = slugMatch ? slugMatch[1] : `draft-${Date.now()}`;
+  // Extrair frontmatter usando gray-matter
+  const { data: frontmatter } = matter(post.content);
+  const slug = frontmatter.slug || `draft-${Date.now()}`;
+
+  // Gerar imagem se houver thumbnailPrompt
+  let coverImagePath: string | undefined;
+  if (frontmatter.thumbnailPrompt && process.env.REPLICATE_API_TOKEN) {
+    try {
+      console.log('🎨 Gerando imagem de capa...');
+      
+      // Melhorar o prompt para ilustração
+      const enhancedPrompt = `Professional illustration, ${frontmatter.thumbnailPrompt}, high quality, clean design, modern style, suitable for blog cover image`;
+      
+      const imageUrl = await generateImage(enhancedPrompt);
+      
+      // Salvar imagem
+      const imagesDir = path.join(process.cwd(), 'public/images');
+      const imageFilename = `${slug}.png`;
+      const imagePath = path.join(imagesDir, imageFilename);
+      
+      await downloadAndSaveImage(imageUrl, imagePath);
+      
+      coverImagePath = `/images/${imageFilename}`;
+      console.log('✅ Imagem de capa gerada:', coverImagePath);
+    } catch (error) {
+      console.error('⚠️ Erro ao gerar imagem (continuando sem imagem):', error);
+      // Continua sem imagem se houver erro
+    }
+  }
+
+  // Atualizar frontmatter com coverImage se gerada
+  let finalContent = post.content;
+  if (coverImagePath) {
+    // Adicionar ou atualizar coverImage no frontmatter
+    if (frontmatter.coverImage) {
+      finalContent = finalContent.replace(
+        /coverImage:\s*["'][^"']*["']/,
+        `coverImage: "${coverImagePath}"`
+      );
+    } else {
+      // Adicionar coverImage após thumbnailPrompt ou no final do frontmatter
+      const frontmatterEnd = finalContent.indexOf('---', 3);
+      if (frontmatterEnd > 0) {
+        const beforeFrontmatter = finalContent.substring(0, frontmatterEnd);
+        const afterFrontmatter = finalContent.substring(frontmatterEnd);
+        
+        // Adicionar coverImage antes do fechamento do frontmatter
+        const coverImageLine = `coverImage: "${coverImagePath}"\n`;
+        finalContent = beforeFrontmatter + coverImageLine + afterFrontmatter;
+      }
+    }
+  }
 
   const filename = `${slug}.mdx`;
   const filepath = path.join(draftsDir, filename);
 
   // Adicionar metadata ao final
-  const contentWithMeta = `${post.content}
+  const contentWithMeta = `${finalContent}
 
 <!--
 METADATA DE GERAÇÃO:
@@ -234,6 +283,7 @@ METADATA DE GERAÇÃO:
 - Modelo: ${post.metadata.model}
 - Tokens: ${JSON.stringify(post.metadata.tokensUsed)}
 - Fontes: ${post.metadata.sources.join(', ')}
+${coverImagePath ? `- Imagem: ${coverImagePath}` : ''}
 -->
 `;
 
@@ -242,7 +292,8 @@ METADATA DE GERAÇÃO:
   return {
     filepath,
     filename,
-    slug
+    slug,
+    coverImage: coverImagePath
   };
 }
 
