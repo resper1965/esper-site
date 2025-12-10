@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import fs from 'fs';
 import path from 'path';
-import { generateImage, downloadAndSaveImage } from './image-generator';
+import { generateImage } from './image-generator';
 import matter from 'gray-matter';
 
 const anthropic = new Anthropic({

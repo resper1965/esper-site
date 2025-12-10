@@ -42,16 +42,6 @@ export async function generateImage(
   
   // Retornar caminho relativo
   return `/images/${imageFilename}`;
-
-  // Se não encontrou, tentar gerar com IA (Hugging Face ou Replicate)
-  const HF_API_KEY = process.env.HUGGINGFACE_API_KEY || '';
-  
-  if (HF_API_KEY || !process.env.REPLICATE_API_TOKEN) {
-    return generateImageWithHuggingFace(prompt);
-  }
-
-  // Fallback para Replicate se tiver token
-  return generateImageWithReplicate(prompt);
 }
 
 async function generateImageWithHuggingFace(prompt: string): Promise<string> {
