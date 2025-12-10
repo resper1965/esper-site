@@ -100,11 +100,11 @@ export function ReadMoreSection({
                 href={post.url}
                 className="group grid grid-cols-1 lg:grid-cols-12 items-center gap-4 cursor-pointer"
               >
-                {post.data.thumbnail && (
+                {(post.data.coverImage || post.data.thumbnail) && (
                   <div className="flex-shrink-0 col-span-1 lg:col-span-4">
                     <div className="relative w-full h-full">
                       <img
-                        src={post.data.thumbnail}
+                        src={post.data.coverImage || post.data.thumbnail}
                         alt={post.data.title}
                         className="w-full h-full object-cover rounded-lg group-hover:opacity-80 transition-opacity"
                       />

@@ -82,7 +82,7 @@ export default async function BlogPost({ params }: PageProps) {
     },
     datePublished: page.data.date,
     dateModified: page.data.date,
-    image: page.data.thumbnail ? `https://esper.ws${page.data.thumbnail}` : undefined,
+    image: (page.data.coverImage || page.data.thumbnail) ? `https://esper.ws${page.data.coverImage || page.data.thumbnail}` : undefined,
     keywords: page.data.keywords?.join(', '),
     articleSection: page.data.tags?.[0],
     inLanguage: 'pt-BR',
@@ -157,10 +157,10 @@ export default async function BlogPost({ params }: PageProps) {
       <div className="flex divide-x divide-border relative max-w-7xl mx-auto px-4 md:px-0 z-10">
         <div className="absolute max-w-7xl mx-auto left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] lg:w-full h-full border-x border-border p-0 pointer-events-none" />
         <main className="w-full p-0 overflow-hidden">
-          {page.data.thumbnail && (
+          {(page.data.coverImage || page.data.thumbnail) && (
             <div className="relative w-full h-[500px] overflow-hidden object-cover border border-transparent">
               <Image
-                src={page.data.thumbnail}
+                src={page.data.coverImage || page.data.thumbnail}
                 alt={page.data.title}
                 fill
                 className="object-cover"
