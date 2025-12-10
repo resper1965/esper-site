@@ -1,11 +1,36 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { config } from 'dotenv';
+import path from 'path';
+
+// Carregar variáveis de ambiente do .env.local se existir
+const envPath = path.join(process.cwd(), '.env.local');
+try {
+  config({ path: envPath, override: false });
+} catch (error) {
+  // Ignorar erro se arquivo não existir
+}
 
 // Carregar chave do ambiente
 const getApiKey = () => {
-  return process.env.GEMINI_API_KEY || '';
+  const apiKey = process.env.GEMINI_API_KEY || '';
+  if (!apiKey) {
+    console.warn('⚠️ GEMINI_API_KEY não encontrada nas variáveis de ambiente');
+  }
+  return apiKey;
 };
 
-const genAI = new GoogleGenerativeAI(getApiKey());
+// Criar instância de forma lazy para garantir que env vars estejam carregadas
+let genAIInstance: GoogleGenerativeAI | null = null;
+const getGenAI = () => {
+  if (!genAIInstance) {
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY não configurada. Configure no arquivo .env.local ou variáveis de ambiente.');
+    }
+    genAIInstance = new GoogleGenerativeAI(apiKey);
+  }
+  return genAIInstance;
+};
 
 /**
  * Cliente Gemini para geração de texto
@@ -21,6 +46,7 @@ export async function generateTextWithGemini(
     // Usar modelos disponíveis na API: gemini-2.5-pro ou gemini-2.5-flash
     const modelId = model === 'gemini-1.5-flash' ? 'gemini-2.5-flash' : 'gemini-2.5-pro';
     
+    const genAI = getGenAI();
     const modelInstance = genAI.getGenerativeModel({ 
       model: modelId,
       systemInstruction: systemInstruction || 'You are a helpful assistant.',
