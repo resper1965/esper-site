@@ -16,6 +16,7 @@ const replicate = new Replicate({
  * @param _keywords - Keywords do frontmatter (não usado, mantido para compatibilidade)
  * @returns Caminho relativo da imagem gerada
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function generateImage(
   _prompt: string, 
   slug?: string, 
