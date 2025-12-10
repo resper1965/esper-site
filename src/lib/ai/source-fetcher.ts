@@ -153,11 +153,11 @@ export async function fetchSourceContent(url: string): Promise<SourceContent> {
     $('script, style, nav, footer, aside, .ad, .advertisement').remove();
     
     // Tentar encontrar título
-    let title = $('meta[property="og:title"]').attr('content') ||
-                $('meta[name="twitter:title"]').attr('content') ||
-                $('h1').first().text().trim() ||
-                $('title').text().trim() ||
-                'Artigo';
+    const title = $('meta[property="og:title"]').attr('content') ||
+                  $('meta[name="twitter:title"]').attr('content') ||
+                  $('h1').first().text().trim() ||
+                  $('title').text().trim() ||
+                  'Artigo';
     
     // Tentar encontrar conteúdo principal
     let content = '';
