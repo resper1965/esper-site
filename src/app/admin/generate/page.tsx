@@ -11,6 +11,96 @@ interface GenerateResult {
   score: number;
   filepath: string;
   preview: string;
+  coverImage?: string;
+  thumbnailPrompt?: string;
+}
+
+interface RegenerateImageButtonProps {
+  slug: string;
+  currentPrompt?: string;
+  onSuccess: (newImage: string) => void;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+}
+
+function RegenerateImageButton({ slug, currentPrompt, onSuccess, loading, setLoading, setError }: RegenerateImageButtonProps) {
+  const [showCustomPrompt, setShowCustomPrompt] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState(currentPrompt || '');
+
+  const handleRegenerate = async (useCustom: boolean) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/regenerate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          slug,
+          customPrompt: useCustom ? customPrompt : undefined
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      onSuccess(data.coverImage);
+      setShowCustomPrompt(false);
+      alert('✅ Imagem regenerada com sucesso!');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao regenerar imagem');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="mt-2 space-y-2">
+      <button
+        onClick={() => handleRegenerate(false)}
+        disabled={loading}
+        className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-grey-400 text-sm"
+      >
+        🔄 Regenerar com Prompt Original
+      </button>
+      {!showCustomPrompt ? (
+        <button
+          onClick={() => setShowCustomPrompt(true)}
+          disabled={loading}
+          className="w-full px-4 py-2 bg-grey-600 text-white rounded-lg hover:bg-grey-700 disabled:bg-grey-400 text-sm"
+        >
+          ✏️ Regenerar com Prompt Customizado
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <textarea
+            value={customPrompt}
+            onChange={(e) => setCustomPrompt(e.target.value)}
+            placeholder="Digite um prompt customizado para a imagem..."
+            className="w-full px-3 py-2 text-sm border border-grey-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            rows={3}
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleRegenerate(true)}
+              disabled={loading || !customPrompt}
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-grey-400 text-sm"
+            >
+              ✅ Gerar com Este Prompt
+            </button>
+            <button
+              onClick={() => {
+                setShowCustomPrompt(false);
+                setCustomPrompt(currentPrompt || '');
+              }}
+              disabled={loading}
+              className="px-4 py-2 bg-grey-300 text-grey-700 rounded-lg hover:bg-grey-400 text-sm"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function GenerateDashboard() {
