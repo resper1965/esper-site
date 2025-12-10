@@ -72,7 +72,7 @@ async function searchUnsplashFree(query: string, slug?: string, title?: string):
       if (response.ok) {
         return imageUrl;
       }
-    } catch (fetchError) {
+    } catch {
       clearTimeout(timeoutId);
       // Timeout ou erro de rede - continuar para fallback
     }

@@ -48,7 +48,8 @@ export default async function HomePage({
   params: Promise<{ lang: Locale }>;
   searchParams: Promise<{ tag?: string }>;
 }) {
-  const { lang } = await params;
+  const resolvedParams = await params;
+  const lang = resolvedParams?.lang || 'pt-BR';
   const resolvedSearchParams = await searchParams;
   const dict = await getDictionary(lang);
 
