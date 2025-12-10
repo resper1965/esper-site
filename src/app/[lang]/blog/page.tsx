@@ -53,6 +53,7 @@ export default async function BlogListPage({
     if (Array.isArray(pages)) {
       allPages = pages;
     } else if (pages && typeof pages === 'object' && 'files' in pages) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const files = (pages as any).files;
       allPages = Array.isArray(files) ? files : [];
     }
