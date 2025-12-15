@@ -14,11 +14,8 @@
     "regenerate-images-gemini": "tsx scripts/regenerate-images-gemini.ts",
     "setup-gemini-vercel": "tsx scripts/setup-gemini-vercel.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
-    "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/lib/db/migrate.ts",
+    "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
@@ -47,7 +44,7 @@
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.525.0",
     "motion": "^12.23.11",
-    "next": "15.3.6",
+    "next": "15.3.8",
     "next-themes": "^0.4.6",
     "nodemailer": "^7.0.11",
     "react": "19.2.0",
