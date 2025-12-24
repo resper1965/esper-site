@@ -41,7 +41,7 @@ export default function Sobre() {
                     <span className="font-medium text-grey-900">CEO & Founder</span> — <a href="https://ness.com.br" target="_blank" rel="noopener noreferrer" className="underline hover:text-grey-700 transition-colors">NESS</a>
                   </li>
                   <li>
-                    <span className="font-medium text-grey-900">CISO & Co-Founder</span> — IONIC Health
+                    <span className="font-medium text-grey-900">CISO & Co-Founder</span> — <a href="https://ionic.health" target="_blank" rel="noopener noreferrer" className="underline hover:text-grey-700 transition-colors">IONIC Health</a>
                   </li>
                   <li>
                     <span className="font-medium text-grey-900">CEO</span> — forense.io, Trustness, Infinity Safe

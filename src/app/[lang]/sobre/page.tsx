@@ -80,7 +80,7 @@ export default async function Sobre({
                     <span className="font-medium text-grey-900 dark:text-grey-50">CEO & Founder</span> — <a href="https://ness.com.br" target="_blank" rel="noopener noreferrer" className="underline hover:text-grey-300 dark:hover:text-grey-100 transition-colors">NESS</a>
                   </li>
                   <li>
-                    <span className="font-medium text-grey-900 dark:text-grey-50">CISO & Co-Founder</span> — IONIC Health
+                    <span className="font-medium text-grey-900 dark:text-grey-50">CISO & Co-Founder</span> — <a href="https://ionic.health" target="_blank" rel="noopener noreferrer" className="underline hover:text-grey-300 dark:hover:text-grey-100 transition-colors">IONIC Health</a>
                   </li>
                   <li>
                     <span className="font-medium text-grey-900 dark:text-grey-50">CEO</span> — forense.io, Trustness, Infinity Safe
