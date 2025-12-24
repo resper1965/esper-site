@@ -77,7 +77,7 @@ export default async function Sobre({
                 </h2>
                 <ul className="mt-4 space-y-3 text-grey-700 dark:text-grey-300">
                   <li>
-                    <span className="font-medium text-grey-900 dark:text-grey-50">CEO & Founder</span> — NESS
+                    <span className="font-medium text-grey-900 dark:text-grey-50">CEO & Founder</span> — <a href="https://ness.com.br" target="_blank" rel="noopener noreferrer" className="underline hover:text-grey-300 dark:hover:text-grey-100 transition-colors">NESS</a>
                   </li>
                   <li>
                     <span className="font-medium text-grey-900 dark:text-grey-50">CISO & Co-Founder</span> — IONIC Health

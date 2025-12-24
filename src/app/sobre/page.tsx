@@ -38,7 +38,7 @@ export default function Sobre() {
                 </h2>
                 <ul className="mt-4 space-y-3 text-grey-700">
                   <li>
-                    <span className="font-medium text-grey-900">CEO & Founder</span> — NESS
+                    <span className="font-medium text-grey-900">CEO & Founder</span> — <a href="https://ness.com.br" target="_blank" rel="noopener noreferrer" className="underline hover:text-grey-700 transition-colors">NESS</a>
                   </li>
                   <li>
                     <span className="font-medium text-grey-900">CISO & Co-Founder</span> — IONIC Health
