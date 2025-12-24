@@ -39,22 +39,15 @@ export default function Sobre() {
                 <ul className="mt-4 space-y-3 text-grey-700">
                   <li>
                     <span className="font-medium text-grey-900">CEO & Founder</span> — NESS
-                    <span className="text-grey-500 text-sm ml-2">(São Paulo, desde 1991)</span>
                   </li>
                   <li>
                     <span className="font-medium text-grey-900">CISO & Co-Founder</span> — IONIC Health
-                    <span className="text-grey-500 text-sm ml-2">(Healthcare Security)</span>
                   </li>
                   <li>
                     <span className="font-medium text-grey-900">CEO</span> — forense.io, Trustness, Infinity Safe
-                    <span className="text-grey-500 text-sm ml-2">(Digital Forensics & Executive Protection)</span>
                   </li>
                   <li>
                     <span className="font-medium text-grey-900">Board Member</span> — Bekaa Trusted Advisors
-                  </li>
-                  <li>
-                    <span className="font-medium text-grey-900">Partner</span> — NESS Law
-                    <span className="text-grey-500 text-sm ml-2">(Cybersecurity & Privacy Legal)</span>
                   </li>
                 </ul>
               </div>
