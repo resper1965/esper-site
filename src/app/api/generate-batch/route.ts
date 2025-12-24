@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { getAllSources } from '@/lib/ai/source-fetcher';
-import { analyzeTopics, selectBestTopic } from '@/lib/ai/topic-analyzer';
 import { generatePost, savePostDraft, publishPost } from '@/lib/ai/post-generator';
 import { getRecentPostTitles } from '@/lib/ai/scheduler';
 
