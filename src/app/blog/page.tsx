@@ -3,8 +3,19 @@ import PostCard from '@/components/PostCard';
 import { getAllPosts } from '@/lib/posts';
 import Link from 'next/link';
 
+// Force dynamic rendering to avoid SQLite access during build
+export const dynamic = 'force-dynamic';
+
 export default async function BlogPage() {
-  const posts = await getAllPosts();
+  let posts: Awaited<ReturnType<typeof getAllPosts>> = [];
+  
+  try {
+    posts = await getAllPosts();
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    // Return empty array if database is not available
+    posts = [];
+  }
 
   return (
     <Layout>
@@ -51,7 +62,3 @@ export default async function BlogPage() {
     </Layout>
   );
 }
-
-
-
-
