@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, Clock, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +9,6 @@ interface BlogCardProps {
   title: string;
   description: string;
   date: string;
-  thumbnail?: string;
   showRightBorder?: boolean;
   tags?: string[];
   readingTime?: number;
@@ -23,7 +21,6 @@ export function BlogCard({
   title,
   description,
   date,
-  thumbnail,
   showRightBorder = true,
   tags = [],
   readingTime,
@@ -43,65 +40,68 @@ export function BlogCard({
     <Link
       href={url}
       className={cn(
-        "group block relative transition-all duration-200 hover:shadow-lg hover:-translate-y-1",
+        "group block relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1",
         "before:absolute before:-left-0.5 before:top-0 before:z-10 before:h-screen before:w-px before:bg-border before:content-['']",
         "after:absolute after:-top-0.5 after:left-0 after:z-0 after:h-px after:w-screen after:bg-border after:content-['']",
         showRightBorder && "md:border-r border-border border-b-0"
       )}
     >
       <div className="flex flex-col h-full">
-        {thumbnail && (
-          <div className="relative w-full h-48 overflow-hidden">
-            <Image
-              src={thumbnail}
-              alt={title}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-            {/* New badge */}
-            {isNew && (
-              <div className="absolute top-3 right-3">
-                <Badge className="bg-primary text-primary-foreground font-semibold shadow-lg flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" />
-                  {newText}
-                </Badge>
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="p-6 flex flex-col gap-3 flex-1">
-          {/* Category Badge with Icon and Reading Time */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              {categoryConfig && (
-                <>
-                  {CategoryIcon && (
-                    <div className={cn(
-                      "rounded-full p-1.5",
-                      categoryConfig.bgColor
-                    )}>
-                      <CategoryIcon className={cn("w-4 h-4", categoryConfig.color)} />
-                    </div>
-                  )}
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      "font-medium",
-                      categoryConfig.borderColor,
-                      categoryConfig.color,
-                      categoryConfig.bgColor
-                    )}
-                  >
-                    {categoryConfig.label}
-                  </Badge>
-                </>
-              )}
+        {/* Gradient Header with Category Visual */}
+        <div className={cn(
+          "relative w-full h-36 overflow-hidden flex items-center justify-center",
+          "bg-gradient-to-br",
+          categoryConfig?.gradient || "from-gray-500/20 via-slate-500/10 to-zinc-900/5"
+        )}>
+          {/* Animated mesh pattern */}
+          <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(45deg,currentColor_25%,transparent_25%,transparent_75%,currentColor_75%)] bg-[length:24px_24px]" />
+          
+          {/* Large category icon with glow effect */}
+          {CategoryIcon && (
+            <div className={cn(
+              "relative rounded-2xl p-5 transition-all duration-300",
+              "bg-background/80 backdrop-blur-sm border border-border/50",
+              "group-hover:scale-110 group-hover:shadow-lg group-hover:bg-background/90"
+            )}>
+              <CategoryIcon className={cn("w-8 h-8", categoryConfig?.color)} />
+              {/* Glow effect */}
+              <div className={cn(
+                "absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-300 blur-xl",
+                categoryConfig?.bgColor
+              )} />
             </div>
+          )}
+          
+          {/* New badge */}
+          {isNew && (
+            <div className="absolute top-3 right-3">
+              <Badge className="bg-primary text-primary-foreground font-semibold shadow-lg flex items-center gap-1 animate-pulse">
+                <Sparkles className="w-3 h-3" />
+                {newText}
+              </Badge>
+            </div>
+          )}
+          
+          {/* Bottom fade to content */}
+          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-background to-transparent" />
+        </div>
+
+        <div className="p-5 flex flex-col gap-2.5 flex-1">
+          {/* Category Badge and Reading Time */}
+          <div className="flex items-center justify-between gap-2">
+            {categoryConfig && (
+              <Badge
+                variant="outline"
+                className={cn(
+                  "font-medium text-xs",
+                  categoryConfig.borderColor,
+                  categoryConfig.color,
+                  categoryConfig.bgColor
+                )}
+              >
+                {categoryConfig.label}
+              </Badge>
+            )}
 
             {/* Reading time */}
             {readingTime && (
