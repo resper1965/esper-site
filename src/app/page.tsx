@@ -130,7 +130,7 @@ export default async function HomePage({
       <div className="max-w-7xl mx-auto w-full px-6 lg:px-0">
         <Suspense
           fallback={
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-x border-b border-border">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative overflow-hidden">
               {Array.from({ length: 6 }).map((_, i) => (
                 <BlogCardSkeleton key={i} showRightBorder={i < 3} />
               ))}
@@ -138,8 +138,7 @@ export default async function HomePage({
           }
         >
           <div
-            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-x border-border ${filteredBlogs.length < 4 ? "border-b" : "border-b-0"
-              }`}
+            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative overflow-hidden`}
           >
             {filteredBlogs.map((blog) => {
               const date = new Date(blog.data.date);

@@ -96,10 +96,9 @@ export default async function BlogListPage({
           <TagFilter
             tags={allTags}
             selectedTag={selectedTag}
-            baseUrl={`/${lang}/blog`}
           />
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-8">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mt-8">
             {filteredBlogs.map((blog) => {
               const formattedDate = formatDate(new Date(blog.data.date), lang);
               return (
@@ -109,7 +108,6 @@ export default async function BlogListPage({
                   title={blog.data.title}
                   description={blog.data.description || ""}
                   date={formattedDate}
-                  thumbnail={blog.data.coverImage || blog.data.thumbnail}
                   tags={blog.data.tags}
                   showRightBorder={filteredBlogs.length < 3}
                 />
