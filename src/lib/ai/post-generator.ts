@@ -187,12 +187,16 @@ NÃO inclua meta-comentários.
 }
 
 async function evaluateQuality(content: string): Promise<number> {
+  // Get phrases from profile (could be in voice.default or in root)
+  const voiceProfile = RICARDO_PROFILE.voice?.default || {};
+  const phrases: string[] = voiceProfile.phrases || [];
+
   // Critérios de qualidade
   const checks = {
     hasProperLength: content.length >= 8000 && content.length <= 15000, // ~2000-2500 palavras
     hasFrontmatter: content.includes('---') && content.includes('title:'),
-    hasCharacteristicPhrases: RICARDO_PROFILE.phrases.some((phrase: string) =>
-      content.toLowerCase().includes(phrase)
+    hasCharacteristicPhrases: phrases.length > 0 && phrases.some((phrase: string) =>
+      content.toLowerCase().includes(phrase.toLowerCase())
     ),
     hasPersonalExperience: /em meus|aos 60 anos|como pai|34 anos/i.test(content),
     hasPracticalCase: /caso|exemplo|situação|experiência/i.test(content),

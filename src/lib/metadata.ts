@@ -376,3 +376,78 @@ export function generateCollectionPageSchema({
     },
   };
 }
+
+/**
+ * Generates JSON-LD ProfessionalService schema for services page
+ */
+export function generateProfessionalServiceSchema(lang: Locale = 'pt-BR') {
+  const services = [
+    {
+      name: lang === 'pt-BR' ? 'Consultoria CISO' : 'CISO Consulting',
+      description: lang === 'pt-BR' 
+        ? 'Chief Information Security Officer as a Service - Liderança estratégica em segurança' 
+        : 'Chief Information Security Officer as a Service - Strategic security leadership',
+    },
+    {
+      name: lang === 'pt-BR' ? 'Contraespionagem Corporativa' : 'Corporate Counter-Espionage',
+      description: lang === 'pt-BR'
+        ? 'TSCM, varreduras técnicas e proteção executiva'
+        : 'TSCM, technical sweeps and executive protection',
+    },
+    {
+      name: lang === 'pt-BR' ? 'Forense Digital' : 'Digital Forensics',
+      description: lang === 'pt-BR'
+        ? 'Investigação de incidentes e coleta de evidências digitais'
+        : 'Incident investigation and digital evidence collection',
+    },
+    {
+      name: lang === 'pt-BR' ? 'Compliance & Privacidade' : 'Compliance & Privacy',
+      description: lang === 'pt-BR'
+        ? 'Adequação LGPD, GDPR, HIPAA e SOC 2'
+        : 'LGPD, GDPR, HIPAA and SOC 2 compliance',
+    },
+    {
+      name: 'Advisory Board',
+      description: lang === 'pt-BR'
+        ? 'Conselheiro estratégico para boards e M&A'
+        : 'Strategic advisor for boards and M&A',
+    },
+  ];
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ProfessionalService',
+    '@id': `${siteConfig.url}/${lang}/servicos#service`,
+    name: lang === 'pt-BR' 
+      ? 'Ricardo Esper - Consultoria em Cibersegurança'
+      : 'Ricardo Esper - Cybersecurity Consulting',
+    description: lang === 'pt-BR'
+      ? 'Consultoria especializada em segurança da informação, compliance, forense digital e proteção executiva.'
+      : 'Specialized consulting in information security, compliance, digital forensics and executive protection.',
+    url: `${siteConfig.url}/${lang}/servicos`,
+    priceRange: '$$$$',
+    areaServed: [
+      { '@type': 'Country', name: 'Brazil' },
+      { '@type': 'Country', name: 'United States' },
+    ],
+    availableLanguage: ['pt-BR', 'en', 'es'],
+    founder: {
+      '@type': 'Person',
+      name: 'Ricardo Esper',
+      jobTitle: 'CISO',
+    },
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: lang === 'pt-BR' ? 'Serviços de Cibersegurança' : 'Cybersecurity Services',
+      itemListElement: services.map((service) => ({
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          name: service.name,
+          description: service.description,
+        },
+      })),
+    },
+  };
+}
+
