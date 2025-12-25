@@ -7,11 +7,7 @@ import { getPostBySlug } from "@/lib/posts";
 
 import { TableOfContents } from "@/components/table-of-contents";
 import { MobileTableOfContents } from "@/components/mobile-toc";
-import { AuthorCard } from "@/components/author-card";
 import { ReadMoreSection } from "@/components/read-more-section";
-import { PromoContent } from "@/components/promo-content";
-import { getAuthor, isValidAuthor } from "@/lib/authors";
-import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 import { HashScrollHandler } from "@/components/hash-scroll-handler";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ReadingProgress } from "@/components/reading-progress";
@@ -91,7 +87,7 @@ export default async function BlogPost({ params }: PageProps) {
   const imageAlt = post.frontMatter.title;
 
   // Calculate word count from content
-  const contentText = page.data.body?.toString() || '';
+  const contentText = post.htmlContent?.toString() || '';
   const wordCount = contentText.split(/\s+/).filter(word => word.length > 0).length;
   const readingTimeMinutes = Math.ceil(wordCount / 200); // Average reading speed: 200 words/min
   const timeRequired = readingTimeMinutes > 0 ? `PT${readingTimeMinutes}M` : undefined;
@@ -120,7 +116,7 @@ export default async function BlogPost({ params }: PageProps) {
   const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-background">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
@@ -133,18 +129,8 @@ export default async function BlogPost({ params }: PageProps) {
       <BackToTop />
       <CodeCopyButtons />
       <HashScrollHandler />
-      <div className="absolute top-0 left-0 z-0 w-full h-[200px] [mask-image:linear-gradient(to_top,transparent_25%,black_95%)]">
-        <FlickeringGrid
-          className="absolute top-0 left-0 size-full"
-          squareSize={4}
-          gridGap={6}
-          color="#6B7280"
-          maxOpacity={0.2}
-          flickerChance={0.05}
-        />
-      </div>
 
-      <div className="space-y-4 border-b border-border relative z-10">
+      <div className="space-y-4 border-b border-border">
         <div className="max-w-7xl mx-auto flex flex-col gap-6 p-6">
           {/* Breadcrumbs */}
           <Breadcrumbs
@@ -181,7 +167,7 @@ export default async function BlogPost({ params }: PageProps) {
             </time>
           </div>
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tighter text-balance">
+          <h1 className="text-4xl md:text-5xl font-medium tracking-tighter text-balance">
             {post.frontMatter.title}
           </h1>
 
@@ -192,17 +178,17 @@ export default async function BlogPost({ params }: PageProps) {
           )}
         </div>
       </div>
-      <div className="flex divide-x divide-border relative max-w-7xl mx-auto px-4 md:px-0 z-10">
+      <div className="flex divide-x divide-border relative max-w-7xl mx-auto px-4 md:px-0">
         <div className="absolute max-w-7xl mx-auto left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] lg:w-full h-full border-x border-border p-0 pointer-events-none" />
         <main className="w-full p-0 overflow-hidden">
           {post.frontMatter.coverImage && (
-            <div className="relative w-full h-[500px] overflow-hidden border border-transparent bg-grey-100">
+            <div className="relative w-full h-[300px] md:h-[400px] overflow-hidden border border-transparent bg-grey-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={post.frontMatter.coverImage}
                 alt={imageAlt}
                 className="w-full h-full object-cover"
-                style={{ 
+                style={{
                   objectFit: 'cover',
                   width: '100%',
                   height: '100%',
@@ -227,15 +213,11 @@ export default async function BlogPost({ params }: PageProps) {
           </div>
         </main>
 
-        <aside className="hidden lg:block w-[350px] flex-shrink-0 p-6 lg:p-10 bg-muted/60 dark:bg-muted/20">
-          <div className="sticky top-20 space-y-8">
-            {post.frontMatter.author && isValidAuthor(post.frontMatter.author) && (
-              <AuthorCard author={getAuthor(post.frontMatter.author)} />
-            )}
-            <div className="border border-border rounded-lg p-6 bg-card">
+        <aside className="hidden lg:block w-64 flex-shrink-0 p-6 lg:p-10 bg-muted/30 dark:bg-muted/10">
+          <div className="sticky top-20">
+            <div className="border border-border rounded-lg p-4 bg-card">
               <TableOfContents />
             </div>
-            <PromoContent variant="desktop" />
           </div>
         </aside>
       </div>
