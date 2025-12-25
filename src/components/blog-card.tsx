@@ -24,7 +24,6 @@ export function BlogCard({
   showRightBorder = true,
   tags = [],
   readingTime,
-  isNew = false,
   lang = 'pt-BR',
 }: BlogCardProps) {
   // Get primary category (first tag)
