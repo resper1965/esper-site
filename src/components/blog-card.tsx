@@ -27,8 +27,8 @@ export function BlogCard({
 }: BlogCardProps) {
   // Get primary category (first tag)
   const primaryTag = tags[0];
-  const categoryConfig = primaryTag ? getCategoryConfig(primaryTag) : null;
-  const CategoryIcon = categoryConfig?.icon;
+  const categoryConfig = primaryTag ? getCategoryConfig(primaryTag) : getCategoryConfig('Geral');
+  const CategoryIcon = categoryConfig.icon;
 
   const readingTimeText = lang === 'pt-BR' ? 'min' : 'min';
 
