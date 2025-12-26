@@ -14,9 +14,10 @@ interface TagFilterProps {
   tags: string[];
   selectedTag: string;
   tagCounts?: Record<string, number>;
+  size?: 'default' | 'post'; // 'default' = h-6 (fora do post), 'post' = h-7 (dentro do post)
 }
 
-export function TagFilter({ tags, selectedTag, tagCounts }: TagFilterProps) {
+export function TagFilter({ tags, selectedTag, tagCounts, size = 'default' }: TagFilterProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -28,34 +29,39 @@ export function TagFilter({ tags, selectedTag, tagCounts }: TagFilterProps) {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const DesktopTagFilter = () => (
-    <div className="hidden md:flex flex-wrap gap-1.5 justify-center mx-auto">
-      {tags.map((tag) => (
-        <button
-          key={tag}
-          onClick={() => handleTagClick(tag)}
-          className={`h-7 flex items-center px-2.5 rounded-md cursor-pointer border text-xs transition-colors ${
-            selectedTag === tag
-              ? "border-border/60 bg-muted/50 text-foreground"
-              : "border-border/40 bg-transparent text-muted-foreground hover:bg-muted/30 hover:border-border/50"
-          }`}
-        >
-          <span>{tag}</span>
-          {tagCounts?.[tag] && (
-            <span
-              className={`ml-1.5 text-[10px] border rounded h-5 min-w-5 font-medium flex items-center justify-center ${
-                selectedTag === tag
-                  ? "border-border/60 bg-background/50 text-foreground"
-                  : "border-border/40 text-muted-foreground"
-              }`}
-            >
-              {tagCounts[tag]}
-            </span>
-          )}
-        </button>
-      ))}
-    </div>
-  );
+  const DesktopTagFilter = () => {
+    const heightClass = size === 'post' ? 'h-7' : 'h-6';
+    const badgeHeightClass = size === 'post' ? 'h-5' : 'h-4';
+    
+    return (
+      <div className="hidden md:flex flex-wrap gap-1.5 justify-center mx-auto">
+        {tags.map((tag) => (
+          <button
+            key={tag}
+            onClick={() => handleTagClick(tag)}
+            className={`${heightClass} flex items-center px-2.5 rounded-md cursor-pointer border text-xs transition-colors ${
+              selectedTag === tag
+                ? "border-border/60 bg-muted/50 text-foreground"
+                : "border-border/40 bg-transparent text-muted-foreground hover:bg-muted/30 hover:border-border/50"
+            }`}
+          >
+            <span>{tag}</span>
+            {tagCounts?.[tag] && (
+              <span
+                className={`ml-1.5 text-[10px] border rounded ${badgeHeightClass} min-w-4 font-medium flex items-center justify-center ${
+                  selectedTag === tag
+                    ? "border-border/60 bg-background/50 text-foreground"
+                    : "border-border/40 text-muted-foreground"
+                }`}
+              >
+                {tagCounts[tag]}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+    );
+  };
 
   const MobileTagFilter = () => (
     <Drawer>
