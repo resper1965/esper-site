@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore - Generated file, type checking disabled -- skip type checking
+// @ts-nocheck -- skip type checking
 import * as docs_24 from "../src/content/posts/tscm-varredura-contraespionagem.mdx?collection=docs&hash=1766752489709"
 import * as docs_23 from "../src/content/posts/tscm-technical-countermeasures.mdx?collection=docs&hash=1766752489709"
 import * as docs_22 from "../src/content/posts/trustness-privacidade-compliance.mdx?collection=docs&hash=1766752489709"
