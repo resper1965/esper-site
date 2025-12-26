@@ -62,6 +62,15 @@ export default {
         sans: ['var(--font-montserrat)', 'Montserrat', 'sans-serif'],
         mono: ['var(--font-geist-mono)', 'IBM Plex Mono', 'monospace'],
       },
+      animation: {
+        grid: "grid 15s linear infinite",
+      },
+      keyframes: {
+        grid: {
+          "0%": { transform: "translateY(-50%)" },
+          "100%": { transform: "translateY(0)" },
+        },
+      },
     },
   },
   plugins: [],
