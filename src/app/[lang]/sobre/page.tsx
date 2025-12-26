@@ -68,6 +68,18 @@ export default async function Sobre({
               {dict.about.title}
             </h1>
 
+            {/* Foto do Ricardo Esper */}
+            <div className="mt-6 sm:mt-8 mb-8 sm:mb-10 flex justify-center">
+              <div className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden bg-muted border-4 border-border dark:border-grey-700 shadow-lg">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/authors/ricardo.png"
+                  alt="Ricardo Esper"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+
             <div className="mt-6 sm:mt-8 space-y-4 sm:space-y-6 text-base sm:text-lg leading-relaxed text-grey-700 dark:text-grey-300">
               <p>{dict.about.intro1}</p>
               <p>{dict.about.intro2}</p>
