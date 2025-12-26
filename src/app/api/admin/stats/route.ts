@@ -39,22 +39,27 @@ export async function GET() {
     const draftPosts = posts?.filter(p => p.published === false).length || 0;
 
     // Contar por categoria (usando campo category diretamente)
-    const categoryCounts: { [key: string]: number } = {};
-    posts?.forEach(post => {
-      // Usar category diretamente da tabela (campo obrigatório)
-      const category = post.category || 'general';
-      categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-    });
+    const categoryCounts: Record<string, number> = {};
+    if (posts) {
+      for (const post of posts) {
+        // Usar category diretamente da tabela (campo obrigatório)
+        const category = (post.category as string) || 'general';
+        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+      }
+    }
 
     // Calcular score médio (usando campo score diretamente da tabela)
     let avgScore = 0;
     let scoresCount = 0;
-    posts?.forEach(post => {
-      if (post.score && typeof post.score === 'number') {
-        avgScore += post.score;
-        scoresCount++;
+    if (posts) {
+      for (const post of posts) {
+        const score = post.score;
+        if (score && typeof score === 'number' && !isNaN(score)) {
+          avgScore += score;
+          scoresCount++;
+        }
       }
-    });
+    }
     avgScore = scoresCount > 0 ? avgScore / scoresCount : 0;
 
     const stats = {

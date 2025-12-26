@@ -17,6 +17,9 @@ const montserrat = Montserrat({
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-montserrat",
   display: "swap",
+  fallback: ["system-ui", "arial"], // Fallback caso download falhe
+  preload: true, // Pré-carregar fonte
+  adjustFontFallback: true, // Ajustar fallback automaticamente
 });
 
 export const viewport: Viewport = {
