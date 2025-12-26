@@ -9,6 +9,7 @@ import { FadeIn } from "@/components/fade-in";
 import { getDictionary } from "@/i18n/dictionaries";
 import { Locale } from "@/i18n/config";
 import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
+import { HeroSection } from "@/components/ui/hero-section-dark";
 
 interface BlogData {
   title: string;
@@ -110,14 +111,32 @@ export default async function HomePage({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="p-6 border-b border-border flex flex-col gap-6 min-h-[200px] justify-center">
-        <div className="max-w-7xl mx-auto w-full">
-          <h1 className="font-medium text-4xl md:text-5xl tracking-tighter">
-            {dict.home.title}
-          </h1>
-        </div>
+      <HeroSection
+        title={lang === 'pt-br' ? "Cibersegurança, Contraespionagem e Tecnologia" : "Cybersecurity, Counterespionage and Technology"}
+        subtitle={{
+          regular: lang === 'pt-br' ? "Insights práticos de quem vive " : "Practical insights from someone who lives ",
+          gradient: lang === 'pt-br' ? "segurança na prática" : "security in practice",
+        }}
+        description={
+          lang === 'pt-br'
+            ? "CEO da NESS, CISO da IONIC Health, e fundador da forense.io. Compartilho experiências reais sobre cibersegurança, TSCM, automação residencial e os desafios de proteger o que realmente importa."
+            : "CEO of NESS, CISO at IONIC Health, and founder of forense.io. Sharing real experiences about cybersecurity, TSCM, home automation, and the challenges of protecting what truly matters."
+        }
+        ctaText={lang === 'pt-br' ? "Explorar artigos" : "Browse articles"}
+        ctaHref="#posts"
+        bottomImage={undefined}
+        gridOptions={{
+          angle: 65,
+          opacity: 0.3,
+          cellSize: 50,
+          lightLineColor: "#4a4a4a",
+          darkLineColor: "#2a2a2a",
+        }}
+      />
+
+      <div id="posts" className="max-w-7xl mx-auto w-full px-6 lg:px-0 -mt-16">
         {allTags.length > 1 && (
-          <div className="max-w-7xl mx-auto w-full">
+          <div className="mb-8">
             <TagFilter
               tags={allTags}
               selectedTag={selectedTag}
