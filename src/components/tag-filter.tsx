@@ -29,24 +29,24 @@ export function TagFilter({ tags, selectedTag, tagCounts }: TagFilterProps) {
   };
 
   const DesktopTagFilter = () => (
-    <div className="hidden md:flex flex-wrap gap-2 justify-center">
+    <div className="hidden md:flex flex-wrap gap-1.5 justify-center mx-auto">
       {tags.map((tag) => (
         <button
           key={tag}
           onClick={() => handleTagClick(tag)}
-          className={`h-8 flex items-center px-1 pl-3 rounded-lg cursor-pointer border text-sm transition-colors ${
+          className={`h-7 flex items-center px-2.5 rounded-md cursor-pointer border text-xs transition-colors ${
             selectedTag === tag
-              ? "border-grey-400 bg-grey-200 text-grey-900"
-              : "border-grey-300 bg-transparent text-grey-600 hover:bg-grey-100 hover:border-grey-400"
+              ? "border-border/60 bg-muted/50 text-foreground"
+              : "border-border/40 bg-transparent text-muted-foreground hover:bg-muted/30 hover:border-border/50"
           }`}
         >
           <span>{tag}</span>
           {tagCounts?.[tag] && (
             <span
-              className={`ml-2 text-xs border rounded-md h-6 min-w-6 font-medium flex items-center justify-center ${
+              className={`ml-1.5 text-[10px] border rounded h-5 min-w-5 font-medium flex items-center justify-center ${
                 selectedTag === tag
-                  ? "border-grey-400 bg-white text-grey-700"
-                  : "border-grey-300 text-grey-500"
+                  ? "border-border/60 bg-background/50 text-foreground"
+                  : "border-border/40 text-muted-foreground"
               }`}
             >
               {tagCounts[tag]}
