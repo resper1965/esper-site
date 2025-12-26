@@ -1,11 +1,28 @@
 /**
  * Gera imagens abstratas em greyscale usando canvas
  * Baseado no slug para consistência
+ * 
+ * NOTA: Requer pacote 'canvas' instalado. Se não estiver disponível,
+ * as funções retornarão erro.
  */
 
-import { createCanvas } from 'canvas';
 import fs from 'fs';
 import path from 'path';
+
+// Importação dinâmica do canvas (opcional)
+ 
+let createCanvas: (width: number, height: number) => import('canvas').Canvas;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const canvasModule = require('canvas');
+  createCanvas = canvasModule.createCanvas;
+} catch {
+  console.warn('⚠️  Canvas não está disponível. Instale com: npm install canvas');
+  // Criar função stub que lança erro
+  createCanvas = () => {
+    throw new Error('Canvas não está instalado. Execute: npm install canvas');
+  };
+}
 
 /**
  * Gera um hash simples do slug para usar como seed
