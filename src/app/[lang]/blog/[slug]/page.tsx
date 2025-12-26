@@ -1,4 +1,3 @@
-import { DocsBody } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -200,9 +199,7 @@ export default async function BlogPost({ params }: PageProps) {
           )}
           <div className="p-6 lg:p-10">
             <div className="prose dark:prose-invert max-w-none prose-headings:scroll-mt-8 prose-headings:font-semibold prose-a:no-underline prose-headings:tracking-tight prose-headings:text-balance prose-p:tracking-tight prose-p:text-balance prose-lg">
-              <DocsBody>
-                <div dangerouslySetInnerHTML={{ __html: post.htmlContent }} />
-              </DocsBody>
+              <div dangerouslySetInnerHTML={{ __html: post.htmlContent }} />
             </div>
           </div>
           <div className="mt-10">

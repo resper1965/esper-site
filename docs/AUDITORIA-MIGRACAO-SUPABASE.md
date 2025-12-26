@@ -419,5 +419,5 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 ---
 
 **Última Atualização:** 2025-01-XX  
-**Próxima Revisão:** Após migração completa
+**Status:** ✅ **MIGRAÇÃO COMPLETA** - Todas as rotas migradas para Supabase
 

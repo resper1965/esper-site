@@ -1,33 +1,10 @@
-import { docs, meta } from "@/.source";
-import { loader } from "fumadocs-core/source";
-import { createMDXSource } from "fumadocs-mdx";
 import { Suspense } from "react";
 import { BlogCard } from "@/components/blog-card";
 import { BlogCardSkeleton } from "@/components/blog-card-skeleton";
 import { TagFilter } from "@/components/tag-filter";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
-
-interface BlogData {
-  title: string;
-  description?: string;
-  date: string;
-  tags?: string[];
-  featured?: boolean;
-  readTime?: string;
-  author?: string;
-  authorImage?: string;
-  thumbnail?: string;
-}
-
-interface BlogPage {
-  url: string;
-  data: BlogData;
-}
-
-const blogSource = loader({
-  baseUrl: "/blog",
-  source: createMDXSource(docs, meta),
-});
+import { getAllPosts, type Post } from "@/lib/posts";
+import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
 
 const formatDate = (date: Date): string => {
   return date.toLocaleDateString("pt-BR", {
@@ -44,33 +21,22 @@ export default async function HomePage({
 }) {
   const resolvedSearchParams = await searchParams;
 
-  let allPages: BlogPage[] = [];
+  // Get all posts from Supabase
+  let allPosts: Post[] = [];
   try {
-    const pages = blogSource.getPages();
-    // Ensure pages is an array
-    if (Array.isArray(pages)) {
-      allPages = pages;
-    } else if (pages && typeof pages === 'object' && 'files' in pages) {
-      // Handle case where pages might be an object with files property
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const files = (pages as any).files;
-      allPages = Array.isArray(files) ? files : [];
-    }
+    allPosts = await getAllPosts();
   } catch (error) {
-    console.error('Error getting pages:', error);
-    allPages = [];
+    console.error('Error fetching posts from Supabase:', error);
+    allPosts = [];
   }
 
-  const sortedBlogs = allPages.sort((a, b) => {
-    const dateA = new Date(a.data.date).getTime();
-    const dateB = new Date(b.data.date).getTime();
-    return dateB - dateA;
-  });
+  // Posts already sorted by date (newest first)
+  const sortedBlogs = allPosts;
 
   const allTags = [
     "Todos",
     ...Array.from(
-      new Set(sortedBlogs.flatMap((blog) => blog.data.tags || []))
+      new Set(sortedBlogs.flatMap((post) => post.frontMatter.tags || []))
     ).sort(),
   ];
 
@@ -78,14 +44,14 @@ export default async function HomePage({
   const filteredBlogs =
     selectedTag === "Todos"
       ? sortedBlogs
-      : sortedBlogs.filter((blog) => blog.data.tags?.includes(selectedTag));
+      : sortedBlogs.filter((post) => post.frontMatter.tags?.includes(selectedTag));
 
   const tagCounts = allTags.reduce((acc, tag) => {
     if (tag === "Todos") {
       acc[tag] = sortedBlogs.length;
     } else {
-      acc[tag] = sortedBlogs.filter((blog) =>
-        blog.data.tags?.includes(tag)
+      acc[tag] = sortedBlogs.filter((post) =>
+        post.frontMatter.tags?.includes(tag)
       ).length;
     }
     return acc;
@@ -140,19 +106,26 @@ export default async function HomePage({
           <div
             className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative overflow-hidden`}
           >
-            {filteredBlogs.map((blog) => {
-              const date = new Date(blog.data.date);
+            {filteredBlogs.map((post) => {
+              const date = new Date(post.frontMatter.date);
               const formattedDate = formatDate(date);
+              const description = post.frontMatter.description || post.frontMatter.excerpt || "";
+              const readingTime = calculateReadingTime(description + " " + post.frontMatter.title + " " + (post.content || ""));
+              const isNew = isNewPost(post.frontMatter.date);
 
               return (
                 <BlogCard
-                  key={blog.url}
-                  url={blog.url}
-                  title={blog.data.title}
-                  description={blog.data.description || ""}
+                  key={post.slug}
+                  url={`/blog/${post.slug}`}
+                  title={post.frontMatter.title}
+                  description={description}
                   date={formattedDate}
-                  tags={blog.data.tags}
+                  tags={post.frontMatter.tags}
                   showRightBorder={filteredBlogs.length < 3}
+                  readingTime={readingTime}
+                  isNew={isNew}
+                  lang="pt-BR"
+                  thumbnail={post.frontMatter.coverImage}
                 />
               );
             })}
