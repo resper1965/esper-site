@@ -15,9 +15,15 @@ export default function Header() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <Link 
           href="/" 
-          className="text-xl font-semibold text-grey-900 transition-colors hover:text-grey-700"
+          className="flex items-center space-x-2 text-xl font-semibold text-grey-900 transition-colors hover:text-grey-700"
         >
-          Ricardo Esper
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/logo.png"
+            alt="Ricardo Esper"
+            className="h-8 w-auto"
+          />
+          <span className="sr-only">Ricardo Esper</span>
         </Link>
 
         {/* Desktop Navigation */}

@@ -23,7 +23,13 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
             href={`/${lang}`}
             className="mr-6 flex items-center space-x-2 font-bold text-xl tracking-tight transition-colors hover:opacity-80"
           >
-            <span>Ricardo <span className="text-primary">Esper</span></span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/logo.png"
+              alt="Ricardo Esper"
+              className="h-8 w-auto"
+            />
+            <span className="sr-only">Ricardo Esper</span>
           </Link>
         </div>
 
