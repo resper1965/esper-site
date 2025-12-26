@@ -8,6 +8,7 @@ interface PageProps {
 
 export default async function AdminRedirect({ params }: PageProps) {
   await params; // Ensure params are resolved
+  // Redirect to non-localized admin route
   redirect('/admin');
 }
 

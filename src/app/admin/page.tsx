@@ -27,12 +27,14 @@ export default function AdminDashboard() {
 
         if (!data.authenticated) {
           router.push('/admin/login');
-        } else {
-          setCheckingAuth(false);
-          // Carregar estatísticas
-          await loadStats();
+          return;
         }
-      } catch {
+        
+        setCheckingAuth(false);
+        // Autenticado - carregar estatísticas
+        await loadStats();
+      } catch (error) {
+        console.error('Error checking auth:', error);
         router.push('/admin/login');
       }
     };
@@ -74,7 +76,18 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!stats) return null;
+  if (!stats) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-grey-600 mx-auto mb-3" />
+            <p className="text-grey-600">Carregando estatísticas...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   const getCategoryEmoji = (category: string) => {
     const emojis: { [key: string]: string } = {
