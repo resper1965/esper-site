@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, FileText, BarChart3, LogOut, Sparkles } from 'lucide-react';
+import { LayoutDashboard, BarChart3, LogOut, Sparkles } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 

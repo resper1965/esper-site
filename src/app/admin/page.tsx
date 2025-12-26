@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { Sparkles, FileText, BarChart3, TrendingUp, Clock, CheckCircle, Loader2 } from 'lucide-react';
 
@@ -223,7 +224,7 @@ export default function AdminDashboard() {
                 Ações Rápidas
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <a
+                <Link
                   href="/admin/generate"
                   className="relative group bg-gradient-to-br from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100 border-2 border-purple-200 rounded-lg p-6 transition-all"
                 >
@@ -238,9 +239,9 @@ export default function AdminDashboard() {
                   <p className="text-sm text-grey-600">
                     Crie novo conteúdo usando IA generativa
                   </p>
-                </a>
+                </Link>
 
-                <a
+                <Link
                   href="/admin/analytics"
                   className="relative group bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 border-2 border-blue-200 rounded-lg p-6 transition-all"
                 >
@@ -255,7 +256,7 @@ export default function AdminDashboard() {
                   <p className="text-sm text-grey-600">
                     Veja estatísticas detalhadas dos posts
                   </p>
-                </a>
+                </Link>
               </div>
             </div>
 
