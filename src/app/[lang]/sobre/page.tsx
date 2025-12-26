@@ -1,6 +1,7 @@
 import { getDictionary } from '@/i18n/dictionaries';
 import { Locale, i18n } from '@/i18n/config';
 import { generatePageMetadata } from '@/lib/metadata';
+import { PageBackground } from '@/components/ui/page-background';
 import type { Metadata } from 'next';
 
 export async function generateStaticParams() {
@@ -59,7 +60,8 @@ export default async function Sobre({
   const dict = await getDictionary(lang);
 
   return (
-    <div className="bg-white dark:bg-background">
+    <PageBackground>
+      <div className="bg-transparent">
         <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="prose prose-lg max-w-none dark:prose-invert">
             <h1 className="text-4xl font-bold text-grey-900 dark:text-grey-50 sm:text-5xl">
@@ -152,5 +154,6 @@ export default async function Sobre({
           </div>
         </div>
       </div>
+    </PageBackground>
   );
 }

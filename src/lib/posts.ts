@@ -1,5 +1,5 @@
 import { db, schema } from './db';
-import { eq, desc, and } from 'drizzle-orm';
+import { eq, desc, and, sql } from 'drizzle-orm';
 import { remark } from 'remark';
 import remarkHtml from 'remark-html';
 
