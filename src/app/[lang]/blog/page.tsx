@@ -61,10 +61,12 @@ export default async function BlogListPage({
               : 'Articles about cybersecurity, counterespionage and technology.'}
           </p>
 
-          <TagFilter
-            tags={allTags}
-            selectedTag={selectedTag}
-          />
+          <div className="flex justify-center">
+            <TagFilter
+              tags={allTags}
+              selectedTag={selectedTag}
+            />
+          </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-8 justify-items-center">
             {filteredBlogs.map((post) => {

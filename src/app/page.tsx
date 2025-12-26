@@ -76,7 +76,7 @@ export default async function HomePage({
           </div>
         </div>
         {allTags.length > 1 && (
-          <div className="max-w-7xl mx-auto w-full">
+          <div className="max-w-7xl mx-auto w-full flex justify-center">
             <TagFilter
               tags={allTags}
               selectedTag={selectedTag}
