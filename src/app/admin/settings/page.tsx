@@ -157,10 +157,10 @@ export default function SettingsPage() {
 
   const getCategoryColor = (category: string) => {
     const colors: { [key: string]: string } = {
-      ai: 'bg-purple-100 text-purple-700 border-purple-200',
-      database: 'bg-blue-100 text-blue-700 border-blue-200',
-      security: 'bg-red-100 text-red-700 border-red-200',
-      other: 'bg-grey-100 text-grey-700 border-grey-200',
+      ai: 'bg-purple-950/30 text-purple-300 border-purple-800/50',
+      database: 'bg-blue-950/30 text-blue-300 border-blue-800/50',
+      security: 'bg-red-950/30 text-red-300 border-red-800/50',
+      other: 'bg-slate-800 text-slate-300 border-slate-700',
     };
     return colors[category] || colors.other;
   };
@@ -170,8 +170,8 @@ export default function SettingsPage() {
       <AdminLayout>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-grey-600 mx-auto mb-3" />
-            <p className="text-grey-600">Verificando autenticação...</p>
+            <Loader2 className="h-8 w-8 animate-spin text-slate-400 mx-auto mb-3" />
+            <p className="text-slate-400">Verificando autenticação...</p>
           </div>
         </div>
       </AdminLayout>
@@ -192,8 +192,8 @@ export default function SettingsPage() {
           <div
             className={`mb-6 p-4 rounded-lg border flex items-center ${
               message.type === 'success'
-                ? 'bg-green-50 border-green-200 text-green-800'
-                : 'bg-red-50 border-red-200 text-red-800'
+                ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-300'
+                : 'bg-red-950/30 border-red-800/50 text-red-300'
             }`}
           >
             {message.type === 'success' ? (
@@ -209,23 +209,23 @@ export default function SettingsPage() {
         {Object.entries(groupedVars).map(([category, vars]) => (
           <div key={category} className="mb-8">
             <div className="mb-4">
-              <h2 className="text-xl font-semibold text-grey-900">
+              <h2 className="text-xl font-semibold text-slate-100">
                 {getCategoryLabel(category)}
               </h2>
-              <p className="text-sm text-grey-600 mt-1">
+              <p className="text-sm text-slate-400 mt-1">
                 Configurações relacionadas a {getCategoryLabel(category).toLowerCase()}
               </p>
             </div>
 
-            <div className="bg-white shadow-sm rounded-lg border border-grey-200 overflow-hidden">
-              <div className="divide-y divide-grey-200">
+            <div className="bg-slate-900 shadow-sm rounded-lg border border-slate-800 overflow-hidden">
+              <div className="divide-y divide-slate-800">
                 {vars.map((envVar) => (
                   <div key={envVar.key} className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center mb-2">
-                          <Key className="h-4 w-4 text-grey-400 mr-2" />
-                          <code className="text-sm font-mono font-semibold text-grey-900 bg-grey-50 px-2 py-1 rounded">
+                          <Key className="h-4 w-4 text-slate-400 mr-2" />
+                          <code className="text-sm font-mono font-semibold text-slate-100 bg-slate-800 px-2 py-1 rounded">
                             {envVar.key}
                           </code>
                           <span
@@ -236,7 +236,7 @@ export default function SettingsPage() {
                             {getCategoryLabel(envVar.category)}
                           </span>
                         </div>
-                        <p className="text-sm text-grey-600 mb-3">{envVar.description}</p>
+                        <p className="text-sm text-slate-400 mb-3">{envVar.description}</p>
 
                         {editingKey === envVar.key ? (
                           <div className="space-y-3">
@@ -245,12 +245,12 @@ export default function SettingsPage() {
                                 type={showValues[envVar.key] ? 'text' : 'password'}
                                 value={editValue}
                                 onChange={(e) => setEditValue(e.target.value)}
-                                className="flex-1 px-3 py-2 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-900 focus:border-transparent font-mono text-sm"
+                                className="flex-1 px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-mono text-sm placeholder:text-slate-500"
                                 placeholder="Digite o valor..."
                               />
                               <button
                                 onClick={() => toggleShowValue(envVar.key)}
-                                className="p-2 text-grey-600 hover:text-grey-900 hover:bg-grey-100 rounded-lg transition-colors"
+                                className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
                                 type="button"
                               >
                                 {showValues[envVar.key] ? (
@@ -264,7 +264,7 @@ export default function SettingsPage() {
                               <button
                                 onClick={() => handleSave(envVar.key)}
                                 disabled={saving}
-                                className="flex items-center px-4 py-2 bg-grey-900 text-white rounded-lg hover:bg-grey-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 {saving ? (
                                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -276,7 +276,7 @@ export default function SettingsPage() {
                               <button
                                 onClick={handleCancel}
                                 disabled={saving}
-                                className="px-4 py-2 border border-grey-300 text-grey-700 rounded-lg hover:bg-grey-50 transition-colors disabled:opacity-50"
+                                className="px-4 py-2 border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50"
                               >
                                 Cancelar
                               </button>
@@ -284,7 +284,7 @@ export default function SettingsPage() {
                           </div>
                         ) : (
                           <div className="flex items-center space-x-2">
-                            <code className="flex-1 px-3 py-2 bg-grey-50 border border-grey-200 rounded-lg font-mono text-sm text-grey-700">
+                            <code className="flex-1 px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg font-mono text-sm text-slate-300">
                               {envVar.value
                                 ? showValues[envVar.key]
                                   ? envVar.value
@@ -293,7 +293,7 @@ export default function SettingsPage() {
                             </code>
                             <button
                               onClick={() => toggleShowValue(envVar.key)}
-                              className="p-2 text-grey-600 hover:text-grey-900 hover:bg-grey-100 rounded-lg transition-colors"
+                              className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
                               type="button"
                             >
                               {showValues[envVar.key] ? (
@@ -304,7 +304,7 @@ export default function SettingsPage() {
                             </button>
                             <button
                               onClick={() => handleEdit(envVar.key, envVar.value)}
-                              className="px-4 py-2 border border-grey-300 text-grey-700 rounded-lg hover:bg-grey-50 transition-colors"
+                              className="px-4 py-2 border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-800 transition-colors"
                             >
                               Editar
                             </button>
@@ -320,12 +320,12 @@ export default function SettingsPage() {
         ))}
 
         {/* Info Box */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-sm font-medium text-blue-900 mb-2 flex items-center">
+        <div className="mt-8 bg-slate-800 border border-slate-700 rounded-lg p-6">
+          <h3 className="text-sm font-medium text-slate-200 mb-2 flex items-center">
             <AlertCircle className="h-4 w-4 mr-2" />
             Informação Importante
           </h3>
-          <p className="text-sm text-blue-800">
+          <p className="text-sm text-slate-300">
             As configurações são armazenadas de forma segura no Supabase. As chaves são
             criptografadas e usadas em runtime pela aplicação. Para variáveis sensíveis, use
             sempre a interface de administração ao invés de editar arquivos diretamente.
