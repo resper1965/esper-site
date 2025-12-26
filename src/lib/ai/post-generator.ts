@@ -216,7 +216,9 @@ export async function savePostDraft(post: { content: string; score: number; meta
   // Extrair frontmatter usando gray-matter
   const { data: frontmatter, content: postContent } = matter(post.content);
   const slug = frontmatter.slug || `draft-${Date.now()}`;
-  const category = categoryOverride || frontmatter.category || 'general';
+  // Garantir que categoria nunca seja vazia ou apenas espaços
+  const rawCategory = categoryOverride || frontmatter.category || 'general';
+  const category = (rawCategory && rawCategory.trim() !== '') ? rawCategory.trim() : 'general';
 
   // Gerar imagem se houver thumbnailPrompt
   let coverImagePath: string | undefined;

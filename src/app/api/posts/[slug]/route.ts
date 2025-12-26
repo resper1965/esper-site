@@ -65,7 +65,10 @@ export async function PATCH(
     if (body.content !== undefined) updateData.content = body.content;
     if (body.excerpt !== undefined) updateData.excerpt = body.excerpt;
     if (body.description !== undefined) updateData.description = body.description;
-    if (body.category !== undefined) updateData.category = body.category;
+    if (body.category !== undefined) {
+      // Garantir que categoria nunca seja vazia
+      updateData.category = (body.category && body.category.trim() !== '') ? body.category.trim() : 'general';
+    }
     if (body.language !== undefined) updateData.language = body.language;
     if (body.author !== undefined) updateData.author = body.author;
     if (body.coverImage !== undefined) updateData.cover_image = body.coverImage;

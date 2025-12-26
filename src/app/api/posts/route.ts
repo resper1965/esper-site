@@ -72,7 +72,7 @@ export async function POST(request: Request) {
       content: body.content,
       excerpt: body.excerpt || '',
       description: body.description || body.excerpt || '',
-      category: body.category || 'general',
+      category: (body.category && body.category.trim() !== '') ? body.category.trim() : 'general',
       language: body.language || 'pt-br',
       author: body.author || 'Ricardo Esper',
       cover_image: body.coverImage || null,

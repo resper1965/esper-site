@@ -58,7 +58,7 @@ function dbPostToPost(dbPost: PostRow): PostFrontMatter {
     title: dbPost.title,
     slug: dbPost.slug,
     date: dbPost.date,
-    category: dbPost.category,
+    category: dbPost.category || 'general', // Garantir que sempre tenha categoria
     language: dbPost.language,
     excerpt: dbPost.excerpt || '',
     author: dbPost.author || undefined,
@@ -257,9 +257,15 @@ export async function getPostsByTag(tag: string): Promise<Post[]> {
  * Cria um novo post (draft)
  */
 export async function createPost(post: PostInsert): Promise<PostRow | null> {
+  // Garantir que sempre tenha categoria
+  const postWithCategory: PostInsert = {
+    ...post,
+    category: post.category || 'general',
+  };
+
   const { data, error } = await supabase
     .from('posts')
-    .insert([post])
+    .insert([postWithCategory])
     .select()
     .single();
 
@@ -275,12 +281,20 @@ export async function createPost(post: PostInsert): Promise<PostRow | null> {
  * Atualiza um post existente
  */
 export async function updatePost(slug: string, updates: PostUpdate): Promise<PostRow | null> {
+  // Garantir que categoria nunca seja removida ou vazia
+  const categoryValue = updates.category 
+    ? (updates.category.trim() !== '' ? updates.category.trim() : 'general')
+    : undefined; // Se não fornecida, manter a existente
+  
+  const updatesWithCategory: PostUpdate = {
+    ...updates,
+    ...(categoryValue && { category: categoryValue }), // Só atualizar se fornecida
+    updated_at: new Date().toISOString(),
+  };
+
   const { data, error } = await supabase
     .from('posts')
-    .update({
-      ...updates,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updatesWithCategory)
     .eq('slug', slug)
     .select()
     .single();
