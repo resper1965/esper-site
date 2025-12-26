@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/layout/AdminLayout';
+import { Link2, FileEdit, Sparkles, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
 interface GenerateResult {
   title: string;
@@ -15,33 +16,35 @@ interface GenerateResult {
   thumbnailPrompt?: string;
 }
 
+type TabType = 'topic' | 'url';
 
 export default function GenerateDashboard() {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<TabType>('topic');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GenerateResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
-  const [formData, setFormData] = useState({
+  const [topicForm, setTopicForm] = useState({
     topic: '',
     category: 'cybersecurity',
     keywords: ''
   });
 
-  const [urlFormData, setUrlFormData] = useState({
+  const [urlForm, setUrlForm] = useState({
     url: '',
     category: 'general',
     keywords: ''
   });
 
-  // Verificar autenticação ao carregar
+  // Verificar autenticação
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const response = await fetch('/api/auth/check');
         const data = await response.json();
-        
+
         if (!data.authenticated) {
           router.push('/admin/login');
         } else {
@@ -58,14 +61,17 @@ export default function GenerateDashboard() {
   if (checkingAuth) {
     return (
       <AdminLayout>
-        <div className="py-16 text-center">
-          <p className="text-grey-600">Verificando autenticação...</p>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-grey-600 mx-auto mb-3" />
+            <p className="text-grey-600">Verificando autenticação...</p>
+          </div>
         </div>
       </AdminLayout>
     );
   }
 
-  const handleGenerate = async () => {
+  const handleGenerateTopic = async () => {
     setLoading(true);
     setError(null);
     setResult(null);
@@ -75,10 +81,10 @@ export default function GenerateDashboard() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          topic: formData.topic,
-          category: formData.category,
-          keywords: formData.keywords.split(',').map(k => k.trim()).filter(Boolean),
-          sources: [] // Por enquanto vazio
+          topic: topicForm.topic,
+          category: topicForm.category,
+          keywords: topicForm.keywords.split(',').map(k => k.trim()).filter(Boolean),
+          sources: []
         })
       });
 
@@ -96,7 +102,7 @@ export default function GenerateDashboard() {
     }
   };
 
-  const handleGenerateFromUrl = async () => {
+  const handleGenerateUrl = async () => {
     setLoading(true);
     setError(null);
     setResult(null);
@@ -106,9 +112,9 @@ export default function GenerateDashboard() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          url: urlFormData.url,
-          category: urlFormData.category,
-          keywords: urlFormData.keywords.split(',').map(k => k.trim()).filter(Boolean)
+          url: urlForm.url,
+          category: urlForm.category,
+          keywords: urlForm.keywords.split(',').map(k => k.trim()).filter(Boolean)
         })
       });
 
@@ -126,218 +132,382 @@ export default function GenerateDashboard() {
     }
   };
 
+  const resetForm = () => {
+    setResult(null);
+    setError(null);
+    setTopicForm({ topic: '', category: 'cybersecurity', keywords: '' });
+    setUrlForm({ url: '', category: 'general', keywords: '' });
+  };
+
   return (
     <AdminLayout>
-      <div className="py-16">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-4xl font-bold text-grey-900">
-              Gerador de Posts com IA
-            </h1>
-            <button
-              onClick={async () => {
-                await fetch('/api/auth/logout', { method: 'POST' });
-                router.push('/admin/login');
-              }}
-              className="px-4 py-2 text-sm text-grey-700 hover:text-grey-900 border border-grey-300 rounded-lg"
-            >
-              Sair
-            </button>
-          </div>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-grey-900 mb-2">
+            Gerador de Posts com IA
+          </h1>
+          <p className="text-grey-600">
+            Crie conteúdo de alta qualidade usando IA generativa
+          </p>
+        </div>
 
-          {/* Tabs */}
-          <div className="mb-6 border-b border-grey-200">
-            <div className="flex space-x-4">
+        {/* Tabs */}
+        <div className="mb-6">
+          <div className="border-b border-grey-200">
+            <nav className="-mb-px flex space-x-6">
               <button
-                className="px-4 py-2 font-medium text-grey-700 border-b-2 border-grey-900"
+                onClick={() => {
+                  setActiveTab('topic');
+                  resetForm();
+                }}
+                className={`
+                  group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                  ${
+                    activeTab === 'topic'
+                      ? 'border-grey-900 text-grey-900'
+                      : 'border-transparent text-grey-500 hover:text-grey-700 hover:border-grey-300'
+                  }
+                `}
               >
+                <FileEdit className={`mr-2 h-5 w-5 ${activeTab === 'topic' ? 'text-grey-900' : 'text-grey-400'}`} />
                 Gerar por Tema
               </button>
               <button
-                className="px-4 py-2 font-medium text-grey-500 hover:text-grey-700"
                 onClick={() => {
-                  setResult(null);
-                  setError(null);
+                  setActiveTab('url');
+                  resetForm();
                 }}
+                className={`
+                  group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                  ${
+                    activeTab === 'url'
+                      ? 'border-grey-900 text-grey-900'
+                      : 'border-transparent text-grey-500 hover:text-grey-700 hover:border-grey-300'
+                  }
+                `}
               >
+                <Link2 className={`mr-2 h-5 w-5 ${activeTab === 'url' ? 'text-grey-900' : 'text-grey-400'}`} />
                 Gerar de URL
               </button>
-            </div>
+            </nav>
           </div>
+        </div>
 
-          <div className="bg-white border border-grey-200 rounded-lg p-8">
-            {/* Form - Gerar de URL */}
-            <div className="space-y-6 mb-8 pb-8 border-b border-grey-200">
-              <h2 className="text-2xl font-bold text-grey-900 mb-4">
-                📰 Gerar Post a partir de URL
-              </h2>
-              <div>
-                <label className="block text-sm font-medium text-grey-700 mb-2">
-                  URL do Artigo
-                </label>
-                <input
-                  type="url"
-                  value={urlFormData.url}
-                  onChange={(e) => setUrlFormData({ ...urlFormData, url: e.target.value })}
-                  placeholder="https://exemplo.com/artigo"
-                  className="w-full px-4 py-2 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-500"
-                />
+        {/* Content */}
+        <div className="bg-white rounded-lg border border-grey-200 shadow-sm">
+          {activeTab === 'topic' && (
+            <div className="p-6">
+              <div className="flex items-start mb-6">
+                <div className="flex-shrink-0">
+                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-purple-100">
+                    <Sparkles className="h-6 w-6 text-purple-600" />
+                  </div>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-grey-900">
+                    Criar Post Original
+                  </h3>
+                  <p className="mt-1 text-sm text-grey-500">
+                    A IA criará um artigo completo sobre o tema escolhido, com base na voz de Ricardo Esper
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-grey-700 mb-2">
-                  Categoria
-                </label>
-                <select
-                  value={urlFormData.category}
-                  onChange={(e) => setUrlFormData({ ...urlFormData, category: e.target.value })}
-                  className="w-full px-4 py-2 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-500"
-                >
-                  <option value="cybersecurity">Cibersegurança</option>
-                  <option value="counterespionage">Contraespionagem</option>
-                  <option value="homeautomation">Automação Residencial</option>
-                  <option value="travel">Viagens</option>
-                  <option value="general">Geral</option>
-                </select>
-              </div>
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-grey-700 mb-2">
+                    Tema do Post *
+                  </label>
+                  <input
+                    type="text"
+                    value={topicForm.topic}
+                    onChange={(e) => setTopicForm({ ...topicForm, topic: e.target.value })}
+                    placeholder="Ex: Zero Trust Architecture em 2025"
+                    className="w-full px-4 py-2.5 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-900 focus:border-transparent transition-shadow"
+                    disabled={loading}
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-grey-700 mb-2">
-                  Keywords (separadas por vírgula, opcional)
-                </label>
-                <input
-                  type="text"
-                  value={urlFormData.keywords}
-                  onChange={(e) => setUrlFormData({ ...urlFormData, keywords: e.target.value })}
-                  placeholder="keyword1, keyword2, keyword3"
-                  className="w-full px-4 py-2 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-500"
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-grey-700 mb-2">
+                    Categoria *
+                  </label>
+                  <select
+                    value={topicForm.category}
+                    onChange={(e) => setTopicForm({ ...topicForm, category: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-900 focus:border-transparent"
+                    disabled={loading}
+                  >
+                    <option value="cybersecurity">🛡️ Cibersegurança</option>
+                    <option value="counterespionage">👁️ Contraespionagem</option>
+                    <option value="homeautomation">🏠 Automação Residencial</option>
+                    <option value="travel">✈️ Viagens</option>
+                    <option value="vida">💭 Vida</option>
+                    <option value="general">📝 Geral</option>
+                  </select>
+                </div>
 
-              <button
-                onClick={handleGenerateFromUrl}
-                disabled={loading || !urlFormData.url}
-                className="w-full bg-grey-900 text-white py-3 rounded-lg font-medium hover:bg-grey-800 disabled:bg-grey-400 disabled:cursor-not-allowed transition"
-              >
-                {loading ? '⏳ Lendo URL e gerando post...' : '🚀 Gerar Post da URL'}
-              </button>
+                <div>
+                  <label className="block text-sm font-medium text-grey-700 mb-2">
+                    Keywords (separadas por vírgula)
+                  </label>
+                  <input
+                    type="text"
+                    value={topicForm.keywords}
+                    onChange={(e) => setTopicForm({ ...topicForm, keywords: e.target.value })}
+                    placeholder="zero trust, segurança, cloud"
+                    className="w-full px-4 py-2.5 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-900 focus:border-transparent"
+                    disabled={loading}
+                  />
+                  <p className="mt-1.5 text-xs text-grey-500">
+                    Opcional: adicione palavras-chave para melhorar o SEO
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-grey-200">
+                  <button
+                    onClick={handleGenerateTopic}
+                    disabled={loading || !topicForm.topic}
+                    className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-grey-900 hover:bg-grey-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-grey-900 disabled:bg-grey-400 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5" />
+                        Gerando post... (~30s)
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="-ml-1 mr-3 h-5 w-5" />
+                        Gerar Post com IA
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
+          )}
 
-            {/* Form - Gerar por Tema */}
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-grey-900 mb-4">
-                ✍️ Gerar Post por Tema
-              </h2>
-              <div>
-                <label className="block text-sm font-medium text-grey-700 mb-2">
-                  Tema do Post
-                </label>
-                <input
-                  type="text"
-                  value={formData.topic}
-                  onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
-                  placeholder="Ex: Zero Trust Architecture em 2025"
-                  className="w-full px-4 py-2 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-500"
-                />
+          {activeTab === 'url' && (
+            <div className="p-6">
+              <div className="flex items-start mb-6">
+                <div className="flex-shrink-0">
+                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-blue-100">
+                    <Link2 className="h-6 w-6 text-blue-600" />
+                  </div>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-grey-900">
+                    Criar Post de Artigo Externo
+                  </h3>
+                  <p className="mt-1 text-sm text-grey-500">
+                    A IA lerá o artigo e criará um post com a perspectiva de Ricardo Esper
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-grey-700 mb-2">
-                  Categoria
-                </label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-2 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-500"
-                >
-                  <option value="cybersecurity">Cibersegurança</option>
-                  <option value="counterespionage">Contraespionagem</option>
-                  <option value="homeautomation">Automação Residencial</option>
-                  <option value="travel">Viagens</option>
-                  <option value="general">Geral</option>
-                </select>
-              </div>
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-grey-700 mb-2">
+                    URL do Artigo *
+                  </label>
+                  <input
+                    type="url"
+                    value={urlForm.url}
+                    onChange={(e) => setUrlForm({ ...urlForm, url: e.target.value })}
+                    placeholder="https://exemplo.com/artigo-sobre-seguranca"
+                    className="w-full px-4 py-2.5 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-900 focus:border-transparent"
+                    disabled={loading}
+                  />
+                  <p className="mt-1.5 text-xs text-grey-500">
+                    Cole a URL de um artigo que você quer usar como base
+                  </p>
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-grey-700 mb-2">
-                  Keywords (separadas por vírgula)
-                </label>
-                <input
-                  type="text"
-                  value={formData.keywords}
-                  onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
-                  placeholder="zero trust, segurança, cloud"
-                  className="w-full px-4 py-2 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-500"
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-grey-700 mb-2">
+                    Categoria *
+                  </label>
+                  <select
+                    value={urlForm.category}
+                    onChange={(e) => setUrlForm({ ...urlForm, category: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-900 focus:border-transparent"
+                    disabled={loading}
+                  >
+                    <option value="cybersecurity">🛡️ Cibersegurança</option>
+                    <option value="counterespionage">👁️ Contraespionagem</option>
+                    <option value="homeautomation">🏠 Automação Residencial</option>
+                    <option value="travel">✈️ Viagens</option>
+                    <option value="vida">💭 Vida</option>
+                    <option value="general">📝 Geral</option>
+                  </select>
+                </div>
 
-              <button
-                onClick={handleGenerate}
-                disabled={loading || !formData.topic}
-                className="w-full bg-grey-900 text-white py-3 rounded-lg font-medium hover:bg-grey-800 disabled:bg-grey-400 disabled:cursor-not-allowed transition"
-              >
-                {loading ? '⏳ Gerando post...' : '🚀 Gerar Post'}
-              </button>
+                <div>
+                  <label className="block text-sm font-medium text-grey-700 mb-2">
+                    Keywords (separadas por vírgula)
+                  </label>
+                  <input
+                    type="text"
+                    value={urlForm.keywords}
+                    onChange={(e) => setUrlForm({ ...urlForm, keywords: e.target.value })}
+                    placeholder="keyword1, keyword2, keyword3"
+                    className="w-full px-4 py-2.5 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-900 focus:border-transparent"
+                    disabled={loading}
+                  />
+                  <p className="mt-1.5 text-xs text-grey-500">
+                    Opcional: adicione palavras-chave para melhorar o SEO
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-grey-200">
+                  <button
+                    onClick={handleGenerateUrl}
+                    disabled={loading || !urlForm.url}
+                    className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-grey-900 hover:bg-grey-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-grey-900 disabled:bg-grey-400 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5" />
+                        Lendo e gerando... (~40s)
+                      </>
+                    ) : (
+                      <>
+                        <Link2 className="-ml-1 mr-3 h-5 w-5" />
+                        Gerar Post da URL
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
+          )}
+        </div>
 
-            {/* Result */}
-            {result && (
-              <div className="mt-8 p-6 bg-grey-50 rounded-lg border border-grey-200">
-                <h3 className="text-lg font-bold text-grey-900 mb-4">
-                  ✅ Post Gerado com Sucesso!
+        {/* Success Result */}
+        {result && (
+          <div className="mt-6 bg-green-50 border border-green-200 rounded-lg overflow-hidden">
+            <div className="px-6 py-4 bg-green-100 border-b border-green-200">
+              <div className="flex items-center">
+                <CheckCircle2 className="h-5 w-5 text-green-600 mr-2" />
+                <h3 className="text-lg font-medium text-green-900">
+                  Post Gerado com Sucesso!
                 </h3>
-                <div className="space-y-2 text-sm">
-                  <p><strong>Slug:</strong> {result.slug}</p>
-                  <p><strong>Score:</strong> {result.score}/10</p>
-                  <p><strong>Arquivo:</strong> <code className="bg-white px-2 py-1 rounded">{result.filepath}</code></p>
-                  {result.coverImage && (
-                    <p><strong>Imagem:</strong> <code className="bg-white px-2 py-1 rounded">{result.coverImage}</code></p>
-                  )}
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-grey-700">Slug</p>
+                  <p className="mt-1 text-sm text-grey-900 font-mono bg-white px-3 py-2 rounded border border-grey-200">
+                    {result.slug}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-grey-700">Score de Qualidade</p>
+                  <p className="mt-1 text-sm text-grey-900">
+                    <span className="inline-flex items-center px-3 py-2 rounded-lg bg-white border border-grey-200">
+                      <span className="font-bold text-xl text-grey-900">{result.score}</span>
+                      <span className="text-grey-500 ml-1">/10</span>
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm font-medium text-grey-700 mb-2">Arquivo Salvo</p>
+                <p className="text-sm text-grey-900 font-mono bg-white px-3 py-2 rounded border border-grey-200">
+                  {result.filepath}
+                </p>
+              </div>
+
+              {result.coverImage && (
+                <div>
+                  <p className="text-sm font-medium text-grey-700 mb-2">Imagem de Capa</p>
+                  <img
+                    src={result.coverImage}
+                    alt="Cover"
+                    className="w-full max-w-2xl rounded-lg border border-grey-300"
+                  />
                   {result.thumbnailPrompt && (
-                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
-                      <p className="text-xs font-semibold text-blue-900 mb-1">📝 Prompt da Imagem:</p>
-                      <p className="text-xs text-blue-800 italic">&quot;{result.thumbnailPrompt}&quot;</p>
+                    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-xs font-semibold text-blue-900 mb-1">Prompt usado:</p>
+                      <p className="text-xs text-blue-800 italic">{result.thumbnailPrompt}</p>
                     </div>
                   )}
                 </div>
-                {result.coverImage && (
-                  <div className="mt-4">
-                    <img 
-                      src={result.coverImage} 
-                      alt="Cover" 
-                      className="w-full max-w-md rounded-lg border border-grey-300"
-                    />
-                  </div>
-                )}
-                <div className="mt-4 p-4 bg-white rounded border border-grey-300">
-                  <p className="text-xs text-grey-600 mb-2"><strong>Preview:</strong></p>
-                  <pre className="text-xs overflow-x-auto whitespace-pre-wrap">{result.preview}</pre>
+              )}
+
+              <div>
+                <p className="text-sm font-medium text-grey-700 mb-2">Preview do Conteúdo</p>
+                <div className="bg-white border border-grey-300 rounded-lg p-4 max-h-96 overflow-y-auto">
+                  <pre className="text-xs whitespace-pre-wrap font-mono text-grey-800">
+                    {result.preview}
+                  </pre>
                 </div>
               </div>
-            )}
 
-            {/* Error */}
-            {error && (
-              <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-800 font-medium">❌ Erro: {error}</p>
+              <div className="pt-4 border-t border-green-200">
+                <button
+                  onClick={resetForm}
+                  className="w-full inline-flex items-center justify-center px-6 py-3 border border-green-600 text-base font-medium rounded-lg text-green-700 bg-white hover:bg-green-50 transition-colors"
+                >
+                  Gerar Novo Post
+                </button>
               </div>
-            )}
+            </div>
           </div>
+        )}
 
-          {/* Instruções */}
-          <div className="mt-8 p-6 bg-grey-50 rounded-lg border border-grey-200">
-            <h3 className="font-bold text-grey-900 mb-3">📝 Como usar:</h3>
-            <ol className="text-sm text-grey-700 space-y-2 list-decimal list-inside">
-              <li>Digite o tema do post que deseja gerar</li>
-              <li>Escolha a categoria apropriada</li>
-              <li>Adicione keywords relevantes (opcional)</li>
-              <li>Clique em &quot;Gerar Post&quot;</li>
-              <li>Aguarde ~30 segundos (IA está escrevendo)</li>
-              <li>Post salvo em <code>src/content/posts/drafts/</code></li>
-              <li>Revise e mova para <code>src/content/posts/</code> se aprovar</li>
-            </ol>
+        {/* Error */}
+        {error && (
+          <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-6">
+            <div className="flex items-start">
+              <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">
+                  Erro ao Gerar Post
+                </h3>
+                <p className="mt-2 text-sm text-red-700">
+                  {error}
+                </p>
+                <button
+                  onClick={() => setError(null)}
+                  className="mt-3 text-sm font-medium text-red-600 hover:text-red-500"
+                >
+                  Tentar novamente
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Info Card */}
+        {!result && !error && !loading && (
+          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 className="text-sm font-medium text-blue-900 mb-3">
+              💡 Como funciona
+            </h3>
+            <ul className="space-y-2 text-sm text-blue-800">
+              <li className="flex items-start">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 mr-2 flex-shrink-0" />
+                <span>Escolha entre criar um post original ou adaptar um artigo existente</span>
+              </li>
+              <li className="flex items-start">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 mr-2 flex-shrink-0" />
+                <span>A IA usa o perfil de voz de Ricardo Esper para cada categoria</span>
+              </li>
+              <li className="flex items-start">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 mr-2 flex-shrink-0" />
+                <span>Posts são salvos automaticamente em <code className="bg-blue-100 px-1.5 py-0.5 rounded text-xs">src/content/posts/drafts/</code></span>
+              </li>
+              <li className="flex items-start">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 mr-2 flex-shrink-0" />
+                <span>Revise o conteúdo antes de publicar movendo para <code className="bg-blue-100 px-1.5 py-0.5 rounded text-xs">src/content/posts/</code></span>
+              </li>
+            </ul>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );
