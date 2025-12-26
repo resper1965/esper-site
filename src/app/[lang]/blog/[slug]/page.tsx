@@ -23,6 +23,7 @@ interface PageProps {
 }
 
 import { formatDate } from "@/lib/utils";
+import { getAuthor } from "@/lib/authors";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang, slug } = await params;
@@ -159,7 +160,7 @@ export default async function BlogPost({ params }: PageProps) {
             </time>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium tracking-tighter text-balance">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-medium tracking-tight text-balance">
             {post.frontMatter.title}
           </h1>
 
@@ -174,7 +175,7 @@ export default async function BlogPost({ params }: PageProps) {
         <div className="absolute max-w-7xl mx-auto left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] lg:w-full h-full border-x border-border p-0 pointer-events-none" />
         <main className="w-full p-0 overflow-hidden">
           <div className="p-4 sm:p-6 lg:p-8">
-            <div className="prose prose-sm sm:prose-base md:prose-lg dark:prose-invert max-w-none prose-headings:scroll-mt-8 prose-headings:font-semibold prose-a:no-underline prose-headings:tracking-tight prose-headings:text-balance prose-p:tracking-tight prose-p:text-balance prose-headings:text-2xl sm:prose-headings:text-3xl md:prose-headings:text-4xl prose-h2:text-xl sm:prose-h2:text-2xl md:prose-h2:text-3xl prose-h3:text-lg sm:prose-h3:text-xl md:prose-h3:text-2xl prose-p:text-sm sm:prose-p:text-base md:prose-p:text-lg prose-p:leading-relaxed prose-li:text-sm sm:prose-li:text-base md:prose-li:text-lg">
+            <div className="prose prose-sm sm:prose-base md:prose-lg dark:prose-invert max-w-none prose-headings:scroll-mt-8 prose-headings:font-semibold prose-a:no-underline prose-headings:tracking-tight prose-headings:text-balance prose-p:tracking-tight prose-p:text-balance prose-h1:hidden prose-headings:text-xl sm:prose-headings:text-2xl md:prose-headings:text-3xl prose-h2:text-lg sm:prose-h2:text-xl md:prose-h2:text-2xl prose-h3:text-base sm:prose-h3:text-lg md:prose-h3:text-xl prose-p:text-sm sm:prose-p:text-base md:prose-p:text-lg prose-p:leading-relaxed prose-li:text-sm sm:prose-li:text-base md:prose-li:text-lg">
               <div dangerouslySetInnerHTML={{ __html: post.htmlContent }} />
             </div>
           </div>
@@ -186,9 +187,39 @@ export default async function BlogPost({ params }: PageProps) {
           </div>
         </main>
 
-        <aside className="hidden lg:block w-64 flex-shrink-0 p-6 lg:p-10 bg-muted/30 dark:bg-muted/10">
-          <div className="sticky top-20">
-            <div className="border border-border rounded-lg p-4 bg-card">
+        <aside className="hidden lg:block w-[350px] flex-shrink-0 p-6 lg:p-10 bg-muted/60 dark:bg-muted/20">
+          <div className="sticky top-20 space-y-8">
+            {/* Author Bio - Always show Ricardo Esper */}
+            <div className="border border-border rounded-lg p-6 bg-card">
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="relative w-24 h-24 rounded-full overflow-hidden bg-muted">
+                  {getAuthor('ricardo').avatar ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={getAuthor('ricardo').avatar}
+                      alt={getAuthor('ricardo').name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-muted-foreground">
+                      RE
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground mb-1">
+                    {getAuthor('ricardo').name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {getAuthor('ricardo').position}
+                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Mais de três décadas de experiência em cibersegurança, CISO da IONIC Health e fundador da NESS. Especialista em privacidade e compliance (LGPD/GDPR).
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="border border-border rounded-lg p-6 bg-card">
               <TableOfContents />
             </div>
           </div>
