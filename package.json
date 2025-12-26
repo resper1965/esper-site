@@ -17,6 +17,7 @@
     "db:migrate": "tsx src/lib/db/migrate.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "migrate:content": "tsx scripts/migrate-content-to-supabase.ts",
     "prepare": "husky"
   },
   "dependencies": {
