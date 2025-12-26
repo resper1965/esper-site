@@ -46,5 +46,16 @@
     "backHome": "Voltar para o início",
     "viewBlog": "Ver todos os artigos",
     "suggestedPosts": "Artigos que podem interessar:"
+  },
+  "services": {
+    "title": "Serviços",
+    "experience": "34 anos de experiência",
+    "subtitle": "Transformo complexidade em vantagem competitiva. Expertise em segurança, compliance e proteção executiva para organizações que não podem falhar.",
+    "ctaTitle": "Vamos Conversar?",
+    "ctaDescription": "Cada organização tem desafios únicos. Agende uma conversa inicial para entendermos suas necessidades e explorarmos como posso contribuir.",
+    "scheduleMeeting": "Agendar Reunião",
+    "whatsapp": "WhatsApp Direto",
+    "preferLinkedIn": "Prefere LinkedIn?",
+    "connectLinkedIn": "Conecte-se comigo"
   }
 }
