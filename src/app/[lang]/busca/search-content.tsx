@@ -63,7 +63,7 @@ export default function SearchContent({ lang }: SearchContentProps) {
     <PageBackground>
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-foreground mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-6 sm:mb-8">
             {currentLang === 'pt-br' ? 'Buscar Posts' : 'Search Posts'}
           </h1>
 
@@ -135,7 +135,7 @@ export default function SearchContent({ lang }: SearchContentProps) {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <p className="text-grey-600 text-lg">
+                  <p className="text-grey-600 text-sm sm:text-base md:text-lg">
                     {currentLang === 'pt-br' 
                       ? 'Nenhum resultado encontrado' 
                       : 'No results found'}

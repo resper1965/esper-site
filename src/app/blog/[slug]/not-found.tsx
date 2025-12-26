@@ -7,10 +7,10 @@ export default function NotFound() {
       <div className="bg-white">
         <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-grey-900 sm:text-5xl">
+            <h1 className="text-3xl font-bold text-grey-900 sm:text-4xl md:text-5xl">
               Post não encontrado
             </h1>
-            <p className="mt-4 text-lg text-grey-600">
+            <p className="mt-4 text-base sm:text-lg text-grey-600">
               O post que você está procurando não existe ou foi removido.
             </p>
             <div className="mt-8">

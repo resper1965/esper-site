@@ -160,12 +160,12 @@ export default async function BlogPost({ params }: PageProps) {
             </time>
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-medium tracking-tighter text-balance">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium tracking-tighter text-balance">
             {post.frontMatter.title}
           </h1>
 
           {post.frontMatter.description && (
-            <p className="text-muted-foreground max-w-4xl md:text-lg md:text-balance">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-4xl md:text-balance">
               {post.frontMatter.description}
             </p>
           )}
@@ -191,8 +191,8 @@ export default async function BlogPost({ params }: PageProps) {
               />
             </div>
           )}
-          <div className="p-6 lg:p-10">
-            <div className="prose dark:prose-invert max-w-none prose-headings:scroll-mt-8 prose-headings:font-semibold prose-a:no-underline prose-headings:tracking-tight prose-headings:text-balance prose-p:tracking-tight prose-p:text-balance prose-lg">
+          <div className="p-4 sm:p-6 lg:p-8">
+            <div className="prose prose-sm sm:prose-base md:prose-lg dark:prose-invert max-w-none prose-headings:scroll-mt-8 prose-headings:font-semibold prose-a:no-underline prose-headings:tracking-tight prose-headings:text-balance prose-p:tracking-tight prose-p:text-balance prose-headings:text-2xl sm:prose-headings:text-3xl md:prose-headings:text-4xl prose-h2:text-xl sm:prose-h2:text-2xl md:prose-h2:text-3xl prose-h3:text-lg sm:prose-h3:text-xl md:prose-h3:text-2xl prose-p:text-sm sm:prose-p:text-base md:prose-p:text-lg prose-p:leading-relaxed prose-li:text-sm sm:prose-li:text-base md:prose-li:text-lg">
               <div dangerouslySetInnerHTML={{ __html: post.htmlContent }} />
             </div>
           </div>

@@ -54,8 +54,8 @@ export default async function BlogListPage({
       <SiteNav lang={lang} dict={dict} />
       <main className="min-h-screen">
         <div className="container mx-auto px-4 py-16">
-          <h1 className="text-4xl font-bold mb-8">Blog</h1>
-          <p className="text-lg text-muted-foreground mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8">Blog</h1>
+          <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8">
             {lang === 'pt-BR' 
               ? 'Artigos sobre cibersegurança, contraespionagem e tecnologia.'
               : 'Articles about cybersecurity, counterespionage and technology.'}

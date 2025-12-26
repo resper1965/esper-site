@@ -63,12 +63,12 @@ export default async function Sobre({
     <PageBackground>
       <div className="bg-transparent">
         <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="prose prose-lg max-w-none dark:prose-invert">
-            <h1 className="text-4xl font-bold text-grey-900 dark:text-grey-50 sm:text-5xl">
+          <div className="prose prose-sm sm:prose-base md:prose-lg max-w-none dark:prose-invert">
+            <h1 className="text-3xl font-bold text-grey-900 dark:text-grey-50 sm:text-4xl md:text-5xl">
               {dict.about.title}
             </h1>
 
-            <div className="mt-8 space-y-6 text-lg leading-relaxed text-grey-700 dark:text-grey-300">
+            <div className="mt-6 sm:mt-8 space-y-4 sm:space-y-6 text-base sm:text-lg leading-relaxed text-grey-700 dark:text-grey-300">
               <p>{dict.about.intro1}</p>
               <p>{dict.about.intro2}</p>
               <p>{dict.about.intro3}</p>

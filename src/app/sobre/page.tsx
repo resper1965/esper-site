@@ -5,12 +5,12 @@ export default function Sobre() {
     <Layout>
       <div className="bg-background">
         <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="prose prose-lg max-w-none dark:prose-invert">
-            <h1 className="text-4xl font-bold text-foreground sm:text-5xl">
+          <div className="prose prose-sm sm:prose-base md:prose-lg max-w-none dark:prose-invert">
+            <h1 className="text-3xl font-bold text-foreground sm:text-4xl md:text-5xl">
               Sobre
             </h1>
 
-            <div className="mt-8 space-y-6 text-lg leading-relaxed text-muted-foreground">
+            <div className="mt-6 sm:mt-8 space-y-4 sm:space-y-6 text-base sm:text-lg leading-relaxed text-muted-foreground">
               <p>
                 Em mais de três décadas dedicadas à segurança da informação, testemunhei a transformação
                 completa do cenário de ameaças digitais—desde os primeiros vírus de boot até campanhas de

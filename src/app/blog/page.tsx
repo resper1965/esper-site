@@ -22,10 +22,10 @@ export default async function BlogPage() {
       <div className="bg-background">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="mb-12">
-            <h1 className="text-4xl font-bold text-foreground sm:text-5xl">
+            <h1 className="text-3xl font-bold text-foreground sm:text-4xl md:text-5xl">
               Blog
             </h1>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-base sm:text-lg text-muted-foreground">
               Artigos sobre cibersegurança, contraespionagem e tecnologia.
             </p>
           </div>

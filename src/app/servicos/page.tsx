@@ -109,10 +109,10 @@ export default function Servicos() {
                 <Sparkles className="w-4 h-4" />
                 34 anos de experiência
               </div>
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl bg-gradient-to-br from-foreground via-foreground to-muted-foreground bg-clip-text">
+              <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl bg-gradient-to-br from-foreground via-foreground to-muted-foreground bg-clip-text">
                 Serviços
               </h1>
-              <p className="mt-6 text-lg text-muted-foreground max-w-3xl mx-auto">
+              <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-3xl mx-auto">
                 Transformo complexidade em vantagem competitiva. Expertise em segurança, 
                 compliance e proteção executiva para organizações que não podem falhar.
               </p>

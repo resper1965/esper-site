@@ -45,10 +45,10 @@ export default async function NotFound({ params }: NotFoundProps) {
       <div className="max-w-4xl w-full text-center">
         <div className="mb-8">
           <h1 className="text-6xl md:text-8xl font-bold text-primary mb-4">404</h1>
-          <h2 className="text-2xl md:text-3xl font-semibold mb-4">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-4">
             {dict.notFound?.title || 'Página não encontrada'}
           </h2>
-          <p className="text-muted-foreground text-lg mb-8">
+          <p className="text-muted-foreground text-base sm:text-lg mb-6 sm:mb-8">
             {dict.notFound?.description || 'A página que você está procurando não foi encontrada ou foi movida.'}
           </p>
         </div>
