@@ -31,8 +31,23 @@ export interface Post {
 }
 
 async function processMarkdown(content: string): Promise<string> {
-  const processedContent = await remark().use(remarkHtml).process(content);
-  return processedContent.toString();
+  try {
+    if (!content || typeof content !== 'string' || content.trim().length === 0) {
+      throw new Error('Content is empty or invalid');
+    }
+
+    const processedContent = await remark().use(remarkHtml).process(content);
+    const htmlString = String(processedContent);
+    
+    if (!htmlString || htmlString.trim().length === 0) {
+      throw new Error('Processed content is empty');
+    }
+    
+    return htmlString;
+  } catch (error) {
+    console.error('Error in processMarkdown:', error);
+    throw error;
+  }
 }
 
 /**
@@ -117,11 +132,23 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     // Processar markdown para HTML
     let htmlContent: string;
     try {
+      // Validar que o conteúdo não está vazio
+      if (!dbPost.content || dbPost.content.trim().length === 0) {
+        console.error('Post content is empty:', slug);
+        return null;
+      }
+
       htmlContent = await processMarkdown(dbPost.content);
+      
+      // Validar que o HTML foi gerado corretamente
+      if (!htmlContent || typeof htmlContent !== 'string' || htmlContent.trim().length === 0) {
+        console.error('Generated HTML content is invalid:', slug);
+        return null;
+      }
     } catch (markdownError) {
       console.error('Error processing markdown for post:', slug, markdownError);
-      // Se falhar, usar o conteúdo original como fallback
-      htmlContent = dbPost.content;
+      // Não usar fallback - retornar null para evitar erros
+      return null;
     }
 
     return {

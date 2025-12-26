@@ -44,20 +44,46 @@ export default async function BlogPost({ params }: PageProps) {
     post = await getPostBySlug(slug);
   } catch (error) {
     console.error('Error fetching post:', error);
+    // Log detalhado para debug
+    if (error instanceof Error) {
+      console.error('Error details:', error.message, error.stack);
+    }
     notFound();
   }
 
   if (!post) {
+    console.error('Post not found:', slug);
     notFound();
   }
 
   // Validar que o post tem conteúdo HTML válido
-  if (!post.htmlContent || typeof post.htmlContent !== 'string') {
-    console.error('Post has invalid htmlContent:', slug);
+  if (!post.htmlContent || typeof post.htmlContent !== 'string' || post.htmlContent.trim().length === 0) {
+    console.error('Post has invalid htmlContent:', slug, {
+      hasHtmlContent: !!post.htmlContent,
+      type: typeof post.htmlContent,
+      length: post.htmlContent?.length
+    });
     notFound();
   }
 
-  const date = new Date(post.frontMatter.date);
+  // Validar frontMatter
+  if (!post.frontMatter || !post.frontMatter.title || !post.frontMatter.date) {
+    console.error('Post has invalid frontMatter:', slug);
+    notFound();
+  }
+
+  // Validar e formatar data
+  let date: Date;
+  try {
+    date = new Date(post.frontMatter.date);
+    if (isNaN(date.getTime())) {
+      console.error('Invalid date for post:', slug, post.frontMatter.date);
+      date = new Date(); // Fallback para data atual
+    }
+  } catch (error) {
+    console.error('Error parsing date:', error);
+    date = new Date(); // Fallback para data atual
+  }
   const formattedDate = formatDate(date);
 
   // Structured Data (JSON-LD) for SEO

@@ -127,7 +127,7 @@ export default async function HomePage({
             variant: "default",
           },
         ]}
-        className="mb-8"
+        className="mb-4 sm:mb-6 md:mb-8"
       />
 
       <div id="posts" className="max-w-7xl mx-auto w-full px-6 lg:px-0">
