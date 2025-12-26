@@ -5,6 +5,12 @@
  * Supports automatic fallbacks, rate limiting, and cost monitoring.
  * 
  * Documentation: https://vercel.com/docs/ai-gateway
+ * 
+ * O AI SDK detecta automaticamente o AI Gateway quando:
+ * - A variável de ambiente VERCEL_AI_GATEWAY_API_KEY está configurada, OU
+ * - O baseURL 'https://ai-gateway.vercel.sh/v1' é especificado
+ * 
+ * O seletor de modelos permite usar diretamente: 'provider/model' (ex: 'openai/gpt-4.1')
  */
 
 import { generateText } from 'ai';
@@ -41,6 +47,12 @@ export interface GenerateTextResult {
 
 /**
  * Get AI Gateway API key from settings or environment
+ * 
+ * Ordem de prioridade:
+ * 1. Supabase settings (configurado via /admin/settings)
+ * 2. Variável de ambiente AI_GATEWAY_API_KEY
+ * 
+ * Formato da chave: vck_... (Vercel AI Gateway API Key)
  */
 async function getApiKey(): Promise<string> {
   // Primeiro tenta buscar do Supabase (configurado via admin)
@@ -87,6 +99,23 @@ export async function generateTextWithAI(
 
   let lastError: Error | null = null;
 
+  // Get API key from settings (Supabase) or environment
+  const apiKey = await getApiKey();
+  
+  // AI Gateway: criar cliente OpenAI com baseURL do AI Gateway
+  // O AI Gateway aceita modelos no formato provider/model via OpenAI-compatible endpoint
+  // Base URL oficial: https://ai-gateway.vercel.sh/v1
+  // Documentação: https://vercel.com/docs/ai-gateway
+  // 
+  // O seletor de modelos permite usar diretamente: 'provider/model' (ex: 'openai/gpt-4.1')
+  // A chave API é passada via createOpenAI, e o baseURL indica que é AI Gateway
+  const openai = createOpenAI({
+    apiKey: apiKey,
+    baseURL: 'https://ai-gateway.vercel.sh/v1',
+  });
+
+  // Tentar cada modelo em sequência (fallback manual)
+  // O AI Gateway gerencia automaticamente a rota para o provider correto
   for (const currentModel of modelsToTry) {
     try {
       logger.info('Generating text with AI Gateway', {
@@ -94,21 +123,17 @@ export async function generateTextWithAI(
         promptLength: prompt.length,
       });
 
-      // Get API key from settings (Supabase) or environment
-      const apiKey = await getApiKey();
-      
-      // AI Gateway: usar OpenAI-compatible API
-      // O AI Gateway aceita modelos no formato provider/model via OpenAI-compatible endpoint
-      // Base URL oficial: https://ai-gateway.vercel.sh/v1
-      // Documentação: https://vercel.com/docs/ai-gateway
-      const openai = createOpenAI({
-        apiKey: apiKey,
-        baseURL: 'https://ai-gateway.vercel.sh/v1',
-      });
-      
-      // Gerar texto - AI Gateway aceita modelos no formato provider/model
+      // Seletor de modelo: usar diretamente 'provider/model' via openai()
+      // O AI Gateway aceita modelos no formato provider/model
+      // Exemplos:
+      //   - openai('google/gemini-2.5-pro')
+      //   - openai('openai/gpt-4.1')
+      //   - openai('anthropic/claude-sonnet-4')
+      // 
+      // A chave API é passada via createOpenAI, e o baseURL indica que é AI Gateway
+      // O AI Gateway roteia automaticamente para o provider correto
       const result = await generateText({
-        model: openai(currentModel), // Ex: 'google/gemini-2.5-pro'
+        model: openai(currentModel), // Seletor: 'provider/model'
         system: systemInstruction || 'You are a helpful assistant.',
         prompt: prompt,
         temperature,
