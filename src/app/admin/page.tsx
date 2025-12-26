@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import AdminLayout from '@/components/layout/AdminLayout';
+import { StatCard } from '@/components/admin/stat-card';
+import { QuickActionCard } from '@/components/admin/quick-action-card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sparkles, FileText, BarChart3, TrendingUp, Clock, CheckCircle, Loader2 } from 'lucide-react';
 
 interface Stats {
@@ -162,171 +164,101 @@ export default function AdminDashboard() {
   return (
     <AdminLayout>
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-5">
-          <div className="bg-slate-900 overflow-hidden shadow-sm rounded-lg border border-slate-800 p-4">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-slate-800">
-                  <FileText className="h-5 w-5 text-slate-300" />
-                </div>
-              </div>
-              <div className="ml-3 flex-1 min-w-0">
-                <p className="text-xs font-medium text-slate-400 truncate">
-                  Total de Posts
-                </p>
-                <p className="text-xl font-semibold text-slate-100 mt-0.5">
-                  {stats.totalPosts}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-slate-900 overflow-hidden shadow-sm rounded-lg border border-slate-800 p-4">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-slate-800">
-                  <CheckCircle className="h-5 w-5 text-slate-300" />
-                </div>
-              </div>
-              <div className="ml-3 flex-1 min-w-0">
-                <p className="text-xs font-medium text-slate-400 truncate">
-                  Publicados
-                </p>
-                <p className="text-xl font-semibold text-slate-100 mt-0.5">
-                  {stats.publishedPosts}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-slate-900 overflow-hidden shadow-sm rounded-lg border border-slate-800 p-4">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-slate-800">
-                  <Clock className="h-5 w-5 text-slate-300" />
-                </div>
-              </div>
-              <div className="ml-3 flex-1 min-w-0">
-                <p className="text-xs font-medium text-slate-400 truncate">
-                  Rascunhos
-                </p>
-                <p className="text-xl font-semibold text-slate-100 mt-0.5">
-                  {stats.draftPosts}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-slate-900 overflow-hidden shadow-sm rounded-lg border border-slate-800 p-4">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-slate-800">
-                  <TrendingUp className="h-5 w-5 text-slate-300" />
-                </div>
-              </div>
-              <div className="ml-3 flex-1 min-w-0">
-                <p className="text-xs font-medium text-slate-400 truncate">
-                  Score Médio
-                </p>
-                <div className="flex items-baseline mt-0.5">
-                  <p className="text-xl font-semibold text-slate-100">
-                    {stats.avgScore.toFixed(1)}
-                  </p>
-                  <span className="ml-1.5 text-xs text-slate-400">/10</span>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+        <StatCard
+          title="Total de Posts"
+          value={stats.totalPosts}
+          icon={<FileText className="h-5 w-5" />}
+        />
+        <StatCard
+          title="Publicados"
+          value={stats.publishedPosts}
+          icon={<CheckCircle className="h-5 w-5" />}
+        />
+        <StatCard
+          title="Rascunhos"
+          value={stats.draftPosts}
+          icon={<Clock className="h-5 w-5" />}
+        />
+        <StatCard
+          title="Score Médio"
+          value={`${stats.avgScore.toFixed(1)}/10`}
+          icon={<TrendingUp className="h-5 w-5" />}
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Quick Actions */}
         <div className="lg:col-span-2">
-          <div className="bg-slate-900 shadow-sm rounded-lg border border-slate-800 p-4">
-            <h2 className="text-base font-semibold text-slate-100 mb-3">
-              Ações Rápidas
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Link
-                href="/admin/generate"
-                className="group relative bg-slate-800 hover:bg-slate-800/80 border border-slate-700 hover:border-primary rounded-lg p-4 transition-all"
-              >
-                <div className="flex items-center mb-2">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary group-hover:bg-primary/90 transition-colors">
-                    <Sparkles className="h-4 w-4 text-white" />
-                  </div>
-                  <h3 className="ml-2.5 text-sm font-medium text-slate-100">
-                    Gerar Post
-                  </h3>
-                </div>
-                <p className="text-xs text-slate-400">
-                  Crie novo conteúdo usando IA generativa
-                </p>
-              </Link>
-
-              <Link
-                href="/admin/analytics"
-                className="group relative bg-slate-800 hover:bg-slate-800/80 border border-slate-700 hover:border-primary rounded-lg p-4 transition-all"
-              >
-                <div className="flex items-center mb-2">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary group-hover:bg-primary/90 transition-colors">
-                    <BarChart3 className="h-4 w-4 text-white" />
-                  </div>
-                  <h3 className="ml-2.5 text-sm font-medium text-slate-100">
-                    Analytics
-                  </h3>
-                </div>
-                <p className="text-xs text-slate-400">
-                  Veja estatísticas detalhadas dos posts
-                </p>
-              </Link>
-            </div>
-          </div>
+          <Card className="border-slate-800 bg-slate-900">
+            <CardHeader>
+              <CardTitle>Ações Rápidas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <QuickActionCard
+                  title="Gerar Post"
+                  description="Crie novo conteúdo usando IA generativa"
+                  icon={<Sparkles className="h-5 w-5" />}
+                  href="/admin/generate"
+                />
+                <QuickActionCard
+                  title="Analytics"
+                  description="Veja estatísticas detalhadas dos posts"
+                  icon={<BarChart3 className="h-5 w-5" />}
+                  href="/admin/analytics"
+                />
+              </div>
+            </CardContent>
+          </Card>
 
           {/* System Info */}
-          <div className="mt-4 bg-slate-900 shadow-sm rounded-lg border border-slate-800 p-4">
-            <h2 className="text-base font-semibold text-slate-100 mb-3">
-              Informações do Sistema
-            </h2>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between py-2 border-b border-slate-800">
-                <div className="flex items-center">
-                  <div className="w-1.5 h-1.5 bg-primary rounded-full mr-2.5"></div>
-                  <span className="text-xs text-slate-400">Status da IA</span>
+          <Card className="mt-4 border-slate-800 bg-slate-900">
+            <CardHeader>
+              <CardTitle className="text-base">Informações do Sistema</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between py-2 border-b border-slate-800">
+                  <div className="flex items-center">
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full mr-2.5"></div>
+                    <span className="text-xs text-slate-400">Status da IA</span>
+                  </div>
+                  <span className="text-xs font-medium text-slate-200">Operacional</span>
                 </div>
-                <span className="text-xs font-medium text-slate-200">Operacional</span>
+                <div className="flex items-center justify-between py-2 border-b border-slate-800">
+                  <span className="text-xs text-slate-400">Modelo de IA</span>
+                  <span className="text-xs font-medium text-slate-200">AI Gateway</span>
+                </div>
+                <div className="flex items-center justify-between py-2 border-b border-slate-800">
+                  <span className="text-xs text-slate-400">Idiomas</span>
+                  <span className="text-xs font-medium text-slate-200">PT-BR, EN</span>
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-xs text-slate-400">Categorias Ativas</span>
+                  <span className="text-xs font-medium text-slate-200">
+                    {Object.keys(stats.categoryCounts).length}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center justify-between py-2 border-b border-slate-800">
-                <span className="text-xs text-slate-400">Modelo de IA</span>
-                <span className="text-xs font-medium text-slate-200">AI Gateway</span>
-              </div>
-              <div className="flex items-center justify-between py-2 border-b border-slate-800">
-                <span className="text-xs text-slate-400">Idiomas</span>
-                <span className="text-xs font-medium text-slate-200">PT-BR, EN</span>
-              </div>
-              <div className="flex items-center justify-between py-2">
-                <span className="text-xs text-slate-400">Categorias Ativas</span>
-                <span className="text-xs font-medium text-slate-200">
-                  {Object.keys(stats.categoryCounts).length}
-                </span>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Category Breakdown */}
         <div className="lg:col-span-1">
-          <div className="bg-slate-900 shadow-sm rounded-lg border border-slate-800 p-4">
-            <h2 className="text-base font-semibold text-slate-100 mb-3">
-              Posts por Categoria
-            </h2>
-              <div className="space-y-2.5">
+          <Card className="border-slate-800 bg-slate-900">
+            <CardHeader>
+              <CardTitle className="text-base">Posts por Categoria</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
                 {Object.entries(stats.categoryCounts)
                   .sort(([, a], [, b]) => b - a)
                   .map(([category, count]) => {
                     const percentage = (count / stats.totalPosts) * 100;
                     return (
-                      <div key={category} className="space-y-1">
+                      <div key={category} className="space-y-1.5">
                         <div className="flex items-center justify-between text-xs">
                           <span className="flex items-center text-slate-300">
                             <span className="mr-1.5">{getCategoryEmoji(category)}</span>
@@ -344,17 +276,20 @@ export default function AdminDashboard() {
                     );
                   })}
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
           {/* Tips */}
-          <div className="mt-4 bg-slate-800 border border-slate-700 rounded-lg p-3">
-            <h3 className="text-xs font-medium text-slate-200 mb-1.5">
-              💡 Dica
-            </h3>
-            <p className="text-xs text-slate-400">
-              Posts gerados são salvos automaticamente. Revise antes de publicar para garantir qualidade máxima.
-            </p>
-          </div>
+          <Card className="mt-4 border-slate-700 bg-slate-800">
+            <CardContent className="p-4">
+              <h3 className="text-xs font-medium text-slate-200 mb-1.5">
+                💡 Dica
+              </h3>
+              <p className="text-xs text-slate-400">
+                Posts gerados são salvos automaticamente. Revise antes de publicar para garantir qualidade máxima.
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </AdminLayout>
