@@ -73,12 +73,12 @@ function getLocale(request: NextRequest): string {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Remove locale from admin routes
+  // Remove locale from admin routes - rewrite instead of redirect to avoid 404
   for (const locale of i18n.locales) {
     if (pathname.startsWith(`/${locale}/admin/`)) {
       const adminPath = pathname.replace(`/${locale}`, '');
       request.nextUrl.pathname = adminPath;
-      return NextResponse.redirect(request.nextUrl);
+      return NextResponse.rewrite(request.nextUrl);
     }
   }
 
