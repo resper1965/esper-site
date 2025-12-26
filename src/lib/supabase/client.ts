@@ -26,31 +26,26 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
 // Cliente para uso exclusivo no servidor (com cookies da requisição)
 // Lê cookies do request para manter sessão do usuário
 export function createServerSupabaseClient(cookies?: { get: (name: string) => { value: string } | undefined }) {
-  const serverKey = process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseKey;
+  // IMPORTANTE: Usar anon key, não service role key
+  // Service role bypassa RLS e não funciona com autenticação de usuário
+  const clientKey = supabaseKey;
   
-  const client = createClient<Database>(supabaseUrl, serverKey, {
+  const client = createClient<Database>(supabaseUrl, clientKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
+      detectSessionInUrl: false,
     },
   });
 
-  // Se cookies foram fornecidos, tentar ler a sessão
+  // Se cookies foram fornecidos, usar o token diretamente nas requisições
   if (cookies) {
     const accessToken = cookies.get('sb-access-token')?.value;
-    const refreshToken = cookies.get('sb-refresh-token')?.value;
     
     if (accessToken) {
-      // Definir o token de acesso manualmente
-      // Tipagem do Supabase requer any aqui
-      const sessionData = {
-        access_token: accessToken,
-        refresh_token: refreshToken || '',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any;
-      client.auth.setSession(sessionData).catch(() => {
-        // Ignorar erros ao definir sessão
-      });
+      // Configurar o header Authorization para todas as requisições
+      // Isso é mais confiável que setSession
+      client.rest.headers.set('Authorization', `Bearer ${accessToken}`);
     }
   }
   

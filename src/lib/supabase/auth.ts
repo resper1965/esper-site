@@ -21,14 +21,29 @@ export async function signIn(email: string, password: string) {
  * Logout do usuário atual
  */
 export async function signOut() {
-  const { error } = await supabase.auth.signOut();
+  try {
+    // Chamar API route para logout que remove cookies
+    const response = await fetch('/api/auth/logout', {
+      method: 'POST',
+    });
 
-  if (error) {
+    if (!response.ok) {
+      throw new Error('Erro ao fazer logout');
+    }
+
+    // Também fazer logout no cliente
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error('Logout error:', error);
+      return { error: error.message };
+    }
+
+    return { error: null };
+  } catch (error) {
     console.error('Logout error:', error);
-    return { error: error.message };
+    return { error: error instanceof Error ? error.message : 'Erro desconhecido' };
   }
-
-  return { error: null };
 }
 
 /**

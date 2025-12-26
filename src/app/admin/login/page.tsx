@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signIn } from '@/lib/supabase/auth';
 import { PageBackground } from '@/components/ui/page-background';
 
 export default function LoginPage() {
@@ -18,10 +17,19 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const { user, error: authError } = await signIn(email, password);
+      // Usar API route para login que salva cookies corretamente
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      if (authError || !user) {
-        throw new Error(authError || 'Erro ao fazer login');
+      const data = await response.json();
+
+      if (!response.ok || !data.authenticated) {
+        throw new Error(data.error || 'Erro ao fazer login');
       }
 
       // Redirecionar para o dashboard

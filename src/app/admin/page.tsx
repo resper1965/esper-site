@@ -22,7 +22,9 @@ export default function AdminDashboard() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/check');
+        const response = await fetch('/api/auth/check', {
+          credentials: 'include', // Importante: incluir cookies na requisição
+        });
         const data = await response.json();
 
         if (!data.authenticated) {
@@ -44,10 +46,15 @@ export default function AdminDashboard() {
 
   const loadStats = async () => {
     try {
-      const response = await fetch('/api/admin/stats');
+      const response = await fetch('/api/admin/stats', {
+        credentials: 'include', // Importante: incluir cookies na requisição
+      });
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch stats');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to fetch stats: ${response.status}`);
       }
+      
       const data = await response.json();
       setStats(data);
     } catch (error) {

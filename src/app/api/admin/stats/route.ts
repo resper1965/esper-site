@@ -15,7 +15,8 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
+    // getUser já usa o token do header Authorization configurado em createServerSupabaseClient
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
       logger.warn('Unauthorized access attempt to admin stats', { error: authError?.message });

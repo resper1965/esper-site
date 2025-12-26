@@ -1,25 +1,27 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { createServerSupabaseClient } from '@/lib/supabase/client';
+import { logger } from '@/lib/logger';
 
 export async function POST() {
   try {
     const cookieStore = await cookies();
+    const supabase = createServerSupabaseClient(cookieStore);
     
-    // Remove Supabase auth cookies
-    cookieStore.delete('sb-access-token');
-    cookieStore.delete('sb-refresh-token');
+    // Fazer logout no Supabase
+    await supabase.auth.signOut();
     
-    // Also remove any legacy admin cookie if it exists
-    cookieStore.delete('admin_logged_in');
-    
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Logout realizado com sucesso' 
-    });
+    // Remover cookies de autenticação
+    const response = NextResponse.json({ success: true });
+    response.cookies.delete('sb-access-token');
+    response.cookies.delete('sb-refresh-token');
+
+    logger.info('Logout successful');
+    return response;
   } catch (error) {
-    console.error('Erro no logout:', error);
+    logger.error('Error in logout', { error: error instanceof Error ? error.message : 'Unknown error' });
     return NextResponse.json(
-      { error: 'Erro ao processar logout' },
+      { error: 'Erro ao fazer logout' },
       { status: 500 }
     );
   }
