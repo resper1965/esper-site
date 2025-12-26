@@ -5,6 +5,7 @@ import { generatePageMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
 import { getLatestPosts, type Post } from "@/lib/posts";
 import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
+import { filterPostsByLanguage } from "@/lib/utils";
 
 interface NotFoundProps {
   params: Promise<{ lang: string }>;
@@ -33,11 +34,7 @@ export default async function NotFound({ params }: NotFoundProps) {
   let suggestedPosts: Post[] = [];
   try {
     const allPosts = await getLatestPosts(10);
-    const filteredByLanguage = allPosts.filter((post) => {
-      const postLang = (post.frontMatter.language || 'pt-BR').toLowerCase();
-      const normalizedLang = lang.toLowerCase();
-      return postLang === normalizedLang;
-    });
+    const filteredByLanguage = filterPostsByLanguage(allPosts, lang);
     suggestedPosts = filteredByLanguage.slice(0, 3);
   } catch (error) {
     console.error('Error getting suggested posts from Supabase:', error);

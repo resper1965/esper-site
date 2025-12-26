@@ -1,14 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { getAllPosts, type Post } from "@/lib/posts";
-
-const formatDate = (date: Date): string => {
-  return date.toLocaleDateString("pt-BR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
+import { formatDate, filterPostsByLanguage } from "@/lib/utils";
 
 interface ReadMoreSectionProps {
   currentSlug: string[];
@@ -31,16 +24,13 @@ export async function ReadMoreSection({
 
   const currentSlugString = currentSlug.join("/");
 
-  const otherPosts = allPosts
-    .filter((post) => post.slug !== currentSlugString)
-    .filter((post) => {
-      // Filter by language if specified
-      if (lang) {
-        const postLang = (post.frontMatter.language || 'pt-BR').toLowerCase();
-        return postLang === lang.toLowerCase();
-      }
-      return true;
-    })
+  // Filter out current post and by language
+  let filteredPosts = allPosts.filter((post) => post.slug !== currentSlugString);
+  if (lang) {
+    filteredPosts = filterPostsByLanguage(filteredPosts, lang);
+  }
+
+  const otherPosts = filteredPosts
     .map((post) => {
       const tagOverlap = currentTags.filter((tag) =>
         post.frontMatter.tags?.includes(tag)
@@ -71,7 +61,7 @@ export async function ReadMoreSection({
 
         <div className="flex flex-col gap-8">
           {otherPosts.map(({ post, date }) => {
-            const formattedDate = formatDate(date);
+            const formattedDate = formatDate(date, lang || 'pt-BR');
             const coverImage = post.frontMatter.coverImage;
             const description = post.frontMatter.description || post.frontMatter.excerpt || '';
             const postUrl = `/${lang}/blog/${post.slug}`;

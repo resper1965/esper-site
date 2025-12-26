@@ -7,14 +7,7 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { Hero } from "@/components/ui/hero";
 import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
 import { getAllPosts, type Post } from "@/lib/posts";
-
-const formatDate = (date: Date, locale: string): string => {
-  return date.toLocaleDateString(locale, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
+import { formatDate, filterPostsByLanguage } from "@/lib/utils";
 
 export default async function HomePage({
   params,
@@ -39,14 +32,8 @@ export default async function HomePage({
     allPosts = [];
   }
 
-  // Filter posts by language (normalize to handle case variations)
-  const filteredByLanguage = allPosts.filter((post) => {
-    const postLang = (post.frontMatter.language || 'pt-BR').toLowerCase();
-    const normalizedLang = lang.toLowerCase();
-    // Normalize both to lowercase for comparison
-    // Handle both 'pt-br' and 'pt-BR' variations - both should match 'pt-br'
-    return postLang === normalizedLang;
-  });
+  // Filter posts by language
+  const filteredByLanguage = filterPostsByLanguage(allPosts, lang);
 
   // Posts já vêm ordenados do Supabase (mais recente primeiro)
   const sortedBlogs = filteredByLanguage;

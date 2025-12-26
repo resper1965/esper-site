@@ -5,14 +5,7 @@ import { SiteNav } from "@/components/site-nav";
 import Footer from "@/components/footer";
 import { getAllPosts, type Post } from "@/lib/posts";
 import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
-
-const formatDate = (date: Date, locale: string): string => {
-  return date.toLocaleDateString(locale, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
+import { formatDate, filterPostsByLanguage } from "@/lib/utils";
 
 export default async function BlogListPage({
   params,
@@ -38,11 +31,7 @@ export default async function BlogListPage({
   }
 
   // Filter posts by language
-  const filteredByLanguage = allPosts.filter((post) => {
-    const postLang = (post.frontMatter.language || 'pt-BR').toLowerCase();
-    const normalizedLang = lang.toLowerCase();
-    return postLang === normalizedLang;
-  });
+  const filteredByLanguage = filterPostsByLanguage(allPosts, lang);
 
   // Posts já vêm ordenados do Supabase (mais recente primeiro)
   const sortedBlogs = filteredByLanguage;

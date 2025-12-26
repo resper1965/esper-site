@@ -22,13 +22,7 @@ interface PageProps {
   params: Promise<{ lang: Locale; slug: string }>;
 }
 
-const formatDate = (date: Date, locale: string): string => {
-  return date.toLocaleDateString(locale, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
+import { formatDate } from "@/lib/utils";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang, slug } = await params;

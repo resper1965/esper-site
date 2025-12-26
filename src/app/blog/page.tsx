@@ -3,7 +3,7 @@ import PostCard from '@/components/PostCard';
 import { getAllPosts } from '@/lib/posts';
 import Link from 'next/link';
 
-// Force dynamic rendering to avoid SQLite access during build
+// Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
 export default async function BlogPage() {

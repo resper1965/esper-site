@@ -1,5 +1,6 @@
 import { getAllPosts, type Post } from '@/lib/posts';
 import { siteConfig } from '@/lib/site';
+import { filterPostsByLanguage } from '@/lib/utils';
 
 /**
  * RSS Feed generator for blog posts
@@ -18,11 +19,7 @@ export async function GET(
   let posts: Post[] = [];
   try {
     const allPosts = await getAllPosts();
-    posts = allPosts.filter((post) => {
-      const postLang = (post.frontMatter.language || 'pt-BR').toLowerCase();
-      const normalizedLang = lang.toLowerCase();
-      return postLang === normalizedLang;
-    });
+    posts = filterPostsByLanguage(allPosts, lang);
   } catch (error) {
     console.error('Error fetching posts for RSS:', error);
     posts = [];

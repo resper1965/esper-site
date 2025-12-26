@@ -13,6 +13,8 @@ import { getAuthor, isValidAuthor } from "@/lib/authors";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 import { HashScrollHandler } from "@/components/hash-scroll-handler";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { formatDate } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -21,14 +23,6 @@ interface PageProps {
 // Force dynamic rendering to avoid build-time errors
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-
-const formatDate = (date: Date): string => {
-  return date.toLocaleDateString("pt-BR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
 
 export default async function BlogPost({ params }: PageProps) {
   const { slug } = await params;
@@ -42,22 +36,19 @@ export default async function BlogPost({ params }: PageProps) {
   try {
     post = await getPostBySlug(slug);
   } catch (error) {
-    console.error('Error fetching post:', error);
-    // Log detalhado para debug
-    if (error instanceof Error) {
-      console.error('Error details:', error.message, error.stack);
-    }
+    logger.error('Error fetching post', { slug, error: error instanceof Error ? error.message : 'Unknown error' });
     notFound();
   }
 
   if (!post) {
-    console.error('Post not found:', slug);
+    logger.warn('Post not found', { slug });
     notFound();
   }
 
   // Validar que o post tem conteúdo HTML válido
   if (!post.htmlContent || typeof post.htmlContent !== 'string' || post.htmlContent.trim().length === 0) {
-    console.error('Post has invalid htmlContent:', slug, {
+    logger.error('Post has invalid htmlContent', { 
+      slug,
       hasHtmlContent: !!post.htmlContent,
       type: typeof post.htmlContent,
       length: post.htmlContent?.length
@@ -67,7 +58,7 @@ export default async function BlogPost({ params }: PageProps) {
 
   // Validar frontMatter
   if (!post.frontMatter || !post.frontMatter.title || !post.frontMatter.date) {
-    console.error('Post has invalid frontMatter:', slug);
+    logger.error('Post has invalid frontMatter', { slug });
     notFound();
   }
 
@@ -76,14 +67,15 @@ export default async function BlogPost({ params }: PageProps) {
   try {
     date = new Date(post.frontMatter.date);
     if (isNaN(date.getTime())) {
-      console.error('Invalid date for post:', slug, post.frontMatter.date);
+      logger.warn('Invalid date for post, using current date', { slug, date: post.frontMatter.date });
       date = new Date(); // Fallback para data atual
     }
   } catch (error) {
-    console.error('Error parsing date:', error);
+    logger.warn('Error parsing date, using current date', { slug, error });
     date = new Date(); // Fallback para data atual
   }
-  const formattedDate = formatDate(date);
+  const postLang = post.frontMatter.language || 'pt-BR';
+  const formattedDate = formatDate(date, postLang);
 
   // Structured Data (JSON-LD) for SEO
   const jsonLd = {

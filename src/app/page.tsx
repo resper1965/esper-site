@@ -5,14 +5,7 @@ import { TagFilter } from "@/components/tag-filter";
 import { FlickeringGrid } from "@/components/magicui/flickering-grid";
 import { getAllPosts, type Post } from "@/lib/posts";
 import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
-
-const formatDate = (date: Date): string => {
-  return date.toLocaleDateString("pt-BR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-};
+import { formatDate } from "@/lib/utils";
 
 export default async function HomePage({
   searchParams,

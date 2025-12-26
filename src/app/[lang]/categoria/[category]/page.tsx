@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPostsByCategory, type Post } from "@/lib/posts";
 import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
+import { filterPostsByLanguage } from "@/lib/utils";
 
 const categoryMap: Record<string, { pt: string; en: string }> = {
   cybersecurity: { pt: 'Cibersegurança', en: 'Cybersecurity' },
@@ -63,11 +64,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   try {
     const allCategoryPosts = await getPostsByCategory(category);
     // Filter by language
-    categoryPosts = allCategoryPosts.filter((post) => {
-      const postLang = (post.frontMatter.language || 'pt-BR').toLowerCase();
-      const normalizedLang = lang.toLowerCase();
-      return postLang === normalizedLang;
-    });
+    categoryPosts = filterPostsByLanguage(allCategoryPosts, lang);
   } catch (error) {
     console.error('Error getting category posts from Supabase:', error);
     categoryPosts = [];
