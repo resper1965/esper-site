@@ -1,8 +1,7 @@
 import React from 'react';
 import { ImageResponse } from '@vercel/og';
 import { generateVisualDescriptionWithGemini } from './gemini-client';
-import fs from 'fs';
-import path from 'path';
+import { uploadPostImage } from '../supabase/storage';
 
 /**
  * Gera imagem de capa para post usando Vercel OG Image
@@ -41,24 +40,24 @@ export async function generatePostImageWithOG(
     // 3. Gerar imagem usando Vercel OG
     const ogImage = await generateOGImage(title, visualElements, category);
 
-    // 4. Salvar imagem localmente
-    const imagesDir = path.join(process.cwd(), 'public/images');
-    if (!fs.existsSync(imagesDir)) {
-      fs.mkdirSync(imagesDir, { recursive: true });
-    }
+    // 4. Fazer upload para Supabase Storage
+    const imageFilename = `${slug}-${Date.now()}.png`;
 
-    const imageFilename = `${slug}.png`;
-    const imagePath = path.join(imagesDir, imageFilename);
-
-    // Converter ImageResponse para buffer e salvar
+    // Converter ImageResponse para buffer
     const arrayBuffer = await ogImage.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    fs.writeFileSync(imagePath, buffer);
 
-    console.log('✅ Imagem OG gerada:', imagePath);
-    
-    // Retornar caminho relativo
-    return `/images/${imageFilename}`;
+    // Upload para Supabase Storage
+    const imageUrl = await uploadPostImage(buffer, imageFilename, 'image/png');
+
+    if (!imageUrl) {
+      throw new Error('Falha ao fazer upload da imagem para Supabase Storage');
+    }
+
+    console.log('✅ Imagem OG gerada e enviada para Supabase:', imageUrl);
+
+    // Retornar URL pública do Supabase
+    return imageUrl;
   } catch (error) {
     console.error('❌ Erro ao gerar imagem OG:', error);
     throw error;

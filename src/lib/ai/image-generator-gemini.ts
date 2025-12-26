@@ -1,6 +1,5 @@
 import { generatePostImageWithOG } from './image-generator-og.tsx';
 import { generateThemedAbstractImage } from './abstract-image-generator';
-import path from 'path';
 
 /**
  * Gera imagem de capa para post conectada ao tema
@@ -78,23 +77,20 @@ async function generateAbstractFallback(
   thumbnailPrompt: string
 ): Promise<string> {
   console.log('🎨 Usando fallback: imagem abstrata temática...');
-  const imagesDir = path.join(process.cwd(), 'public/images');
-  const imageFilename = `${slug}.png`;
-  const imagePath = path.join(imagesDir, imageFilename);
-  
+
   // Usar thumbnailPrompt ou criar descrição básica
   const description = thumbnailPrompt || `${title} ${category}`;
-  
-  await generateThemedAbstractImage(
+
+  // Gerar e fazer upload para Supabase
+  const imageUrl = await generateThemedAbstractImage(
     slug,
-    imagePath,
     description,
     title,
     category
   );
-  
+
   console.log('✅ Imagem abstrata gerada como fallback');
-  
-  return `/images/${imageFilename}`;
+
+  return imageUrl;
 }
 
