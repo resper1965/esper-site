@@ -19,6 +19,10 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+// Force dynamic rendering to avoid build-time errors
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const formatDate = (date: Date): string => {
   return date.toLocaleDateString("pt-BR", {
     year: "numeric",
@@ -35,9 +39,21 @@ export default async function BlogPost({ params }: PageProps) {
   }
 
   // Buscar post do banco de dados
-  const post = await getPostBySlug(slug);
+  let post;
+  try {
+    post = await getPostBySlug(slug);
+  } catch (error) {
+    console.error('Error fetching post:', error);
+    notFound();
+  }
 
   if (!post) {
+    notFound();
+  }
+
+  // Validar que o post tem conteúdo HTML válido
+  if (!post.htmlContent || typeof post.htmlContent !== 'string') {
+    console.error('Post has invalid htmlContent:', slug);
     notFound();
   }
 

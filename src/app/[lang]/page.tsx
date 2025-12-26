@@ -9,7 +9,6 @@ import { FadeIn } from "@/components/fade-in";
 import { getDictionary } from "@/i18n/dictionaries";
 import { Locale } from "@/i18n/config";
 import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
-import { HeroSection } from "@/components/ui/hero-section-dark";
 
 interface BlogData {
   title: string;
@@ -111,30 +110,20 @@ export default async function HomePage({
 
   return (
     <div className="min-h-screen bg-background">
-      <HeroSection
-        title={lang === 'pt-br' ? "Cibersegurança, Contraespionagem e Tecnologia" : "Cybersecurity, Counterespionage and Technology"}
-        subtitle={{
-          regular: lang === 'pt-br' ? "Insights práticos de quem vive " : "Practical insights from someone who lives ",
-          gradient: lang === 'pt-br' ? "segurança na prática" : "security in practice",
-        }}
-        description={
-          lang === 'pt-br'
-            ? "CEO da NESS, CISO da IONIC Health, e fundador da forense.io. Compartilho experiências reais sobre cibersegurança, TSCM, automação residencial e os desafios de proteger o que realmente importa."
-            : "CEO of NESS, CISO at IONIC Health, and founder of forense.io. Sharing real experiences about cybersecurity, TSCM, home automation, and the challenges of protecting what truly matters."
-        }
-        ctaText={lang === 'pt-br' ? "Explorar artigos" : "Browse articles"}
-        ctaHref="#posts"
-        bottomImage={undefined}
-        gridOptions={{
-          angle: 65,
-          opacity: 0.3,
-          cellSize: 50,
-          lightLineColor: "#4a4a4a",
-          darkLineColor: "#2a2a2a",
-        }}
-      />
+      <div className="max-w-7xl mx-auto w-full px-6 lg:px-0 pt-12 pb-8">
+        <div className="flex flex-col gap-2">
+          <h1 className="font-medium text-4xl md:text-5xl tracking-tighter">
+            {lang === 'pt-br' ? "Cibersegurança, Contraespionagem e Tecnologia" : "Cybersecurity, Counterespionage and Technology"}
+          </h1>
+          <p className="text-muted-foreground text-sm md:text-base lg:text-lg max-w-3xl">
+            {lang === 'pt-br'
+              ? "CEO da NESS, CISO da IONIC Health, e fundador da forense.io. Compartilho experiências reais sobre cibersegurança, TSCM, automação residencial e os desafios de proteger o que realmente importa."
+              : "CEO of NESS, CISO at IONIC Health, and founder of forense.io. Sharing real experiences about cybersecurity, TSCM, home automation, and the challenges of protecting what truly matters."}
+          </p>
+        </div>
+      </div>
 
-      <div id="posts" className="max-w-7xl mx-auto w-full px-6 lg:px-0 -mt-16">
+      <div id="posts" className="max-w-7xl mx-auto w-full px-6 lg:px-0">
         {allTags.length > 1 && (
           <div className="mb-8">
             <TagFilter

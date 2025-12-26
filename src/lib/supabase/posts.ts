@@ -99,11 +99,30 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
       .eq('slug', slug)
       .single();
 
-    if (error || !dbPost) {
+    if (error) {
+      console.error('Error fetching post from Supabase:', error);
       return null;
     }
 
-    const htmlContent = await processMarkdown(dbPost.content);
+    if (!dbPost) {
+      return null;
+    }
+
+    // Validar que o post tem conteúdo
+    if (!dbPost.content || typeof dbPost.content !== 'string') {
+      console.error('Post has invalid content:', slug);
+      return null;
+    }
+
+    // Processar markdown para HTML
+    let htmlContent: string;
+    try {
+      htmlContent = await processMarkdown(dbPost.content);
+    } catch (markdownError) {
+      console.error('Error processing markdown for post:', slug, markdownError);
+      // Se falhar, usar o conteúdo original como fallback
+      htmlContent = dbPost.content;
+    }
 
     return {
       frontMatter: dbPostToPost(dbPost),
@@ -111,7 +130,8 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
       htmlContent,
       slug: dbPost.slug,
     };
-  } catch {
+  } catch (error) {
+    console.error('Unexpected error in getPostBySlug:', error);
     return null;
   }
 }
