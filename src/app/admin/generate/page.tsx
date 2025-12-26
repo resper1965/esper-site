@@ -143,16 +143,6 @@ export default function GenerateDashboard() {
   return (
     <AdminLayout>
       <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-100 mb-1">
-            Gerador de Posts com IA
-          </h1>
-          <p className="text-slate-400 text-sm">
-            Crie conteúdo de alta qualidade usando IA generativa
-          </p>
-        </div>
-
         {/* Tabs */}
         <div className="mb-4">
           <div className="border-b border-slate-800">

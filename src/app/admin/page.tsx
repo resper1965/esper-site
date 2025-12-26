@@ -161,16 +161,6 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout>
-      {/* Header */}
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold text-slate-100 mb-1">
-          Dashboard
-        </h1>
-        <p className="text-slate-400 text-sm">
-          Visão geral do sistema de geração de conteúdo
-        </p>
-      </div>
-
       {/* Quick Stats */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-5">
           <div className="bg-slate-900 overflow-hidden shadow-sm rounded-lg border border-slate-800 p-4">

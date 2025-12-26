@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { 
-  Brain, 
   Key, 
   Settings, 
   Activity, 
@@ -163,17 +162,6 @@ export default function AIGatewayPage() {
   return (
     <AdminLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center mb-2">
-            <Brain className="h-8 w-8 text-grey-900 mr-3" />
-            <h1 className="text-3xl font-bold text-grey-900">AI Gateway</h1>
-          </div>
-          <p className="text-grey-600">
-            Gerencie e monitore o acesso aos modelos de IA através do Vercel AI Gateway
-          </p>
-        </div>
-
         {/* Message */}
         {message && (
           <div

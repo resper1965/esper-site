@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminLayout from '@/components/layout/AdminLayout';
-import { Settings, Key, Save, Eye, EyeOff, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Key, Save, Eye, EyeOff, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 interface EnvVariable {
   key: string;
@@ -187,17 +187,6 @@ export default function SettingsPage() {
   return (
     <AdminLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center mb-2">
-            <Settings className="h-8 w-8 text-grey-900 mr-3" />
-            <h1 className="text-3xl font-bold text-grey-900">Configurações</h1>
-          </div>
-          <p className="text-grey-600">
-            Gerencie variáveis de ambiente e configurações do sistema
-          </p>
-        </div>
-
         {/* Message */}
         {message && (
           <div

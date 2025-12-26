@@ -26,12 +26,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   const navItems = [
-    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/admin/generate', label: 'Gerar Conteúdo', icon: Sparkles },
-    { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-    { href: '/admin/ai-gateway', label: 'AI Gateway', icon: Key },
-    { href: '/admin/settings', label: 'Configurações', icon: Settings },
+    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, title: 'Dashboard', subtitle: 'Visão geral do sistema de geração de conteúdo' },
+    { href: '/admin/generate', label: 'Gerar Conteúdo', icon: Sparkles, title: 'Gerador de Posts com IA', subtitle: 'Crie conteúdo de alta qualidade usando IA generativa' },
+    { href: '/admin/analytics', label: 'Analytics', icon: BarChart3, title: 'Analytics', subtitle: 'Estatísticas detalhadas dos posts e performance' },
+    { href: '/admin/ai-gateway', label: 'AI Gateway', icon: Key, title: 'AI Gateway', subtitle: 'Gerencie e monitore o acesso aos modelos de IA através do Vercel AI Gateway' },
+    { href: '/admin/settings', label: 'Configurações', icon: Settings, title: 'Configurações', subtitle: 'Gerencie variáveis de ambiente e configurações do sistema' },
   ];
+
+  // Encontrar o item de navegação atual para obter título e subtítulo
+  const currentNavItem = navItems.find(item => {
+    if (item.href === '/admin') {
+      return pathname === '/admin';
+    }
+    return pathname?.startsWith(item.href);
+  });
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-950" suppressHydrationWarning>
@@ -44,7 +52,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         }
       `}</style>
 
-      <AdminHeader />
+      <AdminHeader 
+        title={currentNavItem?.title}
+        subtitle={currentNavItem?.subtitle}
+      />
 
       <div className="flex flex-1">
         {/* Sidebar */}

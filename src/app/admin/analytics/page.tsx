@@ -60,16 +60,6 @@ export default function AnalyticsDashboard() {
 
   return (
     <AdminLayout>
-      {/* Header */}
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold text-slate-100 mb-1">
-          Analytics
-        </h1>
-        <p className="text-slate-400 text-sm">
-          Estatísticas detalhadas dos posts e performance
-        </p>
-      </div>
-
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-5">
         <div className="bg-slate-900 rounded-lg border border-slate-800 shadow-sm p-4">
