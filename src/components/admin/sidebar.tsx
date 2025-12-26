@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { 
-  LayoutDashboard, 
   Sparkles, 
   BarChart3, 
   Settings, 
@@ -28,13 +27,6 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { 
-    href: '/admin', 
-    label: 'Dashboard', 
-    icon: LayoutDashboard, 
-    title: 'Dashboard', 
-    subtitle: 'Visão geral do sistema de geração de conteúdo' 
-  },
-  { 
     href: '/admin/generate', 
     label: 'Gerar Conteúdo', 
     icon: Sparkles, 
@@ -53,7 +45,7 @@ const navItems: NavItem[] = [
     label: 'AI Gateway', 
     icon: Key, 
     title: 'AI Gateway', 
-    subtitle: 'Gerencie e monitore o acesso aos modelos de IA através do Vercel AI Gateway' 
+    subtitle: 'Configure e gerencie o acesso aos modelos de IA via Vercel AI Gateway' 
   },
   { 
     href: '/admin/settings', 

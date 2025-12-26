@@ -5,17 +5,16 @@ import Link from 'next/link';
 import { Sidebar } from '@/components/admin/sidebar';
 import AdminHeader from './AdminHeader';
 import AdminFooter from './AdminFooter';
-import { LayoutDashboard, Sparkles, BarChart3, Settings } from 'lucide-react';
+import { Sparkles, BarChart3, Settings, Key } from 'lucide-react';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
 const navItems = [
-  { href: '/admin', title: 'Dashboard', subtitle: 'Visão geral do sistema de geração de conteúdo', icon: LayoutDashboard },
   { href: '/admin/generate', title: 'Gerar Conteúdo', subtitle: 'Crie conteúdo de alta qualidade usando IA generativa', icon: Sparkles },
   { href: '/admin/analytics', title: 'Analytics', subtitle: 'Estatísticas detalhadas dos posts e performance', icon: BarChart3 },
-  { href: '/admin/ai-gateway', title: 'AI Gateway', subtitle: 'Gerencie e monitore o acesso aos modelos de IA através do Vercel AI Gateway', icon: Settings },
+  { href: '/admin/ai-gateway', title: 'AI Gateway', subtitle: 'Configure e gerencie o acesso aos modelos de IA via Vercel AI Gateway', icon: Key },
   { href: '/admin/settings', title: 'Configurações', subtitle: 'Gerencie variáveis de ambiente e configurações do sistema', icon: Settings },
 ];
 
@@ -29,11 +28,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   // Encontrar o item de navegação atual para obter título e subtítulo
   const currentNavItem = navItems.find(item => {
-    if (item.href === '/admin') {
-      return pathname === '/admin';
-    }
     return pathname?.startsWith(item.href);
   });
+
+  // Se estiver na rota /admin, redirecionar para /admin/generate
+  if (pathname === '/admin') {
+    return null; // O redirect será feito pelo page.tsx
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-950" suppressHydrationWarning>
@@ -57,9 +58,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         {/* Mobile Navigation */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 z-50 shadow-lg">
           <nav className="flex justify-around safe-area-bottom">
-            {navItems.slice(0, 4).map((item) => {
+            {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href || (item.href !== '/admin' && pathname?.startsWith(item.href));
+              const isActive = pathname?.startsWith(item.href);
               return (
                 <Link
                   key={item.href}
