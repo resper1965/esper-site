@@ -39,13 +39,24 @@ export function createServerSupabaseClient(cookies?: { get: (name: string) => { 
   });
 
   // Se cookies foram fornecidos, usar o token diretamente nas requisições
+  // O Supabase client vai usar o token quando chamarmos getUser(accessToken)
+  // ou quando configurarmos a sessão
   if (cookies) {
     const accessToken = cookies.get('sb-access-token')?.value;
+    const refreshToken = cookies.get('sb-refresh-token')?.value;
     
     if (accessToken) {
-      // Configurar o header Authorization para todas as requisições
-      // Isso é mais confiável que setSession
-      client.rest.headers.set('Authorization', `Bearer ${accessToken}`);
+      // Tentar definir a sessão para que o cliente use o token automaticamente
+      const sessionData = {
+        access_token: accessToken,
+        refresh_token: refreshToken || '',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any;
+      
+      // setSession é assíncrono, mas não vamos esperar para não bloquear
+      client.auth.setSession(sessionData).catch(() => {
+        // Ignorar erros - o token será usado diretamente em getUser()
+      });
     }
   }
   
