@@ -25,7 +25,7 @@ export async function GET() {
     // Buscar todos os posts (incluindo drafts)
     const { data: posts, error: postsError } = await supabase
       .from('posts')
-      .select('published, tags, score');
+      .select('published, category, score');
 
     if (postsError) {
       logger.error('Error fetching posts for stats', { error: postsError.message });
