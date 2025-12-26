@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, BarChart3, LogOut, Sparkles } from 'lucide-react';
+import { getSession, signOut } from '@/lib/supabase/auth';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -12,6 +14,7 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   const navigation = [
     {
@@ -34,10 +37,39 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     },
   ];
 
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { session } = await getSession();
+
+      if (!session && pathname !== '/admin/login') {
+        router.push('/admin/login');
+      } else {
+        setIsAuthenticated(!!session);
+      }
+    };
+
+    checkAuth();
+  }, [pathname, router]);
+
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    await signOut();
     router.push('/admin/login');
   };
+
+  // Show loading state while checking auth
+  if (isAuthenticated === null && pathname !== '/admin/login') {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-grey-50">
+        <div className="text-grey-600">Verificando autenticação...</div>
+      </div>
+    );
+  }
+
+  // Don't show layout on login page
+  if (pathname === '/admin/login') {
+    return <>{children}</>;
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-grey-50" suppressHydrationWarning>
