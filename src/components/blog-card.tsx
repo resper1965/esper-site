@@ -46,14 +46,12 @@ export function BlogCard({
           "h-20 flex items-center justify-center",
           "bg-muted/10"
         )}>
-          {CategoryIcon && (
-            <CategoryIcon
-              className={cn(
-                "w-6 h-6",
-                categoryConfig?.color || "text-primary"
-              )}
-            />
-          )}
+          <CategoryIcon
+            className={cn(
+              "w-6 h-6",
+              categoryConfig?.color || "text-primary"
+            )}
+          />
         </div>
 
         <div className="p-6 flex flex-col gap-3 flex-1">
