@@ -105,198 +105,175 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-grey-900 mb-2">
-            Dashboard
-          </h1>
-          <p className="text-grey-600">
-            Visão geral do sistema de geração de conteúdo
-          </p>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-grey-900 mb-2">
+          Dashboard
+        </h1>
+        <p className="text-grey-600">
+          Visão geral do sistema de geração de conteúdo
+        </p>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+          <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-grey-200 p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-grey-100">
+                  <FileText className="h-6 w-6 text-grey-600" />
+                </div>
+              </div>
+              <div className="ml-5 flex-1 min-w-0">
+                <p className="text-sm font-medium text-grey-500 truncate">
+                  Total de Posts
+                </p>
+                <p className="text-2xl font-semibold text-grey-900 mt-1">
+                  {stats.totalPosts}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-grey-200 p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-grey-100">
+                  <CheckCircle className="h-6 w-6 text-grey-600" />
+                </div>
+              </div>
+              <div className="ml-5 flex-1 min-w-0">
+                <p className="text-sm font-medium text-grey-500 truncate">
+                  Publicados
+                </p>
+                <p className="text-2xl font-semibold text-grey-900 mt-1">
+                  {stats.publishedPosts}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-grey-200 p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-grey-100">
+                  <Clock className="h-6 w-6 text-grey-600" />
+                </div>
+              </div>
+              <div className="ml-5 flex-1 min-w-0">
+                <p className="text-sm font-medium text-grey-500 truncate">
+                  Rascunhos
+                </p>
+                <p className="text-2xl font-semibold text-grey-900 mt-1">
+                  {stats.draftPosts}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-grey-200 p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-grey-100">
+                  <TrendingUp className="h-6 w-6 text-grey-600" />
+                </div>
+              </div>
+              <div className="ml-5 flex-1 min-w-0">
+                <p className="text-sm font-medium text-grey-500 truncate">
+                  Score Médio
+                </p>
+                <div className="flex items-baseline mt-1">
+                  <p className="text-2xl font-semibold text-grey-900">
+                    {stats.avgScore.toFixed(1)}
+                  </p>
+                  <span className="ml-2 text-sm text-grey-500">/10</span>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Quick Actions */}
+        <div className="lg:col-span-2">
+          <div className="bg-white shadow-sm rounded-lg border border-grey-200 p-6">
+            <h2 className="text-lg font-semibold text-grey-900 mb-4">
+              Ações Rápidas
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Link
+                href="/admin/generate"
+                className="group relative bg-grey-50 hover:bg-grey-100 border border-grey-200 hover:border-grey-300 rounded-lg p-6 transition-all"
+              >
+                <div className="flex items-center mb-3">
+                  <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-grey-900 group-hover:bg-grey-800 transition-colors">
+                    <Sparkles className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="ml-3 text-base font-medium text-grey-900">
+                    Gerar Post
+                  </h3>
+                </div>
+                <p className="text-sm text-grey-600">
+                  Crie novo conteúdo usando IA generativa
+                </p>
+              </Link>
+
+              <Link
+                href="/admin/analytics"
+                className="group relative bg-grey-50 hover:bg-grey-100 border border-grey-200 hover:border-grey-300 rounded-lg p-6 transition-all"
+              >
+                <div className="flex items-center mb-3">
+                  <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-grey-900 group-hover:bg-grey-800 transition-colors">
+                    <BarChart3 className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="ml-3 text-base font-medium text-grey-900">
+                    Analytics
+                  </h3>
+                </div>
+                <p className="text-sm text-grey-600">
+                  Veja estatísticas detalhadas dos posts
+                </p>
+              </Link>
+            </div>
+          </div>
+
+          {/* System Info */}
+          <div className="mt-6 bg-white shadow-sm rounded-lg border border-grey-200 p-6">
+            <h2 className="text-lg font-semibold text-grey-900 mb-4">
+              Informações do Sistema
+            </h2>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-2.5 border-b border-grey-100">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-primary rounded-full mr-3"></div>
+                  <span className="text-sm text-grey-600">Status da IA</span>
+                </div>
+                <span className="text-sm font-medium text-grey-900">Operacional</span>
+              </div>
+              <div className="flex items-center justify-between py-2.5 border-b border-grey-100">
+                <span className="text-sm text-grey-600">Modelo de IA</span>
+                <span className="text-sm font-medium text-grey-900">AI Gateway</span>
+              </div>
+              <div className="flex items-center justify-between py-2.5 border-b border-grey-100">
+                <span className="text-sm text-grey-600">Idiomas</span>
+                <span className="text-sm font-medium text-grey-900">PT-BR, EN</span>
+              </div>
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-sm text-grey-600">Categorias Ativas</span>
+                <span className="text-sm font-medium text-grey-900">
+                  {Object.keys(stats.categoryCounts).length}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-          <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-grey-200">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-blue-100">
-                    <FileText className="h-6 w-6 text-blue-600" />
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-grey-500 truncate">
-                      Total de Posts
-                    </dt>
-                    <dd className="flex items-baseline">
-                      <div className="text-2xl font-semibold text-grey-900">
-                        {stats.totalPosts}
-                      </div>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-grey-200">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-green-100">
-                    <CheckCircle className="h-6 w-6 text-green-600" />
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-grey-500 truncate">
-                      Publicados
-                    </dt>
-                    <dd className="flex items-baseline">
-                      <div className="text-2xl font-semibold text-grey-900">
-                        {stats.publishedPosts}
-                      </div>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-grey-200">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-yellow-100">
-                    <Clock className="h-6 w-6 text-yellow-600" />
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-grey-500 truncate">
-                      Rascunhos
-                    </dt>
-                    <dd className="flex items-baseline">
-                      <div className="text-2xl font-semibold text-grey-900">
-                        {stats.draftPosts}
-                      </div>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-grey-200">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-purple-100">
-                    <TrendingUp className="h-6 w-6 text-purple-600" />
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-grey-500 truncate">
-                      Score Médio
-                    </dt>
-                    <dd className="flex items-baseline">
-                      <div className="text-2xl font-semibold text-grey-900">
-                        {stats.avgScore.toFixed(1)}
-                      </div>
-                      <div className="ml-2 text-sm text-grey-500">/10</div>
-                    </dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Quick Actions */}
-          <div className="lg:col-span-2">
-            <div className="bg-white shadow-sm rounded-lg border border-grey-200 p-6">
-              <h2 className="text-lg font-medium text-grey-900 mb-4">
-                Ações Rápidas
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Link
-                  href="/admin/generate"
-                  className="relative group bg-gradient-to-br from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100 border-2 border-purple-200 rounded-lg p-6 transition-all"
-                >
-                  <div className="flex items-center mb-3">
-                    <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-purple-600">
-                      <Sparkles className="h-5 w-5 text-white" />
-                    </div>
-                    <h3 className="ml-3 text-base font-medium text-grey-900">
-                      Gerar Post
-                    </h3>
-                  </div>
-                  <p className="text-sm text-grey-600">
-                    Crie novo conteúdo usando IA generativa
-                  </p>
-                </Link>
-
-                <Link
-                  href="/admin/analytics"
-                  className="relative group bg-gradient-to-br from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 border-2 border-blue-200 rounded-lg p-6 transition-all"
-                >
-                  <div className="flex items-center mb-3">
-                    <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-blue-600">
-                      <BarChart3 className="h-5 w-5 text-white" />
-                    </div>
-                    <h3 className="ml-3 text-base font-medium text-grey-900">
-                      Analytics
-                    </h3>
-                  </div>
-                  <p className="text-sm text-grey-600">
-                    Veja estatísticas detalhadas dos posts
-                  </p>
-                </Link>
-              </div>
-            </div>
-
-            {/* System Info */}
-            <div className="mt-8 bg-white shadow-sm rounded-lg border border-grey-200 p-6">
-              <h2 className="text-lg font-medium text-grey-900 mb-4">
-                Informações do Sistema
-              </h2>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between py-3 border-b border-grey-100">
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                    <span className="text-sm text-grey-600">Status da IA</span>
-                  </div>
-                  <span className="text-sm font-medium text-green-600">Operacional</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-grey-100">
-                  <span className="text-sm text-grey-600">Modelo de IA</span>
-                  <span className="text-sm font-medium text-grey-900">Gemini 2.5 Pro</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-grey-100">
-                  <span className="text-sm text-grey-600">Idiomas</span>
-                  <span className="text-sm font-medium text-grey-900">Português, English</span>
-                </div>
-                <div className="flex items-center justify-between py-3">
-                  <span className="text-sm text-grey-600">Categorias Ativas</span>
-                  <span className="text-sm font-medium text-grey-900">
-                    {Object.keys(stats.categoryCounts).length}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Category Breakdown */}
-          <div className="lg:col-span-1">
-            <div className="bg-white shadow-sm rounded-lg border border-grey-200 p-6">
-              <h2 className="text-lg font-medium text-grey-900 mb-4">
-                Posts por Categoria
-              </h2>
+        {/* Category Breakdown */}
+        <div className="lg:col-span-1">
+          <div className="bg-white shadow-sm rounded-lg border border-grey-200 p-6">
+            <h2 className="text-lg font-semibold text-grey-900 mb-4">
+              Posts por Categoria
+            </h2>
               <div className="space-y-3">
                 {Object.entries(stats.categoryCounts)
                   .sort(([, a], [, b]) => b - a)
@@ -323,16 +300,14 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Tips */}
-            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-5">
-              <h3 className="text-sm font-medium text-blue-900 mb-2">
-                💡 Dica
-              </h3>
-              <p className="text-sm text-blue-800">
-                Posts gerados são salvos em <code className="bg-blue-100 px-1.5 py-0.5 rounded text-xs">drafts/</code>.
-                Revise antes de publicar para garantir qualidade máxima.
-              </p>
-            </div>
+          {/* Tips */}
+          <div className="mt-6 bg-grey-50 border border-grey-200 rounded-lg p-4">
+            <h3 className="text-sm font-medium text-grey-900 mb-2">
+              💡 Dica
+            </h3>
+            <p className="text-sm text-grey-700">
+              Posts gerados são salvos automaticamente. Revise antes de publicar para garantir qualidade máxima.
+            </p>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { generateTextWithGemini } from './gemini-client';
+import { generateTextWithGemini } from './ai-gateway-client';
 
 const RICARDO_PROFILE = JSON.parse(
   fs.readFileSync(path.join(process.cwd(), 'src/lib/ai/ricardo-profile.json'), 'utf-8')

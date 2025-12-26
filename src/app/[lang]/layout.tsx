@@ -7,7 +7,8 @@ import { getDictionary } from '@/i18n/dictionaries';
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteNav } from "@/components/site-nav";
 import Footer from "@/components/footer";
-import { Analytics } from "@/components/analytics";
+import { Analytics as GoogleAnalytics } from "@/components/analytics";
+import { Analytics } from "@vercel/analytics/next";
 import { generatePageMetadata, generatePersonSchema, generateWebSiteSchema, generateOrganizationSchema } from "@/lib/metadata";
 import "../globals.css";
 
@@ -116,6 +117,7 @@ export default async function LangLayout({
           {dict.nav.skipToContent}
         </a>
 
+        <GoogleAnalytics />
         <Analytics />
 
         <ThemeProvider

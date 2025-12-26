@@ -1,6 +1,6 @@
 import React from 'react';
 import { ImageResponse } from '@vercel/og';
-import { generateVisualDescriptionWithGemini } from './gemini-client';
+import { generateVisualDescriptionWithAI } from './ai-gateway-client';
 import { uploadPostImage } from '../supabase/storage';
 
 /**
@@ -21,7 +21,7 @@ export async function generatePostImageWithOG(
     // 1. Usar Gemini para criar descrição visual baseada em slug e keywords
     let visualDescription: string;
     try {
-      visualDescription = await generateVisualDescriptionWithGemini(
+      visualDescription = await generateVisualDescriptionWithAI(
         slug,
         title,
         keywords,

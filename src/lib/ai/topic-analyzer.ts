@@ -1,4 +1,4 @@
-import { generateTextWithGemini } from './gemini-client';
+import { generateTextWithGemini } from './ai-gateway-client';
 
 interface Source {
   title: string;

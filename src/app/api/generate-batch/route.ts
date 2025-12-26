@@ -159,7 +159,7 @@ export async function POST(request: Request) {
 
 // Expanded topic analysis with more suggestions
 async function analyzeTopicsExpanded(sources: { title: string; url: string; summary: string; source: string }[], count: number) {
-  const { generateTextWithGemini } = await import('@/lib/ai/gemini-client');
+  const { generateTextWithGemini } = await import('@/lib/ai/ai-gateway-client');
 
   const prompt = `
 Analise as seguintes notícias e gere ${count} tópicos ÚNICOS para posts de blog.

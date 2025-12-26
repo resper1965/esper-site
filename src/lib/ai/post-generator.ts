@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { generatePostImage } from './image-generator-gemini';
-import { generateTextWithGemini } from './gemini-client';
+import { generateTextWithGemini } from './ai-gateway-client';
 import matter from 'gray-matter';
 import { supabase } from '../supabase/client';
 import type { Database } from '../supabase/database.types';
