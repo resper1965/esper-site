@@ -2,10 +2,10 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Home, LogOut } from 'lucide-react';
+import { Home, LogOut, LayoutDashboard, Sparkles, BarChart3, Settings, Key } from 'lucide-react';
 import { signOut } from '@/lib/supabase/auth';
-import Header from './Header';
-import Footer from './Footer';
+import AdminHeader from './AdminHeader';
+import AdminFooter from './AdminFooter';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -25,8 +25,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return <>{children}</>;
   }
 
+  const navItems = [
+    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/admin/generate', label: 'Gerar Conteúdo', icon: Sparkles },
+    { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+    { href: '/admin/ai-gateway', label: 'AI Gateway', icon: Key },
+    { href: '/admin/settings', label: 'Configurações', icon: Settings },
+  ];
+
   return (
-    <div className="flex min-h-screen flex-col bg-slate-950 dark" suppressHydrationWarning>
+    <div className="flex min-h-screen flex-col bg-slate-950" suppressHydrationWarning>
       <style jsx global>{`
         html {
           color-scheme: dark;
@@ -36,29 +44,54 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         }
       `}</style>
 
-      <Header />
+      <AdminHeader />
 
       <div className="flex flex-1">
-        {/* Sidebar - Simplificado */}
+        {/* Sidebar */}
         <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:border-r lg:border-slate-800 lg:bg-slate-900">
           <div className="flex-1 overflow-y-auto">
             <div className="px-3 py-4">
-              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                Menu
+              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                Navegação
               </h2>
               <nav className="space-y-1">
-                <Link
-                  href="/"
-                  className="group flex items-center px-2.5 py-2 text-sm font-medium rounded-lg transition-all text-slate-300 hover:bg-slate-800 hover:text-slate-100"
-                >
-                  <Home className="mr-2.5 h-4 w-4 flex-shrink-0 transition-colors text-slate-400 group-hover:text-slate-200" />
-                  Voltar para o Site
-                </Link>
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href || (item.href !== '/admin' && pathname?.startsWith(item.href));
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`
+                        group flex items-center px-2.5 py-2 text-sm font-medium rounded-lg transition-all
+                        ${
+                          isActive
+                            ? 'bg-primary/10 text-primary border-l-2 border-primary'
+                            : 'text-slate-300 hover:bg-slate-800 hover:text-slate-100'
+                        }
+                      `}
+                    >
+                      <Icon
+                        className={`mr-2.5 h-4 w-4 flex-shrink-0 transition-colors ${
+                          isActive ? 'text-primary' : 'text-slate-400 group-hover:text-slate-200'
+                        }`}
+                      />
+                      {item.label}
+                    </Link>
+                  );
+                })}
               </nav>
             </div>
           </div>
 
           <div className="border-t border-slate-800 p-3 bg-slate-900">
+            <Link
+              href="/"
+              className="group flex items-center px-2.5 py-2 text-sm font-medium rounded-lg transition-all text-slate-300 hover:bg-slate-800 hover:text-slate-100 mb-2"
+            >
+              <Home className="mr-2.5 h-4 w-4 flex-shrink-0 transition-colors text-slate-400 group-hover:text-slate-200" />
+              Voltar para o Site
+            </Link>
             <button
               onClick={handleLogout}
               className="group flex w-full items-center px-2.5 py-2 text-sm font-medium text-red-400 rounded-lg hover:bg-red-950/30 transition-colors"
@@ -69,16 +102,27 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
         </aside>
 
-        {/* Mobile Navigation - Simplificado */}
+        {/* Mobile Navigation */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 z-50 shadow-lg">
           <nav className="flex justify-around safe-area-bottom">
-            <Link
-              href="/"
-              className="flex-1 flex flex-col items-center py-2 text-xs font-medium transition-colors text-slate-400 hover:text-slate-200 hover:bg-slate-800"
-            >
-              <Home className="h-4 w-4 mb-0.5" />
-              <span className="text-[10px]">Voltar</span>
-            </Link>
+            {navItems.slice(0, 4).map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href || (item.href !== '/admin' && pathname?.startsWith(item.href));
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex-1 flex flex-col items-center py-2 text-xs font-medium transition-colors ${
+                    isActive
+                      ? 'text-primary bg-slate-800'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  }`}
+                >
+                  <Icon className="h-4 w-4 mb-0.5" />
+                  <span className="text-[10px]">{item.label.split(' ')[0]}</span>
+                </Link>
+              );
+            })}
             <button
               onClick={handleLogout}
               className="flex-1 flex flex-col items-center py-2 text-xs font-medium transition-colors text-red-400 hover:bg-red-950/30"
@@ -97,7 +141,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </main>
       </div>
 
-      <Footer />
+      <AdminFooter />
     </div>
   );
 }
