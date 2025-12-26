@@ -66,7 +66,19 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.anthropic.com https://generativelanguage.googleapis.com; frame-ancestors 'self';"
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.anthropic.com https://generativelanguage.googleapis.com https://*.supabase.co https://*.supabase.in; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;"
+          },
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp'
+          },
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin'
+          },
+          {
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'same-origin'
           },
         ],
       },

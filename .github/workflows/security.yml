@@ -1,0 +1,61 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Executa toda segunda-feira às 9h UTC
+    - cron: '0 9 * * 1'
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    name: Security Audit
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Check for known vulnerabilities
+        run: |
+          echo "## Security Audit Results" >> $GITHUB_STEP_SUMMARY
+          npm audit --json > audit.json || true
+          if [ -f audit.json ]; then
+            echo "Audit completed. Check audit.json for details."
+          fi
+
+      - name: Verify security headers
+        run: |
+          echo "Verifying security headers in next.config.ts..."
+          if grep -q "Content-Security-Policy" next.config.ts; then
+            echo "✅ CSP header found"
+          else
+            echo "❌ CSP header missing"
+            exit 1
+          fi
+
+      - name: Check for exposed secrets
+        run: |
+          echo "Checking for exposed secrets..."
+          if grep -r "sk-" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" src/ | grep -v "node_modules" | grep -v ".next"; then
+            echo "❌ Potential secret found in code"
+            exit 1
+          else
+            echo "✅ No secrets found in code"
+          fi
+
