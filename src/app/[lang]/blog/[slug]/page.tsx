@@ -77,7 +77,6 @@ export default async function BlogPost({ params }: PageProps) {
   const url = `${siteConfig.url}/${lang}/blog/${slug}`;
   const postImage = post.frontMatter.coverImage;
   const image = postImage ? `${siteConfig.url}${postImage}` : undefined;
-  const imageAlt = post.frontMatter.title;
 
   // Calculate word count from content
   const contentText = post.htmlContent?.toString() || '';
@@ -174,23 +173,6 @@ export default async function BlogPost({ params }: PageProps) {
       <div className="flex divide-x divide-border relative max-w-7xl mx-auto px-4 md:px-0">
         <div className="absolute max-w-7xl mx-auto left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] lg:w-full h-full border-x border-border p-0 pointer-events-none" />
         <main className="w-full p-0 overflow-hidden">
-          {post.frontMatter.coverImage && (
-            <div className="relative w-full h-[300px] md:h-[400px] overflow-hidden border border-transparent bg-grey-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={post.frontMatter.coverImage}
-                alt={imageAlt}
-                className="w-full h-full object-cover"
-                style={{
-                  objectFit: 'cover',
-                  width: '100%',
-                  height: '100%',
-                  display: 'block'
-                }}
-                loading="eager"
-              />
-            </div>
-          )}
           <div className="p-4 sm:p-6 lg:p-8">
             <div className="prose prose-sm sm:prose-base md:prose-lg dark:prose-invert max-w-none prose-headings:scroll-mt-8 prose-headings:font-semibold prose-a:no-underline prose-headings:tracking-tight prose-headings:text-balance prose-p:tracking-tight prose-p:text-balance prose-headings:text-2xl sm:prose-headings:text-3xl md:prose-headings:text-4xl prose-h2:text-xl sm:prose-h2:text-2xl md:prose-h2:text-3xl prose-h3:text-lg sm:prose-h3:text-xl md:prose-h3:text-2xl prose-p:text-sm sm:prose-p:text-base md:prose-p:text-lg prose-p:leading-relaxed prose-li:text-sm sm:prose-li:text-base md:prose-li:text-lg">
               <div dangerouslySetInnerHTML={{ __html: post.htmlContent }} />
