@@ -3,8 +3,10 @@ import path from 'path';
 import { generatePostImage } from './image-generator-gemini';
 import { generateTextWithGemini } from './gemini-client';
 import matter from 'gray-matter';
-import { db, schema } from '../db';
-import { eq } from 'drizzle-orm';
+import { supabase } from '../supabase/client';
+import type { Database } from '../supabase/database.types';
+
+type PostInsert = Database['public']['Tables']['posts']['Insert'];
 
 // Carregar perfil tonal
 const RICARDO_PROFILE = JSON.parse(
@@ -242,8 +244,8 @@ export async function savePostDraft(post: { content: string; score: number; meta
     ? `${frontmatter.title} - ${category} - ${frontmatter.excerpt || 'Post sobre cibersegurança'}`
     : null;
 
-  // Preparar dados para inserção no banco
-  const postData = {
+  // Preparar dados para inserção no banco (Supabase format)
+  const postData: PostInsert = {
     slug,
     title: frontmatter.title || 'Post sem título',
     content: postContent, // Apenas o conteúdo, sem frontmatter
@@ -252,37 +254,41 @@ export async function savePostDraft(post: { content: string; score: number; meta
     category,
     language: frontmatter.language || 'pt-br',
     author: frontmatter.author || 'Ricardo Esper',
-    coverImage: coverImagePath || null,
-    imageAlt,
-    keywords: frontmatter.keywords ? JSON.stringify(frontmatter.keywords) : null,
-    tags: frontmatter.tags ? JSON.stringify(frontmatter.tags) : null,
+    cover_image: coverImagePath || null,
+    image_alt: imageAlt,
+    keywords: frontmatter.keywords || null,
+    tags: frontmatter.tags || null,
     date: frontmatter.date || new Date().toISOString().split('T')[0],
     published: false, // Draft por padrão
     featured: frontmatter.featured || false,
-    readTime: frontmatter.readTime || null,
-    generatedBy: 'ai',
+    read_time: frontmatter.readTime || null,
+    generated_by: 'ai',
     score: post.score,
-    sources: post.metadata.sources ? JSON.stringify(post.metadata.sources) : null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    publishedAt: null,
+    sources: post.metadata.sources || null,
   };
 
   // Verificar se já existe (update) ou criar novo
-  const existing = await db.select().from(schema.posts).where(eq(schema.posts.slug, slug)).limit(1);
-  
-  if (existing.length > 0) {
+  const { data: existing } = await supabase
+    .from('posts')
+    .select('id')
+    .eq('slug', slug)
+    .single();
+
+  if (existing) {
     // Atualizar post existente
-    await db.update(schema.posts)
-      .set({
+    await supabase
+      .from('posts')
+      .update({
         ...postData,
-        updatedAt: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       })
-      .where(eq(schema.posts.slug, slug));
+      .eq('slug', slug);
     console.log(`✅ Draft atualizado: ${slug}`);
   } else {
     // Criar novo draft
-    await db.insert(schema.posts).values(postData);
+    await supabase
+      .from('posts')
+      .insert([postData]);
     console.log(`✅ Draft criado: ${slug}`);
   }
 
@@ -295,20 +301,29 @@ export async function savePostDraft(post: { content: string; score: number; meta
 
 export async function publishPost(slug: string) {
   // Buscar post no banco
-  const [post] = await db.select().from(schema.posts).where(eq(schema.posts.slug, slug)).limit(1);
+  const { data: post, error: fetchError } = await supabase
+    .from('posts')
+    .select('id')
+    .eq('slug', slug)
+    .single();
 
-  if (!post) {
+  if (fetchError || !post) {
     throw new Error(`Post com slug "${slug}" não encontrado`);
   }
 
   // Atualizar status para publicado
-  await db.update(schema.posts)
-    .set({
+  const { error: updateError } = await supabase
+    .from('posts')
+    .update({
       published: true,
-      publishedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      published_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     })
-    .where(eq(schema.posts.slug, slug));
+    .eq('slug', slug);
+
+  if (updateError) {
+    throw new Error(`Erro ao publicar post: ${updateError.message}`);
+  }
 
   console.log(`✅ Post publicado: ${slug}`);
 

@@ -1,11 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import AdminLayout from '@/components/layout/AdminLayout';
+import { useRouter } from 'next/navigation';
+import { signIn } from '@/lib/supabase/auth';
+import { PageBackground } from '@/components/ui/page-background';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -14,21 +18,15 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-        credentials: 'include'
-      });
+      const { user, error: authError } = await signIn(email, password);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao fazer login');
+      if (authError || !user) {
+        throw new Error(authError || 'Erro ao fazer login');
       }
 
-      // Redirecionar
-      window.location.href = '/admin/generate';
+      // Redirecionar para o dashboard
+      router.push('/admin');
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
       setLoading(false);
@@ -36,38 +34,56 @@ export default function LoginPage() {
   };
 
   return (
-    <AdminLayout>
+    <PageBackground>
       <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-grey-900">
+            <h2 className="mt-6 text-center text-3xl font-bold text-grey-50">
               Acesso Administrativo
             </h2>
-            <p className="mt-2 text-center text-sm text-grey-600">
-              Digite a senha para continuar
+            <p className="mt-2 text-center text-sm text-grey-400">
+              Faça login para acessar o painel
             </p>
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Senha
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-grey-300 placeholder-grey-500 text-grey-900 rounded-md focus:outline-none focus:ring-grey-500 focus:border-grey-500 focus:z-10 sm:text-sm"
-                placeholder="Senha"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="email" className="sr-only">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-grey-700 bg-grey-900 placeholder-grey-500 text-grey-50 rounded-md focus:outline-none focus:ring-cyan focus:border-cyan focus:z-10 sm:text-sm"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="password" className="sr-only">
+                  Senha
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  className="appearance-none relative block w-full px-3 py-2 border border-grey-700 bg-grey-900 placeholder-grey-500 text-grey-50 rounded-md focus:outline-none focus:ring-cyan focus:border-cyan focus:z-10 sm:text-sm"
+                  placeholder="Senha"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
             </div>
 
             {error && (
-              <div className="rounded-md bg-red-50 p-4">
-                <div className="text-sm text-red-800">{error}</div>
+              <div className="rounded-md bg-red-950/50 border border-red-800 p-4">
+                <div className="text-sm text-red-400">{error}</div>
               </div>
             )}
 
@@ -75,7 +91,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-grey-900 hover:bg-grey-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-grey-500 disabled:bg-grey-400 disabled:cursor-not-allowed"
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-grey-950 bg-cyan hover:bg-cyan/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan disabled:bg-grey-700 disabled:text-grey-500 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? 'Entrando...' : 'Entrar'}
               </button>
@@ -83,6 +99,6 @@ export default function LoginPage() {
           </form>
         </div>
       </div>
-    </AdminLayout>
+    </PageBackground>
   );
 }
