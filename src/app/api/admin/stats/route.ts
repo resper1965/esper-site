@@ -1,13 +1,21 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/client';
 import { logger } from '@/lib/logger';
+import { cookies } from 'next/headers';
 
 export async function GET() {
   try {
-    const supabase = createServerSupabaseClient();
+    const cookieStore = await cookies();
+    const supabase = createServerSupabaseClient(cookieStore);
 
     // Verificar autenticação
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const accessToken = cookieStore.get('sb-access-token')?.value;
+    if (!accessToken) {
+      logger.warn('Unauthorized access attempt to admin stats - no access token');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
     
     if (authError || !user) {
       logger.warn('Unauthorized access attempt to admin stats', { error: authError?.message });
@@ -29,14 +37,12 @@ export async function GET() {
     const publishedPosts = posts?.filter(p => p.published === true).length || 0;
     const draftPosts = posts?.filter(p => p.published === false).length || 0;
 
-    // Contar por categoria (usando tags diretamente da tabela)
+    // Contar por categoria (usando campo category diretamente)
     const categoryCounts: { [key: string]: number } = {};
     posts?.forEach(post => {
-      const tags = (post.tags as string[]) || [];
-      if (tags.length > 0) {
-        const primaryTag = tags[0];
-        categoryCounts[primaryTag] = (categoryCounts[primaryTag] || 0) + 1;
-      }
+      // Usar category diretamente da tabela (campo obrigatório)
+      const category = post.category || 'general';
+      categoryCounts[category] = (categoryCounts[category] || 0) + 1;
     });
 
     // Calcular score médio (usando campo score diretamente da tabela)

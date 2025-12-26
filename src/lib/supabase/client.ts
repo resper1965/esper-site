@@ -23,15 +23,36 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
   },
 });
 
-// Cliente para uso exclusivo no servidor (com service role se necessário)
-// Usa service role key se disponível (privilegiada, apenas servidor)
-export function createServerSupabaseClient() {
+// Cliente para uso exclusivo no servidor (com cookies da requisição)
+// Lê cookies do request para manter sessão do usuário
+export function createServerSupabaseClient(cookies?: { get: (name: string) => { value: string } | undefined }) {
   const serverKey = process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseKey;
   
-  return createClient<Database>(supabaseUrl, serverKey, {
+  const client = createClient<Database>(supabaseUrl, serverKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
     },
   });
+
+  // Se cookies foram fornecidos, tentar ler a sessão
+  if (cookies) {
+    const accessToken = cookies.get('sb-access-token')?.value;
+    const refreshToken = cookies.get('sb-refresh-token')?.value;
+    
+    if (accessToken) {
+      // Definir o token de acesso manualmente
+      // Tipagem do Supabase requer any aqui
+      const sessionData = {
+        access_token: accessToken,
+        refresh_token: refreshToken || '',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any;
+      client.auth.setSession(sessionData).catch(() => {
+        // Ignorar erros ao definir sessão
+      });
+    }
+  }
+  
+  return client;
 }
