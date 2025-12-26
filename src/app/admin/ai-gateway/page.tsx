@@ -151,8 +151,8 @@ export default function AIGatewayPage() {
       <AdminLayout>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-grey-600 mx-auto mb-3" />
-            <p className="text-grey-600">Verificando autenticação...</p>
+            <Loader2 className="h-8 w-8 animate-spin text-slate-400 mx-auto mb-3" />
+            <p className="text-slate-400">Verificando autenticação...</p>
           </div>
         </div>
       </AdminLayout>
@@ -167,8 +167,8 @@ export default function AIGatewayPage() {
           <div
             className={`mb-6 p-4 rounded-lg border flex items-center ${
               message.type === 'success'
-                ? 'bg-green-50 border-green-200 text-green-800'
-                : 'bg-red-50 border-red-200 text-red-800'
+                ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-300'
+                : 'bg-red-950/30 border-red-800/50 text-red-300'
             }`}
           >
             {message.type === 'success' ? (
@@ -182,47 +182,47 @@ export default function AIGatewayPage() {
 
         {/* Status Card */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white shadow-sm rounded-lg border border-grey-200 p-6">
+          <div className="bg-slate-900 shadow-sm rounded-lg border border-slate-800 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-grey-900">Status da Conexão</h3>
+              <h3 className="text-lg font-semibold text-slate-100">Status da Conexão</h3>
               {gatewayStatus?.connected ? (
-                <div className="flex items-center text-green-600">
+                <div className="flex items-center text-emerald-400">
                   <CheckCircle className="h-5 w-5 mr-2" />
                   <span className="text-sm font-medium">Conectado</span>
                 </div>
               ) : (
-                <div className="flex items-center text-red-600">
+                <div className="flex items-center text-red-400">
                   <AlertCircle className="h-5 w-5 mr-2" />
                   <span className="text-sm font-medium">Desconectado</span>
                 </div>
               )}
             </div>
-            <p className="text-sm text-grey-600">
+            <p className="text-sm text-slate-400">
               {gatewayStatus?.connected
                 ? 'AI Gateway está configurado e pronto para uso'
                 : 'Configure a chave API para conectar ao AI Gateway'}
             </p>
           </div>
 
-          <div className="bg-white shadow-sm rounded-lg border border-grey-200 p-6">
+          <div className="bg-slate-900 shadow-sm rounded-lg border border-slate-800 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-grey-900">Modelos Disponíveis</h3>
-              <Zap className="h-5 w-5 text-grey-400" />
+              <h3 className="text-lg font-semibold text-slate-100">Modelos Disponíveis</h3>
+              <Zap className="h-5 w-5 text-slate-400" />
             </div>
-            <div className="text-3xl font-bold text-grey-900 mb-2">
+            <div className="text-3xl font-bold text-slate-100 mb-2">
               {gatewayStatus?.modelsAvailable || 100}+
             </div>
-            <p className="text-sm text-grey-600">
+            <p className="text-sm text-slate-400">
               Modelos de IA acessíveis via AI Gateway
             </p>
           </div>
 
-          <div className="bg-white shadow-sm rounded-lg border border-grey-200 p-6">
+          <div className="bg-slate-900 shadow-sm rounded-lg border border-slate-800 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-grey-900">Último Teste</h3>
-              <Activity className="h-5 w-5 text-grey-400" />
+              <h3 className="text-lg font-semibold text-slate-100">Último Teste</h3>
+              <Activity className="h-5 w-5 text-slate-400" />
             </div>
-            <div className="text-sm text-grey-600">
+            <div className="text-sm text-slate-400">
               {gatewayStatus?.lastTest
                 ? new Date(gatewayStatus.lastTest).toLocaleString('pt-BR')
                 : 'Nenhum teste realizado'}
@@ -231,15 +231,15 @@ export default function AIGatewayPage() {
         </div>
 
         {/* Configuration */}
-        <div className="bg-white shadow-sm rounded-lg border border-grey-200 p-6 mb-8">
+        <div className="bg-slate-900 shadow-sm rounded-lg border border-slate-800 p-6 mb-8">
           <div className="flex items-center mb-6">
-            <Settings className="h-5 w-5 text-grey-600 mr-2" />
-            <h2 className="text-xl font-semibold text-grey-900">Configuração</h2>
+            <Settings className="h-5 w-5 text-slate-400 mr-2" />
+            <h2 className="text-xl font-semibold text-slate-100">Configuração</h2>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-grey-700 mb-2">
+              <label className="block text-sm font-medium text-slate-200 mb-2">
                 <Key className="h-4 w-4 inline mr-1" />
                 Chave API do AI Gateway
               </label>
@@ -249,11 +249,11 @@ export default function AIGatewayPage() {
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder="vck_..."
-                  className="flex-1 px-3 py-2 border border-grey-300 rounded-lg focus:ring-2 focus:ring-grey-900 focus:border-transparent font-mono text-sm"
+                  className="flex-1 px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-mono text-sm placeholder:text-slate-500"
                 />
                 <button
                   onClick={() => setShowApiKey(!showApiKey)}
-                  className="p-2 text-grey-600 hover:text-grey-900 hover:bg-grey-100 rounded-lg transition-colors"
+                  className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
                   type="button"
                 >
                   {showApiKey ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -261,7 +261,7 @@ export default function AIGatewayPage() {
                 <button
                   onClick={handleSaveApiKey}
                   disabled={saving || !apiKey}
-                  className="flex items-center px-4 py-2 bg-grey-900 text-white rounded-lg hover:bg-grey-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {saving ? (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -271,12 +271,12 @@ export default function AIGatewayPage() {
                   Salvar
                 </button>
               </div>
-              <p className="mt-2 text-sm text-grey-500">
-                Chave API do Vercel AI Gateway. Formato: <code className="bg-grey-100 px-1 rounded">vck_...</code>
+              <p className="mt-2 text-sm text-slate-400">
+                Chave API do Vercel AI Gateway. Formato: <code className="bg-slate-800 px-1 rounded text-slate-300">vck_...</code>
               </p>
             </div>
 
-            <div className="pt-4 border-t border-grey-200">
+            <div className="pt-4 border-t border-slate-800">
               <button
                 onClick={handleTestConnection}
                 disabled={testing || !apiKey}
@@ -294,8 +294,8 @@ export default function AIGatewayPage() {
                 <div
                   className={`mt-4 p-4 rounded-lg border flex items-center ${
                     testResult.success
-                      ? 'bg-green-50 border-green-200 text-green-800'
-                      : 'bg-red-50 border-red-200 text-red-800'
+                      ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-300'
+                      : 'bg-red-950/30 border-red-800/50 text-red-300'
                   }`}
                 >
                   {testResult.success ? (
@@ -311,38 +311,38 @@ export default function AIGatewayPage() {
         </div>
 
         {/* Models Info */}
-        <div className="bg-white shadow-sm rounded-lg border border-grey-200 p-6 mb-8">
-          <h2 className="text-xl font-semibold text-grey-900 mb-4">Modelos Suportados</h2>
+        <div className="bg-slate-900 shadow-sm rounded-lg border border-slate-800 p-6 mb-8">
+          <h2 className="text-xl font-semibold text-slate-100 mb-4">Modelos Suportados</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-grey-50 rounded-lg">
-              <h3 className="font-medium text-grey-900 mb-2">Google Gemini</h3>
-              <ul className="text-sm text-grey-600 space-y-1">
-                <li>• <code>google/gemini-2.5-pro</code></li>
-                <li>• <code>google/gemini-2.5-flash</code></li>
+            <div className="p-4 bg-slate-800 rounded-lg">
+              <h3 className="font-medium text-slate-100 mb-2">Google Gemini</h3>
+              <ul className="text-sm text-slate-300 space-y-1">
+                <li>• <code className="text-primary">google/gemini-2.5-pro</code></li>
+                <li>• <code className="text-primary">google/gemini-2.5-flash</code></li>
               </ul>
             </div>
-            <div className="p-4 bg-grey-50 rounded-lg">
-              <h3 className="font-medium text-grey-900 mb-2">Anthropic Claude</h3>
-              <ul className="text-sm text-grey-600 space-y-1">
-                <li>• <code>anthropic/claude-sonnet-4</code></li>
-                <li>• <code>anthropic/claude-3.5-sonnet</code></li>
+            <div className="p-4 bg-slate-800 rounded-lg">
+              <h3 className="font-medium text-slate-100 mb-2">Anthropic Claude</h3>
+              <ul className="text-sm text-slate-300 space-y-1">
+                <li>• <code className="text-primary">anthropic/claude-sonnet-4</code></li>
+                <li>• <code className="text-primary">anthropic/claude-3.5-sonnet</code></li>
               </ul>
             </div>
-            <div className="p-4 bg-grey-50 rounded-lg">
-              <h3 className="font-medium text-grey-900 mb-2">OpenAI</h3>
-              <ul className="text-sm text-grey-600 space-y-1">
-                <li>• <code>openai/gpt-4o</code></li>
-                <li>• <code>openai/gpt-4o-mini</code></li>
+            <div className="p-4 bg-slate-800 rounded-lg">
+              <h3 className="font-medium text-slate-100 mb-2">OpenAI</h3>
+              <ul className="text-sm text-slate-300 space-y-1">
+                <li>• <code className="text-primary">openai/gpt-4o</code></li>
+                <li>• <code className="text-primary">openai/gpt-4o-mini</code></li>
               </ul>
             </div>
-            <div className="p-4 bg-grey-50 rounded-lg">
-              <h3 className="font-medium text-grey-900 mb-2">xAI Grok</h3>
-              <ul className="text-sm text-grey-600 space-y-1">
-                <li>• <code>xai/grok-2</code></li>
+            <div className="p-4 bg-slate-800 rounded-lg">
+              <h3 className="font-medium text-slate-100 mb-2">xAI Grok</h3>
+              <ul className="text-sm text-slate-300 space-y-1">
+                <li>• <code className="text-primary">xai/grok-2</code></li>
               </ul>
             </div>
           </div>
-          <p className="mt-4 text-sm text-grey-600">
+          <p className="mt-4 text-sm text-slate-400">
             E mais de 100 modelos disponíveis. Consulte a{' '}
             <a
               href="https://vercel.com/ai-gateway/models"
@@ -357,42 +357,42 @@ export default function AIGatewayPage() {
         </div>
 
         {/* Features */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-sm font-medium text-blue-900 mb-3 flex items-center">
+        <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
+          <h3 className="text-sm font-medium text-slate-200 mb-3 flex items-center">
             <Zap className="h-4 w-4 mr-2" />
             Benefícios do AI Gateway
           </h3>
-          <ul className="space-y-2 text-sm text-blue-800">
+          <ul className="space-y-2 text-sm text-slate-300">
             <li className="flex items-start">
-              <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+              <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-primary" />
               <span><strong>Unificação:</strong> Acesso a 100+ modelos através de uma única API</span>
             </li>
             <li className="flex items-start">
-              <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+              <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-primary" />
               <span><strong>Resiliência:</strong> Fallback automático entre modelos se um falhar</span>
             </li>
             <li className="flex items-start">
-              <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+              <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-primary" />
               <span><strong>Monitoramento:</strong> Dashboard na Vercel para acompanhar uso e custos</span>
             </li>
             <li className="flex items-start">
-              <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+              <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-primary" />
               <span><strong>Custo:</strong> 0% markup - tokens custam o mesmo que diretamente do provider</span>
             </li>
             <li className="flex items-start">
-              <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+              <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-primary" />
               <span><strong>BYOK:</strong> Suporte a Bring Your Own Key para reduzir custos</span>
             </li>
           </ul>
         </div>
 
         {/* Links */}
-        <div className="mt-6 flex items-center space-x-4 text-sm text-grey-600">
+        <div className="mt-6 flex items-center space-x-4 text-sm text-slate-400">
           <a
             href="https://vercel.com/ai-gateway"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-grey-900 hover:underline"
+            className="hover:text-slate-200 hover:underline"
           >
             Documentação do AI Gateway →
           </a>
@@ -400,7 +400,7 @@ export default function AIGatewayPage() {
             href="https://vercel.com/nessbr-projects/esper-site/ai-gateway"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-grey-900 hover:underline"
+            className="hover:text-slate-200 hover:underline"
           >
             Dashboard na Vercel →
           </a>
