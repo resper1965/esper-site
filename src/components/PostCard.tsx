@@ -30,7 +30,7 @@ export default function PostCard({
   const categoryLabel = categoryMap[category] || category;
 
   return (
-    <article className="group border border-grey-200 bg-grey-50 transition-all hover:border-grey-300 hover:shadow-lg">
+    <article className="group border border-border bg-card rounded-lg transition-all hover:shadow-md max-w-md w-full">
       <Link href={`/blog/${slug}`} className="block p-6">
         <div className="mb-3 flex items-center gap-3">
           <span className="text-xs font-medium text-grey-500 uppercase tracking-wide">

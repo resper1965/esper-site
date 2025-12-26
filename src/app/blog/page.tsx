@@ -35,7 +35,7 @@ export default async function BlogPage() {
               <p className="text-muted-foreground">Nenhum post encontrado.</p>
             </div>
           ) : (
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 justify-items-center">
               {posts.map((post) => (
                 <PostCard
                   key={post.slug}

@@ -127,7 +127,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   })}
                   thumbnail={post.frontMatter.coverImage}
                   tags={post.frontMatter.tags || []}
-                  showRightBorder={false}
                   readingTime={readingTime}
                   isNew={isNew}
                   lang={lang}

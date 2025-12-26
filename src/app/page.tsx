@@ -91,13 +91,13 @@ export default async function HomePage({
           fallback={
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative overflow-hidden">
               {Array.from({ length: 6 }).map((_, i) => (
-                <BlogCardSkeleton key={i} showRightBorder={i < 3} />
+                <BlogCardSkeleton key={i} />
               ))}
             </div>
           }
         >
           <div
-            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative overflow-hidden`}
+            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center ${filteredBlogs.length < 3 ? "max-w-2xl mx-auto" : ""}`}
           >
             {filteredBlogs.map((post) => {
               const date = new Date(post.frontMatter.date);
@@ -114,7 +114,6 @@ export default async function HomePage({
                   description={description}
                   date={formattedDate}
                   tags={post.frontMatter.tags}
-                  showRightBorder={filteredBlogs.length < 3}
                   readingTime={readingTime}
                   isNew={isNew}
                   lang="pt-BR"

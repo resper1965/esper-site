@@ -92,7 +92,6 @@ export default async function NotFound({ params }: NotFoundProps) {
                     })}
                     thumbnail={post.frontMatter.coverImage}
                     tags={post.frontMatter.tags || []}
-                    showRightBorder={false}
                     readingTime={readingTime}
                     isNew={isNew}
                     lang={lang}

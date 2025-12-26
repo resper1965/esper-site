@@ -9,7 +9,6 @@ interface BlogCardProps {
   title: string;
   description: string;
   date: string;
-  showRightBorder?: boolean;
   tags?: string[];
   thumbnail?: string;
   readingTime?: number;
@@ -22,7 +21,6 @@ export function BlogCard({
   title,
   description,
   date,
-  showRightBorder = true,
   tags = [],
   readingTime,
   lang = 'pt-BR',
@@ -38,17 +36,15 @@ export function BlogCard({
     <Link
       href={url}
       className={cn(
-        "group block relative hover:shadow-md transition-shadow duration-200",
-        "before:absolute before:-left-0.5 before:top-0 before:z-10 before:h-screen before:w-px before:bg-border before:content-['']",
-        "after:absolute after:-top-0.5 after:left-0 after:z-0 after:h-px after:w-screen after:bg-border after:content-['']",
-        showRightBorder && "md:border-r border-border border-b-0"
+        "group block w-full max-w-md hover:shadow-md transition-shadow duration-200",
+        "border border-border rounded-lg bg-card overflow-hidden"
       )}
     >
       <div className="flex flex-col h-full">
         {/* Simplified header: 80px (vs 144px), removed mesh, blur, glow */}
         <div className={cn(
           "h-20 flex items-center justify-center",
-          "bg-gradient-to-br from-muted/30 to-muted/5"
+          "bg-muted/10"
         )}>
           {CategoryIcon && (
             <CategoryIcon

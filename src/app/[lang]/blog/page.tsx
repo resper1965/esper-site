@@ -66,7 +66,7 @@ export default async function BlogListPage({
             selectedTag={selectedTag}
           />
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mt-8">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-8 justify-items-center">
             {filteredBlogs.map((post) => {
               const formattedDate = formatDate(new Date(post.frontMatter.date), lang);
               const description = post.frontMatter.description || post.frontMatter.excerpt || "";
@@ -81,7 +81,6 @@ export default async function BlogListPage({
                   description={description}
                   date={formattedDate}
                   tags={post.frontMatter.tags}
-                  showRightBorder={filteredBlogs.length < 3}
                   readingTime={readingTime}
                   isNew={isNew}
                   lang={lang}
