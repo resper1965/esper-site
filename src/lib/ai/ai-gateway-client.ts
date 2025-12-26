@@ -99,6 +99,8 @@ export async function generateTextWithAI(
       
       // AI Gateway: usar OpenAI-compatible API
       // O AI Gateway aceita modelos no formato provider/model via OpenAI-compatible endpoint
+      // Base URL oficial: https://ai-gateway.vercel.sh/v1
+      // Documentação: https://vercel.com/docs/ai-gateway
       const openai = createOpenAI({
         apiKey: apiKey,
         baseURL: 'https://ai-gateway.vercel.sh/v1',
