@@ -9,30 +9,38 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: 'var(--background)',
-        foreground: 'var(--foreground)',
+        // Colors using oklch() need to be wrapped - values stored without function in CSS
+        background: 'oklch(var(--background))',
+        foreground: 'oklch(var(--foreground))',
         card: {
-          DEFAULT: 'var(--card)',
-          foreground: 'var(--card-foreground)',
+          DEFAULT: 'oklch(var(--card))',
+          foreground: 'oklch(var(--card-foreground))',
         },
+        // Primary uses hex, so var() is fine
         primary: {
           DEFAULT: 'var(--primary)',
           foreground: 'var(--primary-foreground)',
         },
         secondary: {
-          DEFAULT: 'var(--secondary)',
-          foreground: 'var(--secondary-foreground)',
+          DEFAULT: 'oklch(var(--secondary))',
+          foreground: 'oklch(var(--secondary-foreground))',
         },
         muted: {
-          DEFAULT: 'var(--muted)',
-          foreground: 'var(--muted-foreground)',
+          DEFAULT: 'oklch(var(--muted))',
+          foreground: 'oklch(var(--muted-foreground))',
         },
         accent: {
-          DEFAULT: 'var(--accent)',
-          foreground: 'var(--accent-foreground)',
+          DEFAULT: 'oklch(var(--accent))',
+          foreground: 'oklch(var(--accent-foreground))',
         },
-        border: 'var(--border)',
-        ring: 'var(--ring)',
+        border: 'oklch(var(--border))',
+        ring: 'oklch(var(--ring))',
+        input: 'oklch(var(--input))',
+        destructive: 'oklch(var(--destructive))',
+        popover: {
+          DEFAULT: 'oklch(var(--popover))',
+          foreground: 'oklch(var(--popover-foreground))',
+        },
         grey: {
           50: '#fafafa',
           100: '#f5f5f5',
