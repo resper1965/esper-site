@@ -83,8 +83,8 @@ export default function AdminDashboard() {
       <AdminLayout>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-grey-600 mx-auto mb-3" />
-            <p className="text-grey-600">Verificando autenticação...</p>
+            <Loader2 className="h-6 w-6 animate-spin text-slate-400 mx-auto mb-2" />
+            <p className="text-slate-400 text-sm">Verificando autenticação...</p>
           </div>
         </div>
       </AdminLayout>
@@ -96,18 +96,18 @@ export default function AdminDashboard() {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center min-h-screen">
-          <div className="max-w-md w-full bg-white border border-red-200 rounded-lg p-6">
+          <div className="max-w-md w-full bg-slate-900 border border-red-800 rounded-lg p-4">
             <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="mx-auto flex items-center justify-center h-10 w-10 rounded-full bg-red-950/50 mb-3">
+                <svg className="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-grey-900 mb-2">Erro ao Carregar</h3>
-              <p className="text-sm text-grey-600 mb-4">{error}</p>
+              <h3 className="text-base font-medium text-slate-100 mb-1.5">Erro ao Carregar</h3>
+              <p className="text-sm text-slate-400 mb-3">{error}</p>
               <button
                 onClick={() => window.location.reload()}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-grey-900 hover:bg-grey-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-grey-500"
+                className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
               >
                 Tentar Novamente
               </button>
@@ -123,8 +123,8 @@ export default function AdminDashboard() {
       <AdminLayout>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-grey-600 mx-auto mb-3" />
-            <p className="text-grey-600">Carregando estatísticas...</p>
+            <Loader2 className="h-6 w-6 animate-spin text-slate-400 mx-auto mb-2" />
+            <p className="text-slate-400 text-sm">Carregando estatísticas...</p>
           </div>
         </div>
       </AdminLayout>
@@ -162,131 +162,131 @@ export default function AdminDashboard() {
   return (
     <AdminLayout>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-grey-900 mb-2">
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold text-slate-100 mb-1">
           Dashboard
         </h1>
-        <p className="text-grey-600">
+        <p className="text-slate-400 text-sm">
           Visão geral do sistema de geração de conteúdo
         </p>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-          <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-grey-200 p-6">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-5">
+          <div className="bg-slate-900 overflow-hidden shadow-sm rounded-lg border border-slate-800 p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-grey-100">
-                  <FileText className="h-6 w-6 text-grey-600" />
+                <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-slate-800">
+                  <FileText className="h-5 w-5 text-slate-300" />
                 </div>
               </div>
-              <div className="ml-5 flex-1 min-w-0">
-                <p className="text-sm font-medium text-grey-500 truncate">
+              <div className="ml-3 flex-1 min-w-0">
+                <p className="text-xs font-medium text-slate-400 truncate">
                   Total de Posts
                 </p>
-                <p className="text-2xl font-semibold text-grey-900 mt-1">
+                <p className="text-xl font-semibold text-slate-100 mt-0.5">
                   {stats.totalPosts}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-grey-200 p-6">
+          <div className="bg-slate-900 overflow-hidden shadow-sm rounded-lg border border-slate-800 p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-grey-100">
-                  <CheckCircle className="h-6 w-6 text-grey-600" />
+                <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-slate-800">
+                  <CheckCircle className="h-5 w-5 text-slate-300" />
                 </div>
               </div>
-              <div className="ml-5 flex-1 min-w-0">
-                <p className="text-sm font-medium text-grey-500 truncate">
+              <div className="ml-3 flex-1 min-w-0">
+                <p className="text-xs font-medium text-slate-400 truncate">
                   Publicados
                 </p>
-                <p className="text-2xl font-semibold text-grey-900 mt-1">
+                <p className="text-xl font-semibold text-slate-100 mt-0.5">
                   {stats.publishedPosts}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-grey-200 p-6">
+          <div className="bg-slate-900 overflow-hidden shadow-sm rounded-lg border border-slate-800 p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-grey-100">
-                  <Clock className="h-6 w-6 text-grey-600" />
+                <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-slate-800">
+                  <Clock className="h-5 w-5 text-slate-300" />
                 </div>
               </div>
-              <div className="ml-5 flex-1 min-w-0">
-                <p className="text-sm font-medium text-grey-500 truncate">
+              <div className="ml-3 flex-1 min-w-0">
+                <p className="text-xs font-medium text-slate-400 truncate">
                   Rascunhos
                 </p>
-                <p className="text-2xl font-semibold text-grey-900 mt-1">
+                <p className="text-xl font-semibold text-slate-100 mt-0.5">
                   {stats.draftPosts}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white overflow-hidden shadow-sm rounded-lg border border-grey-200 p-6">
+          <div className="bg-slate-900 overflow-hidden shadow-sm rounded-lg border border-slate-800 p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-grey-100">
-                  <TrendingUp className="h-6 w-6 text-grey-600" />
+                <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-slate-800">
+                  <TrendingUp className="h-5 w-5 text-slate-300" />
                 </div>
               </div>
-              <div className="ml-5 flex-1 min-w-0">
-                <p className="text-sm font-medium text-grey-500 truncate">
+              <div className="ml-3 flex-1 min-w-0">
+                <p className="text-xs font-medium text-slate-400 truncate">
                   Score Médio
                 </p>
-                <div className="flex items-baseline mt-1">
-                  <p className="text-2xl font-semibold text-grey-900">
+                <div className="flex items-baseline mt-0.5">
+                  <p className="text-xl font-semibold text-slate-100">
                     {stats.avgScore.toFixed(1)}
                   </p>
-                  <span className="ml-2 text-sm text-grey-500">/10</span>
+                  <span className="ml-1.5 text-xs text-slate-400">/10</span>
                 </div>
               </div>
             </div>
           </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Quick Actions */}
         <div className="lg:col-span-2">
-          <div className="bg-white shadow-sm rounded-lg border border-grey-200 p-6">
-            <h2 className="text-lg font-semibold text-grey-900 mb-4">
+          <div className="bg-slate-900 shadow-sm rounded-lg border border-slate-800 p-4">
+            <h2 className="text-base font-semibold text-slate-100 mb-3">
               Ações Rápidas
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Link
                 href="/admin/generate"
-                className="group relative bg-grey-50 hover:bg-grey-100 border border-grey-200 hover:border-grey-300 rounded-lg p-6 transition-all"
+                className="group relative bg-slate-800 hover:bg-slate-800/80 border border-slate-700 hover:border-primary rounded-lg p-4 transition-all"
               >
-                <div className="flex items-center mb-3">
-                  <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-grey-900 group-hover:bg-grey-800 transition-colors">
-                    <Sparkles className="h-5 w-5 text-white" />
+                <div className="flex items-center mb-2">
+                  <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary group-hover:bg-primary/90 transition-colors">
+                    <Sparkles className="h-4 w-4 text-white" />
                   </div>
-                  <h3 className="ml-3 text-base font-medium text-grey-900">
+                  <h3 className="ml-2.5 text-sm font-medium text-slate-100">
                     Gerar Post
                   </h3>
                 </div>
-                <p className="text-sm text-grey-600">
+                <p className="text-xs text-slate-400">
                   Crie novo conteúdo usando IA generativa
                 </p>
               </Link>
 
               <Link
                 href="/admin/analytics"
-                className="group relative bg-grey-50 hover:bg-grey-100 border border-grey-200 hover:border-grey-300 rounded-lg p-6 transition-all"
+                className="group relative bg-slate-800 hover:bg-slate-800/80 border border-slate-700 hover:border-primary rounded-lg p-4 transition-all"
               >
-                <div className="flex items-center mb-3">
-                  <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-grey-900 group-hover:bg-grey-800 transition-colors">
-                    <BarChart3 className="h-5 w-5 text-white" />
+                <div className="flex items-center mb-2">
+                  <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary group-hover:bg-primary/90 transition-colors">
+                    <BarChart3 className="h-4 w-4 text-white" />
                   </div>
-                  <h3 className="ml-3 text-base font-medium text-grey-900">
+                  <h3 className="ml-2.5 text-sm font-medium text-slate-100">
                     Analytics
                   </h3>
                 </div>
-                <p className="text-sm text-grey-600">
+                <p className="text-xs text-slate-400">
                   Veja estatísticas detalhadas dos posts
                 </p>
               </Link>
@@ -294,29 +294,29 @@ export default function AdminDashboard() {
           </div>
 
           {/* System Info */}
-          <div className="mt-6 bg-white shadow-sm rounded-lg border border-grey-200 p-6">
-            <h2 className="text-lg font-semibold text-grey-900 mb-4">
+          <div className="mt-4 bg-slate-900 shadow-sm rounded-lg border border-slate-800 p-4">
+            <h2 className="text-base font-semibold text-slate-100 mb-3">
               Informações do Sistema
             </h2>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between py-2.5 border-b border-grey-100">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between py-2 border-b border-slate-800">
                 <div className="flex items-center">
-                  <div className="w-2 h-2 bg-primary rounded-full mr-3"></div>
-                  <span className="text-sm text-grey-600">Status da IA</span>
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mr-2.5"></div>
+                  <span className="text-xs text-slate-400">Status da IA</span>
                 </div>
-                <span className="text-sm font-medium text-grey-900">Operacional</span>
+                <span className="text-xs font-medium text-slate-200">Operacional</span>
               </div>
-              <div className="flex items-center justify-between py-2.5 border-b border-grey-100">
-                <span className="text-sm text-grey-600">Modelo de IA</span>
-                <span className="text-sm font-medium text-grey-900">AI Gateway</span>
+              <div className="flex items-center justify-between py-2 border-b border-slate-800">
+                <span className="text-xs text-slate-400">Modelo de IA</span>
+                <span className="text-xs font-medium text-slate-200">AI Gateway</span>
               </div>
-              <div className="flex items-center justify-between py-2.5 border-b border-grey-100">
-                <span className="text-sm text-grey-600">Idiomas</span>
-                <span className="text-sm font-medium text-grey-900">PT-BR, EN</span>
+              <div className="flex items-center justify-between py-2 border-b border-slate-800">
+                <span className="text-xs text-slate-400">Idiomas</span>
+                <span className="text-xs font-medium text-slate-200">PT-BR, EN</span>
               </div>
-              <div className="flex items-center justify-between py-2.5">
-                <span className="text-sm text-grey-600">Categorias Ativas</span>
-                <span className="text-sm font-medium text-grey-900">
+              <div className="flex items-center justify-between py-2">
+                <span className="text-xs text-slate-400">Categorias Ativas</span>
+                <span className="text-xs font-medium text-slate-200">
                   {Object.keys(stats.categoryCounts).length}
                 </span>
               </div>
@@ -326,27 +326,27 @@ export default function AdminDashboard() {
 
         {/* Category Breakdown */}
         <div className="lg:col-span-1">
-          <div className="bg-white shadow-sm rounded-lg border border-grey-200 p-6">
-            <h2 className="text-lg font-semibold text-grey-900 mb-4">
+          <div className="bg-slate-900 shadow-sm rounded-lg border border-slate-800 p-4">
+            <h2 className="text-base font-semibold text-slate-100 mb-3">
               Posts por Categoria
             </h2>
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {Object.entries(stats.categoryCounts)
                   .sort(([, a], [, b]) => b - a)
                   .map(([category, count]) => {
                     const percentage = (count / stats.totalPosts) * 100;
                     return (
                       <div key={category} className="space-y-1">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="flex items-center text-grey-700">
-                            <span className="mr-2">{getCategoryEmoji(category)}</span>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="flex items-center text-slate-300">
+                            <span className="mr-1.5">{getCategoryEmoji(category)}</span>
                             {getCategoryName(category)}
                           </span>
-                          <span className="font-medium text-grey-900">{count}</span>
+                          <span className="font-medium text-slate-100">{count}</span>
                         </div>
-                        <div className="w-full bg-grey-200 rounded-full h-2">
+                        <div className="w-full bg-slate-800 rounded-full h-1.5">
                           <div
-                            className="bg-grey-900 h-2 rounded-full transition-all"
+                            className="bg-primary h-1.5 rounded-full transition-all"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
@@ -357,11 +357,11 @@ export default function AdminDashboard() {
             </div>
 
           {/* Tips */}
-          <div className="mt-6 bg-grey-50 border border-grey-200 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-grey-900 mb-2">
+          <div className="mt-4 bg-slate-800 border border-slate-700 rounded-lg p-3">
+            <h3 className="text-xs font-medium text-slate-200 mb-1.5">
               💡 Dica
             </h3>
-            <p className="text-sm text-grey-700">
+            <p className="text-xs text-slate-400">
               Posts gerados são salvos automaticamente. Revise antes de publicar para garantir qualidade máxima.
             </p>
           </div>
