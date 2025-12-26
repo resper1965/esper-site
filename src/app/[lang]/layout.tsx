@@ -29,7 +29,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ lang: Locale }>;
+  params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   let lang: Locale = 'pt-BR';
   try {
@@ -67,7 +67,7 @@ export default async function LangLayout({
   params,
 }: Readonly<{
   children: React.ReactNode;
-  params: Promise<{ lang: Locale }>;
+  params: Promise<{ lang: string }>;
 }>) {
   let lang: Locale = 'pt-BR';
   try {

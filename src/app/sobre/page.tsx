@@ -3,14 +3,14 @@ import Layout from '@/components/layout/Layout';
 export default function Sobre() {
   return (
     <Layout>
-      <div className="bg-white">
+      <div className="bg-background">
         <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="prose prose-lg max-w-none">
-            <h1 className="text-4xl font-bold text-grey-900 sm:text-5xl">
+          <div className="prose prose-lg max-w-none dark:prose-invert">
+            <h1 className="text-4xl font-bold text-foreground sm:text-5xl">
               Sobre
             </h1>
 
-            <div className="mt-8 space-y-6 text-lg leading-relaxed text-grey-700">
+            <div className="mt-8 space-y-6 text-lg leading-relaxed text-muted-foreground">
               <p>
                 Em mais de três décadas dedicadas à segurança da informação, testemunhei a transformação
                 completa do cenário de ameaças digitais—desde os primeiros vírus de boot até campanhas de

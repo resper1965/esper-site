@@ -1,24 +1,16 @@
-import { docs } from '@/.source';
+import { docs, meta } from '@/.source';
+import { loader } from 'fumadocs-core/source';
+import { createMDXSource } from 'fumadocs-mdx';
+
+const blogSource = loader({
+  baseUrl: '/blog',
+  source: createMDXSource(docs, meta),
+});
 
 export async function GET() {
   const baseUrl = 'https://esper.ws';
 
-  let posts: Array<{
-    url: string;
-    data: {
-      title: string;
-      description?: string;
-      excerpt?: string;
-      date: string;
-      author?: string;
-    };
-  }> = [];
-
-  try {
-    posts = docs.getPages();
-  } catch (error) {
-    console.error('Error generating RSS feed:', error);
-  }
+  const posts = blogSource.getPages();
 
   // Sort by date (newest first)
   const sortedPosts = posts.sort((a, b) => {

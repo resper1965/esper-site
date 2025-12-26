@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import AdminLayout from '@/components/layout/AdminLayout';
 import { Link2, FileEdit, Sparkles, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
@@ -424,10 +425,13 @@ export default function GenerateDashboard() {
               {result.coverImage && (
                 <div>
                   <p className="text-sm font-medium text-grey-700 mb-2">Imagem de Capa</p>
-                  <img
+                  <Image
                     src={result.coverImage}
                     alt="Cover"
+                    width={800}
+                    height={420}
                     className="w-full max-w-2xl rounded-lg border border-grey-300"
+                    unoptimized
                   />
                   {result.thumbnailPrompt && (
                     <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">

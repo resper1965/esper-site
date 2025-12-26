@@ -5,9 +5,7 @@ const withMDX = createMDX();
 
 const nextConfig: NextConfig = {
   transpilePackages: ["geist"],
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  // TypeScript errors will now be caught during build
   // SEO & Performance Optimizations
   compress: true,
   poweredByHeader: false,
@@ -66,11 +64,11 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.anthropic.com https://generativelanguage.googleapis.com https://*.supabase.co https://*.supabase.in; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;"
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://www.youtube.com https://platform.twitter.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.anthropic.com https://generativelanguage.googleapis.com https://*.supabase.co https://*.supabase.in; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://platform.twitter.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;"
           },
           {
             key: 'Cross-Origin-Embedder-Policy',
-            value: 'require-corp'
+            value: 'unsafe-none'
           },
           {
             key: 'Cross-Origin-Opener-Policy',

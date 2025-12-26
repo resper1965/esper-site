@@ -30,9 +30,9 @@ export async function GET(
     // Parsear JSON fields (Supabase já retorna como array, mas mantemos compatibilidade)
     const parsedPost = {
       ...post,
-      keywords: Array.isArray(post.keywords) ? post.keywords : (post.keywords ? JSON.parse(post.keywords) : null),
-      tags: Array.isArray(post.tags) ? post.tags : (post.tags ? JSON.parse(post.tags) : null),
-      sources: Array.isArray(post.sources) ? post.sources : (post.sources ? JSON.parse(post.sources) : null),
+      keywords: typeof post.keywords === 'string' ? JSON.parse(post.keywords) : post.keywords,
+      tags: typeof post.tags === 'string' ? JSON.parse(post.tags) : post.tags,
+      sources: typeof post.sources === 'string' ? JSON.parse(post.sources) : post.sources,
     };
 
     return NextResponse.json({ post: parsedPost });

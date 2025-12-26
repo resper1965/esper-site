@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { getDictionary } from '@/i18n/dictionaries';
-import { Locale } from '@/i18n/config';
 import { docs, meta } from "@/.source";
 import { loader } from "fumadocs-core/source";
 import { createMDXSource } from "fumadocs-mdx";
@@ -14,11 +13,12 @@ const blogSource = loader({
 });
 
 interface NotFoundProps {
-  params: Promise<{ lang: Locale }>;
+  params: Promise<{ lang: string }>;
 }
 
 export async function generateMetadata({ params }: NotFoundProps): Promise<Metadata> {
-  const { lang } = await params;
+  const { lang: langParam } = await params;
+  const lang = (langParam === 'pt-BR' || langParam === 'en' ? langParam : 'pt-BR') as 'pt-BR' | 'en';
   const dict = await getDictionary(lang);
   
   return generatePageMetadata({
@@ -31,7 +31,8 @@ export async function generateMetadata({ params }: NotFoundProps): Promise<Metad
 }
 
 export default async function NotFound({ params }: NotFoundProps) {
-  const { lang } = await params;
+  const { lang: langParam } = await params;
+  const lang = (langParam === 'pt-BR' || langParam === 'en' ? langParam : 'pt-BR') as 'pt-BR' | 'en';
   const dict = await getDictionary(lang);
 
   // Get latest posts for suggestions

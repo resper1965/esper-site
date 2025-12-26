@@ -19,7 +19,7 @@ const formatDate = (date: Date): string => {
 
 interface BlogData {
   title: string;
-  description: string;
+  description?: string;
   date: string;
   tags?: string[];
   featured?: boolean;
@@ -27,6 +27,11 @@ interface BlogData {
   author?: string;
   authorImage?: string;
   thumbnail?: string;
+  coverImage?: string;
+  category?: string;
+  excerpt?: string;
+  keywords?: string[];
+  language?: 'pt-BR' | 'pt-br' | 'en';
 }
 
 interface BlogPage {

@@ -12,7 +12,6 @@ import path from 'path';
  * @returns Caminho relativo da imagem gerada
  */
 export async function generateImage(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   prompt: string, 
   slug?: string, 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

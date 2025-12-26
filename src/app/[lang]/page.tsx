@@ -7,7 +7,7 @@ import { BlogCardSkeleton } from "@/components/blog-card-skeleton";
 import { TagFilter } from "@/components/tag-filter";
 import { FadeIn } from "@/components/fade-in";
 import { getDictionary } from "@/i18n/dictionaries";
-import { Locale } from "@/i18n/config";
+import { Hero } from "@/components/ui/hero";
 import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
 
 interface BlogData {
@@ -20,6 +20,11 @@ interface BlogData {
   author?: string;
   authorImage?: string;
   thumbnail?: string;
+  coverImage?: string;
+  category?: string;
+  excerpt?: string;
+  keywords?: string[];
+  language?: 'pt-BR' | 'pt-br' | 'en';
 }
 
 interface BlogPage {
@@ -44,11 +49,13 @@ export default async function HomePage({
   params,
   searchParams,
 }: {
-  params: Promise<{ lang: Locale }>;
+  params: Promise<{ lang: string }>;
   searchParams: Promise<{ tag?: string }>;
 }) {
   const resolvedParams = await params;
-  const lang = resolvedParams?.lang || 'pt-BR';
+  const langParam = resolvedParams?.lang || 'pt-BR';
+  // Validate and cast to Locale type
+  const lang = (langParam === 'pt-BR' || langParam === 'en' ? langParam : 'pt-BR') as 'pt-BR' | 'en';
   const resolvedSearchParams = await searchParams;
   const dict = await getDictionary(lang);
 
@@ -110,18 +117,18 @@ export default async function HomePage({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto w-full px-6 lg:px-0 pt-12 pb-8">
-        <div className="flex flex-col gap-2">
-          <h1 className="font-medium text-4xl md:text-5xl tracking-tighter">
-            {lang === 'pt-br' ? "Cibersegurança, Contraespionagem e Tecnologia" : "Cybersecurity, Counterespionage and Technology"}
-          </h1>
-          <p className="text-muted-foreground text-sm md:text-base lg:text-lg max-w-3xl">
-            {lang === 'pt-br'
-              ? "CEO da NESS, CISO da IONIC Health, e fundador da forense.io. Compartilho experiências reais sobre cibersegurança, TSCM, automação residencial e os desafios de proteger o que realmente importa."
-              : "CEO of NESS, CISO at IONIC Health, and founder of forense.io. Sharing real experiences about cybersecurity, TSCM, home automation, and the challenges of protecting what truly matters."}
-          </p>
-        </div>
-      </div>
+      <Hero
+        title={dict.home.hero.title}
+        subtitle={dict.home.hero.subtitle}
+        actions={[
+          {
+            label: dict.home.hero.readArticles,
+            href: "#posts",
+            variant: "default",
+          },
+        ]}
+        className="mb-8"
+      />
 
       <div id="posts" className="max-w-7xl mx-auto w-full px-6 lg:px-0">
         {allTags.length > 1 && (

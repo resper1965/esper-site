@@ -18,6 +18,8 @@ export function FadeIn({ children, delay = 0, className }: FadeInProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const currentRef = ref.current; // Capture ref value for cleanup
+    
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -25,8 +27,8 @@ export function FadeIn({ children, delay = 0, className }: FadeInProps) {
             setIsVisible(true);
           }, delay);
           // Unobserve after animation triggers
-          if (ref.current) {
-            observer.unobserve(ref.current);
+          if (currentRef) {
+            observer.unobserve(currentRef);
           }
         }
       },
@@ -36,13 +38,13 @@ export function FadeIn({ children, delay = 0, className }: FadeInProps) {
       }
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
+    if (currentRef) {
+      observer.observe(currentRef);
     }
 
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
+      if (currentRef) {
+        observer.unobserve(currentRef);
       }
     };
   }, [delay]);

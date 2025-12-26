@@ -10,29 +10,29 @@ export default {
     extend: {
       colors: {
         background: 'var(--background)',
-        foreground: 'oklch(var(--foreground))',
+        foreground: 'var(--foreground)',
         card: {
-          DEFAULT: 'oklch(var(--card))',
-          foreground: 'oklch(var(--card-foreground))',
+          DEFAULT: 'var(--card)',
+          foreground: 'var(--card-foreground)',
         },
         primary: {
-          DEFAULT: 'oklch(var(--primary))',
-          foreground: 'oklch(var(--primary-foreground))',
+          DEFAULT: 'var(--primary)',
+          foreground: 'var(--primary-foreground)',
         },
         secondary: {
-          DEFAULT: 'oklch(var(--secondary))',
-          foreground: 'oklch(var(--secondary-foreground))',
+          DEFAULT: 'var(--secondary)',
+          foreground: 'var(--secondary-foreground)',
         },
         muted: {
-          DEFAULT: 'oklch(var(--muted))',
-          foreground: 'oklch(var(--muted-foreground))',
+          DEFAULT: 'var(--muted)',
+          foreground: 'var(--muted-foreground)',
         },
         accent: {
-          DEFAULT: 'oklch(var(--accent))',
-          foreground: 'oklch(var(--accent-foreground))',
+          DEFAULT: 'var(--accent)',
+          foreground: 'var(--accent-foreground)',
         },
-        border: 'oklch(var(--border))',
-        ring: 'oklch(var(--ring))',
+        border: 'var(--border)',
+        ring: 'var(--ring)',
         grey: {
           50: '#fafafa',
           100: '#f5f5f5',

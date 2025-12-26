@@ -60,11 +60,10 @@ export default function SearchContent({ lang }: SearchContentProps) {
   }, [query, currentLang, router]);
 
   return (
-    <div className="min-h-screen bg-grey-50">
-      <PageBackground />
-      <div className="relative z-10 container mx-auto px-4 py-16">
+    <PageBackground>
+      <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-grey-900 mb-8">
+          <h1 className="text-4xl font-bold text-foreground mb-8">
             {currentLang === 'pt-br' ? 'Buscar Posts' : 'Search Posts'}
           </h1>
 
@@ -164,7 +163,7 @@ export default function SearchContent({ lang }: SearchContentProps) {
           )}
         </div>
       </div>
-    </div>
+    </PageBackground>
   );
 }
 

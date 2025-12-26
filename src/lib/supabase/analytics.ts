@@ -132,7 +132,7 @@ export async function getPostStats(postSlug: string): Promise<PostStats | null> 
       title: data.title || '',
       views: data.views || 0,
       likes: data.likes || 0,
-      lastViewedAt: data.last_viewed_at,
+      lastViewedAt: data.last_viewed_at || undefined,
     };
   } catch (error) {
     console.error('❌ Get stats exception:', error);
@@ -161,7 +161,7 @@ export async function getTopPosts(limit: number = 10): Promise<PostStats[]> {
       title: stat.title,
       views: stat.views || 0,
       likes: stat.likes || 0,
-      lastViewedAt: stat.last_viewed_at,
+      lastViewedAt: stat.last_viewed_at || undefined,
     }));
   } catch (error) {
     console.error('❌ Get top posts exception:', error);

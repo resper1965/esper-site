@@ -1,23 +1,43 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { i18n } from './i18n/config';
+import { createClient } from '@supabase/supabase-js';
 
-// Verificar autenticação simples - apenas verifica cookie
-function checkAdminAuth(request: NextRequest): boolean {
-  const cookieHeader = request.headers.get('cookie') || '';
-  const cookies: { [key: string]: string } = {};
-  cookieHeader.split(';').forEach(cookie => {
-    const [key, value] = cookie.trim().split('=');
-    if (key && value) cookies[key] = decodeURIComponent(value);
-  });
+// Verify Supabase session from cookies
+async function checkSupabaseAuth(request: NextRequest): Promise<boolean> {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || 
+                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  return cookies['admin_logged_in'] === 'true';
+    if (!supabaseUrl || !supabaseKey) {
+      return false;
+    }
+
+    // Get access token from cookie
+    const accessToken = request.cookies.get('sb-access-token')?.value;
+    
+    if (!accessToken) {
+      return false;
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: false,
+      },
+    });
+
+    const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+    
+    return !error && !!user;
+  } catch {
+    return false;
+  }
 }
 
 function getLocale(request: NextRequest): string {
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (cookieLocale && i18n.locales.includes(cookieLocale as any)) {
+  if (cookieLocale && i18n.locales.includes(cookieLocale as typeof i18n.locales[number])) {
     return cookieLocale;
   }
 
@@ -35,8 +55,7 @@ function getLocale(request: NextRequest): string {
       .sort((a, b) => b.quality - a.quality);
 
     for (const { locale } of languages) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (i18n.locales.includes(locale as any)) {
+      if (i18n.locales.includes(locale as typeof i18n.locales[number])) {
         return locale;
       }
     }
@@ -51,10 +70,10 @@ function getLocale(request: NextRequest): string {
   return i18n.defaultLocale;
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Remover locale de rotas admin
+  // Remove locale from admin routes
   for (const locale of i18n.locales) {
     if (pathname.startsWith(`/${locale}/admin/`)) {
       const adminPath = pathname.replace(`/${locale}`, '');
@@ -63,17 +82,19 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Verificar autenticação para rotas admin (exceto login)
+  // Check authentication for admin routes (except login)
   if (pathname.startsWith('/admin/') && pathname !== '/admin/login') {
-    if (!checkAdminAuth(request)) {
+    const isAuthenticated = await checkSupabaseAuth(request);
+    if (!isAuthenticated) {
       const loginUrl = new URL('/admin/login', request.url);
       return NextResponse.redirect(loginUrl);
     }
   }
 
-  // Verificar autenticação para APIs de geração
+  // Check authentication for generation APIs
   if (pathname.startsWith('/api/generate') || pathname.startsWith('/api/auto-generate')) {
-    if (!checkAdminAuth(request)) {
+    const isAuthenticated = await checkSupabaseAuth(request);
+    if (!isAuthenticated) {
       return NextResponse.json(
         { error: 'Não autorizado. Faça login em /admin/login' },
         { status: 401 }
@@ -81,7 +102,7 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Excluir rotas admin e API do redirecionamento de locale
+  // Exclude admin and API routes from locale redirect
   if (pathname.startsWith('/admin/') || pathname.startsWith('/api/')) {
     return NextResponse.next();
   }

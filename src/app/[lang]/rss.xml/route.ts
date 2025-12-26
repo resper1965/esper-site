@@ -1,6 +1,5 @@
 import { docs } from '@/.source';
 import { siteConfig } from '@/lib/site';
-import { type Locale } from '@/i18n/config';
 
 /**
  * RSS Feed generator for blog posts
@@ -11,7 +10,7 @@ import { type Locale } from '@/i18n/config';
  */
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ lang: Locale }> }
+  { params }: { params: Promise<{ lang: string }> }
 ) {
   const { lang } = await params;
 

@@ -7,7 +7,12 @@
     "title": "Ricardo Esper",
     "bio": "Three decades shaping security strategies on a global scale. CISO, digital forensics expert, and international privacy and compliance specialist (LGPD/GDPR). Insights from someone who has lived through cybersecurity's evolution from its earliest days.",
     "loading": "Loading articles...",
-    "allTags": "All"
+    "allTags": "All",
+    "hero": {
+      "title": "Cybersecurity, Counterespionage and Technology",
+      "subtitle": "CEO of NESS, CISO at IONIC Health, and founder of forense.io. Sharing real experiences about cybersecurity, TSCM, home automation, and the challenges of protecting what truly matters.",
+      "readArticles": "Read Articles"
+    }
   },
   "about": {
     "title": "About",

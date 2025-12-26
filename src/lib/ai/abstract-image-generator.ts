@@ -13,7 +13,8 @@ import path from 'path';
 import { uploadPostImage } from '../supabase/storage';
 
 // Importação dinâmica do canvas (opcional)
-let createCanvas: (width: number, height: number) => import('canvas').Canvas;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let createCanvas: (width: number, height: number) => any;
 try {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const canvasModule = require('canvas');

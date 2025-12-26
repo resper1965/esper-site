@@ -44,16 +44,23 @@ async function regenerateAllImages() {
   let errorCount = 0;
 
   for (const file of files) {
+    // Declare variables outside try block so they're accessible in catch
+    let slug = '';
+    let title = 'Post';
+    let category = 'general';
+    let excerpt = '';
+    let keywords: string[] = [];
+    
     try {
       const filePath = path.join(postsDirectory, file);
       const fileContents = fs.readFileSync(filePath, 'utf8');
-      const { data: frontmatter, content } = matter(fileContents);
+      const { data: frontmatter } = matter(fileContents);
 
-      const slug = frontmatter.slug || file.replace(/\.mdx$/, '');
-      const title = frontmatter.title || 'Post';
-      const category = frontmatter.category || 'general';
-      const excerpt = frontmatter.excerpt || '';
-      const keywords = frontmatter.keywords || [];
+      slug = frontmatter.slug || file.replace(/\.mdx$/, '');
+      title = frontmatter.title || 'Post';
+      category = frontmatter.category || 'general';
+      excerpt = frontmatter.excerpt || '';
+      keywords = frontmatter.keywords || [];
 
       console.log(`🎨 Gerando imagem para: ${title}`);
       console.log(`   Slug: ${slug}`);

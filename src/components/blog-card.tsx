@@ -11,6 +11,7 @@ interface BlogCardProps {
   date: string;
   showRightBorder?: boolean;
   tags?: string[];
+  thumbnail?: string;
   readingTime?: number;
   isNew?: boolean;
   lang?: 'pt-BR' | 'en';

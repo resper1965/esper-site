@@ -44,28 +44,18 @@ function MDXImage({
   alt,
   width,
   height,
-  ...props
-}: React.ImgHTMLAttributes<HTMLImageElement> & {
+}: {
+  src?: string;
+  alt?: string;
   width?: number;
   height?: number;
 }) {
-  if (!src) return null;
+  if (!src || typeof src !== 'string') return null;
   
-  // Se for uma URL externa, usar img normal
-  if (src.startsWith('http://') || src.startsWith('https://')) {
-    return (
-      <img
-        src={src}
-        alt={alt || ''}
-        width={width}
-        height={height}
-        className="rounded-lg my-8 mx-auto max-w-full h-auto"
-        {...props}
-      />
-    );
-  }
+  // Both external and local images use Next.js Image
+  // External images use unoptimized to avoid next/image configuration issues
+  const isExternal = src.startsWith('http://') || src.startsWith('https://');
   
-  // Se for uma imagem local, usar Next.js Image
   return (
     <div className="my-8 flex justify-center">
       <Image
@@ -74,7 +64,7 @@ function MDXImage({
         width={width || 1200}
         height={height || 630}
         className="rounded-lg max-w-full h-auto"
-        {...props}
+        unoptimized={isExternal}
       />
     </div>
   );

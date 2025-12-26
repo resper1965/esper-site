@@ -34,7 +34,6 @@ export async function POST(request: Request) {
       post: {
         slug: saved.slug,
         score: post.score,
-        filepath: saved.filepath,
         preview: post.content.substring(0, 500) + '...',
         coverImage: saved.coverImage
       }

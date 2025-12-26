@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getPostComments, createComment, getCommentCount, type Comment } from '@/lib/supabase/comments';
 import { MessageCircle, Send, Loader2, CheckCircle } from 'lucide-react';
 
@@ -66,11 +66,7 @@ export function Comments({ postSlug, lang }: CommentsProps) {
 
   const t = texts[lang];
 
-  useEffect(() => {
-    loadComments();
-  }, [postSlug]);
-
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     setLoading(true);
     try {
       const [commentsData, countData] = await Promise.all([
@@ -79,12 +75,16 @@ export function Comments({ postSlug, lang }: CommentsProps) {
       ]);
       setComments(commentsData);
       setCount(countData);
-    } catch (error) {
-      console.error('Error loading comments:', error);
+    } catch (err) {
+      console.error('Error loading comments:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [postSlug]);
+
+  useEffect(() => {
+    loadComments();
+  }, [loadComments]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

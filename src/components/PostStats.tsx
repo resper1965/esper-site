@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Eye, Heart } from 'lucide-react';
 import { getPostStats, toggleLike, hasUserLiked, type PostStats } from '@/lib/supabase/analytics';
 
@@ -14,12 +14,12 @@ export function PostStats({ postSlug }: PostStatsProps) {
   const [loading, setLoading] = useState(false);
   const [userIp, setUserIp] = useState<string>('');
 
-  useEffect(() => {
-    loadStats();
-    getUserIp();
+  const loadStats = useCallback(async () => {
+    const data = await getPostStats(postSlug);
+    setStats(data);
   }, [postSlug]);
 
-  const getUserIp = async () => {
+  const getUserIp = useCallback(async () => {
     try {
       const response = await fetch('/api/ip');
       const data = await response.json();
@@ -28,16 +28,16 @@ export function PostStats({ postSlug }: PostStatsProps) {
       // Verificar se já deu like
       const hasLiked = await hasUserLiked(postSlug, data.ip || 'unknown');
       setLiked(hasLiked);
-    } catch (error) {
-      console.error('Error getting IP:', error);
+    } catch (err) {
+      console.error('Error getting IP:', err);
       setUserIp('unknown');
     }
-  };
+  }, [postSlug]);
 
-  const loadStats = async () => {
-    const data = await getPostStats(postSlug);
-    setStats(data);
-  };
+  useEffect(() => {
+    loadStats();
+    getUserIp();
+  }, [loadStats, getUserIp]);
 
   const handleLike = async () => {
     if (loading || !userIp) return;
@@ -50,8 +50,8 @@ export function PostStats({ postSlug }: PostStatsProps) {
         // Atualizar stats
         await loadStats();
       }
-    } catch (error) {
-      console.error('Error toggling like:', error);
+    } catch (err) {
+      console.error('Error toggling like:', err);
     } finally {
       setLoading(false);
     }

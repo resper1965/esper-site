@@ -77,11 +77,12 @@
   --popover-foreground: oklch(0.16 0 0); /* gray-900 */
 
   /* Primary - #00ade8 (Cyan Tecnológico) */
-  --primary: oklch(0.72 0.15 220);
-  --primary-foreground: oklch(0.99 0 0);
+  --primary: #00ade8;
+  --primary-foreground: #ffffff;
 
   /* Secondary */
   --secondary: oklch(0.97 0 0); /* gray-100 */
+
   --secondary-foreground: oklch(0.16 0 0); /* gray-900 */
 
   /* Muted */
@@ -93,8 +94,8 @@
   --accent-foreground: oklch(0.16 0 0); /* gray-900 */
 
   /* Estados */
-  --destructive: oklch(0.60 0.22 25);
-  --success: oklch(0.65 0.20 145);
+  --destructive: oklch(0.6 0.22 25);
+  --success: oklch(0.65 0.2 145);
   --warning: oklch(0.75 0.15 85);
 
   /* Bordas e inputs */
@@ -107,7 +108,7 @@
   --chart-2: oklch(0.65 0.18 215);
   --chart-3: oklch(0.55 0.12 210);
   --chart-4: oklch(0.78 0.13 225);
-  --chart-5: oklch(0.70 0.14 230);
+  --chart-5: oklch(0.7 0.14 230);
 
   /* Sidebar */
   --sidebar: oklch(0.99 0 0); /* gray-50 */
@@ -123,21 +124,21 @@
   --category-cybersecurity: oklch(0.65 0.18 215);
   --category-counterespionage: oklch(0.55 0.12 210);
   --category-automation: oklch(0.78 0.13 225);
-  --category-travel: oklch(0.70 0.14 230);
+  --category-travel: oklch(0.7 0.14 230);
 }
 
 .dark {
   /* Base neutra - Dark Mode (Shadcn Gray Scale) */
   --background: #111827; /* gray-900 */
   --foreground: oklch(0.99 0 0); /* gray-50 */
-  --card: oklch(0.20 0 0); /* gray-850 */
+  --card: oklch(0.2 0 0); /* gray-850 */
   --card-foreground: oklch(0.99 0 0); /* gray-50 */
-  --popover: oklch(0.20 0 0); /* gray-850 */
+  --popover: oklch(0.2 0 0); /* gray-850 */
   --popover-foreground: oklch(0.99 0 0); /* gray-50 */
 
-  /* Primary - Versão mais clara para dark mode */
-  --primary: oklch(0.75 0.16 220);
-  --primary-foreground: #111827; /* gray-900 */
+  /* Primary - #00ade8 */
+  --primary: #00ade8;
+  --primary-foreground: #ffffff;
 
   /* Secondary */
   --secondary: oklch(0.25 0 0); /* gray-800 */
@@ -145,16 +146,16 @@
 
   /* Muted */
   --muted: oklch(0.25 0 0); /* gray-800 */
-  --muted-foreground: oklch(0.70 0 0); /* gray-400 */
+  --muted-foreground: oklch(0.7 0 0); /* gray-400 */
 
   /* Accent */
   --accent: oklch(0.25 0 0); /* gray-800 */
   --accent-foreground: oklch(0.99 0 0); /* gray-50 */
 
   /* Estados */
-  --destructive: oklch(0.70 0.19 22);
-  --success: oklch(0.70 0.20 145);
-  --warning: oklch(0.80 0.15 85);
+  --destructive: oklch(0.7 0.19 22);
+  --success: oklch(0.7 0.2 145);
+  --warning: oklch(0.8 0.15 85);
 
   /* Bordas e inputs */
   --border: oklch(0.25 0 0); /* gray-800 */
@@ -163,13 +164,13 @@
 
   /* Charts */
   --chart-1: oklch(0.75 0.16 220);
-  --chart-2: oklch(0.70 0.18 215);
-  --chart-3: oklch(0.60 0.12 210);
-  --chart-4: oklch(0.80 0.13 225);
+  --chart-2: oklch(0.7 0.18 215);
+  --chart-3: oklch(0.6 0.12 210);
+  --chart-4: oklch(0.8 0.13 225);
   --chart-5: oklch(0.75 0.14 230);
 
   /* Sidebar */
-  --sidebar: oklch(0.20 0 0); /* gray-850 */
+  --sidebar: oklch(0.2 0 0); /* gray-850 */
   --sidebar-foreground: oklch(0.99 0 0); /* gray-50 */
   --sidebar-primary: oklch(0.75 0.16 220);
   --sidebar-primary-foreground: #111827; /* gray-900 */
@@ -179,9 +180,9 @@
   --sidebar-ring: oklch(0.75 0.16 220);
 
   /* Categorias - Versões mais claras para dark mode */
-  --category-cybersecurity: oklch(0.70 0.18 215);
-  --category-counterespionage: oklch(0.60 0.12 210);
-  --category-automation: oklch(0.80 0.13 225);
+  --category-cybersecurity: oklch(0.7 0.18 215);
+  --category-counterespionage: oklch(0.6 0.12 210);
+  --category-automation: oklch(0.8 0.13 225);
   --category-travel: oklch(0.75 0.14 230);
 }
 
@@ -240,7 +241,8 @@
   }
 
   /* Metadados */
-  time, .metadata {
+  time,
+  .metadata {
     @apply text-sm font-medium tracking-wide uppercase;
     font-family: var(--font-montserrat);
     font-weight: 500;
@@ -265,7 +267,8 @@
 
   /* Transições suaves */
   * {
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
+    transition-property: color, background-color, border-color,
+      text-decoration-color, fill, stroke, opacity, box-shadow, transform;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 150ms;
   }

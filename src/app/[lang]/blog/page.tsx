@@ -4,7 +4,6 @@ import { createMDXSource } from "fumadocs-mdx";
 import { BlogCard } from "@/components/blog-card";
 import { TagFilter } from "@/components/tag-filter";
 import { getDictionary } from "@/i18n/dictionaries";
-import { Locale } from "@/i18n/config";
 import { SiteNav } from "@/components/site-nav";
 import Footer from "@/components/footer";
 
@@ -39,12 +38,14 @@ export default async function BlogListPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ lang: Locale }>;
+  params: Promise<{ lang: string }>;
   searchParams: Promise<{ tag?: string }>;
 }) {
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
-  const lang = resolvedParams?.lang || 'pt-BR';
+  const langParam = resolvedParams?.lang || 'pt-BR';
+  // Validate and cast to Locale type
+  const lang = (langParam === 'pt-BR' || langParam === 'en' ? langParam : 'pt-BR') as 'pt-BR' | 'en';
   const dict = await getDictionary(lang);
 
   let allPages: BlogPage[] = [];

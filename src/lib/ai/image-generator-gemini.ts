@@ -1,4 +1,4 @@
-import { generatePostImageWithOG } from './image-generator-og.tsx';
+import { generatePostImageWithOG } from './image-generator-og';
 import { generateThemedAbstractImage } from './abstract-image-generator';
 
 /**
