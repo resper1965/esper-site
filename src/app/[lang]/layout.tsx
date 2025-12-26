@@ -90,12 +90,12 @@ export default async function LangLayout({
   const websiteSchema = generateWebSiteSchema(lang);
   const organizationSchema = generateOrganizationSchema(lang);
 
-  return (
-    <html
-      lang={lang}
-      className={`${montserrat.variable} ${GeistSans.variable} ${GeistMono.variable} antialiased`}
-      suppressHydrationWarning
-    >
+        return (
+          <html
+            lang={lang}
+            className={`${montserrat.variable} ${GeistSans.variable} ${GeistMono.variable} antialiased dark`}
+            suppressHydrationWarning
+          >
       <head>
         {/* Structured Data */}
         <script
@@ -125,8 +125,9 @@ export default async function LangLayout({
 
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="dark"
+          forcedTheme="dark"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <SiteNav lang={lang} dict={dict} />

@@ -46,10 +46,10 @@ export default function LoginPage() {
       <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>
-            <h2 className="mt-6 text-center text-3xl font-bold text-grey-50">
+            <h2 className="mt-6 text-center text-3xl font-bold text-foreground">
               Acesso Administrativo
             </h2>
-            <p className="mt-2 text-center text-sm text-grey-400">
+            <p className="mt-2 text-center text-sm text-muted-foreground">
               Faça login para acessar o painel
             </p>
           </div>
@@ -65,7 +65,7 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   required
-                  className="appearance-none relative block w-full px-3 py-2 border border-grey-700 bg-grey-900 placeholder-grey-500 text-grey-50 rounded-md focus:outline-none focus:ring-cyan focus:border-cyan focus:z-10 sm:text-sm"
+                  className="appearance-none relative block w-full px-3 py-2 border border-border bg-card placeholder-muted-foreground text-foreground rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -81,7 +81,7 @@ export default function LoginPage() {
                   type="password"
                   autoComplete="current-password"
                   required
-                  className="appearance-none relative block w-full px-3 py-2 border border-grey-700 bg-grey-900 placeholder-grey-500 text-grey-50 rounded-md focus:outline-none focus:ring-cyan focus:border-cyan focus:z-10 sm:text-sm"
+                  className="appearance-none relative block w-full px-3 py-2 border border-border bg-card placeholder-muted-foreground text-foreground rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                   placeholder="Senha"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -90,8 +90,8 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="rounded-md bg-red-950/50 border border-red-800 p-4">
-                <div className="text-sm text-red-400">{error}</div>
+              <div className="rounded-md bg-destructive/10 border border-destructive/50 p-4">
+                <div className="text-sm text-destructive">{error}</div>
               </div>
             )}
 
@@ -99,7 +99,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-grey-950 bg-cyan hover:bg-cyan/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan disabled:bg-grey-700 disabled:text-grey-500 disabled:cursor-not-allowed transition-colors"
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? 'Entrando...' : 'Entrar'}
               </button>

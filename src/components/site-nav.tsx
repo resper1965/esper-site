@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Locale } from "@/i18n/config";
 
@@ -48,7 +47,6 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
               {dict.nav.about}
             </Link>
             <LanguageSwitcher currentLocale={lang} />
-            <ThemeToggle />
           </nav>
         </div>
       </div>

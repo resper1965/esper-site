@@ -43,11 +43,11 @@ export default function PostCard({
           </time>
         </div>
 
-        <h2 className="mb-3 text-xl font-semibold text-grey-900 transition-colors group-hover:text-grey-700">
+        <h2 className="mb-3 text-xl font-semibold text-foreground transition-colors group-hover:text-muted-foreground">
           {title}
         </h2>
 
-        <p className="text-sm leading-relaxed text-grey-600 line-clamp-3">
+        <p className="text-sm leading-relaxed text-muted-foreground line-clamp-3">
           {excerpt}
         </p>
       </Link>
