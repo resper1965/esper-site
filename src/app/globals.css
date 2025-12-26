@@ -73,7 +73,7 @@
   --foreground: 0.16 0 0; /* gray-900 */
   --card: 0.99 0 0; /* gray-50 */
   --card-foreground: 0.16 0 0; /* gray-900 */
-  --popover: 1 0 0; /* white */
+  --popover: 0.99 0 0; /* quase branco - mais opaco */
   --popover-foreground: 0.16 0 0; /* gray-900 */
 
   /* Primary - #00ade8 (Cyan Tecnológico) - hex values work with var() */
