@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AdminLayout from '@/components/layout/AdminLayout';
-import { FileText, CheckCircle, Clock, TrendingUp } from 'lucide-react';
+import { FileText, CheckCircle, Clock, TrendingUp, Loader2 } from 'lucide-react';
 
 interface Stats {
   totalPosts: number;
@@ -14,21 +14,47 @@ interface Stats {
 
 export default function AnalyticsDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setStats({
-      totalPosts: 5,
-      draftPosts: 0,
-      publishedPosts: 5,
-      avgScore: 9.0,
-      categoryCounts: {
-        cybersecurity: 2,
-        counterespionage: 1,
-        homeautomation: 1,
-        travel: 1
+    const loadStats = async () => {
+      try {
+        const response = await fetch('/api/admin/stats');
+        if (!response.ok) {
+          throw new Error('Failed to fetch stats');
+        }
+        const data = await response.json();
+        setStats(data);
+      } catch (error) {
+        console.error('Error loading stats:', error);
+        // Fallback para dados vazios em caso de erro
+        setStats({
+          totalPosts: 0,
+          draftPosts: 0,
+          publishedPosts: 0,
+          avgScore: 0,
+          categoryCounts: {}
+        });
+      } finally {
+        setLoading(false);
       }
-    });
+    };
+
+    loadStats();
   }, []);
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-grey-600 mx-auto mb-3" />
+            <p className="text-grey-600">Carregando estatísticas...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   if (!stats) return null;
 

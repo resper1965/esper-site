@@ -30,7 +30,7 @@ export default function AdminDashboard() {
         } else {
           setCheckingAuth(false);
           // Carregar estatísticas
-          loadStats();
+          await loadStats();
         }
       } catch {
         router.push('/admin/login');
@@ -40,24 +40,25 @@ export default function AdminDashboard() {
     checkAuth();
   }, [router]);
 
-  const loadStats = () => {
-    // Por enquanto dados mockados - depois pode buscar de uma API
-    setStats({
-      totalPosts: 36,
-      draftPosts: 0,
-      publishedPosts: 36,
-      avgScore: 9.2,
-      categoryCounts: {
-        cybersecurity: 11,
-        counterespionage: 4,
-        homeautomation: 3,
-        vida: 3,
-        travel: 1,
-        general: 1,
-        forensics: 1,
-        compliance: 1
+  const loadStats = async () => {
+    try {
+      const response = await fetch('/api/admin/stats');
+      if (!response.ok) {
+        throw new Error('Failed to fetch stats');
       }
-    });
+      const data = await response.json();
+      setStats(data);
+    } catch (error) {
+      console.error('Error loading stats:', error);
+      // Fallback para dados vazios em caso de erro
+      setStats({
+        totalPosts: 0,
+        draftPosts: 0,
+        publishedPosts: 0,
+        avgScore: 0,
+        categoryCounts: {}
+      });
+    }
   };
 
   if (checkingAuth) {
