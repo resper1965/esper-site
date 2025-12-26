@@ -24,8 +24,11 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
 });
 
 // Cliente para uso exclusivo no servidor (com service role se necessário)
+// Usa service role key se disponível (privilegiada, apenas servidor)
 export function createServerSupabaseClient() {
-  return createClient<Database>(supabaseUrl, supabaseKey, {
+  const serverKey = process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseKey;
+  
+  return createClient<Database>(supabaseUrl, serverKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
