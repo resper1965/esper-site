@@ -74,7 +74,7 @@ export default async function HomePage({
             variant: "default",
           },
         ]}
-        className="mb-4 sm:mb-6 md:mb-8"
+        className="mb-2 sm:mb-3 md:mb-4"
       />
 
       <div id="posts" className="max-w-7xl mx-auto w-full px-6 lg:px-0">
