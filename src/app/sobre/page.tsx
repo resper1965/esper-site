@@ -45,30 +45,30 @@ export default function Sobre() {
               </p>
 
               <div>
-                <h2 className="mt-12 text-2xl font-semibold text-grey-900">
+                <h2 className="mt-12 text-2xl font-semibold text-foreground">
                   Atuação Global
                 </h2>
-                <ul className="mt-4 space-y-3 text-grey-700">
+                <ul className="mt-4 space-y-3 text-muted-foreground">
                   <li>
-                    <span className="font-medium text-grey-900">CEO & Founder</span> — <a href="https://ness.com.br" target="_blank" rel="noopener noreferrer" className="underline hover:text-grey-700 transition-colors">NESS</a>
+                    <span className="font-medium text-foreground">CEO & Founder</span> — <a href="https://ness.com.br" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">NESS</a>
                   </li>
                   <li>
-                    <span className="font-medium text-grey-900">CISO & Co-Founder</span> — <a href="https://ionic.health" target="_blank" rel="noopener noreferrer" className="underline hover:text-grey-700 transition-colors">IONIC Health</a>
+                    <span className="font-medium text-foreground">CISO & Co-Founder</span> — <a href="https://ionic.health" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">IONIC Health</a>
                   </li>
                   <li>
-                    <span className="font-medium text-grey-900">CEO</span> — forense.io, Trustness, Infinity Safe
+                    <span className="font-medium text-foreground">CEO</span> — forense.io, Trustness, Infinity Safe
                   </li>
                   <li>
-                    <span className="font-medium text-grey-900">Board Member</span> — Bekaa Trusted Advisors
+                    <span className="font-medium text-foreground">Board Member</span> — Bekaa Trusted Advisors
                   </li>
                 </ul>
               </div>
 
               <div>
-                <h2 className="mt-12 text-2xl font-semibold text-grey-900">
+                <h2 className="mt-12 text-2xl font-semibold text-foreground">
                   Comunidade Internacional
                 </h2>
-                <p className="mt-4 text-grey-700">
+                <p className="mt-4 text-muted-foreground">
                   Membro ativo das principais organizações globais de segurança: HackerOne (Bug Bounty),
                   OWASP (Application Security), IAPP (Privacy Professionals), ERII (International Affairs),
                   e OAB/SP (Legal Practice).
@@ -76,48 +76,48 @@ export default function Sobre() {
               </div>
 
               <div>
-                <h2 className="mt-12 text-2xl font-semibold text-grey-900">
+                <h2 className="mt-12 text-2xl font-semibold text-foreground">
                   Certificações e Expertise
                 </h2>
                 <div className="mt-4 space-y-3">
-                  <p className="text-grey-700">
-                    <span className="font-medium text-grey-900">Certificações:</span> CCISO (Chief Information Security Officer),
+                  <p className="text-muted-foreground">
+                    <span className="font-medium text-foreground">Certificações:</span> CCISO (Chief Information Security Officer),
                     CEHIv8 (Ethical Hacking), GDPR Compliance, Cybersecurity Awareness
                   </p>
                   <div className="mt-6 flex flex-wrap gap-3">
-                    <span className="inline-flex items-center rounded-full bg-grey-200 px-4 py-2 text-sm font-medium text-grey-800">
+                    <span className="inline-flex items-center rounded-full bg-muted px-4 py-2 text-sm font-medium text-muted-foreground border border-border">
                       Information Security Architecture
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-grey-200 px-4 py-2 text-sm font-medium text-grey-800">
+                    <span className="inline-flex items-center rounded-full bg-muted px-4 py-2 text-sm font-medium text-muted-foreground border border-border">
                       Digital Forensics & Incident Response
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-grey-200 px-4 py-2 text-sm font-medium text-grey-800">
+                    <span className="inline-flex items-center rounded-full bg-muted px-4 py-2 text-sm font-medium text-muted-foreground border border-border">
                       International Privacy & Compliance
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-grey-200 px-4 py-2 text-sm font-medium text-grey-800">
+                    <span className="inline-flex items-center rounded-full bg-muted px-4 py-2 text-sm font-medium text-muted-foreground border border-border">
                       CISO Leadership & Governance
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-grey-200 px-4 py-2 text-sm font-medium text-grey-800">
+                    <span className="inline-flex items-center rounded-full bg-muted px-4 py-2 text-sm font-medium text-muted-foreground border border-border">
                       Cyber Intelligence & OSINT
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-grey-200 px-4 py-2 text-sm font-medium text-grey-800">
+                    <span className="inline-flex items-center rounded-full bg-muted px-4 py-2 text-sm font-medium text-muted-foreground border border-border">
                       Executive Protection (TSCM)
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-12 pt-8 border-t border-grey-200">
-                <h2 className="text-2xl font-semibold text-grey-900">
+              <div className="mt-12 pt-8 border-t border-border">
+                <h2 className="text-2xl font-semibold text-foreground">
                   Contato
                 </h2>
-                <p className="mt-4 text-grey-700">
+                <p className="mt-4 text-muted-foreground">
                   Conecte-se comigo no{' '}
                   <a
                     href="https://www.linkedin.com/in/ricardoesper"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-medium text-grey-900 underline transition-colors hover:text-grey-700"
+                    className="font-medium text-foreground underline transition-colors hover:text-primary"
                   >
                     LinkedIn
                   </a>

@@ -64,13 +64,13 @@ export default async function Sobre({
       <div className="bg-transparent">
         <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
           <div className="prose prose-sm sm:prose-base md:prose-lg max-w-none dark:prose-invert">
-            <h1 className="text-3xl font-bold text-grey-900 dark:text-grey-50 sm:text-4xl md:text-5xl">
+            <h1 className="text-3xl font-bold text-foreground sm:text-4xl md:text-5xl">
               {dict.about.title}
             </h1>
 
             {/* Foto do Ricardo Esper */}
             <div className="mt-6 sm:mt-8 mb-8 sm:mb-10 flex justify-center">
-              <div className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden bg-muted border-4 border-border dark:border-grey-700 shadow-lg">
+              <div className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden bg-muted border-4 border-border shadow-lg">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/authors/ricardo.png"
@@ -80,82 +80,82 @@ export default async function Sobre({
               </div>
             </div>
 
-            <div className="mt-6 sm:mt-8 space-y-4 sm:space-y-6 text-base sm:text-lg leading-relaxed text-grey-700 dark:text-grey-300">
+            <div className="mt-6 sm:mt-8 space-y-4 sm:space-y-6 text-base sm:text-lg leading-relaxed text-muted-foreground">
               <p>{dict.about.intro1}</p>
               <p>{dict.about.intro2}</p>
               <p>{dict.about.intro3}</p>
 
               <div>
-                <h2 className="mt-12 text-2xl font-semibold text-grey-900 dark:text-grey-50">
+                <h2 className="mt-12 text-2xl font-semibold text-foreground">
                   {dict.about.globalPresence}
                 </h2>
-                <ul className="mt-4 space-y-3 text-grey-700 dark:text-grey-300">
+                <ul className="mt-4 space-y-3 text-muted-foreground">
                   <li>
-                    <span className="font-medium text-grey-900 dark:text-grey-50">CEO & Founder</span> — <a href="https://ness.com.br" target="_blank" rel="noopener noreferrer" className="underline hover:text-grey-300 dark:hover:text-grey-100 transition-colors">NESS</a>
+                    <span className="font-medium text-foreground">CEO & Founder</span> — <a href="https://ness.com.br" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">NESS</a>
                   </li>
                   <li>
-                    <span className="font-medium text-grey-900 dark:text-grey-50">CISO & Co-Founder</span> — <a href="https://ionic.health" target="_blank" rel="noopener noreferrer" className="underline hover:text-grey-300 dark:hover:text-grey-100 transition-colors">IONIC Health</a>
+                    <span className="font-medium text-foreground">CISO & Co-Founder</span> — <a href="https://ionic.health" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">IONIC Health</a>
                   </li>
                   <li>
-                    <span className="font-medium text-grey-900 dark:text-grey-50">CEO</span> — forense.io, Trustness, Infinity Safe
+                    <span className="font-medium text-foreground">CEO</span> — forense.io, Trustness, Infinity Safe
                   </li>
                   <li>
-                    <span className="font-medium text-grey-900 dark:text-grey-50">Board Member</span> — Bekaa Trusted Advisors
+                    <span className="font-medium text-foreground">Board Member</span> — Bekaa Trusted Advisors
                   </li>
                 </ul>
               </div>
 
               <div>
-                <h2 className="mt-12 text-2xl font-semibold text-grey-900 dark:text-grey-50">
+                <h2 className="mt-12 text-2xl font-semibold text-foreground">
                   {dict.about.internationalCommunity}
                 </h2>
-                <p className="mt-4 text-grey-700 dark:text-grey-300">
+                <p className="mt-4 text-muted-foreground">
                   {dict.about.internationalCommunityText}
                 </p>
               </div>
 
               <div>
-                <h2 className="mt-12 text-2xl font-semibold text-grey-900 dark:text-grey-50">
+                <h2 className="mt-12 text-2xl font-semibold text-foreground">
                   {dict.about.certifications}
                 </h2>
                 <div className="mt-4 space-y-3">
-                  <p className="text-grey-700 dark:text-grey-300">
-                    <span className="font-medium text-grey-900 dark:text-grey-50">{dict.about.certificationsText.split(':')[0]}:</span> {dict.about.certificationsText.split(':')[1]}
+                  <p className="text-muted-foreground">
+                    <span className="font-medium text-foreground">{dict.about.certificationsText.split(':')[0]}:</span> {dict.about.certificationsText.split(':')[1]}
                   </p>
                   <div className="mt-6 flex flex-wrap gap-3">
-                    <span className="inline-flex items-center rounded-full bg-grey-200 dark:bg-grey-800 px-4 py-2 text-sm font-medium text-grey-800 dark:text-grey-200">
+                    <span className="inline-flex items-center rounded-full bg-muted px-4 py-2 text-sm font-medium text-muted-foreground border border-border">
                       Information Security Architecture
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-grey-200 dark:bg-grey-800 px-4 py-2 text-sm font-medium text-grey-800 dark:text-grey-200">
+                    <span className="inline-flex items-center rounded-full bg-muted px-4 py-2 text-sm font-medium text-muted-foreground border border-border">
                       Digital Forensics & Incident Response
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-grey-200 dark:bg-grey-800 px-4 py-2 text-sm font-medium text-grey-800 dark:text-grey-200">
+                    <span className="inline-flex items-center rounded-full bg-muted px-4 py-2 text-sm font-medium text-muted-foreground border border-border">
                       International Privacy & Compliance
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-grey-200 dark:bg-grey-800 px-4 py-2 text-sm font-medium text-grey-800 dark:text-grey-200">
+                    <span className="inline-flex items-center rounded-full bg-muted px-4 py-2 text-sm font-medium text-muted-foreground border border-border">
                       CISO Leadership & Governance
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-grey-200 dark:bg-grey-800 px-4 py-2 text-sm font-medium text-grey-800 dark:text-grey-200">
+                    <span className="inline-flex items-center rounded-full bg-muted px-4 py-2 text-sm font-medium text-muted-foreground border border-border">
                       Cyber Intelligence & OSINT
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-grey-200 dark:bg-grey-800 px-4 py-2 text-sm font-medium text-grey-800 dark:text-grey-200">
+                    <span className="inline-flex items-center rounded-full bg-muted px-4 py-2 text-sm font-medium text-muted-foreground border border-border">
                       Executive Protection (TSCM)
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-12 pt-8 border-t border-grey-200 dark:border-grey-800">
-                <h2 className="text-2xl font-semibold text-grey-900 dark:text-grey-50">
+              <div className="mt-12 pt-8 border-t border-border">
+                <h2 className="text-2xl font-semibold text-foreground">
                   {dict.about.contact}
                 </h2>
-                <p className="mt-4 text-grey-700 dark:text-grey-300">
+                <p className="mt-4 text-muted-foreground">
                   {dict.about.contactText}{' '}
                   <a
                     href="https://www.linkedin.com/in/ricardoesper"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-medium text-grey-900 dark:text-grey-50 underline transition-colors hover:text-grey-700 dark:hover:text-grey-300"
+                    className="font-medium text-foreground underline transition-colors hover:text-primary"
                   >
                     {dict.about.linkedin}
                   </a>
