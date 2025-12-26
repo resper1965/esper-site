@@ -1,30 +1,10 @@
-import { docs, meta } from "@/.source";
-import { loader } from "fumadocs-core/source";
-import { createMDXSource } from "fumadocs-mdx";
 import { BlogCard } from "@/components/blog-card";
 import { TagFilter } from "@/components/tag-filter";
 import { getDictionary } from "@/i18n/dictionaries";
 import { SiteNav } from "@/components/site-nav";
 import Footer from "@/components/footer";
-
-interface BlogData {
-  title: string;
-  description?: string;
-  date: string;
-  tags?: string[];
-  thumbnail?: string;
-  coverImage?: string;
-}
-
-interface BlogPage {
-  url: string;
-  data: BlogData;
-}
-
-const blogSource = loader({
-  baseUrl: "/blog",
-  source: createMDXSource(docs, meta),
-});
+import { getAllPosts, type Post } from "@/lib/posts";
+import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
 
 const formatDate = (date: Date, locale: string): string => {
   return date.toLocaleDateString(locale, {
@@ -48,39 +28,37 @@ export default async function BlogListPage({
   const lang = (langParam === 'pt-BR' || langParam === 'en' ? langParam : 'pt-BR') as 'pt-BR' | 'en';
   const dict = await getDictionary(lang);
 
-  let allPages: BlogPage[] = [];
+  // Buscar posts do Supabase
+  let allPosts: Post[] = [];
   try {
-    const pages = blogSource.getPages();
-    if (Array.isArray(pages)) {
-      allPages = pages;
-    } else if (pages && typeof pages === 'object' && 'files' in pages) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const files = (pages as any).files;
-      allPages = Array.isArray(files) ? files : [];
-    }
+    allPosts = await getAllPosts();
   } catch (error) {
-    console.error('Error getting pages:', error);
-    allPages = [];
+    console.error('Error fetching posts from Supabase:', error);
+    allPosts = [];
   }
 
-  const sortedBlogs = allPages.sort((a, b) => {
-    const dateA = new Date(a.data.date).getTime();
-    const dateB = new Date(b.data.date).getTime();
-    return dateB - dateA;
+  // Filter posts by language
+  const filteredByLanguage = allPosts.filter((post) => {
+    const postLang = (post.frontMatter.language || 'pt-BR').toLowerCase();
+    const normalizedLang = lang.toLowerCase();
+    return postLang === normalizedLang;
   });
 
+  // Posts já vêm ordenados do Supabase (mais recente primeiro)
+  const sortedBlogs = filteredByLanguage;
+
   const allTags = [
-    "Todos",
+    dict.home.allTags || "Todos",
     ...Array.from(
-      new Set(sortedBlogs.flatMap((blog) => blog.data.tags || []))
+      new Set(sortedBlogs.flatMap((blog) => blog.frontMatter.tags || []))
     ).sort(),
   ];
 
-  const selectedTag = resolvedSearchParams.tag || "Todos";
+  const selectedTag = resolvedSearchParams.tag || dict.home.allTags || "Todos";
   const filteredBlogs =
-    selectedTag === "Todos"
+    selectedTag === (dict.home.allTags || "Todos")
       ? sortedBlogs
-      : sortedBlogs.filter((blog) => blog.data.tags?.includes(selectedTag));
+      : sortedBlogs.filter((blog) => blog.frontMatter.tags?.includes(selectedTag));
 
   return (
     <>
@@ -100,17 +78,25 @@ export default async function BlogListPage({
           />
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mt-8">
-            {filteredBlogs.map((blog) => {
-              const formattedDate = formatDate(new Date(blog.data.date), lang);
+            {filteredBlogs.map((post) => {
+              const formattedDate = formatDate(new Date(post.frontMatter.date), lang);
+              const description = post.frontMatter.description || post.frontMatter.excerpt || "";
+              const readingTime = calculateReadingTime(description + " " + post.frontMatter.title + " " + (post.content || ""));
+              const isNew = isNewPost(post.frontMatter.date);
+
               return (
                 <BlogCard
-                  key={blog.url}
-                  url={blog.url}
-                  title={blog.data.title}
-                  description={blog.data.description || ""}
+                  key={post.slug}
+                  url={`/${lang}/blog/${post.slug}`}
+                  title={post.frontMatter.title}
+                  description={description}
                   date={formattedDate}
-                  tags={blog.data.tags}
+                  tags={post.frontMatter.tags}
                   showRightBorder={filteredBlogs.length < 3}
+                  readingTime={readingTime}
+                  isNew={isNew}
+                  lang={lang}
+                  thumbnail={post.frontMatter.coverImage}
                 />
               );
             })}

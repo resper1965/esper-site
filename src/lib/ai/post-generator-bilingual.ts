@@ -1,6 +1,4 @@
 import { generateTextWithGemini } from './gemini-client';
-import fs from 'fs';
-import path from 'path';
 
 const RICARDO_PROFILE = JSON.parse(
   fs.readFileSync(path.join(process.cwd(), 'src/lib/ai/ricardo-profile.json'), 'utf-8')
@@ -260,66 +258,87 @@ async function evaluateQuality(content: string, language: 'pt-BR' | 'en'): Promi
   return Math.round(score * 10) / 10;
 }
 
+import { createPost } from '@/lib/posts';
+import matter from 'gray-matter';
+import type { Database } from '@/lib/supabase/database.types';
+import fs from 'fs';
+import path from 'path';
+
+type PostInsert = Database['public']['Tables']['posts']['Insert'];
+
 export async function saveBilingualPosts(posts: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ptBR: { content: string; score: number; language: string; metadata: any };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   en: { content: string; score: number; language: string; metadata: any };
 }) {
-  const draftsDir = path.join(process.cwd(), 'blog/content/drafts');
+  // Parse PT-BR post
+  const { data: ptFrontmatter, content: ptContent } = matter(posts.ptBR.content);
+  const ptSlug = ptFrontmatter.slug || `draft-pt-${Date.now()}`;
 
-  if (!fs.existsSync(draftsDir)) {
-    fs.mkdirSync(draftsDir, { recursive: true });
-  }
+  // Parse EN post
+  const { data: enFrontmatter, content: enContent } = matter(posts.en.content);
+  const enSlug = enFrontmatter.slug || `draft-en-${Date.now()}`;
 
-  // Save PT-BR version
-  const ptSlugMatch = posts.ptBR.content.match(/slug: "(.+)"/);
-  const ptSlug = ptSlugMatch ? ptSlugMatch[1] : `draft-pt-${Date.now()}`;
-  const ptFilename = `${ptSlug}.mdx`;
-  const ptFilepath = path.join(draftsDir, ptFilename);
-
-  const ptContentWithMeta = `${posts.ptBR.content}
-
-<!--
-METADATA DE GERAÇÃO:
-- Score: ${posts.ptBR.score}/10
-- Idioma: PT-BR
-- Gerado em: ${posts.ptBR.metadata.generatedAt}
-- Modelo: ${posts.ptBR.metadata.model}
--->
-`;
-
-  fs.writeFileSync(ptFilepath, ptContentWithMeta, 'utf-8');
-
-  // Save EN version
-  const enSlugMatch = posts.en.content.match(/slug: "(.+)"/);
-  const enSlug = enSlugMatch ? enSlugMatch[1] : `draft-en-${Date.now()}`;
-  const enFilename = `${enSlug}.mdx`;
-  const enFilepath = path.join(draftsDir, enFilename);
-
-  const enContentWithMeta = `${posts.en.content}
-
-<!--
-GENERATION METADATA:
-- Score: ${posts.en.score}/10
-- Language: EN
-- Generated at: ${posts.en.metadata.generatedAt}
-- Model: ${posts.en.metadata.model}
--->
-`;
-
-  fs.writeFileSync(enFilepath, enContentWithMeta, 'utf-8');
-
-  return {
-    ptBR: {
-      filepath: ptFilepath,
-      filename: ptFilename,
-      slug: ptSlug,
-    },
-    en: {
-      filepath: enFilepath,
-      filename: enFilename,
-      slug: enSlug,
-    },
+  // Prepare PT-BR post data for Supabase
+  const ptPostData: PostInsert = {
+    slug: ptSlug,
+    title: ptFrontmatter.title || 'Post sem título',
+    content: ptContent,
+    excerpt: ptFrontmatter.excerpt || '',
+    description: ptFrontmatter.description || ptFrontmatter.excerpt || '',
+    category: ptFrontmatter.category || 'general',
+    language: 'pt-br',
+    author: ptFrontmatter.author || 'Ricardo Esper',
+    cover_image: ptFrontmatter.coverImage || null,
+    keywords: Array.isArray(ptFrontmatter.keywords) ? ptFrontmatter.keywords : ptFrontmatter.keywords ? [ptFrontmatter.keywords] : null,
+    tags: Array.isArray(ptFrontmatter.tags) ? ptFrontmatter.tags : ptFrontmatter.tags ? [ptFrontmatter.tags] : null,
+    date: ptFrontmatter.date || new Date().toISOString().split('T')[0],
+    published: false, // Drafts are not published by default
+    featured: ptFrontmatter.featured || false,
+    read_time: ptFrontmatter.readTime || null,
   };
+
+  // Prepare EN post data for Supabase
+  const enPostData: PostInsert = {
+    slug: enSlug,
+    title: enFrontmatter.title || 'Untitled Post',
+    content: enContent,
+    excerpt: enFrontmatter.excerpt || '',
+    description: enFrontmatter.description || enFrontmatter.excerpt || '',
+    category: enFrontmatter.category || 'general',
+    language: 'en',
+    author: enFrontmatter.author || 'Ricardo Esper',
+    cover_image: enFrontmatter.coverImage || null,
+    keywords: Array.isArray(enFrontmatter.keywords) ? enFrontmatter.keywords : enFrontmatter.keywords ? [enFrontmatter.keywords] : null,
+    tags: Array.isArray(enFrontmatter.tags) ? enFrontmatter.tags : enFrontmatter.tags ? [enFrontmatter.tags] : null,
+    date: enFrontmatter.date || new Date().toISOString().split('T')[0],
+    published: false, // Drafts are not published by default
+    featured: enFrontmatter.featured || false,
+    read_time: enFrontmatter.readTime || null,
+  };
+
+  // Save both posts to Supabase
+  try {
+    const ptResult = await createPost(ptPostData);
+    const enResult = await createPost(enPostData);
+    
+    return {
+      ptBR: {
+        success: !!ptResult,
+        slug: ptSlug,
+        filepath: null, // No longer using file paths
+        filename: null, // No longer using file paths
+      },
+      en: {
+        success: !!enResult,
+        slug: enSlug,
+        filepath: null, // No longer using file paths
+        filename: null, // No longer using file paths
+      },
+    };
+  } catch (error) {
+    console.error('Error saving bilingual posts to Supabase:', error);
+    throw error;
+  }
 }

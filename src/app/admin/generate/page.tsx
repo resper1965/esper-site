@@ -503,11 +503,11 @@ export default function GenerateDashboard() {
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 mr-2 flex-shrink-0" />
-                <span>Posts são salvos automaticamente em <code className="bg-blue-100 px-1.5 py-0.5 rounded text-xs">src/content/posts/drafts/</code></span>
+                <span>Posts são salvos automaticamente como <strong>drafts</strong> no Supabase</span>
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 mr-2 flex-shrink-0" />
-                <span>Revise o conteúdo antes de publicar movendo para <code className="bg-blue-100 px-1.5 py-0.5 rounded text-xs">src/content/posts/</code></span>
+                <span>Revise o conteúdo no painel admin antes de publicar</span>
               </li>
             </ul>
           </div>

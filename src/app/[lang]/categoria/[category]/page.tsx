@@ -1,6 +1,3 @@
-import { docs, meta } from "@/.source";
-import { loader } from "fumadocs-core/source";
-import { createMDXSource } from "fumadocs-mdx";
 import { BlogCard } from "@/components/blog-card";
 import { getDictionary } from "@/i18n/dictionaries";
 import { Locale } from "@/i18n/config";
@@ -8,11 +5,8 @@ import { generatePageMetadata, generateCollectionPageSchema } from "@/lib/metada
 import { siteConfig } from "@/lib/site";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-
-const blogSource = loader({
-  baseUrl: "/blog",
-  source: createMDXSource(docs, meta),
-});
+import { getPostsByCategory, type Post } from "@/lib/posts";
+import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
 
 const categoryMap: Record<string, { pt: string; en: string }> = {
   cybersecurity: { pt: 'Cibersegurança', en: 'Cybersecurity' },
@@ -64,29 +58,19 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   const categoryName = lang === 'pt-BR' ? categoryInfo.pt : categoryInfo.en;
 
-  // Get all posts for this category
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let categoryPosts: any[] = [];
+  // Get all posts for this category from Supabase
+  let categoryPosts: Post[] = [];
   try {
-    const pages = blogSource.getPages();
-    const allPages = Array.isArray(pages) ? pages : [];
-    const filteredByLanguage = allPages.filter((page) => {
-      const postLang = (page.data.language || 'pt-BR').toLowerCase();
+    const allCategoryPosts = await getPostsByCategory(category);
+    // Filter by language
+    categoryPosts = allCategoryPosts.filter((post) => {
+      const postLang = (post.frontMatter.language || 'pt-BR').toLowerCase();
       const normalizedLang = lang.toLowerCase();
-    return postLang === normalizedLang;
+      return postLang === normalizedLang;
     });
-    categoryPosts = filteredByLanguage
-      .filter((page) => {
-        const postCategory = page.data.category || page.data.tags?.[0];
-        return postCategory === category;
-      })
-      .sort((a, b) => {
-        const dateA = new Date(a.data.date).getTime();
-        const dateB = new Date(b.data.date).getTime();
-        return dateB - dateA;
-      });
   } catch (error) {
-    console.error('Error getting category posts:', error);
+    console.error('Error getting category posts from Supabase:', error);
+    categoryPosts = [];
   }
 
   // Generate CollectionPage schema
@@ -98,8 +82,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       : `Articles about ${categoryName.toLowerCase()}`,
     url,
     items: categoryPosts.map((post) => ({
-      name: post.data.title,
-      url: `/${lang}/blog/${post.slugs[0]}`,
+      name: post.frontMatter.title,
+      url: `/${lang}/blog/${post.slug}`,
     })),
     lang,
   });
@@ -129,26 +113,26 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {categoryPosts.map((post) => {
-              const contentText = post.data.body?.toString() || '';
-              const wordCount = contentText.split(/\s+/).filter((word: string) => word.length > 0).length;
-              const readingTime = Math.ceil(wordCount / 200);
+              const description = post.frontMatter.description || post.frontMatter.excerpt || '';
+              const readingTime = calculateReadingTime(description + " " + post.frontMatter.title + " " + (post.content || ""));
+              const isNew = isNewPost(post.frontMatter.date);
               
               return (
                 <BlogCard
-                  key={post.slugs[0]}
-                  url={`/${lang}/blog/${post.slugs[0]}`}
-                  title={post.data.title}
-                  description={post.data.excerpt || post.data.description || ''}
-                  date={new Date(post.data.date).toLocaleDateString(lang, {
+                  key={post.slug}
+                  url={`/${lang}/blog/${post.slug}`}
+                  title={post.frontMatter.title}
+                  description={description}
+                  date={new Date(post.frontMatter.date).toLocaleDateString(lang, {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
                   })}
-                  thumbnail={post.data.coverImage || post.data.thumbnail}
-                  tags={post.data.tags || []}
+                  thumbnail={post.frontMatter.coverImage}
+                  tags={post.frontMatter.tags || []}
                   showRightBorder={false}
                   readingTime={readingTime}
-                  isNew={false}
+                  isNew={isNew}
                   lang={lang}
                 />
               );

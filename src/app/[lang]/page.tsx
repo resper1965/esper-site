@@ -1,6 +1,3 @@
-import { docs, meta } from "@/.source";
-import { loader } from "fumadocs-core/source";
-import { createMDXSource } from "fumadocs-mdx";
 import { Suspense } from "react";
 import { BlogCard } from "@/components/blog-card";
 import { BlogCardSkeleton } from "@/components/blog-card-skeleton";
@@ -9,33 +6,7 @@ import { FadeIn } from "@/components/fade-in";
 import { getDictionary } from "@/i18n/dictionaries";
 import { Hero } from "@/components/ui/hero";
 import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
-
-interface BlogData {
-  title: string;
-  description?: string;
-  date: string;
-  tags?: string[];
-  featured?: boolean;
-  readTime?: string;
-  author?: string;
-  authorImage?: string;
-  thumbnail?: string;
-  coverImage?: string;
-  category?: string;
-  excerpt?: string;
-  keywords?: string[];
-  language?: 'pt-BR' | 'pt-br' | 'en';
-}
-
-interface BlogPage {
-  url: string;
-  data: BlogData;
-}
-
-const blogSource = loader({
-  baseUrl: "/blog",
-  source: createMDXSource(docs, meta),
-});
+import { getAllPosts, type Post } from "@/lib/posts";
 
 const formatDate = (date: Date, locale: string): string => {
   return date.toLocaleDateString(locale, {
@@ -59,42 +30,31 @@ export default async function HomePage({
   const resolvedSearchParams = await searchParams;
   const dict = await getDictionary(lang);
 
-  let allPages: BlogPage[] = [];
+  // Buscar posts do Supabase
+  let allPosts: Post[] = [];
   try {
-    const pages = blogSource.getPages();
-    if (Array.isArray(pages)) {
-      allPages = pages;
-    } else if (pages && typeof pages === 'object' && 'files' in pages) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const files = (pages as any).files;
-      allPages = Array.isArray(files) ? files : [];
-    }
+    allPosts = await getAllPosts();
   } catch (error) {
-    console.error('Error getting pages:', error);
-    allPages = [];
+    console.error('Error fetching posts from Supabase:', error);
+    allPosts = [];
   }
 
   // Filter posts by language (normalize to handle case variations)
-  const filteredByLanguage = allPages.filter((page) => {
-    const postLang = (page.data.language || 'pt-BR').toLowerCase();
+  const filteredByLanguage = allPosts.filter((post) => {
+    const postLang = (post.frontMatter.language || 'pt-BR').toLowerCase();
     const normalizedLang = lang.toLowerCase();
     // Normalize both to lowercase for comparison
     // Handle both 'pt-br' and 'pt-BR' variations - both should match 'pt-br'
     return postLang === normalizedLang;
   });
 
-  // Sort: most recent first (newest to oldest)
-  const sortedBlogs = filteredByLanguage.sort((a, b) => {
-    const dateA = new Date(a.data.date).getTime();
-    const dateB = new Date(b.data.date).getTime();
-    // dateB - dateA: if dateB is newer (larger), result is positive, so B comes first
-    return dateB - dateA; // Newest first
-  });
+  // Posts já vêm ordenados do Supabase (mais recente primeiro)
+  const sortedBlogs = filteredByLanguage;
 
   const allTags = [
     dict.home.allTags,
     ...Array.from(
-      new Set(sortedBlogs.flatMap((blog) => blog.data.tags || []))
+      new Set(sortedBlogs.flatMap((blog) => blog.frontMatter.tags || []))
     ).sort(),
   ];
 
@@ -102,14 +62,14 @@ export default async function HomePage({
   const filteredBlogs =
     selectedTag === dict.home.allTags
       ? sortedBlogs
-      : sortedBlogs.filter((blog) => blog.data.tags?.includes(selectedTag));
+      : sortedBlogs.filter((blog) => blog.frontMatter.tags?.includes(selectedTag));
 
   const tagCounts = allTags.reduce((acc, tag) => {
     if (tag === dict.home.allTags) {
       acc[tag] = sortedBlogs.length;
     } else {
       acc[tag] = sortedBlogs.filter((blog) =>
-        blog.data.tags?.includes(tag)
+        blog.frontMatter.tags?.includes(tag)
       ).length;
     }
     return acc;
@@ -156,26 +116,26 @@ export default async function HomePage({
             className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 relative overflow-hidden border-x border-border ${filteredBlogs.length < 4 ? "border-b" : "border-b-0"
               }`}
           >
-            {filteredBlogs.map((blog, index) => {
-              const date = new Date(blog.data.date);
+            {filteredBlogs.map((post, index) => {
+              const date = new Date(post.frontMatter.date);
               const formattedDate = formatDate(date, lang);
-              const description = blog.data.description || "";
+              const description = post.frontMatter.description || post.frontMatter.excerpt || "";
 
-              // Calculate reading time (estimate based on description length, or use a default)
-              const readingTime = calculateReadingTime(description + " " + blog.data.title);
+              // Calculate reading time (estimate based on content length)
+              const readingTime = calculateReadingTime(description + " " + post.frontMatter.title + " " + (post.content || ""));
 
               // Check if post is new (less than 7 days old)
-              const isNew = isNewPost(blog.data.date);
+              const isNew = isNewPost(post.frontMatter.date);
 
               return (
-                <FadeIn key={blog.url} delay={index * 100}>
+                <FadeIn key={post.slug} delay={index * 100}>
                   <BlogCard
-                    url={`/${lang}${blog.url}`}
-                    title={blog.data.title}
+                    url={`/${lang}/blog/${post.slug}`}
+                    title={post.frontMatter.title}
                     description={description}
                     date={formattedDate}
-                    thumbnail={blog.data.coverImage || blog.data.thumbnail}
-                    tags={blog.data.tags}
+                    thumbnail={post.frontMatter.coverImage}
+                    tags={post.frontMatter.tags}
                     showRightBorder={filteredBlogs.length < 3}
                     readingTime={readingTime}
                     isNew={isNew}

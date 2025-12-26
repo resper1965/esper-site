@@ -1,13 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-import { docs, meta } from "@/.source";
-import { loader } from "fumadocs-core/source";
-import { createMDXSource } from "fumadocs-mdx";
 import Link from "next/link";
-
-const blogSource = loader({
-  baseUrl: "/blog",
-  source: createMDXSource(docs, meta),
-});
+import { getAllPosts, type Post } from "@/lib/posts";
 
 const formatDate = (date: Date): string => {
   return date.toLocaleDateString("pt-BR", {
@@ -17,65 +10,46 @@ const formatDate = (date: Date): string => {
   });
 };
 
-interface BlogData {
-  title: string;
-  description?: string;
-  date: string;
-  tags?: string[];
-  featured?: boolean;
-  readTime?: string;
-  author?: string;
-  authorImage?: string;
-  thumbnail?: string;
-  coverImage?: string;
-  category?: string;
-  excerpt?: string;
-  keywords?: string[];
-  language?: 'pt-BR' | 'pt-br' | 'en';
-}
-
-interface BlogPage {
-  url: string;
-  data: BlogData;
-}
-
 interface ReadMoreSectionProps {
   currentSlug: string[];
   currentTags?: string[];
+  lang?: 'pt-BR' | 'en';
 }
 
-export function ReadMoreSection({
+export async function ReadMoreSection({
   currentSlug,
   currentTags = [],
+  lang = 'pt-BR',
 }: ReadMoreSectionProps) {
-  let allPages: BlogPage[] = [];
+  let allPosts: Post[] = [];
   try {
-    const pages = blogSource.getPages();
-    if (Array.isArray(pages)) {
-      allPages = pages;
-    } else if (pages && typeof pages === 'object' && 'files' in pages) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const files = (pages as any).files;
-      allPages = Array.isArray(files) ? files : [];
-    }
+    allPosts = await getAllPosts();
   } catch (error) {
-    console.error('Error getting pages:', error);
-    allPages = [];
+    console.error('Error getting posts from Supabase:', error);
+    allPosts = [];
   }
 
-  const currentUrl = `/blog/${currentSlug.join("/")}`;
+  const currentSlugString = currentSlug.join("/");
 
-  const otherPosts = allPages
-    .filter((page) => page.url !== currentUrl)
-    .map((page) => {
+  const otherPosts = allPosts
+    .filter((post) => post.slug !== currentSlugString)
+    .filter((post) => {
+      // Filter by language if specified
+      if (lang) {
+        const postLang = (post.frontMatter.language || 'pt-BR').toLowerCase();
+        return postLang === lang.toLowerCase();
+      }
+      return true;
+    })
+    .map((post) => {
       const tagOverlap = currentTags.filter((tag) =>
-        page.data.tags?.includes(tag)
+        post.frontMatter.tags?.includes(tag)
       ).length;
 
       return {
-        ...page,
+        post,
         relevanceScore: tagOverlap,
-        date: new Date(page.data.date),
+        date: new Date(post.frontMatter.date),
       };
     })
     .sort((a, b) => {
@@ -96,21 +70,24 @@ export function ReadMoreSection({
         <h2 className="text-2xl font-medium mb-8">Leia mais</h2>
 
         <div className="flex flex-col gap-8">
-          {otherPosts.map((post) => {
-            const formattedDate = formatDate(post.date);
+          {otherPosts.map(({ post, date }) => {
+            const formattedDate = formatDate(date);
+            const coverImage = post.frontMatter.coverImage;
+            const description = post.frontMatter.description || post.frontMatter.excerpt || '';
+            const postUrl = `/${lang}/blog/${post.slug}`;
 
             return (
               <Link
-                key={post.url}
-                href={post.url}
+                key={post.slug}
+                href={postUrl}
                 className="group grid grid-cols-1 lg:grid-cols-12 items-center gap-4 cursor-pointer"
               >
-                {(post.data.coverImage || post.data.thumbnail) && (
+                {coverImage && (
                   <div className="flex-shrink-0 col-span-1 lg:col-span-4">
                     <div className="relative w-full h-full">
                       <img
-                        src={post.data.coverImage || post.data.thumbnail}
-                        alt={post.data.title}
+                        src={coverImage}
+                        alt={post.frontMatter.title}
                         className="w-full h-full object-cover rounded-lg group-hover:opacity-80 transition-opacity"
                       />
                     </div>
@@ -118,10 +95,10 @@ export function ReadMoreSection({
                 )}
                 <div className="space-y-2 flex-1 col-span-1 lg:col-span-8">
                   <h3 className="text-lg group-hover:underline underline-offset-4 font-semibold text-card-foreground group-hover:text-primary transition-colors line-clamp-2">
-                    {post.data.title}
+                    {post.frontMatter.title}
                   </h3>
                   <p className="text-muted-foreground text-sm line-clamp-3 group-hover:underline underline-offset-4">
-                    {post.data.description}
+                    {description}
                   </p>
                   <time className="block text-xs font-medium text-muted-foreground">
                     {formattedDate}

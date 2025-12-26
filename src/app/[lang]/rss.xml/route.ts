@@ -1,4 +1,4 @@
-import { docs } from '@/.source';
+import { getAllPosts, type Post } from '@/lib/posts';
 import { siteConfig } from '@/lib/site';
 
 /**
@@ -14,19 +14,19 @@ export async function GET(
 ) {
   const { lang } = await params;
 
-  // Filter posts by language
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const posts = (docs as any)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .filter((post: any) => {
-      const postLang = (post.data.language || 'pt-BR').toLowerCase();
+  // Get all posts from Supabase and filter by language
+  let posts: Post[] = [];
+  try {
+    const allPosts = await getAllPosts();
+    posts = allPosts.filter((post) => {
+      const postLang = (post.frontMatter.language || 'pt-BR').toLowerCase();
       const normalizedLang = lang.toLowerCase();
       return postLang === normalizedLang;
-    })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .sort((a: any, b: any) => {
-      return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
     });
+  } catch (error) {
+    console.error('Error fetching posts for RSS:', error);
+    posts = [];
+  }
 
   const title = lang === 'pt-BR'
     ? 'Ricardo Esper - Blog de Cibersegurança'
@@ -46,20 +46,23 @@ export async function GET(
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${siteConfig.url}/${lang}/rss.xml" rel="self" type="application/rss+xml" />
     ${posts
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((post: any) => {
-        const url = `${siteConfig.url}/${lang}/blog/${post.slugs[0]}`;
-        const pubDate = new Date(post.data.date).toUTCString();
+      .map((post) => {
+        const url = `${siteConfig.url}/${lang}/blog/${post.slug}`;
+        const pubDate = new Date(post.frontMatter.date).toUTCString();
+        const description = post.frontMatter.description || post.frontMatter.excerpt || '';
+        // Strip HTML tags from description for RSS
+        const plainDescription = description.replace(/<[^>]*>/g, '').substring(0, 500);
+        
         return `
     <item>
-      <title><![CDATA[${post.data.title}]]></title>
+      <title><![CDATA[${post.frontMatter.title}]]></title>
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
-      <description><![CDATA[${post.data.description || post.data.excerpt || ''}]]></description>
+      <description><![CDATA[${plainDescription}]]></description>
       <pubDate>${pubDate}</pubDate>
       <author>ricardo@esper.ws (Ricardo Esper)</author>
-      ${post.data.category ? `<category>${post.data.category}</category>` : ''}
-      ${post.data.keywords ? post.data.keywords.map((k: string) => `<category>${k}</category>`).join('\n      ') : ''}
+      ${post.frontMatter.category ? `<category>${post.frontMatter.category}</category>` : ''}
+      ${post.frontMatter.keywords ? post.frontMatter.keywords.map((k: string) => `<category>${k}</category>`).join('\n      ') : ''}
     </item>`;
       })
       .join('')}

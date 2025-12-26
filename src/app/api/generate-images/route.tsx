@@ -1,15 +1,8 @@
 import { ImageResponse } from '@vercel/og';
 import { NextRequest } from 'next/server';
-import { docs, meta } from "@/.source";
-import { loader } from "fumadocs-core/source";
-import { createMDXSource } from "fumadocs-mdx";
+import { getPostBySlug } from "@/lib/posts";
 import fs from 'fs';
 import path from 'path';
-
-const blogSource = loader({
-  baseUrl: "/blog",
-  source: createMDXSource(docs, meta),
-});
 
 const categoryColors: Record<string, { bg: string; accent: string; icon: string }> = {
   cybersecurity: { bg: '#0f172a', accent: '#3b82f6', icon: '🛡️' },
@@ -45,15 +38,14 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const page = blogSource.getPage([slug]) as any;
+    const post = await getPostBySlug(slug);
     
-    if (!page) {
+    if (!post || !post.frontMatter) {
       return new Response('Post not found', { status: 404 });
     }
 
-    const title = page.data.title || 'Post';
-    const category = page.data.category || 'general';
+    const title = post.frontMatter.title || 'Post';
+    const category = post.frontMatter.category || 'general';
     const colors = categoryColors[category] || categoryColors.general;
     const label = categoryLabels[category] || 'Geral';
     const displayTitle = title.length > 60 ? title.substring(0, 57) + '...' : title;

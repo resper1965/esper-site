@@ -1,13 +1,6 @@
 import React from 'react';
 import { ImageResponse } from '@vercel/og';
-import { docs, meta } from "@/.source";
-import { loader } from "fumadocs-core/source";
-import { createMDXSource } from "fumadocs-mdx";
-
-const blogSource = loader({
-  baseUrl: "/blog",
-  source: createMDXSource(docs, meta),
-});
+import { getPostBySlug } from "@/lib/posts";
 
 // Cores por categoria (tons sutis e elegantes)
 const categoryColors: Record<string, { bg: string; accent: string; icon: string }> = {
@@ -69,13 +62,12 @@ export default async function Image({
   try {
     const { slug } = await params;
     
-    // Get post data
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let page: any = null;
+    // Get post data from Supabase
+    let post = null;
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      page = blogSource.getPage([slug]) as any;
-    } catch {
+      post = await getPostBySlug(slug);
+    } catch (error) {
+      console.error('Error loading post for OG image:', error);
       // Return default image if post not found
       return new ImageResponse(
         (
@@ -102,7 +94,7 @@ export default async function Image({
       );
     }
 
-    if (!page) {
+    if (!post || !post.frontMatter) {
       return new ImageResponse(
         (
           <div
@@ -128,8 +120,8 @@ export default async function Image({
       );
     }
 
-    const title = page.data.title || 'Post';
-    const category = page.data.category || 'general';
+    const title = post.frontMatter.title || 'Post';
+    const category = post.frontMatter.category || 'general';
     const colors = categoryColors[category] || categoryColors.general;
 
     // Truncate title if too long

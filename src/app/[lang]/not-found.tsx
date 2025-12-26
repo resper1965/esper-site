@@ -1,16 +1,10 @@
 import Link from 'next/link';
 import { getDictionary } from '@/i18n/dictionaries';
-import { docs, meta } from "@/.source";
-import { loader } from "fumadocs-core/source";
-import { createMDXSource } from "fumadocs-mdx";
 import { BlogCard } from "@/components/blog-card";
 import { generatePageMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
-
-const blogSource = loader({
-  baseUrl: "/blog",
-  source: createMDXSource(docs, meta),
-});
+import { getLatestPosts, type Post } from "@/lib/posts";
+import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
 
 interface NotFoundProps {
   params: Promise<{ lang: string }>;
@@ -35,26 +29,18 @@ export default async function NotFound({ params }: NotFoundProps) {
   const lang = (langParam === 'pt-BR' || langParam === 'en' ? langParam : 'pt-BR') as 'pt-BR' | 'en';
   const dict = await getDictionary(lang);
 
-  // Get latest posts for suggestions
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let suggestedPosts: any[] = [];
+  // Get latest posts for suggestions from Supabase
+  let suggestedPosts: Post[] = [];
   try {
-    const pages = blogSource.getPages();
-    const allPages = Array.isArray(pages) ? pages : [];
-    const filteredByLanguage = allPages.filter((page) => {
-      const postLang = (page.data.language || 'pt-BR').toLowerCase();
+    const allPosts = await getLatestPosts(10);
+    const filteredByLanguage = allPosts.filter((post) => {
+      const postLang = (post.frontMatter.language || 'pt-BR').toLowerCase();
       const normalizedLang = lang.toLowerCase();
       return postLang === normalizedLang;
     });
-    suggestedPosts = filteredByLanguage
-      .sort((a, b) => {
-        const dateA = new Date(a.data.date).getTime();
-        const dateB = new Date(b.data.date).getTime();
-        return dateB - dateA;
-      })
-      .slice(0, 3);
+    suggestedPosts = filteredByLanguage.slice(0, 3);
   } catch (error) {
-    console.error('Error getting suggested posts:', error);
+    console.error('Error getting suggested posts from Supabase:', error);
   }
 
   return (
@@ -91,25 +77,31 @@ export default async function NotFound({ params }: NotFoundProps) {
               {dict.notFound?.suggestedPosts || 'Artigos que podem interessar:'}
             </h3>
             <div className="grid gap-6 md:grid-cols-3">
-              {suggestedPosts.map((post) => (
-                <BlogCard
-                  key={post.slugs[0]}
-                  url={`/${lang}/blog/${post.slugs[0]}`}
-                  title={post.data.title}
-                  description={post.data.excerpt || post.data.description || ''}
-                  date={new Date(post.data.date).toLocaleDateString(lang, {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                  thumbnail={post.data.coverImage || post.data.thumbnail}
-                  tags={post.data.tags || []}
-                  showRightBorder={false}
-                  readingTime={Math.ceil((post.data.body?.toString() || '').split(/\s+/).length / 200)}
-                  isNew={false}
-                  lang={lang}
-                />
-              ))}
+              {suggestedPosts.map((post) => {
+                const description = post.frontMatter.description || post.frontMatter.excerpt || '';
+                const readingTime = calculateReadingTime(description + " " + post.frontMatter.title + " " + (post.content || ""));
+                const isNew = isNewPost(post.frontMatter.date);
+                
+                return (
+                  <BlogCard
+                    key={post.slug}
+                    url={`/${lang}/blog/${post.slug}`}
+                    title={post.frontMatter.title}
+                    description={description}
+                    date={new Date(post.frontMatter.date).toLocaleDateString(lang, {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                    thumbnail={post.frontMatter.coverImage}
+                    tags={post.frontMatter.tags || []}
+                    showRightBorder={false}
+                    readingTime={readingTime}
+                    isNew={isNew}
+                    lang={lang}
+                  />
+                );
+              })}
             </div>
           </div>
         )}
