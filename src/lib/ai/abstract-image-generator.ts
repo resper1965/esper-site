@@ -4,13 +4,15 @@
  * 
  * NOTA: Requer pacote 'canvas' instalado. Se não estiver disponível,
  * as funções retornarão erro.
+ * 
+ * AGORA SALVA NO SUPABASE STORAGE
  */
 
 import fs from 'fs';
 import path from 'path';
+import { uploadPostImage } from '../supabase/storage';
 
 // Importação dinâmica do canvas (opcional)
- 
 let createCanvas: (width: number, height: number) => import('canvas').Canvas;
 try {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -146,55 +148,55 @@ export async function generateAbstractImage(
 /**
  * Gera uma imagem abstrata temática baseada na descrição visual do Gemini
  * Usa palavras-chave da descrição para criar elementos visuais relevantes
+ * AGORA RETORNA URL DO SUPABASE STORAGE
  */
 export async function generateThemedAbstractImage(
   slug: string,
-  outputPath: string,
   visualDescription: string,
   title: string,
   category: string,
   width: number = 1200,
   height: number = 630
-): Promise<void> {
+): Promise<string> {
   const seed = hashString(slug + visualDescription);
   const random = seededRandom(seed);
-  
+
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
-  
+
   // Analisar descrição para extrair elementos temáticos
   const descriptionLower = visualDescription.toLowerCase();
   const hasTech = /tech|digital|cyber|network|code|data|security|lock|shield/i.test(descriptionLower);
   const hasNetwork = /network|connection|link|web|internet|cloud/i.test(descriptionLower);
   const hasSecurity = /security|lock|shield|protection|defense|secure/i.test(descriptionLower);
   const hasAbstract = /abstract|geometric|pattern|shape|form/i.test(descriptionLower);
-  
+
   // Fundo escuro (gray-950) com gradiente sutil
   const bgGradient = ctx.createLinearGradient(0, 0, width, height);
   bgGradient.addColorStop(0, 'rgb(3, 7, 18)'); // gray-950
   bgGradient.addColorStop(1, 'rgb(15, 23, 42)'); // gray-900
   ctx.fillStyle = bgGradient;
   ctx.fillRect(0, 0, width, height);
-  
+
   // Elementos temáticos baseados na descrição
   if (hasNetwork || hasTech) {
     // Desenhar elementos de rede/conexão
     drawNetworkElements(ctx, width, height, random);
   }
-  
+
   if (hasSecurity) {
     // Desenhar elementos de segurança (escudos, cadeados abstratos)
     drawSecurityElements(ctx, width, height, random);
   }
-  
+
   if (hasAbstract || (!hasTech && !hasSecurity)) {
     // Elementos geométricos abstratos
     drawGeometricElements(ctx, width, height, random);
   }
-  
+
   // Acento cyan (#00ade8) - usar estrategicamente
   drawCyanAccents(ctx, width, height, random);
-  
+
   // Padrão de pontos sutis
   ctx.globalAlpha = 0.1;
   ctx.fillStyle = 'rgb(148, 163, 184)'; // slate-400
@@ -208,18 +210,20 @@ export async function generateThemedAbstractImage(
       }
     }
   }
-  
-  // Garantir que o diretório existe
-  const dir = path.dirname(outputPath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  
-  // Salvar imagem
+
+  // Upload para Supabase Storage
   const buffer = canvas.toBuffer('image/png');
-  fs.writeFileSync(outputPath, buffer);
-  
-  console.log(`✅ Imagem temática gerada: ${outputPath}`);
+  const filename = `${slug}-abstract-${Date.now()}.png`;
+
+  const imageUrl = await uploadPostImage(buffer, filename, 'image/png');
+
+  if (!imageUrl) {
+    throw new Error('Falha ao fazer upload da imagem abstrata para Supabase');
+  }
+
+  console.log(`✅ Imagem temática gerada e enviada para Supabase: ${imageUrl}`);
+
+  return imageUrl;
 }
 
 function drawNetworkElements(
@@ -397,5 +401,3 @@ function drawCyanAccents(
     }
   }
 }
-
-
