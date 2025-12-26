@@ -18,6 +18,7 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [stats, setStats] = useState<Stats | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -25,19 +26,25 @@ export default function AdminDashboard() {
         const response = await fetch('/api/auth/check', {
           credentials: 'include', // Importante: incluir cookies na requisição
         });
+
+        if (!response.ok) {
+          throw new Error(`Erro ao verificar autenticação: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (!data.authenticated) {
           router.push('/admin/login');
           return;
         }
-        
+
         setCheckingAuth(false);
         // Autenticado - carregar estatísticas
         await loadStats();
       } catch (error) {
         console.error('Error checking auth:', error);
-        router.push('/admin/login');
+        setError(error instanceof Error ? error.message : 'Erro ao verificar autenticação');
+        setCheckingAuth(false);
       }
     };
 
@@ -49,16 +56,17 @@ export default function AdminDashboard() {
       const response = await fetch('/api/admin/stats', {
         credentials: 'include', // Importante: incluir cookies na requisição
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to fetch stats: ${response.status}`);
+        throw new Error(errorData.error || `Erro ao carregar estatísticas: ${response.status}`);
       }
-      
+
       const data = await response.json();
       setStats(data);
     } catch (error) {
       console.error('Error loading stats:', error);
+      setError(error instanceof Error ? error.message : 'Erro ao carregar estatísticas');
       // Fallback para dados vazios em caso de erro
       setStats({
         totalPosts: 0,
@@ -77,6 +85,33 @@ export default function AdminDashboard() {
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin text-grey-600 mx-auto mb-3" />
             <p className="text-grey-600">Verificando autenticação...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // Mostrar erro se houver
+  if (error && !stats) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="max-w-md w-full bg-white border border-red-200 rounded-lg p-6">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-grey-900 mb-2">Erro ao Carregar</h3>
+              <p className="text-sm text-grey-600 mb-4">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-grey-900 hover:bg-grey-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-grey-500"
+              >
+                Tentar Novamente
+              </button>
+            </div>
           </div>
         </div>
       </AdminLayout>

@@ -29,36 +29,21 @@ export function createServerSupabaseClient(cookies?: { get: (name: string) => { 
   // IMPORTANTE: Usar anon key, não service role key
   // Service role bypassa RLS e não funciona com autenticação de usuário
   const clientKey = supabaseKey;
-  
+
+  const accessToken = cookies?.get('sb-access-token')?.value;
+
   const client = createClient<Database>(supabaseUrl, clientKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
       detectSessionInUrl: false,
     },
+    global: accessToken ? {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    } : undefined,
   });
 
-  // Se cookies foram fornecidos, usar o token diretamente nas requisições
-  // O Supabase client vai usar o token quando chamarmos getUser(accessToken)
-  // ou quando configurarmos a sessão
-  if (cookies) {
-    const accessToken = cookies.get('sb-access-token')?.value;
-    const refreshToken = cookies.get('sb-refresh-token')?.value;
-    
-    if (accessToken) {
-      // Tentar definir a sessão para que o cliente use o token automaticamente
-      const sessionData = {
-        access_token: accessToken,
-        refresh_token: refreshToken || '',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any;
-      
-      // setSession é assíncrono, mas não vamos esperar para não bloquear
-      client.auth.setSession(sessionData).catch(() => {
-        // Ignorar erros - o token será usado diretamente em getUser()
-      });
-    }
-  }
-  
   return client;
 }
