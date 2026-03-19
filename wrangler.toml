@@ -1,0 +1,41 @@
+name = "esper-site"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+[vars]
+NEXT_PUBLIC_SITE_URL = "https://esper.ws"
+NEXT_PUBLIC_GA_ID = ""
+
+# Cloudflare KV for caching posts, sessions, etc.
+[[kv_namespaces]]
+binding = "CACHE"
+id = "YOUR_KV_NAMESPACE_ID"
+
+# Cloudflare D1 (SQLite) - migration from Supabase
+[[d1_databases]]
+binding = "DB"
+database_name = "esper-site-db"
+database_id = "YOUR_D1_DATABASE_ID"
+
+# Cloudflare R2 for image storage
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "esper-site-images"
+
+# Cloudflare Vectorize for semantic search
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "esper-posts"
+
+# Cloudflare Workers AI
+[ai]
+binding = "AI"
+
+# Environment variables (set via Cloudflare Dashboard or CLI)
+# ANTHROPIC_API_KEY = "..."
+# GOOGLE_GENERATIVE_AI_API_KEY = "..."
+# SUPABASE_URL = "..."
+# SUPABASE_ANON_KEY = "..."
+# CLOUDFLARE_ACCOUNT_ID = "..."
+# CLOUDFLARE_AI_GATEWAY_ID = "esper-ai-gateway"

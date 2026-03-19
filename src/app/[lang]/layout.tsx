@@ -9,7 +9,8 @@ import { SiteNav } from "@/components/site-nav";
 import Footer from "@/components/footer";
 import { Analytics as GoogleAnalytics } from "@/components/analytics";
 import { Analytics } from "@vercel/analytics/next";
-import { generatePageMetadata, generatePersonSchema, generateWebSiteSchema, generateOrganizationSchema } from "@/lib/metadata";
+import { generatePageMetadata, generatePersonSchema, generateWebSiteSchema, generateOrganizationSchema, generateProfilePageSchema } from "@/lib/metadata";
+import { ChatWidget } from "@/components/chat-widget";
 import "../globals.css";
 
 const montserrat = Montserrat({
@@ -23,7 +24,7 @@ const montserrat = Montserrat({
 });
 
 export const viewport: Viewport = {
-  themeColor: "black",
+  themeColor: "#050a12",
 };
 
 export async function generateStaticParams() {
@@ -89,6 +90,7 @@ export default async function LangLayout({
   const personSchema = generatePersonSchema(lang);
   const websiteSchema = generateWebSiteSchema(lang);
   const organizationSchema = generateOrganizationSchema(lang);
+  const profilePageSchema = generateProfilePageSchema(lang);
 
         return (
           <html
@@ -109,6 +111,10 @@ export default async function LangLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
         />
       </head>
       <body>
@@ -135,6 +141,7 @@ export default async function LangLayout({
             {children}
           </main>
           <Footer lang={lang} />
+          <ChatWidget lang={lang} />
         </ThemeProvider>
       </body>
     </html>
