@@ -20,7 +20,6 @@ function StatCounter({ value, suffix = "", label, icon: Icon, delay = 0 }: {
   React.useEffect(() => {
     if (!isInView) return
     const timer = setTimeout(() => {
-      let start = 0
       const duration = 1500
       const startTime = performance.now()
       const tick = (now: number) => {
@@ -145,7 +144,7 @@ interface HeroCommandProps {
   actions?: Array<{ label: string; href: string; variant?: string }>
 }
 
-export function HeroCommand({ lang = 'pt-BR', subtitle, actions }: HeroCommandProps) {
+export function HeroCommand({ lang = 'pt-BR', subtitle }: HeroCommandProps) {
   const isPT = lang === 'pt-BR'
 
   const stats = [

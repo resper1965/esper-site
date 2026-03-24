@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import { generatePost, savePostDraft } from '@/lib/ai/post-generator';
 import { fetchSourceContent } from '@/lib/ai/source-fetcher';
+import { requireAuth } from '@/lib/requireAuth';
 
 export async function POST(request: Request) {
   try {
+    const authResult = await requireAuth(request);
+    if (authResult instanceof NextResponse) return authResult;
+
     const body = await request.json();
     const { url, category = 'general', keywords = [] } = body;
 

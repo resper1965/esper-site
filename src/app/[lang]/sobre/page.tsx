@@ -22,7 +22,6 @@ export async function generateMetadata({
     if (resolved?.lang === "pt-BR" || resolved?.lang === "en") lang = resolved.lang
   } catch { lang = "pt-BR" }
 
-  const dict = await getDictionary(lang)
   const keywords =
     lang === "pt-BR"
       ? ["Ricardo Esper", "CISO", "cibersegurança", "forense digital", "NESS", "IONIC Health", "consultor internacional", "LGPD", "privacidade", "Ricardo Esper CISO", "Ricardo Esper Brasil", "especialista cibersegurança"]

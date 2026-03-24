@@ -15,9 +15,15 @@ interface BatchResult {
 }
 
 export async function POST(request: Request) {
-  // Auth check
+  // Auth check — CRON_SECRET must be configured
   const authHeader = request.headers.get('authorization');
-  const expectedToken = process.env.CRON_SECRET || 'your-secret-token';
+  const expectedToken = process.env.CRON_SECRET;
+
+  if (!expectedToken) {
+    console.error('FATAL: CRON_SECRET environment variable is not set');
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
+  }
+
   if (authHeader !== `Bearer ${expectedToken}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

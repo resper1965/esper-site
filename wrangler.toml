@@ -1,3 +1,6 @@
+# ── Cloudflare Workers / Pages configuration ────────────────
+# Replace all CHANGEME_ values with your actual Cloudflare IDs.
+# See: https://developers.cloudflare.com/workers/wrangler/configuration/
 name = "esper-site"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
@@ -10,13 +13,13 @@ NEXT_PUBLIC_GA_ID = ""
 # Cloudflare KV for caching posts, sessions, etc.
 [[kv_namespaces]]
 binding = "CACHE"
-id = "YOUR_KV_NAMESPACE_ID"
+id = "CHANGEME_KV_NAMESPACE_ID"
 
 # Cloudflare D1 (SQLite) - migration from Supabase
 [[d1_databases]]
 binding = "DB"
 database_name = "esper-site-db"
-database_id = "YOUR_D1_DATABASE_ID"
+database_id = "CHANGEME_D1_DATABASE_ID"
 
 # Cloudflare R2 for image storage
 [[r2_buckets]]

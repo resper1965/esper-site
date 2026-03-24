@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/client';
+import { publishPost, updatePost } from '@/lib/cloudflare/posts';
 
 /**
  * POST /api/posts/[slug]/publish - Publica um post
@@ -11,18 +11,9 @@ export async function POST(
   try {
     const { slug } = await params;
 
-    const { data: updated, error } = await supabase
-      .from('posts')
-      .update({
-        published: true,
-        published_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq('slug', slug)
-      .select()
-      .single();
+    const updated = await publishPost(slug);
 
-    if (error || !updated) {
+    if (!updated) {
       return NextResponse.json(
         { error: 'Post não encontrado' },
         { status: 404 }
@@ -53,17 +44,12 @@ export async function DELETE(
   try {
     const { slug } = await params;
 
-    const { data: updated, error } = await supabase
-      .from('posts')
-      .update({
-        published: false,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('slug', slug)
-      .select()
-      .single();
+    const updated = await updatePost(slug, {
+      published: false,
+      updated_at: new Date().toISOString(),
+    });
 
-    if (error || !updated) {
+    if (!updated) {
       return NextResponse.json(
         { error: 'Post não encontrado' },
         { status: 404 }

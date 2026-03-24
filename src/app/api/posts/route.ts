@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/client';
-import type { Database } from '@/lib/supabase/database.types';
-
-type PostInsert = Database['public']['Tables']['posts']['Insert'];
+import {
+  getAllPosts,
+  getAllPostsIncludingDrafts,
+  getDraftPosts,
+  createPost,
+  type PostInsert,
+} from '@/lib/cloudflare/posts';
+import { requireAuth } from '@/lib/requireAuth';
 
 /**
  * GET /api/posts - Lista todos os posts
@@ -13,43 +17,22 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const published = searchParams.get('published');
     const limit = searchParams.get('limit');
-    // const category = searchParams.get('category'); // TODO: implementar filtro por categoria
 
-    // Construir query base
-    let query = supabase
-      .from('posts')
-      .select('*')
-      .order('date', { ascending: false });
-
-    if (published === 'true') {
-      query = query.eq('published', true);
-    } else if (published === 'false') {
-      query = query.eq('published', false);
+    let posts;
+    if (published === 'false') {
+      // If explicitly asking for unpublished, return drafts only
+      posts = await getDraftPosts();
+    } else if (published === 'true') {
+      posts = await getAllPosts();
+    } else {
+      posts = await getAllPostsIncludingDrafts();
     }
 
     if (limit) {
-      query = query.limit(parseInt(limit));
+      posts = posts.slice(0, parseInt(limit));
     }
 
-    const { data: posts, error } = await query;
-
-    if (error) {
-      console.error('Erro ao buscar posts:', error);
-      return NextResponse.json(
-        { error: 'Erro ao buscar posts' },
-        { status: 500 }
-      );
-    }
-
-    // Parsear JSON fields (Supabase já retorna como array, mas mantemos compatibilidade)
-    const parsedPosts = (posts || []).map(post => ({
-      ...post,
-      keywords: typeof post.keywords === 'string' ? JSON.parse(post.keywords) : post.keywords,
-      tags: typeof post.tags === 'string' ? JSON.parse(post.tags) : post.tags,
-      sources: typeof post.sources === 'string' ? JSON.parse(post.sources) : post.sources,
-    }));
-
-    return NextResponse.json({ posts: parsedPosts });
+    return NextResponse.json({ posts });
   } catch (error) {
     console.error('Erro ao buscar posts:', error);
     return NextResponse.json(
@@ -64,8 +47,11 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
+    const authResult = await requireAuth(request);
+    if (authResult instanceof NextResponse) return authResult;
+
     const body = await request.json();
-    
+
     const postData: PostInsert = {
       slug: body.slug,
       title: body.title,
@@ -75,27 +61,22 @@ export async function POST(request: Request) {
       category: (body.category && body.category.trim() !== '') ? body.category.trim() : 'general',
       language: body.language || 'pt-br',
       author: body.author || 'Ricardo Esper',
-      cover_image: body.coverImage || null,
-      image_alt: body.imageAlt || null,
-      keywords: Array.isArray(body.keywords) ? body.keywords : (body.keywords || null),
-      tags: Array.isArray(body.tags) ? body.tags : (body.tags || null),
+      cover_image: body.coverImage || undefined,
+      image_alt: body.imageAlt || undefined,
+      keywords: Array.isArray(body.keywords) ? body.keywords : (body.keywords || undefined),
+      tags: Array.isArray(body.tags) ? body.tags : (body.tags || undefined),
       date: body.date || new Date().toISOString().split('T')[0],
       published: body.published || false,
       featured: body.featured || false,
-      read_time: body.readTime || null,
-      generated_by: body.generatedBy || null,
-      score: body.score || null,
-      sources: Array.isArray(body.sources) ? body.sources : (body.sources || null),
+      read_time: body.readTime || undefined,
+      generated_by: body.generatedBy || undefined,
+      score: body.score || undefined,
+      sources: Array.isArray(body.sources) ? body.sources : (body.sources || undefined),
     };
 
-    const { data: newPost, error } = await supabase
-      .from('posts')
-      .insert([postData])
-      .select()
-      .single();
+    const newPost = await createPost(postData);
 
-    if (error) {
-      console.error('Erro ao criar post:', error);
+    if (!newPost) {
       return NextResponse.json(
         { error: 'Erro ao criar post' },
         { status: 500 }

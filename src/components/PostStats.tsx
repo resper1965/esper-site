@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { Eye, Heart } from 'lucide-react';
-import { getPostStats, toggleLike, hasUserLiked, type PostStats } from '@/lib/supabase/analytics';
+import { getPostStats, toggleLike, hasUserLiked, type PostStats } from '@/lib/cloudflare';
 
 interface PostStatsProps {
   postSlug: string;

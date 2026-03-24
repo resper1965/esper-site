@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { searchPosts, type SearchResult } from '@/lib/supabase/search';
+import { searchPosts, type SearchResult } from '@/lib/cloudflare';
 import { PageBackground } from '@/components/ui/page-background';
 import { Search, Loader2 } from 'lucide-react';
 import Link from 'next/link';

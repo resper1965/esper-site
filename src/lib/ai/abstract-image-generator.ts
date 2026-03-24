@@ -10,7 +10,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { uploadPostImage } from '../supabase/storage';
+import { uploadPostImage } from '../cloudflare/storage';
 
 // Importação dinâmica do canvas (opcional)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,150 +1,181 @@
-# SDLC (Software Development Life Cycle)
+# SDLC — Software Development Life Cycle
+
+> Última revisão: 2025-03-24 | Versão: 2.0 (Cloudflare)
 
 ## Visão Geral
 
-Este documento descreve o ciclo de vida de desenvolvimento de software (SDLC) aplicado ao projeto.
+Ciclo de vida de desenvolvimento do **esper-site**, com gates de segurança integrados em cada fase, alinhado com ISO 27001:2022 (A.8.25 — Secure Development Life Cycle).
+
+---
+
+## Stack Atual
+
+| Camada | Tecnologia |
+|--------|-----------|
+| **Framework** | Next.js 15 + React 19 + TypeScript 5 |
+| **Hosting** | Cloudflare Pages (auto-deploy via Git) |
+| **Database** | Cloudflare D1 (SQLite edge) |
+| **Storage** | Cloudflare R2 (S3-compatible) |
+| **Cache** | Cloudflare KV |
+| **DNS/CDN** | Cloudflare (global edge network) |
+| **CI/CD** | GitHub Actions → Cloudflare Pages |
+| **Styling** | Tailwind CSS 4 |
+
+---
 
 ## Fases do SDLC
 
 ### 1. Planejamento (Planning)
 
 **Objetivos:**
-- Definir requisitos
-- Estimar recursos
-- Planejar sprints
+- Definir requisitos funcionais e não-funcionais
+- Estimar recursos e prazos
 - Definir métricas de sucesso
+- Identificar requisitos de segurança e privacidade
 
 **Artefatos:**
-- Roadmap
-- User stories
-- Documentação de requisitos
+- User stories / Issues (GitHub Issues)
+- Roadmap (GitHub Projects)
+- Documentação de requisitos (`docs/PLAN-*.md`)
 
-**Ferramentas:**
-- GitHub Issues
-- GitHub Projects
-- Documentação em `docs/`
+**🔒 Security Gate:**
+- Classificação de dados (público, interno, confidencial)
+- Requisitos de compliance (LGPD/GDPR)
+- Threat modeling inicial
+
+> ISO 27001: A.5.8 (Segurança em gestão de projetos)
 
 ---
 
 ### 2. Análise (Analysis)
 
 **Objetivos:**
-- Analisar requisitos
-- Identificar riscos
-- Definir arquitetura
-- Validar viabilidade técnica
+- Análise de requisitos técnicos
+- Identificação de riscos (segurança, performance, privacidade)
+- Análise de viabilidade e dependências
+- Revisão de arquitetura proposta
 
 **Artefatos:**
-- Documentação de arquitetura
-- Análise de riscos
-- Diagramas de sistema
+- Análise de riscos (`docs/isms/RISK-MANAGEMENT.md`)
+- Diagramas de arquitetura
+- Análise de impacto (DPIA se dados pessoais)
 
-**Ferramentas:**
-- Documentação técnica
-- Análise de código
+**🔒 Security Gate:**
+- Avaliação de risco de segurança
+- Análise de dependências de terceiros
+- Revisão de modelos de ameaças
+
+> ISO 27001: A.5.8, A.8.25
 
 ---
 
 ### 3. Design (Design)
 
 **Objetivos:**
-- Design de sistema
+- Design de sistema e APIs
 - Design de UI/UX
-- Design de banco de dados
-- Design de APIs
+- Design de schema D1 (SQLite)
+- Design de armazenamento R2/KV
 
 **Artefatos:**
 - Diagramas de arquitetura
-- Wireframes
-- Schema de banco de dados
+- Schema D1 (migrations em `cloudflare/migrations/`)
 - Especificações de API
+- Design system (`docs/design-system.md`)
 
-**Ferramentas:**
-- Figma (UI/UX)
-- Supabase (Database)
-- TypeScript (Types)
+**🔒 Security Gate:**
+- Design de autenticação/autorização
+- Princípios: Defense in Depth, Least Privilege, Fail Secure
+- Separação de dados pessoais
+
+> ISO 27001: A.8.25, A.8.27 (Secure system architecture)
 
 ---
 
 ### 4. Implementação (Implementation)
 
 **Objetivos:**
-- Desenvolver código
-- Seguir padrões de código
-- Implementar testes
-- Code review
+- Desenvolvimento seguindo padrões de código
+- Implementação de testes
+- Code review obrigatório em PRs
 
 **Padrões:**
-- Conventional Commits
-- ESLint
-- TypeScript strict
-- Component-based architecture
+- Conventional Commits (`feat:`, `fix:`, `docs:`, `security:`)
+- ESLint + TypeScript strict mode
+- Component-based architecture (React Server Components)
+- Input validation (Zod/TypeScript)
 
-**Ferramentas:**
-- Next.js
-- TypeScript
-- React
-- Supabase
+**🔒 Security Gate:**
+- Secure coding practices (OWASP)
+- SAST via ESLint
+- Dependency scanning (`npm audit`)
+- Nenhuma credencial no código
+
+> ISO 27001: A.8.28 (Secure coding), A.8.4 (Access to source code)
 
 ---
 
 ### 5. Testes (Testing)
 
 **Objetivos:**
-- Testes unitários
+- Testes unitários (Vitest)
 - Testes de integração
-- Testes E2E
-- Testes de segurança
+- Type checking (`tsc --noEmit`)
+- Security testing
 
 **Estratégia:**
-- Build verification
-- Type checking
-- Linting
-- Manual testing
-
-**Ferramentas:**
-- TypeScript compiler
-- ESLint
-- Next.js build
+- Build verification (`npm run build`)
+- TypeScript strict checking
+- ESLint security rules
+- Dependency audit
 - Manual QA
+
+**🔒 Security Gate:**
+- SAST (ESLint + TypeScript)
+- Dependency vulnerability scan
+- Security headers verification
+- Authentication/Authorization testing
+
+> ISO 27001: A.8.29 (Security testing), A.8.8 (Vulnerability management)
 
 ---
 
 ### 6. Deploy (Deployment)
 
-**Objetivos:**
-- Deploy automatizado
-- Monitoramento
-- Rollback plan
-- Documentação
-
 **Processo:**
-1. Push para `main`
-2. CI/CD executa testes
-3. Build verificado
-4. Deploy automático na Vercel
-5. Verificação pós-deploy
+1. Push para branch → PR
+2. CI/CD executa testes + build
+3. Code review + aprovação
+4. Merge para `main`
+5. Cloudflare Pages auto-deploy
+6. Verificação pós-deploy
 
-**Ferramentas:**
-- GitHub Actions
-- Vercel
-- Supabase
+**🔒 Security Gate:**
+- Secrets em environment variables (Cloudflare Dashboard)
+- HTTPS obrigatório (Cloudflare managed)
+- Security headers configurados
+- Rollback plan documentado
+- Zero secrets no Git
+
+> ISO 27001: A.8.31 (Separation of environments), A.8.32 (Change management)
 
 ---
 
 ### 7. Manutenção (Maintenance)
 
-**Objetivos:**
-- Monitorar performance
-- Corrigir bugs
-- Atualizar dependências
-- Melhorar segurança
-
 **Atividades:**
-- Monitoramento de logs
-- Atualizações de segurança
-- Refatoração
-- Otimizações
+- Monitoramento via Cloudflare Analytics
+- Atualizações de dependências
+- Patches de segurança
+- Performance optimization (Core Web Vitals)
+
+**🔒 Security Gate:**
+- Patch management contínuo
+- Monitoramento de anomalias
+- Revisão periódica de acessos
+- Incident response readiness
+
+> ISO 27001: A.8.8 (Vulnerability management), A.5.24 (Incident response)
 
 ---
 
@@ -152,11 +183,13 @@ Este documento descreve o ciclo de vida de desenvolvimento de software (SDLC) ap
 
 ### Branch Strategy
 
-- `main` - Produção
-- `develop` - Desenvolvimento
-- `feature/*` - Features
-- `fix/*` - Correções
-- `docs/*` - Documentação
+| Branch | Propósito |
+|--------|----------|
+| `main` | Produção (auto-deploy) |
+| `feature/*` | Novas funcionalidades |
+| `fix/*` | Correções de bugs |
+| `security/*` | Patches de segurança (prioridade) |
+| `docs/*` | Documentação |
 
 ### Commit Convention
 
@@ -168,73 +201,42 @@ Este documento descreve o ciclo de vida de desenvolvimento de software (SDLC) ap
 [optional footer]
 ```
 
-**Types:**
-- `feat`: Nova feature
-- `fix`: Correção de bug
-- `docs`: Documentação
-- `style`: Formatação
-- `refactor`: Refatoração
-- `test`: Testes
-- `chore`: Manutenção
+**Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `security`
 
-### Code Review
+### Code Review Checklist
 
-1. Criar Pull Request
-2. CI/CD executa
-3. Code review
-4. Aprovação
-5. Merge
-
----
-
-## Ferramentas e Tecnologias
-
-### Desenvolvimento
-- Next.js 15.5.9
-- TypeScript 5
-- React 19
-- Tailwind CSS 4
-
-### Backend
-- Supabase (Postgres + Auth)
-- Vercel Functions
-
-### CI/CD
-- GitHub Actions
-- Vercel Deploy
-
-### Qualidade
-- ESLint
-- TypeScript
-- Husky (git hooks)
-- Commitlint
+1. ✅ Sem credenciais hardcoded
+2. ✅ Input validation presente
+3. ✅ Error handling adequado
+4. ✅ Tipos TypeScript corretos
+5. ✅ Testes incluídos
+6. ✅ Build passa
+7. ✅ Sem vulnerabilidades novas
 
 ---
 
 ## Métricas e KPIs
 
-### Código
-- Cobertura de tipos (TypeScript)
-- Erros de lint
+### Qualidade
+- TypeScript coverage: 100% strict
 - Build success rate
+- Tempo médio de code review
 
 ### Performance
-- Tempo de build
-- Tempo de deploy
-- Lighthouse scores
+- Lighthouse scores ≥ 90
+- Core Web Vitals (LCP, FID, CLS)
+- Cloudflare cache hit ratio
 
 ### Segurança
-- Vulnerabilidades (npm audit)
-- Security headers
-- OWASP compliance
+- Vulnerabilidades críticas: 0
+- Tempo de patch (critical): < 24h
+- Security headers score: A+
 
 ---
 
-## Documentação
+## Referências
 
-- `README.md` - Visão geral
-- `docs/` - Documentação técnica
-- `SECURITY.md` - Política de segurança
-- `CONTRIBUTING.md` - Guia de contribuição
-- `CHANGELOG.md` - Histórico de mudanças
-
+- [ISO 27001:2022 — Annex A.8.25](https://www.iso.org/standard/27001) — Secure Development Life Cycle
+- [OWASP SAMM](https://owaspsamm.org/) — Software Assurance Maturity Model
+- [NIST SSDF](https://csrc.nist.gov/publications/detail/sp/800-218/final) — Secure Software Development Framework
+- [Cloudflare Pages Docs](https://developers.cloudflare.com/pages/)

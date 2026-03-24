@@ -1,25 +1,16 @@
 import { NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/client';
 import { generateText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { logger } from '@/lib/logger';
+import { requireAuth } from '@/lib/requireAuth';
 
 /**
  * POST /api/admin/ai-gateway/test - Testar conexão com AI Gateway
  */
 export async function POST(request: Request) {
   try {
-    const supabase = createServerSupabaseClient();
-
-    // Verificar autenticação
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
-    }
+    const authResult = await requireAuth(request);
+    if (authResult instanceof NextResponse) return authResult;
 
     const { apiKey } = await request.json();
 
@@ -35,7 +26,7 @@ export async function POST(request: Request) {
       });
 
       const result = await generateText({
-        model: openai('google/gemini-2.5-flash'), // Modelo rápido para teste
+        model: openai('google/gemini-2.5-flash'),
         prompt: 'Responda apenas: OK',
       });
 
@@ -67,4 +58,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

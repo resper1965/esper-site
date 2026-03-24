@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/client';
-import type { Database } from '@/lib/supabase/database.types';
-
-type PostUpdate = Database['public']['Tables']['posts']['Update'];
+import {
+  getPostBySlug,
+  updatePost,
+  deletePost,
+  type PostUpdate,
+} from '@/lib/cloudflare/posts';
+import { requireAuth } from '@/lib/requireAuth';
 
 /**
  * GET /api/posts/[slug] - Busca post por slug
@@ -13,29 +16,17 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
-    
-    const { data: post, error } = await supabase
-      .from('posts')
-      .select('*')
-      .eq('slug', slug)
-      .single();
 
-    if (error || !post) {
+    const post = await getPostBySlug(slug);
+
+    if (!post) {
       return NextResponse.json(
         { error: 'Post não encontrado' },
         { status: 404 }
       );
     }
 
-    // Parsear JSON fields (Supabase já retorna como array, mas mantemos compatibilidade)
-    const parsedPost = {
-      ...post,
-      keywords: typeof post.keywords === 'string' ? JSON.parse(post.keywords) : post.keywords,
-      tags: typeof post.tags === 'string' ? JSON.parse(post.tags) : post.tags,
-      sources: typeof post.sources === 'string' ? JSON.parse(post.sources) : post.sources,
-    };
-
-    return NextResponse.json({ post: parsedPost });
+    return NextResponse.json({ post });
   } catch (error) {
     console.error('Erro ao buscar post:', error);
     return NextResponse.json(
@@ -53,20 +44,20 @@ export async function PATCH(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const authResult = await requireAuth(request);
+    if (authResult instanceof NextResponse) return authResult;
+
     const { slug } = await params;
     const body = await request.json();
 
     // Preparar dados para atualização
-    const updateData: PostUpdate = {
-      updated_at: new Date().toISOString(),
-    };
+    const updateData: PostUpdate = {};
 
     if (body.title !== undefined) updateData.title = body.title;
     if (body.content !== undefined) updateData.content = body.content;
     if (body.excerpt !== undefined) updateData.excerpt = body.excerpt;
     if (body.description !== undefined) updateData.description = body.description;
     if (body.category !== undefined) {
-      // Garantir que categoria nunca seja vazia
       updateData.category = (body.category && body.category.trim() !== '') ? body.category.trim() : 'general';
     }
     if (body.language !== undefined) updateData.language = body.language;
@@ -82,22 +73,14 @@ export async function PATCH(
     if (body.date !== undefined) updateData.date = body.date;
     if (body.published !== undefined) {
       updateData.published = body.published;
-      if (body.published && !updateData.published_at) {
-        updateData.published_at = new Date().toISOString();
-      }
     }
     if (body.featured !== undefined) updateData.featured = body.featured;
     if (body.readTime !== undefined) updateData.read_time = body.readTime;
     if (body.score !== undefined) updateData.score = body.score;
 
-    const { data: updated, error } = await supabase
-      .from('posts')
-      .update(updateData)
-      .eq('slug', slug)
-      .select()
-      .single();
+    const updated = await updatePost(slug, updateData);
 
-    if (error || !updated) {
+    if (!updated) {
       return NextResponse.json(
         { error: 'Post não encontrado' },
         { status: 404 }
@@ -122,14 +105,14 @@ export async function DELETE(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const authResult = await requireAuth(request);
+    if (authResult instanceof NextResponse) return authResult;
+
     const { slug } = await params;
 
-    const { error } = await supabase
-      .from('posts')
-      .delete()
-      .eq('slug', slug);
+    const success = await deletePost(slug);
 
-    if (error) {
+    if (!success) {
       return NextResponse.json(
         { error: 'Post não encontrado' },
         { status: 404 }

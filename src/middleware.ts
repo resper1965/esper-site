@@ -1,35 +1,16 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { i18n } from './i18n/config';
-import { createClient } from '@supabase/supabase-js';
+import { verifySession } from './lib/cloudflare/auth';
 
-// Verify Supabase session from cookies
-async function checkSupabaseAuth(request: NextRequest): Promise<boolean> {
+// Verify auth session from cookie using Cloudflare JWT
+async function checkAuth(request: NextRequest): Promise<boolean> {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || 
-                        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseKey) {
-      return false;
-    }
-
-    // Get access token from cookie
     const accessToken = request.cookies.get('sb-access-token')?.value;
-    
-    if (!accessToken) {
-      return false;
-    }
+    if (!accessToken) return false;
 
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      auth: {
-        persistSession: false,
-      },
-    });
-
-    const { data: { user }, error } = await supabase.auth.getUser(accessToken);
-    
-    return !error && !!user;
+    const user = await verifySession(accessToken);
+    return !!user;
   } catch {
     return false;
   }
@@ -84,23 +65,15 @@ export async function middleware(request: NextRequest) {
 
   // Check authentication for admin routes (except login)
   if (pathname.startsWith('/admin/') && pathname !== '/admin/login') {
-    const isAuthenticated = await checkSupabaseAuth(request);
+    const isAuthenticated = await checkAuth(request);
     if (!isAuthenticated) {
       const loginUrl = new URL('/admin/login', request.url);
       return NextResponse.redirect(loginUrl);
     }
   }
 
-  // Check authentication for generation APIs
-  if (pathname.startsWith('/api/generate') || pathname.startsWith('/api/auto-generate')) {
-    const isAuthenticated = await checkSupabaseAuth(request);
-    if (!isAuthenticated) {
-      return NextResponse.json(
-        { error: 'Não autorizado. Faça login em /admin/login' },
-        { status: 401 }
-      );
-    }
-  }
+  // NOTE: API routes are excluded from middleware by the matcher config below.
+  // All API auth is handled in-route via requireAuth() — see src/lib/requireAuth.ts.
 
   // Exclude admin and API routes from locale redirect
   if (pathname.startsWith('/admin/') || pathname.startsWith('/api/')) {

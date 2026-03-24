@@ -1,7 +1,7 @@
 import React from 'react';
 import { ImageResponse } from '@vercel/og';
 import { generateVisualDescriptionWithAI } from './ai-gateway-client';
-import { uploadPostImage } from '../supabase/storage';
+import { uploadPostImage } from '../cloudflare/storage';
 
 /**
  * Gera imagem de capa para post usando Vercel OG Image

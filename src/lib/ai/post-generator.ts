@@ -3,10 +3,7 @@ import path from 'path';
 import { generatePostImage } from './image-generator-gemini';
 import { generateTextWithGemini } from './ai-gateway-client';
 import matter from 'gray-matter';
-import { supabase } from '../supabase/client';
-import type { Database } from '../supabase/database.types';
-
-type PostInsert = Database['public']['Tables']['posts']['Insert'];
+import { db } from '../cloudflare/d1-client';
 
 // Carregar perfil tonal
 const RICARDO_PROFILE = JSON.parse(
@@ -246,51 +243,49 @@ export async function savePostDraft(post: { content: string; score: number; meta
     ? `${frontmatter.title} - ${category} - ${frontmatter.excerpt || 'Post sobre cibersegurança'}`
     : null;
 
-  // Preparar dados para inserção no banco (Supabase format)
-  const postData: PostInsert = {
-    slug,
-    title: frontmatter.title || 'Post sem título',
-    content: postContent, // Apenas o conteúdo, sem frontmatter
-    excerpt: frontmatter.excerpt || '',
-    description: frontmatter.description || frontmatter.excerpt || '',
-    category,
-    language: frontmatter.language || 'pt-br',
-    author: frontmatter.author || 'Ricardo Esper',
-    cover_image: coverImagePath || null,
-    image_alt: imageAlt,
-    keywords: frontmatter.keywords || null,
-    tags: frontmatter.tags || null,
-    date: frontmatter.date || new Date().toISOString().split('T')[0],
-    published: false, // Draft por padrão
-    featured: frontmatter.featured || false,
-    read_time: frontmatter.readTime || null,
-    generated_by: 'ai',
-    score: post.score,
-    sources: post.metadata.sources || null,
-  };
+  // Preparar dados para inserção no banco (D1)
+  const title = frontmatter.title || 'Post sem título';
+  const excerpt = frontmatter.excerpt || '';
+  const description = frontmatter.description || frontmatter.excerpt || '';
+  const language = frontmatter.language || 'pt-br';
+  const author = frontmatter.author || 'Ricardo Esper';
+  const coverImage = coverImagePath || null;
+  const keywordsJson = frontmatter.keywords ? JSON.stringify(frontmatter.keywords) : null;
+  const tagsJson = frontmatter.tags ? JSON.stringify(frontmatter.tags) : null;
+  const date = frontmatter.date || new Date().toISOString().split('T')[0];
+  const featured = frontmatter.featured ? 1 : 0;
+  const readTime = frontmatter.readTime || null;
+  const sourcesJson = post.metadata.sources ? JSON.stringify(post.metadata.sources) : null;
 
   // Verificar se já existe (update) ou criar novo
-  const { data: existing } = await supabase
-    .from('posts')
-    .select('id')
-    .eq('slug', slug)
-    .single();
+  const existing = await db().first<{ id: string }>(
+    `SELECT id FROM posts WHERE slug = ?`,
+    [slug]
+  );
 
   if (existing) {
     // Atualizar post existente
-    await supabase
-      .from('posts')
-      .update({
-        ...postData,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('slug', slug);
+    await db().execute(
+      `UPDATE posts SET title = ?, content = ?, excerpt = ?, description = ?, category = ?,
+       language = ?, author = ?, cover_image = ?, image_alt = ?, keywords = ?, tags = ?,
+       date = ?, featured = ?, read_time = ?, generated_by = 'ai', score = ?,
+       sources = ?, updated_at = ? WHERE slug = ?`,
+      [title, postContent, excerpt, description, category, language, author,
+       coverImage, imageAlt, keywordsJson, tagsJson, date, featured, readTime,
+       post.score, sourcesJson, new Date().toISOString(), slug]
+    );
     console.log(`✅ Draft atualizado: ${slug}`);
   } else {
     // Criar novo draft
-    await supabase
-      .from('posts')
-      .insert([postData]);
+    await db().execute(
+      `INSERT INTO posts (slug, title, content, excerpt, description, category, language,
+       author, cover_image, image_alt, keywords, tags, date, published, featured,
+       read_time, generated_by, score, sources)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, 'ai', ?, ?)`,
+      [slug, title, postContent, excerpt, description, category, language, author,
+       coverImage, imageAlt, keywordsJson, tagsJson, date, featured, readTime,
+       post.score, sourcesJson]
+    );
     console.log(`✅ Draft criado: ${slug}`);
   }
 
@@ -303,35 +298,27 @@ export async function savePostDraft(post: { content: string; score: number; meta
 
 export async function publishPost(slug: string) {
   // Buscar post no banco
-  const { data: post, error: fetchError } = await supabase
-    .from('posts')
-    .select('id')
-    .eq('slug', slug)
-    .single();
+  const post = await db().first<{ id: string }>(
+    `SELECT id FROM posts WHERE slug = ?`,
+    [slug]
+  );
 
-  if (fetchError || !post) {
+  if (!post) {
     throw new Error(`Post com slug "${slug}" não encontrado`);
   }
 
   // Atualizar status para publicado
-  const { error: updateError } = await supabase
-    .from('posts')
-    .update({
-      published: true,
-      published_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq('slug', slug);
-
-  if (updateError) {
-    throw new Error(`Erro ao publicar post: ${updateError.message}`);
-  }
+  const now = new Date().toISOString();
+  await db().execute(
+    `UPDATE posts SET published = 1, published_at = ?, updated_at = ? WHERE slug = ?`,
+    [now, now, slug]
+  );
 
   console.log(`✅ Post publicado: ${slug}`);
 
   return {
     slug,
     published: true,
-    publishedAt: new Date().toISOString(),
+    publishedAt: now,
   };
 }

@@ -6,9 +6,14 @@ import { canPublishToday, canPublishCategory, getRecentPostTitles } from '@/lib/
 import { sendPostGeneratedNotification, sendErrorNotification } from '@/lib/ai/email-notifier';
 
 export async function GET(request: Request) {
-  // Verificar auth token (opcional, para segurança)
+  // Verificar auth token (obrigatório)
   const authHeader = request.headers.get('authorization');
-  const expectedToken = process.env.CRON_SECRET || 'your-secret-token';
+  const expectedToken = process.env.CRON_SECRET;
+
+  if (!expectedToken) {
+    console.error('FATAL: CRON_SECRET environment variable is not set');
+    return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
+  }
 
   if (authHeader !== `Bearer ${expectedToken}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -138,8 +143,7 @@ export async function GET(request: Request) {
     await sendErrorNotification(errorObj, 'Cron Job - Geração Automática');
 
     return NextResponse.json({
-      error: errorMessage,
-      stack: error instanceof Error ? error.stack : undefined
+      error: 'Internal error during auto-generation'
     }, { status: 500 });
   }
 }

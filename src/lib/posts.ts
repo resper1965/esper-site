@@ -1,14 +1,16 @@
 /**
- * Posts module - Now using Supabase instead of SQLite
+ * Posts module - Now using Cloudflare D1 instead of Supabase
  *
- * This file re-exports all functions from the Supabase posts module
+ * This file re-exports all functions from the Cloudflare posts module
  * to maintain compatibility with existing code.
  */
 
 export type {
   PostFrontMatter,
   Post,
-} from './supabase/posts';
+  PostInsert,
+  PostUpdate,
+} from './cloudflare/posts';
 
 export {
   getAllPosts,
@@ -21,4 +23,4 @@ export {
   publishPost,
   deletePost,
   getAllPostsIncludingDrafts,
-} from './supabase/posts';
+} from './cloudflare/posts';

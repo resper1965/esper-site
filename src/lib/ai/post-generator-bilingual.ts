@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import { generateTextWithGemini } from './ai-gateway-client';
 
 const RICARDO_PROFILE = JSON.parse(
@@ -259,12 +261,8 @@ async function evaluateQuality(content: string, language: 'pt-BR' | 'en'): Promi
 }
 
 import { createPost } from '@/lib/posts';
+import type { PostInsert } from '@/lib/posts';
 import matter from 'gray-matter';
-import type { Database } from '@/lib/supabase/database.types';
-import fs from 'fs';
-import path from 'path';
-
-type PostInsert = Database['public']['Tables']['posts']['Insert'];
 
 export async function saveBilingualPosts(posts: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -280,7 +278,7 @@ export async function saveBilingualPosts(posts: {
   const { data: enFrontmatter, content: enContent } = matter(posts.en.content);
   const enSlug = enFrontmatter.slug || `draft-en-${Date.now()}`;
 
-  // Prepare PT-BR post data for Supabase
+  // Prepare PT-BR post data for D1
   const ptPostData: PostInsert = {
     slug: ptSlug,
     title: ptFrontmatter.title || 'Post sem título',
@@ -290,16 +288,16 @@ export async function saveBilingualPosts(posts: {
     category: ptFrontmatter.category || 'general',
     language: 'pt-br',
     author: ptFrontmatter.author || 'Ricardo Esper',
-    cover_image: ptFrontmatter.coverImage || null,
-    keywords: Array.isArray(ptFrontmatter.keywords) ? ptFrontmatter.keywords : ptFrontmatter.keywords ? [ptFrontmatter.keywords] : null,
-    tags: Array.isArray(ptFrontmatter.tags) ? ptFrontmatter.tags : ptFrontmatter.tags ? [ptFrontmatter.tags] : null,
+    cover_image: ptFrontmatter.coverImage || undefined,
+    keywords: Array.isArray(ptFrontmatter.keywords) ? ptFrontmatter.keywords : ptFrontmatter.keywords ? [ptFrontmatter.keywords] : undefined,
+    tags: Array.isArray(ptFrontmatter.tags) ? ptFrontmatter.tags : ptFrontmatter.tags ? [ptFrontmatter.tags] : undefined,
     date: ptFrontmatter.date || new Date().toISOString().split('T')[0],
-    published: false, // Drafts are not published by default
+    published: false,
     featured: ptFrontmatter.featured || false,
-    read_time: ptFrontmatter.readTime || null,
+    read_time: ptFrontmatter.readTime || undefined,
   };
 
-  // Prepare EN post data for Supabase
+  // Prepare EN post data for D1
   const enPostData: PostInsert = {
     slug: enSlug,
     title: enFrontmatter.title || 'Untitled Post',
@@ -309,16 +307,16 @@ export async function saveBilingualPosts(posts: {
     category: enFrontmatter.category || 'general',
     language: 'en',
     author: enFrontmatter.author || 'Ricardo Esper',
-    cover_image: enFrontmatter.coverImage || null,
-    keywords: Array.isArray(enFrontmatter.keywords) ? enFrontmatter.keywords : enFrontmatter.keywords ? [enFrontmatter.keywords] : null,
-    tags: Array.isArray(enFrontmatter.tags) ? enFrontmatter.tags : enFrontmatter.tags ? [enFrontmatter.tags] : null,
+    cover_image: enFrontmatter.coverImage || undefined,
+    keywords: Array.isArray(enFrontmatter.keywords) ? enFrontmatter.keywords : enFrontmatter.keywords ? [enFrontmatter.keywords] : undefined,
+    tags: Array.isArray(enFrontmatter.tags) ? enFrontmatter.tags : enFrontmatter.tags ? [enFrontmatter.tags] : undefined,
     date: enFrontmatter.date || new Date().toISOString().split('T')[0],
-    published: false, // Drafts are not published by default
+    published: false,
     featured: enFrontmatter.featured || false,
-    read_time: enFrontmatter.readTime || null,
+    read_time: enFrontmatter.readTime || undefined,
   };
 
-  // Save both posts to Supabase
+  // Save both posts to D1
   try {
     const ptResult = await createPost(ptPostData);
     const enResult = await createPost(enPostData);

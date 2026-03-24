@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/client';
-import { cookies } from 'next/headers';
 import { logger } from '@/lib/logger';
+import { signIn } from '../../../../lib/cloudflare/auth';
 
 export async function POST(request: Request) {
   try {
@@ -14,50 +13,34 @@ export async function POST(request: Request) {
       );
     }
 
-    const cookieStore = await cookies();
-    const supabase = createServerSupabaseClient(cookieStore);
+    const { user, session, error } = await signIn(email, password);
 
-    // Fazer login
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error || !data.session) {
-      logger.warn('Login failed', { email, error: error?.message });
+    if (error || !session || !user) {
+      logger.warn('Login failed', { email, error });
       return NextResponse.json(
-        { error: error?.message || 'Erro ao fazer login' },
+        { error: error || 'Erro ao fazer login' },
         { status: 401 }
       );
     }
 
-    // Salvar tokens em cookies HTTP-only para segurança
+    // Return user info and set JWT token in HTTP-only cookie
     const response = NextResponse.json({
       user: {
-        id: data.user.id,
-        email: data.user.email,
+        id: user.id,
+        email: user.email,
       },
       authenticated: true,
     });
 
-    // Configurar cookies com as mesmas configurações de segurança
-    response.cookies.set('sb-access-token', data.session.access_token, {
+    response.cookies.set('sb-access-token', session.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 7 dias
+      maxAge: 60 * 60 * 24, // 24 hours (matches JWT expiry)
     });
 
-    response.cookies.set('sb-refresh-token', data.session.refresh_token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 30, // 30 dias
-    });
-
-    logger.info('Login successful', { email: data.user.email });
+    logger.info('Login successful', { email: user.email });
 
     return response;
   } catch (error) {
@@ -68,4 +51,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

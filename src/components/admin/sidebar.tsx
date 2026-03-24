@@ -8,13 +8,14 @@ import {
   BarChart3, 
   Settings, 
   Key,
+  MessageSquare,
   Home,
   LogOut,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
 import { useState } from 'react';
-import { signOut } from '@/lib/supabase/auth';
+import { signOut } from '@/lib/cloudflare';
 import { useRouter } from 'next/navigation';
 
 interface NavItem {
@@ -46,6 +47,13 @@ const navItems: NavItem[] = [
     icon: Key, 
     title: 'AI Gateway', 
     subtitle: 'Configure e gerencie o acesso aos modelos de IA via Vercel AI Gateway' 
+  },
+  { 
+    href: '/admin/chat', 
+    label: 'AI Chat', 
+    icon: MessageSquare, 
+    title: 'AI Chat', 
+    subtitle: 'Converse com modelos de IA via AI Gateway' 
   },
   { 
     href: '/admin/settings', 

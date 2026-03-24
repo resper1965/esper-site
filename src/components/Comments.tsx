@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { getPostComments, createComment, getCommentCount, type Comment } from '@/lib/supabase/comments';
+import { getPostComments, createComment, getCommentCount, type Comment } from '@/lib/cloudflare';
 import { MessageCircle, Send, Loader2, CheckCircle } from 'lucide-react';
 
 interface CommentsProps {
