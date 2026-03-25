@@ -2,15 +2,9 @@
 description: Deployment command for production releases. Pre-flight checks and deployment execution.
 ---
 
-# /deploy - Production Deployment
+# /deploy - Production Deployment (Cloudflare Workers)
 
 $ARGUMENTS
-
----
-
-## Purpose
-
-This command handles production deployment with pre-flight checks, deployment execution, and verification.
 
 ---
 
@@ -19,158 +13,117 @@ This command handles production deployment with pre-flight checks, deployment ex
 ```
 /deploy            - Interactive deployment wizard
 /deploy check      - Run pre-deployment checks only
-/deploy preview    - Deploy to preview/staging
-/deploy production - Deploy to production
-/deploy rollback   - Rollback to previous version
+/deploy preview    - Build & run locally with wrangler dev
+/deploy production - Deploy to production (Cloudflare Workers)
+/deploy rollback   - Rollback via Cloudflare Dashboard
 ```
 
 ---
 
 ## Pre-Deployment Checklist
 
-Before any deployment:
+// turbo-all
 
-```markdown
-## 🚀 Pre-Deploy Checklist
+Before any deployment, run these checks:
 
-### Code Quality
-- [ ] No TypeScript errors (`npx tsc --noEmit`)
-- [ ] ESLint passing (`npx eslint .`)
-- [ ] All tests passing (`npm test`)
-
-### Security
-- [ ] No hardcoded secrets
-- [ ] Environment variables documented
-- [ ] Dependencies audited (`npm audit`)
-
-### Performance
-- [ ] Bundle size acceptable
-- [ ] No console.log statements
-- [ ] Images optimized
-
-### Documentation
-- [ ] README updated
-- [ ] CHANGELOG updated
-- [ ] API docs current
-
-### Ready to deploy? (y/n)
+### 1. TypeScript Check
+```bash
+npx tsc --noEmit
 ```
+
+### 2. Dependency Audit
+```bash
+npm audit
+```
+
+### 3. Secrets Check
+```bash
+grep -rn "sk-\|AKIA\|ghp_\|password\s*=" src/ --include="*.ts" --include="*.tsx" | grep -v "process.env\|\.env"
+```
+
+### 4. Build Test (OpenNext)
+```bash
+npm run build:cf
+```
+
+If all pass, proceed to deploy.
 
 ---
 
-## Deployment Flow
+## Deploy Commands
 
+### Preview (local Cloudflare emulation)
+```bash
+npm run preview:cf
 ```
-┌─────────────────┐
-│  /deploy        │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Pre-flight     │
-│  checks         │
-└────────┬────────┘
-         │
-    Pass? ──No──► Fix issues
-         │
-        Yes
-         │
-         ▼
-┌─────────────────┐
-│  Build          │
-│  application    │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Deploy to      │
-│  platform       │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Health check   │
-│  & verify       │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  ✅ Complete    │
-└─────────────────┘
+
+### Production Deploy (via Wrangler CLI)
+```bash
+npm run deploy
 ```
+This runs `npx opennextjs-cloudflare && wrangler deploy`.
+
+### Production Deploy (via Git — preferred)
+```bash
+git add -A && git commit -m "feat: description" && git push origin main
+```
+Cloudflare Pages auto-deploys from `main` branch when connected via Dashboard.
 
 ---
 
-## Output Format
+## Environment Variables
 
-### Successful Deploy
+Set in **Cloudflare Dashboard → Workers & Pages → esper-site → Settings → Variables**:
 
-```markdown
-## 🚀 Deployment Complete
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `JWT_SECRET` | ✅ | Auth token signing (`openssl rand -hex 32`) |
+| `NEXT_PUBLIC_SITE_URL` | ✅ | `https://esper.ws` |
+| `ANTHROPIC_API_KEY` | ⚠️ | For AI content generation |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | ⚠️ | Gemini API |
+| `SUPABASE_URL` | ⚠️ | Database connection |
+| `SUPABASE_ANON_KEY` | ⚠️ | Supabase auth |
+| `CLOUDFLARE_AI_GATEWAY_ID` | ⚠️ | AI Gateway routing |
 
-### Summary
-- **Version:** v1.2.3
-- **Environment:** production
-- **Duration:** 47 seconds
-- **Platform:** Vercel
+---
 
-### URLs
-- 🌐 Production: https://app.example.com
-- 📊 Dashboard: https://vercel.com/project
-
-### What Changed
-- Added user profile feature
-- Fixed login bug
-- Updated dependencies
+## Post-Deploy Verification
 
 ### Health Check
-✅ API responding (200 OK)
-✅ Database connected
-✅ All services healthy
+```bash
+curl -s -o /dev/null -w "%{http_code}" https://esper.ws
 ```
+Expected: `200`
 
-### Failed Deploy
+### Smoke Test (browser)
+1. Open https://esper.ws
+2. Check blog loads with posts
+3. Check `/sobre` page renders
+4. Check `/servicos` page renders
+5. Verify language switching (pt/en)
 
-```markdown
-## ❌ Deployment Failed
+---
 
-### Error
-Build failed at step: TypeScript compilation
+## Rollback
 
-### Details
-```
-error TS2345: Argument of type 'string' is not assignable...
-```
+Via Cloudflare Dashboard:
+1. Go to **Workers & Pages → esper-site → Deployments**
+2. Find previous working deployment
+3. Click **Rollback to this deployment**
 
-### Resolution
-1. Fix TypeScript error in `src/services/user.ts:45`
-2. Run `npm run build` locally to verify
-3. Try `/deploy` again
-
-### Rollback Available
-Previous version (v1.2.2) is still active.
-Run `/deploy rollback` if needed.
+Via CLI (redeploy previous commit):
+```bash
+git revert HEAD && git push origin main
 ```
 
 ---
 
-## Platform Support
-
-| Platform | Command | Notes |
-|----------|---------|-------|
-| Vercel | `vercel --prod` | Auto-detected for Next.js |
-| Railway | `railway up` | Needs Railway CLI |
-| Fly.io | `fly deploy` | Needs flyctl |
-| Docker | `docker compose up -d` | For self-hosted |
-
----
-
-## Examples
+## Architecture
 
 ```
-/deploy
-/deploy check
-/deploy preview
-/deploy production --skip-tests
-/deploy rollback
+┌──────────────┐     ┌─────────────────────┐     ┌─────────────────┐
+│  git push    │────►│  Cloudflare Pages   │────►│  OpenNext       │
+│  origin/main │     │  (auto-build)       │     │  Worker         │
+└──────────────┘     │  npm run build:cf   │     │  (edge runtime) │
+                     └─────────────────────┘     └─────────────────┘
 ```
