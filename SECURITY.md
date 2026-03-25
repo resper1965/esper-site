@@ -1,11 +1,19 @@
-# Política de Segurança
+# Política de Segurança — ISO 27001 / LGPD
+
+> Versão 2.0 · Última atualização: 2025-03-24  
+> Responsável: Ricardo Esper · DPO: security@ricardoesper.com.br
+
+---
 
 ## Versões Suportadas
 
 | Versão | Suportada |
 | ------ | --------- |
-| 1.x.x  | ✅ Sim    |
+| 2.x.x  | ✅ Sim    |
+| 1.x.x  | ⚠️ Security fixes only |
 | < 1.0  | ❌ Não    |
+
+---
 
 ## Reportar Vulnerabilidade
 
@@ -17,30 +25,56 @@
 2. Inclua:
    - Descrição da vulnerabilidade
    - Passos para reproduzir
-   - Impacto potencial
+   - Impacto potencial (CVSS se possível)
    - Sugestão de correção (se houver)
+3. Chave PGP disponível sob solicitação
 
-### O que esperar
+### SLA de Resposta
 
-- **24h**: Confirmação de recebimento
-- **72h**: Avaliação inicial
-- **7 dias**: Plano de ação ou mais informações
-- **90 dias**: Prazo máximo para correção antes de disclosure público
+| Etapa | Prazo |
+|-------|-------|
+| Confirmação de recebimento | 24 horas |
+| Avaliação inicial + CVSS | 72 horas |
+| Plano de ação | 7 dias |
+| Correção (crítico/alto) | 30 dias |
+| Disclosure coordenado | 90 dias |
+
+---
 
 ## Escopo
 
 ### Em Escopo
 
 - Código fonte do repositório
-- APIs públicas
-- Configurações de deploy
+- APIs públicas (`/api/*`)
+- Configurações de deploy (Cloudflare Workers)
+- Autenticação e autorização
+- Handling de dados pessoais (LGPD)
 
 ### Fora de Escopo
 
-- Ataques de força bruta
-- DDoS
+- Ataques de força bruta (rate limiting implementado)
+- DDoS (mitigado por Cloudflare)
 - Engenharia social
-- Vulnerabilidades em dependências já conhecidas
+- Vulnerabilidades em dependências já conhecidas (CVE publicado)
+- Infraestrutura Cloudflare (reportar diretamente à Cloudflare)
+
+---
+
+## Documentação de Segurança
+
+| Documento | Localização |
+|-----------|------------|
+| OWASP TOP 10 Implementation | [`docs/SECURITY-OWASP.md`](docs/SECURITY-OWASP.md) |
+| Vulnerability Audit 2025 | [`docs/security/VULNERABILITY-AUDIT-2025.md`](docs/security/VULNERABILITY-AUDIT-2025.md) |
+| ISMS Policy (ISO 27001) | [`docs/isms/ISMS-POLICY.md`](docs/isms/ISMS-POLICY.md) |
+| Risk Assessment | [`docs/isms/RISK-ASSESSMENT.md`](docs/isms/RISK-ASSESSMENT.md) |
+| SOA | [`docs/isms/SOA.md`](docs/isms/SOA.md) |
+| DPIA (LGPD) | [`docs/pims/DPIA.md`](docs/pims/DPIA.md) |
+| Privacy Policy | [`docs/pims/PRIVACY-POLICY.md`](docs/pims/PRIVACY-POLICY.md) |
+| Data Inventory | [`docs/pims/DATA-INVENTORY.md`](docs/pims/DATA-INVENTORY.md) |
+
+---
 
 ## Reconhecimento
 

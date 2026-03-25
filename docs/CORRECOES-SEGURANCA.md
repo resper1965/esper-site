@@ -20,11 +20,11 @@
 **CSP Atual:**
 ```
 default-src 'self'; 
-script-src 'self' 'unsafe-inline' https://vercel.live https://www.youtube.com https://platform.twitter.com https://www.googletagmanager.com https://www.google-analytics.com; 
+script-src 'self' 'unsafe-inline' https://www.youtube.com https://platform.twitter.com https://www.googletagmanager.com https://www.google-analytics.com; 
 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
 font-src 'self' https://fonts.gstatic.com data:; 
 img-src 'self' data: https: blob:; 
-connect-src 'self' https://api.anthropic.com https://generativelanguage.googleapis.com https://*.supabase.co https://*.supabase.in https://www.google-analytics.com https://www.googletagmanager.com; 
+connect-src 'self' https://generativelanguage.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com; 
 frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://platform.twitter.com; 
 frame-ancestors 'self'; 
 base-uri 'self'; 
@@ -86,9 +86,9 @@ block-all-mixed-content;
 
 **Ações:**
 - ✅ `poweredByHeader: false` já está configurado no Next.js
-- ⚠️ Headers adicionais podem ser configurados no Vercel para ocultar informações do servidor
+- ⚠️ Headers adicionais podem ser configurados no Cloudflare para ocultar informações do servidor
 
-**Recomendação:** Configurar no Vercel para remover headers como `Server`, `X-Powered-By`, etc.
+**Recomendação:** Configurar no Cloudflare para remover headers como `Server`, `X-Powered-By`, etc.
 
 ---
 
@@ -134,14 +134,14 @@ Todos os headers abaixo estão configurados no `next.config.ts`:
 
 2. **`unsafe-inline` para styles**: Necessário para Tailwind CSS e estilos dinâmicos do React.
 
-3. **Informações do servidor**: Algumas informações podem ser expostas via headers HTTP. Isso pode ser configurado no nível do Vercel/CDN.
+3. **Informações do servidor**: Algumas informações podem ser expostas via headers HTTP. Isso pode ser configurado no nível do Cloudflare.
 
 ---
 
 ## 📝 Próximos Passos (Opcional)
 
 1. **Implementar nonces para scripts inline**: Requer modificações no Next.js e pode quebrar funcionalidades.
-2. **Configurar headers no Vercel**: Para ocultar informações do servidor.
+2. **Configurar headers no Cloudflare**: Para ocultar informações do servidor.
 3. **Implementar Subresource Integrity (SRI)**: Para recursos externos carregados.
 
 ---

@@ -1,3 +1,12 @@
+> [!CAUTION]
+> **DOCUMENTO HISTÓRICO — NÃO REFLETE A ARQUITETURA ATUAL**
+>
+> Esta avaliação foi realizada sobre a versão **Next.js 15 + SQLite** do blog,
+> que foi completamente substituída pela stack **Astro 5 + Content Collections
+> (markdown)** em janeiro de 2026. Os componentes descritos abaixo (SQLite,
+> Vercel Cron, auto-publish, API routes, painel admin React) **não existem mais**
+> no sistema atual. Mantido apenas como referência histórica.
+
 # Avaliação dos Processos de Geração de Conteúdo
 
 **Data**: 26 de dezembro de 2025

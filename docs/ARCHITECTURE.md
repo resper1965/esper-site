@@ -2,45 +2,50 @@
 
 ## Visão Geral
 
-Blog profissional com geração automática de posts usando IA, construído com Next.js 15 e Supabase.
+Blog profissional com geração automática de posts usando IA, construído com Next.js 15 e deploy na Cloudflare.
 
 ## Stack Tecnológica
 
 ### Frontend
-- **Next.js 15.5.9** (App Router)
+- **Next.js 15** (App Router + Turbopack)
 - **React 19**
 - **TypeScript 5**
 - **Tailwind CSS 4**
 
-### Backend
-- **Supabase** (Postgres + Auth + Storage)
-- **Vercel Functions** (Serverless)
+### Backend / Infra
+- **Cloudflare Pages** (Deploy + CDN)
+- **Cloudflare D1** (SQLite — banco de dados)
+- **Cloudflare R2** (Storage de imagens)
+- **Cloudflare KV** (Cache de sessões e dados)
+- **Cloudflare Workers** (Serverless functions)
 
 ### IA & Automação
-- **Anthropic Claude Sonnet 4** (Geração de conteúdo)
-- **Google Gemini** (Geração de imagens)
-- **Vercel Cron** (Agendamento)
+- **AI SDK** (Vercel AI SDK — biblioteca, não infra)
+  - Anthropic Claude (Geração de conteúdo)
+  - Google Gemini (Análise e imagens)
+  - OpenAI (Fallback)
+- **Cloudflare Cron Triggers** (Agendamento)
 
 ---
 
 ## Arquitetura de Dados
 
-### Supabase Postgres
+### Cloudflare D1 (SQLite)
 
 **Tabela: posts**
 - Armazena todos os posts do blog
-- RLS habilitado para segurança
 - Suporta drafts e posts publicados
+- Índices otimizados para queries frequentes
 
-**Storage: post-images**
+**Cloudflare R2: post-images**
 - Imagens de capa dos posts
-- Upload via Supabase Storage
-- URLs públicas CDN
+- Upload via R2 API
+- URLs públicas via CDN Cloudflare
 
-**Auth: Supabase Auth**
-- Autenticação email/senha
-- JWT tokens
-- Session management
+**Auth: JWT + KV Sessions**
+- Autenticação admin com JWT
+- Sessions armazenadas no KV
+- Cookies httpOnly + secure
 
 ---
 
@@ -55,15 +60,13 @@ ricardo-esper-blog/
 │   │   └── api/          # API routes
 │   ├── components/       # React Components
 │   ├── lib/              # Utilities & Logic
-│   │   ├── supabase/     # Supabase clients & helpers
+│   │   ├── db/           # D1 database clients & helpers
 │   │   ├── ai/           # IA generation logic
 │   │   └── posts.ts      # Posts module
 │   └── content/          # MDX content
 ├── docs/                 # Documentação
-├── supabase/             # Supabase configs
-│   ├── schema.sql        # Database schema
-│   └── functions/        # Edge Functions
 ├── public/               # Static assets
+├── wrangler.toml         # Cloudflare config
 └── .github/              # GitHub configs
 ```
 
@@ -74,17 +77,17 @@ ricardo-esper-blog/
 ### Geração de Posts
 
 ```
-Cron (6h) → /api/auto-generate
+Cron Trigger (6h) → /api/auto-generate
   ↓
 Coleta fontes RSS
   ↓
 IA analisa tendências
   ↓
-Gera post (Claude)
+Gera post (Claude/Gemini)
   ↓
 Gera imagem (Gemini/OG)
   ↓
-Salva no Supabase
+Salva no D1 + R2
   ↓
 Notificação (opcional)
 ```
@@ -110,18 +113,20 @@ Post visível publicamente
 1. **Network Layer**
    - HTTPS obrigatório
    - HSTS
-   - Security headers
+   - Security headers (Cloudflare)
+   - DDoS protection (Cloudflare)
 
 2. **Application Layer**
-   - Authentication (Supabase)
-   - Authorization (RLS)
-   - Input validation
+   - JWT Authentication
+   - Role-based Authorization
+   - Input validation (Zod)
    - Output encoding
+   - CSP headers
 
 3. **Data Layer**
-   - RLS policies
+   - D1 parameterized queries (anti-SQLi)
    - Encrypted connections
-   - Secure storage
+   - KV secure storage
 
 ---
 
@@ -130,24 +135,24 @@ Post visível publicamente
 ### Otimizações
 
 - Static generation quando possível
-- Image optimization (Next.js)
+- Image optimization (Next.js + R2)
 - Code splitting
-- CDN (Vercel Edge Network)
+- CDN global (Cloudflare Edge Network — 300+ PoPs)
 
 ### Caching
 
-- Static pages cached
-- Images cached (7 days)
-- API responses cached
+- Static pages cached (Cloudflare CDN)
+- Images cached (KV + R2, 7 days)
+- API responses cached (KV)
 
 ---
 
 ## Monitoramento
 
-- Vercel Analytics
-- Supabase Logs
+- Cloudflare Analytics
+- Workers Logs
 - Error tracking
-- Performance monitoring
+- Performance monitoring (Web Analytics)
 
 ---
 
@@ -158,25 +163,25 @@ Post visível publicamente
 1. Push para `main`
 2. GitHub Actions CI
 3. Build verificado
-4. Deploy automático Vercel
-5. Supabase migrations aplicadas
+4. Deploy automático Cloudflare Pages
+5. D1 migrations aplicadas via Wrangler
 
 ### Ambientes
 
-- **Production**: Vercel + Supabase Production
-- **Preview**: Vercel Preview (cada PR)
+- **Production**: Cloudflare Pages + D1 Production
+- **Preview**: Cloudflare Pages Preview (cada PR)
 
 ---
 
 ## Escalabilidade
 
 ### Atual
-- Vercel Hobby (gratuito)
-- Supabase Free tier
-- ~$1/mês operacional
+- Cloudflare Free tier
+- D1 Free tier (5M reads/day, 100K writes/day)
+- R2 Free tier (10GB storage)
+- ~$0/mês operacional
 
 ### Futuro
-- Vercel Pro (se necessário)
-- Supabase Pro (se necessário)
-- CDN adicional (se necessário)
-
+- Cloudflare Pro (se necessário)
+- D1 scaling automático
+- Workers Paid plan (se necessário)

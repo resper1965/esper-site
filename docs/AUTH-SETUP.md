@@ -1,67 +1,57 @@
-# Configuração de Autenticação - Gerador de Posts
+# Configuração de Autenticação - Painel Admin
 
 ## Variáveis de Ambiente Necessárias
 
-Adicione as seguintes variáveis no seu `.env.local` e na Vercel:
+Configure no Cloudflare Pages (Settings → Environment Variables) e no `.env.local`:
 
 ```bash
 # Autenticação Admin
 ADMIN_USERNAME=admin
-ADMIN_PASSWORD_HASH=afa7720f11282278890c8966dce4c9e6d44bbc2ace60910e81ae2d98f14b3d6f
-SESSION_SECRET=seu-secret-aleatorio-aqui-mude-em-producao
-
-# API Key Anthropic (já existe)
-ANTHROPIC_API_KEY=sk-ant-...
+ADMIN_PASSWORD_HASH=<sha256-hash-da-senha>
+SESSION_SECRET=<gere-um-valor-aleatorio-seguro>
 ```
 
-## Gerar Hash da Senha
+> ⚠️ **NUNCA** commite senhas ou hashes reais em documentação ou código.
 
-Para gerar o hash de uma nova senha, execute:
+## Gerar Hash da Senha
 
 ```bash
 node -e "console.log(require('crypto').createHash('sha256').update('sua-senha-aqui').digest('hex'))"
 ```
 
-**Senha configurada:** `Gordinh@29`
+## Configurar no Cloudflare
 
-**Hash SHA256:** `afa7720f11282278890c8966dce4c9e6d44bbc2ace60910e81ae2d98f14b3d6f`
-
-⚠️ **IMPORTANTE:** Configure essas variáveis na Vercel antes de fazer deploy!
-
-## Configurar na Vercel
-
-1. Acesse o dashboard da Vercel
-2. Vá em Settings → Environment Variables
-3. Adicione as seguintes variáveis:
-   - `ADMIN_USERNAME` = `admin`
-   - `ADMIN_PASSWORD_HASH` = `afa7720f11282278890c8966dce4c9e6d44bbc2ace60910e81ae2d98f14b3d6f`
-   - `SESSION_SECRET` = (gere um valor aleatório seguro)
+1. Acesse Cloudflare Dashboard → Pages → seu projeto
+2. Settings → Environment Variables
+3. Adicione para **Production** e **Preview**:
+   - `ADMIN_USERNAME`
+   - `ADMIN_PASSWORD_HASH`
+   - `SESSION_SECRET` (valor aleatório, mínimo 32 chars)
 
 ## Como Usar
 
 1. Acesse `/admin/login`
-2. Faça login com:
-   - Usuário: `admin`
-   - Senha: `Gordinh@29`
-3. Após login, você será redirecionado para `/admin/generate`
+2. Faça login com as credenciais configuradas
+3. Após login, redirecionamento para `/admin/generate`
 
 ## Rotas Protegidas
 
-- `/admin/*` - Todas as páginas admin (exceto `/admin/login`)
-- `/api/generate-post` - API de geração manual
-- `/api/auto-generate` - API de geração automática (cron)
+- `/admin/*` — Todas as páginas admin (exceto `/admin/login`)
+- `/api/generate-post` — API de geração manual
+- `/api/auto-generate` — API de geração automática (cron)
 
 ## Rotas Públicas
 
-- `/admin/login` - Página de login
-- `/api/auth/*` - APIs de autenticação
+- `/admin/login` — Página de login
+- `/api/auth/*` — APIs de autenticação
 
 ## Segurança
 
-- Sessões duram 7 dias
-- Cookies são httpOnly e secure em produção
-- Senhas são armazenadas como hash SHA256
-- Tokens de sessão são verificados com hash
+- Sessões armazenadas no Cloudflare KV (TTL: 7 dias)
+- Cookies `httpOnly`, `secure`, `sameSite: strict`
+- Senhas armazenadas como hash SHA256
+- Tokens de sessão verificados com hash
+- Rate limiting via Cloudflare
 
 ## Mudar Senha
 
@@ -70,7 +60,6 @@ node -e "console.log(require('crypto').createHash('sha256').update('sua-senha-aq
    node -e "console.log(require('crypto').createHash('sha256').update('nova-senha').digest('hex'))"
    ```
 
-2. Atualize `ADMIN_PASSWORD_HASH` no `.env.local` e na Vercel
+2. Atualize `ADMIN_PASSWORD_HASH` no `.env.local` e no Cloudflare Pages
 
-3. Reinicie o servidor
-
+3. Reinicie o servidor (dev) ou redeploy (prod)

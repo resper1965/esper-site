@@ -108,7 +108,7 @@ src/
 2. **Revisão** → Abrir arquivo, revisar conteúdo
 3. **Edição** → Fazer ajustes se necessário
 4. **Publicação** → Mover de `drafts/` para `posts/`
-5. **Deploy** → Commit + push → Vercel auto-deploy
+5. **Deploy** → Commit + push → Cloudflare Pages auto-deploy
 
 ## 🚀 Próximas Fases
 

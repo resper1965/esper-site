@@ -1,49 +1,47 @@
-# 🤖 FASE 2: AUTOMAÇÃO - COMPLETA!
+# 🤖 Automação — Geração Automática de Posts
 
-## ✅ Novos Recursos Implementados
+## Recursos
 
 ### 1. Source Fetcher (Coleta Automática)
-- ✅ RSS feeds: CISA, OWASP, Krebs, Dark Reading
-- ✅ Web scraping: ANPD (Brasil)
-- ✅ Filtra notícias últimas 24h
-- ✅ Ordena por relevância
+- RSS feeds: CISA, OWASP, Krebs, Dark Reading
+- Web scraping: ANPD (Brasil)
+- Filtra notícias últimas 24h
+- Ordena por relevância
 
 ### 2. Topic Analyzer (IA)
-- ✅ Claude analisa fontes
-- ✅ Sugere 3-5 tópicos relevantes
-- ✅ Score de relevância
-- ✅ Evita duplicatas
+- IA analisa fontes coletadas
+- Sugere 3-5 tópicos relevantes
+- Score de relevância
+- Evita duplicatas
 
 ### 3. Auto-scheduler
-- ✅ Máximo 1 post/dia
-- ✅ 48h entre mesma categoria
-- ✅ Distribuição balanceada
-- ✅ Prioriza categorias defasadas
+- Máximo 1 post/dia
+- 48h entre mesma categoria
+- Distribuição balanceada
+- Prioriza categorias defasadas
 
 ### 4. Email Notifications
-- ✅ Notifica quando gera post
-- ✅ Envia score e localização
-- ✅ Alerta em caso de erro
-- ✅ Suporte SMTP (Gmail, SendGrid, etc)
+- Notifica quando gera post
+- Envia score e localização
+- Alerta em caso de erro
+- Suporte SMTP (Gmail, SendGrid, etc)
 
-### 5. Cron Job (Vercel)
-- ✅ Roda diariamente às 6h
-- ✅ Endpoint: /api/auto-generate
-- ✅ Protegido com token
-- ✅ Logs completos
+### 5. Cron Job (Cloudflare)
+- Roda diariamente às 6h via Cloudflare Cron Triggers
+- Endpoint: `/api/auto-generate`
+- Protegido com token
+- Logs via Cloudflare Workers Logs
 
 ### 6. Analytics Dashboard
-- ✅ Total posts, drafts, publicados
-- ✅ Score médio
-- ✅ Distribuição por categoria
-- ✅ Histórico de gerações
+- Total posts, drafts, publicados
+- Score médio
+- Distribuição por categoria
+- Histórico de gerações
 
-## 🚀 Como Funciona
-
-### Fluxo Automático (Diário às 6h)
+## Fluxo Automático (Diário às 6h)
 
 ```
-1. Vercel Cron trigger
+1. Cloudflare Cron Trigger
    ↓
 2. Buscar fontes (CISA, OWASP, ANPD, etc)
    ↓
@@ -53,23 +51,24 @@
    ↓
 5. Verifica se pode publicar (limites)
    ↓
-6. Gera post com Claude
+6. Gera post (Claude/Gemini)
    ↓
-7. Salva draft
+7. Salva draft no D1
    ↓
 8. Envia email notificação
    ↓
 9. (Opcional) Auto-publish se score >= 9.0
 ```
 
-## ⚙️ Configuração
+## Configuração
 
 ### 1. Variáveis de Ambiente
 
-Copie `.env.local.template` para `.env.local` e configure:
+Configure no `.env.local` e no Cloudflare Pages:
 
 ```bash
-ANTHROPIC_API_KEY=sk-ant-...        # Obrigatório
+ANTHROPIC_API_KEY=sk-ant-...        # IA
+GEMINI_API_KEY=...                  # IA (análise)
 CRON_SECRET=random-token-123        # Segurança
 EMAIL_NOTIFICATIONS=true            # Ativar emails
 NOTIFICATION_EMAIL=seu@email.com    # Seu email
@@ -79,65 +78,34 @@ SMTP_PASS=senha-app-gmail           # Senha de app
 AUTO_PUBLISH=false                  # Auto-publish (cuidado!)
 ```
 
-### 2. Vercel Cron (Produção)
+### 2. Cron (Cloudflare)
 
-Arquivo `vercel.json` já configurado:
+Configurado via `wrangler.toml`:
 
-```json
-{
-  "crons": [{
-    "path": "/api/auto-generate",
-    "schedule": "0 6 * * *"  // 6h todo dia
-  }]
-}
+```toml
+[triggers]
+crons = ["0 6 * * *"]  # 6h todo dia
 ```
 
-Após deploy na Vercel:
-1. Vá em Settings → Environment Variables
-2. Adicione todas variáveis do .env.local
-3. Cron será ativado automaticamente
+Após deploy no Cloudflare Pages:
+1. Cron Trigger ativado automaticamente
+2. Veja logs em Cloudflare Dashboard → Workers & Pages → Logs
 
-### 3. Teste Local (Manual)
+### 3. Teste Local
 
 ```bash
 # Testar geração automática
-curl -X POST http://localhost:3000/api/auto-generate   -H "Authorization: Bearer seu-cron-secret"
+curl -X POST http://localhost:3000/api/auto-generate \
+  -H "Authorization: Bearer seu-cron-secret"
 
 # Ver analytics
 # http://localhost:3000/admin/analytics
 ```
 
-## 📊 Analytics Dashboard
-
-Acesse: `http://localhost:3000/admin/analytics`
-
-Métricas disponíveis:
-- Total posts gerados
-- Drafts vs Publicados
-- Score médio
-- Posts por categoria
-- Gerações recentes
-
-## 📧 Email Notifications
-
-Quando ativado, você recebe email com:
-- ✅ Título do post gerado
-- ✅ Score de qualidade
-- ✅ Categoria
-- ✅ Localização do arquivo
-- ✅ Recomendação (publicar ou revisar)
-
-Suporta:
-- Gmail (via SMTP)
-- SendGrid
-- Mailgun
-- Qualquer SMTP
-
-## 🎯 Scheduler Rules
+## Scheduler Rules
 
 ### Limites Diários
 - Máximo 1 post/dia
-- Apenas em dias úteis (opcional)
 - Hora fixa: 6h (configurável)
 
 ### Limites por Categoria
@@ -154,18 +122,16 @@ Suporta:
 - Se > 2 palavras em comum → skip
 - Prioriza tópicos únicos
 
-## 🔒 Segurança
+## Segurança
 
 ### Proteção do Endpoint
-```bash
-# Endpoint protegido com token
-Authorization: Bearer {CRON_SECRET}
 
+```
+Authorization: Bearer {CRON_SECRET}
 # Sem token = 401 Unauthorized
 ```
 
-### Fontes Confiáveis
-Whitelist de domínios:
+### Fontes Confiáveis (Whitelist)
 - cisa.gov, nist.gov, owasp.org
 - krebsonsecurity.com, darkreading.com
 - anpd.gov.br, iapp.org
@@ -175,23 +141,22 @@ Whitelist de domínios:
 - Timeout 60s por geração
 - Retry automático em erro
 
-## 💰 Custos
+## Custos Estimados
 
-### Claude API
-- Source analysis: ~$0.005
-- Topic analysis: ~$0.01
-- Post generation: ~$0.02
-- **Total/dia: ~$0.035**
-- **Total/mês: ~$1.05**
+| Operação | Custo |
+|----------|-------|
+| Source analysis | ~$0.005 |
+| Topic analysis | ~$0.01 |
+| Post generation | ~$0.02 |
+| **Total/dia** | **~$0.035** |
+| **Total/mês** | **~$1.05** |
 
-Ainda muito barato! 🎉
-
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Cron não executa
-- Verificar vercel.json existe
-- Deploy na Vercel (cron só funciona em prod)
-- Ver logs: Vercel Dashboard → Functions
+- Verificar `wrangler.toml` (crons trigger)
+- Deploy via Cloudflare Pages (cron só funciona em prod)
+- Ver logs: Cloudflare Dashboard → Workers & Pages → Logs
 
 ### Email não chega
 - Verificar SMTP_* variables
@@ -202,18 +167,3 @@ Ainda muito barato! 🎉
 - Ver logs do cron job
 - Verificar se atingiu limite diário
 - Ver se há fontes novas (últimas 24h)
-
-## 📈 Próxima Fase 3
-
-- [ ] Auto-publish inteligente
-- [ ] A/B testing de horários
-- [ ] Integração Google Analytics
-- [ ] Dashboard SEO metrics
-- [ ] Webhook notifications
-- [ ] Multi-language support
-
-## 🎉 Status
-
-**FASE 2: 100% COMPLETA!**
-
-Sistema totalmente automático rodando!

@@ -50,3 +50,6 @@ next-env.d.ts
 *.db-shm
 *.db-wal
 /drizzle
+
+# OpenNext Cloudflare build output
+.open-next/

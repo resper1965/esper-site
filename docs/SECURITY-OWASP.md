@@ -1,33 +1,35 @@
-# Segurança OWASP TOP 10 - Implementação
+# Segurança OWASP TOP 10 — Implementação (Cloudflare Stack)
+
+> Versão 2.0 · Última atualização: 2025-03-24  
+> Stack: Next.js 15 + Cloudflare Workers/D1/R2
 
 ## Visão Geral
 
-Este documento detalha as implementações de segurança alinhadas com OWASP TOP 10 2021 e melhores práticas de segurança.
+Este documento detalha as implementações de segurança alinhadas com OWASP TOP 10 2021 para o site ricardoesper.com.br, operando na stack Cloudflare (Workers, D1, R2).
+
+---
 
 ## A01:2021 – Broken Access Control
 
 ### Implementações
 
-1. **Row Level Security (RLS) no Supabase**
-   - Tabela `posts` com RLS habilitado
-   - Políticas de acesso baseadas em autenticação
-   - Posts públicos: leitura para todos
-   - Posts privados: apenas autenticados
+1. **`requireAuth.ts` — guard central**
+   - Todas as rotas admin protegidas por autenticação JWT
+   - Fail-closed: sem JWT_SECRET = server error (nunca bypass)
+   - Cookie `sb-access-token` com flags HttpOnly + Secure + SameSite
 
-2. **Middleware de Autenticação**
-   - Verificação de sessão em rotas admin
-   - Proteção de APIs de geração
-   - Redirecionamento automático para login
+2. **Middleware de Roteamento**
+   - `src/middleware.ts` redireciona `/admin/*` para `/admin/login` se não autenticado
+   - Rotas de API POST/PUT/DELETE verificam token antes de processar
 
-3. **Validação de Autorização**
-   - Verificação de autenticação em todas as operações sensíveis
-   - Service role key apenas no servidor
-   - Tokens JWT validados
+3. **Separação de Privilégios**
+   - Anon key (leitura pública) vs Admin JWT (escrita)
+   - API de geração AI protegida por `CRON_SECRET`
 
 ### Arquivos Relacionados
+- `src/lib/requireAuth.ts`
 - `src/middleware.ts`
-- `supabase/schema.sql` (RLS policies)
-- `src/lib/supabase/auth.ts`
+- `src/app/api/posts/route.ts`
 
 ---
 
@@ -36,23 +38,23 @@ Este documento detalha as implementações de segurança alinhadas com OWASP TOP
 ### Implementações
 
 1. **HTTPS Obrigatório**
-   - HSTS header configurado (max-age=63072000)
-   - includeSubDomains e preload habilitados
+   - TLS 1.3 via Cloudflare (edge-terminated)
+   - HSTS header (max-age=63072000, includeSubDomains, preload)
 
 2. **Senhas e Tokens**
-   - Supabase Auth com hash seguro
-   - Service role key nunca exposta no cliente
-   - Variáveis de ambiente criptografadas na Vercel
+   - Senha admin: SHA-256 + HMAC (hash + secret combinados)
+   - JWT assinado com HMAC-SHA256
+   - `JWT_SECRET` e `CRON_SECRET` sem fallback (fail-closed)
 
 3. **Dados Sensíveis**
-   - API keys em variáveis de ambiente
-   - Nenhuma credencial no código
-   - `.env.local` no `.gitignore`
+   - Secrets em Wrangler secrets / `.dev.vars`
+   - `.dev.vars` no `.gitignore`
+   - Nenhuma credencial no código fonte
 
 ### Arquivos Relacionados
-- `next.config.ts` (HSTS)
+- `src/lib/cloudflare/auth.ts`
+- `wrangler.toml` (bindings)
 - `.gitignore`
-- `src/lib/supabase/client.ts`
 
 ---
 
@@ -61,22 +63,22 @@ Este documento detalha as implementações de segurança alinhadas com OWASP TOP
 ### Implementações
 
 1. **SQL Injection Prevention**
-   - Supabase client com queries parametrizadas
+   - D1 com prepared statements (`db.prepare().bind()`)
    - Nenhuma concatenação de strings SQL
-   - TypeScript types para validação
+   - TypeScript types para validação de inputs
 
 2. **XSS Prevention**
-   - Content-Security-Policy configurado
-   - Sanitização de inputs
-   - React escapa automaticamente
+   - Content-Security-Policy configurado em headers
+   - React escapa automaticamente conteúdo renderizado
+   - Sanitização de inputs de comentários
 
 3. **Command Injection**
    - Nenhuma execução de comandos shell
-   - APIs externas com validação
+   - API Gemini chamada com payloads validados
 
 ### Arquivos Relacionados
-- `src/lib/supabase/posts.ts`
-- `next.config.ts` (CSP)
+- `src/lib/cloudflare/posts.ts` (prepared statements)
+- `src/middleware.ts` (CSP via headers)
 - `src/components/Comments.tsx`
 
 ---
@@ -86,18 +88,19 @@ Este documento detalha as implementações de segurança alinhadas com OWASP TOP
 ### Implementações
 
 1. **Arquitetura Segura**
-   - Separação de concerns (client/server)
-   - Princípio do menor privilégio
-   - Defesa em profundidade
+   - Separação client/server (RSC + API routes)
+   - Princípio do menor privilégio (anon vs admin)
+   - Defesa em profundidade (edge WAF + middleware + API guard)
 
 2. **Threat Modeling**
-   - Documentação de ameaças
-   - Análise de riscos
-   - Controles de segurança
+   - DPIA realizado: `docs/pims/DPIA.md`
+   - Vulnerability Audit: `docs/security/VULNERABILITY-AUDIT-2025.md`
+   - ISMS documentado: `docs/isms/`
 
 ### Arquivos Relacionados
 - `docs/SECURITY-OWASP.md` (este arquivo)
-- `SECURITY.md`
+- `docs/isms/ISMS-POLICY.md`
+- `docs/security/VULNERABILITY-AUDIT-2025.md`
 
 ---
 
@@ -109,24 +112,25 @@ Este documento detalha as implementações de segurança alinhadas com OWASP TOP
    - Content-Security-Policy
    - X-Frame-Options: SAMEORIGIN
    - X-Content-Type-Options: nosniff
-   - X-XSS-Protection
-   - Referrer-Policy
-   - Permissions-Policy
+   - X-XSS-Protection: 1; mode=block
+   - Referrer-Policy: strict-origin-when-cross-origin
+   - Permissions-Policy (camera, microphone, geolocation negados)
 
 2. **Configuração Segura**
-   - `poweredByHeader: false`
+   - `poweredByHeader: false` no Next.js
    - TypeScript strict mode
    - ESLint com regras de segurança
 
-3. **Supabase**
-   - RLS habilitado
-   - Políticas de acesso configuradas
-   - Function search_path fixado
+3. **Cloudflare**
+   - WAF habilitado
+   - Bot Management ativo
+   - D1 encryption at-rest
+   - Workers isolados (sem shared memory)
 
 ### Arquivos Relacionados
-- `next.config.ts`
+- `next.config.ts` (headers)
+- `wrangler.toml`
 - `eslint.config.mjs`
-- `supabase/schema.sql`
 
 ---
 
@@ -136,17 +140,17 @@ Este documento detalha as implementações de segurança alinhadas com OWASP TOP
 
 1. **Gerenciamento de Dependências**
    - `package-lock.json` versionado
-   - Dependências atualizadas regularmente
-   - Verificação de vulnerabilidades
+   - Dependências auditadas regularmente
+   - `npm audit` como parte do workflow
 
 2. **Monitoramento**
-   - `npm audit` no CI/CD
-   - Atualizações de segurança
+   - Dependências mínimas (sem excesso de libs)
    - Remoção de dependências não utilizadas
+   - Atualizações de segurança aplicadas
 
 ### Arquivos Relacionados
 - `package.json`
-- `.github/workflows/ci.yml`
+- `package-lock.json`
 
 ---
 
@@ -154,25 +158,24 @@ Este documento detalha as implementações de segurança alinhadas com OWASP TOP
 
 ### Implementações
 
-1. **Autenticação Supabase**
-   - Email + senha
-   - JWT tokens
-   - Refresh tokens automáticos
-   - Sessões gerenciadas
+1. **Autenticação JWT Custom**
+   - Login via email + senha → JWT emitido
+   - Token em cookie HttpOnly + Secure + SameSite=Lax
+   - Expiração: 24 horas
 
-2. **Proteção de Rotas**
-   - Middleware de autenticação
-   - Verificação de sessão
-   - Timeout de sessão
+2. **Rate Limiting**
+   - 5 tentativas de login por IP a cada 15 minutos
+   - Implementado em `src/lib/rate-limit.ts`
+   - Resposta 429 com mensagem clara
 
-3. **Boas Práticas**
-   - Senhas nunca logadas
-   - Tokens em httpOnly cookies (quando aplicável)
-   - Rate limiting (via Vercel)
+3. **Fail-Closed Design**
+   - Sem `JWT_SECRET` → erro 500 (nunca aceita token sem secret)
+   - Sem `CRON_SECRET` → CRON jobs recusados
 
 ### Arquivos Relacionados
-- `src/lib/supabase/auth.ts`
-- `src/middleware.ts`
+- `src/lib/cloudflare/auth.ts`
+- `src/lib/rate-limit.ts`
+- `src/app/api/auth/login/route.ts`
 - `src/app/admin/login/page.tsx`
 
 ---
@@ -182,18 +185,18 @@ Este documento detalha as implementações de segurança alinhadas com OWASP TOP
 ### Implementações
 
 1. **Integridade de Dados**
-   - Validação de inputs (Zod)
+   - Validação de inputs em todas as API routes
    - TypeScript para type safety
-   - Sanitização de dados
+   - Prepared statements (sem SQL dinâmico)
 
-2. **CI/CD Seguro**
-   - GitHub Actions com secrets
-   - Build verificado
-   - Deploy automatizado e seguro
+2. **Deploy Seguro**
+   - Wrangler deploy com secrets injection
+   - Builds verificados localmente antes de deploy
+   - Nenhum script de terceiros não auditado
 
 ### Arquivos Relacionados
-- `src/lib/validation.ts` (se existir)
-- `.github/workflows/ci.yml`
+- `wrangler.toml`
+- `src/app/api/posts/route.ts`
 
 ---
 
@@ -202,23 +205,22 @@ Este documento detalha as implementações de segurança alinhadas com OWASP TOP
 ### Implementações
 
 1. **Logging**
-   - Console logs estruturados
-   - Erros capturados e logados
-   - Logs de segurança
+   - Erros capturados com console.error estruturado
+   - Logs de autenticação (login success/failure)
+   - Rate limiting logged com IP + timestamp
 
 2. **Monitoramento**
-   - Vercel Analytics
-   - Supabase logs
-   - Error tracking
+   - Cloudflare Analytics (real-time)
+   - Cloudflare WAF logs
+   - Workers error tracking
 
 3. **Auditoria**
-   - Logs de autenticação
-   - Logs de operações admin
-   - Histórico de mudanças
+   - Vulnerability Audit documentado
+   - Revisão semestral prevista no ISMS
 
 ### Arquivos Relacionados
-- `src/lib/supabase/analytics.ts`
-- Vercel Dashboard
+- `src/lib/rate-limit.ts` (log de bloqueios)
+- Cloudflare Dashboard (analytics + WAF)
 
 ---
 
@@ -227,18 +229,18 @@ Este documento detalha as implementações de segurança alinhadas com OWASP TOP
 ### Implementações
 
 1. **Validação de URLs**
-   - Whitelist de domínios permitidos
-   - Validação de URLs externas
+   - Apenas Gemini API como serviço externo
+   - URL hardcoded (não aceita input de usuário)
    - Timeout em requisições
 
 2. **APIs Externas**
-   - Apenas APIs confiáveis
-   - Validação de respostas
-   - Rate limiting
+   - Gemini API chamada apenas por CRON (não por input do user)
+   - CRON_SECRET validado antes de execução
+   - Sem proxy ou fetch dinâmico de URLs
 
 ### Arquivos Relacionados
 - `src/lib/ai/post-generator.ts`
-- APIs de geração
+- `src/app/api/generate/route.ts`
 
 ---
 
@@ -253,31 +255,31 @@ Este documento detalha as implementações de segurança alinhadas com OWASP TOP
 - [x] Permissions-Policy
 
 ### Autenticação ✅
-- [x] Supabase Auth implementado
-- [x] RLS habilitado
-- [x] Middleware de proteção
-- [x] Service role key protegida
+- [x] JWT HMAC-SHA256 implementado
+- [x] Cookie HttpOnly + Secure + SameSite
+- [x] Rate limiting (5/15min)
+- [x] Fail-closed (sem fallback de secrets)
 
 ### Dados Sensíveis ✅
-- [x] Variáveis de ambiente configuradas
+- [x] Wrangler secrets para produção
 - [x] Nenhuma credencial no código
-- [x] .env.local no .gitignore
+- [x] `.dev.vars` no `.gitignore`
 
 ### Dependências ✅
 - [x] Dependências atualizadas
-- [x] npm audit no CI
-- [x] Remoção de dependências não usadas
+- [x] `npm audit` executado
+- [x] Dependências mínimas
 
 ---
 
 ## Próximos Passos
 
-1. [ ] Implementar rate limiting mais robusto
-2. [ ] Adicionar WAF (Web Application Firewall)
+1. [x] Rate limiting implementado
+2. [x] WAF via Cloudflare
 3. [ ] Implementar 2FA para admin
-4. [ ] Adicionar security.txt (RFC 9116)
+4. [ ] Adicionar `security.txt` (RFC 9116)
 5. [ ] Implementar CORS mais restritivo
-6. [ ] Adicionar logging de segurança estruturado
+6. [ ] Adicionar logging estruturado (JSON)
 
 ---
 
@@ -285,6 +287,7 @@ Este documento detalha as implementações de segurança alinhadas com OWASP TOP
 
 - [OWASP TOP 10 2021](https://owasp.org/Top10/)
 - [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/)
-- [Supabase Security](https://supabase.com/docs/guides/platform/security)
-- [Next.js Security](https://nextjs.org/docs/app/api-reference/next-config-js/headers)
-
+- [Cloudflare Security](https://www.cloudflare.com/security/)
+- [Next.js Security Headers](https://nextjs.org/docs/app/api-reference/next-config-js/headers)
+- [`docs/security/VULNERABILITY-AUDIT-2025.md`](security/VULNERABILITY-AUDIT-2025.md)
+- [`docs/isms/ISMS-POLICY.md`](isms/ISMS-POLICY.md)

@@ -1,6 +1,6 @@
 import { getDictionary } from '@/i18n/dictionaries';
 import { Locale, i18n } from '@/i18n/config';
-import { generatePageMetadata } from '@/lib/metadata';
+import { generatePageMetadata, generateProfessionalServiceSchema } from '@/lib/metadata';
 import { PageBackground } from '@/components/ui/page-background';
 import type { Metadata } from 'next';
 import { Shield, Eye, Search, FileCheck, Briefcase, Phone, Calendar, ArrowRight, Sparkles } from 'lucide-react';
@@ -42,7 +42,7 @@ export async function generateMetadata({
   });
 }
 
-export const dynamic = 'force-dynamic';
+// Static page — uses generateStaticParams() + dictionary data
 
 export default async function Servicos({
   params,
@@ -235,8 +235,15 @@ export default async function Servicos({
     }
   ];
 
+  const serviceSchema = generateProfessionalServiceSchema(lang);
+
   return (
     <PageBackground>
+      {/* Service structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
+      />
       <div className="bg-transparent">
         {/* Hero Section with animated background */}
         <div className="relative overflow-hidden">
@@ -353,7 +360,7 @@ export default async function Servicos({
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </a>
               <a
-                href="https://wa.me/5511999999999"
+                href="https://wa.me/5511993252971"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group inline-flex items-center justify-center gap-2 rounded-xl border-2 border-border bg-background px-8 py-4 text-sm font-semibold transition-all duration-300 hover:bg-muted hover:border-muted-foreground/20"

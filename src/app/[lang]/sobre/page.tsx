@@ -39,7 +39,7 @@ export async function generateMetadata({
   })
 }
 
-export const dynamic = "force-dynamic"
+// Static page — uses generateStaticParams() + dictionary data
 
 interface Credential {
   label: string

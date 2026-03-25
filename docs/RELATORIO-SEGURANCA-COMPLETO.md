@@ -66,7 +66,7 @@ Todos os headers de segurança recomendados estão configurados no `next.config.
 - ✅ `unsafe-eval` **removido** (boa prática)
 - ⚠️ `unsafe-inline` mantido para scripts (necessário para Next.js hydration)
 - ✅ `block-all-mixed-content` habilitado
-- ✅ Domínios externos explicitamente permitidos (Google Analytics, Supabase, etc.)
+- ✅ Domínios externos explicitamente permitidos (Google Analytics, Gemini API, etc.)
 
 **Nota:** `unsafe-inline` é necessário para Next.js, mas em produção o Next.js gera scripts com hashes que são automaticamente permitidos pelo CSP.
 
@@ -79,7 +79,7 @@ Todos os headers de segurança recomendados estão configurados no `next.config.
 **Middleware (`src/middleware.ts`):**
 - ✅ Verifica autenticação para rotas `/admin/*`
 - ✅ Verifica autenticação para APIs `/api/generate*`
-- ✅ Usa Supabase Auth para validação
+- ✅ Usa Better Auth para validação
 - ✅ Redireciona para `/admin/login` se não autenticado
 
 **APIs Protegidas:**
@@ -87,12 +87,11 @@ Todos os headers de segurança recomendados estão configurados no `next.config.
 - ✅ `/api/generate*` - Requer autenticação
 - ✅ `/api/auto-generate` - Requer autenticação
 
-**Supabase Row Level Security (RLS):**
-- ✅ RLS habilitado em todas as tabelas críticas:
-  - `posts` - Políticas para leitura pública e escrita autenticada
+**Cloudflare D1 Access Control:**
+- ✅ Acesso controlado via middleware em todas as rotas admin
+  - `posts` - Leitura pública via SSG, escrita autenticada via admin
   - `settings` - Apenas usuários autenticados
-  - `comments` - Políticas para aprovação e moderação
-  - `post_views`, `post_likes` - Políticas apropriadas
+  - Dados protegidos por Better Auth session validation
 
 **Políticas RLS Implementadas:**
 ```sql
@@ -107,7 +106,7 @@ Todos os headers de segurança recomendados estão configurados no `next.config.
 
 ### A01:2021 – Broken Access Control
 - ✅ **Status:** Protegido
-- ✅ RLS habilitado no Supabase
+- ✅ Acesso controlado via middleware + Better Auth
 - ✅ Middleware verifica autenticação
 - ✅ APIs protegidas com verificação de sessão
 
@@ -120,9 +119,9 @@ Todos os headers de segurança recomendados estão configurados no `next.config.
 
 ### A03:2021 – Injection
 - ✅ **Status:** Protegido
-- ✅ Usa Supabase client (proteção contra SQL injection)
-- ✅ Não usa queries SQL diretas
-- ✅ Input sanitizado pelo Supabase
+- ✅ Usa Drizzle ORM (proteção contra SQL injection)
+- ✅ Não usa queries SQL diretas — todas via Drizzle
+- ✅ Input validado/sanitizado pelo ORM
 
 ### A04:2021 – Insecure Design
 - ✅ **Status:** Boas práticas implementadas
@@ -146,8 +145,8 @@ Todos os headers de segurança recomendados estão configurados no `next.config.
 
 ### A07:2021 – Identification and Authentication Failures
 - ✅ **Status:** Implementado corretamente
-- ✅ Supabase Auth para autenticação
-- ✅ Sessões gerenciadas pelo Supabase
+- ✅ Better Auth para autenticação
+- ✅ Sessões gerenciadas pelo Better Auth
 - ✅ Middleware verifica autenticação
 
 ### A08:2021 – Software and Data Integrity Failures
@@ -166,7 +165,7 @@ Todos os headers de segurança recomendados estão configurados no `next.config.
 - ✅ **Status:** Protegido
 - ✅ APIs externas validadas
 - ✅ URLs validadas antes de fetch
-- ✅ Supabase client gerencia conexões
+- ✅ Drizzle ORM + D1 gerencia conexões
 
 ---
 
@@ -176,13 +175,13 @@ Todos os headers de segurança recomendados estão configurados no `next.config.
 
 **Verificações Realizadas:**
 - ✅ Nenhum `sk-` (secret key) encontrado no código
-- ✅ API keys usam `process.env` ou `getSetting()` (Supabase)
+- ✅ API keys usam `process.env` ou `getSetting()` (D1)
 - ✅ `.env*` está no `.gitignore`
 - ✅ Secrets não estão hardcoded
 
 **Boas Práticas:**
 - ✅ Variáveis de ambiente para secrets
-- ✅ Settings armazenados no Supabase (criptografados)
+- ✅ Settings armazenados no Cloudflare D1
 - ✅ Fallback para `process.env` quando necessário
 
 ---
@@ -272,7 +271,7 @@ Policy: https://ricardoesper.com.br/SECURITY.md
 
 3. **Implementar Rate Limiting**
    - Proteger APIs contra abuso
-   - Considerar Vercel Edge Config ou middleware
+   - Considerar Cloudflare WAF rate limiting ou middleware
    - **Impacto:** Médio (disponibilidade)
    - **Esforço:** Médio
 
@@ -289,7 +288,7 @@ Policy: https://ricardoesper.com.br/SECURITY.md
    - **Esforço:** Alto
 
 ### Prioridade Baixa
-5. **Configurar Headers no Vercel**
+5. **Configurar Headers no Cloudflare**
    - Ocultar informações do servidor
    - Headers adicionais de segurança
 
@@ -325,7 +324,7 @@ O projeto demonstra **excelente postura de segurança** com:
 - ✅ Autenticação e autorização robustas
 - ✅ Proteção contra OWASP Top 10
 - ✅ Nenhum secret exposto
-- ✅ RLS habilitado no Supabase
+- ✅ Acesso controlado via Better Auth + middleware
 - ✅ TypeScript strict mode
 - ✅ CI/CD com verificações de segurança
 

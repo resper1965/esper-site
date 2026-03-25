@@ -3,8 +3,8 @@ import PostCard from '@/components/PostCard';
 import { getAllPosts } from '@/lib/posts';
 import Link from 'next/link';
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
+// ISR: revalidate every hour for fresh content with static performance
+export const revalidate = 3600;
 
 export default async function BlogPage() {
   let posts: Awaited<ReturnType<typeof getAllPosts>> = [];

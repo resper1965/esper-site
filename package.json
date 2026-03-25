@@ -15,6 +15,10 @@
     "generate-abstract-images": "node scripts/generate-abstract-images.mjs",
     "regenerate-images-gemini": "tsx scripts/regenerate-images-gemini.ts",
     "setup-gemini-vercel": "tsx scripts/setup-gemini-vercel.ts",
+    "build:cf": "npx opennextjs-cloudflare",
+    "deploy": "npm run build:cf && wrangler deploy",
+    "preview:cf": "npm run build:cf && wrangler dev",
+    "cf:typegen": "wrangler types",
     "prepare": "husky"
   },
   "dependencies": {
@@ -56,6 +60,7 @@
     "@commitlint/cli": "^20.2.0",
     "@commitlint/config-conventional": "^20.2.0",
     "@eslint/eslintrc": "^3.3.3",
+    "@opennextjs/cloudflare": "^1.17.3",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -74,7 +79,8 @@
     "tsx": "^4.21.0",
     "tw-animate-css": "^1.3.5",
     "typescript": "^5",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.0",
+    "wrangler": "^4.77.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

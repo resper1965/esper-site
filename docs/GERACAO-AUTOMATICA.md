@@ -187,9 +187,9 @@ EMAIL_TO=seu-email@exemplo.com
 RESEND_API_KEY=re_...
 ```
 
-### Configuração do Cron Job (Vercel)
+### Configuração do Cron Job (Cloudflare)
 
-No dashboard da Vercel, configure um cron job:
+No Cloudflare Workers, configure um Cron Trigger:
 
 **Path:** `/api/auto-generate`
 **Schedule:** `0 6 * * *` (6h da manhã, diariamente)
@@ -345,7 +345,7 @@ Edite `src/lib/ai/ricardo-profile.json`:
 
 ### Post não está sendo gerado
 
-1. Verifique logs do cron job na Vercel
+1. Verifique logs do cron job no Cloudflare Workers
 2. Confirme que `ANTHROPIC_API_KEY` está configurada
 3. Verifique se `CRON_SECRET` está correto
 4. Confirme que há fontes recentes disponíveis

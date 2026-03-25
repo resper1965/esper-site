@@ -19,9 +19,8 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Force dynamic rendering to avoid build-time errors
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// ISR: revalidate every hour for fresh content with static performance
+export const revalidate = 3600;
 
 export default async function BlogPost({ params }: PageProps) {
   const { slug } = await params;
