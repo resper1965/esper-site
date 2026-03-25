@@ -1,8 +1,35 @@
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { signIn } from '../../../../lib/cloudflare/auth';
+import { checkRateLimit } from '@/lib/rate-limit';
+
+function getClientIp(request: Request): string {
+  const forwarded = request.headers.get('x-forwarded-for');
+  if (forwarded) return forwarded.split(',')[0].trim();
+  const real = request.headers.get('x-real-ip');
+  if (real) return real;
+  return '127.0.0.1';
+}
 
 export async function POST(request: Request) {
+  // ── Rate limiting (5 attempts / 15 min per IP) ──────────
+  const ip = getClientIp(request);
+  const { allowed, retryAfterSeconds } = checkRateLimit(ip, {
+    windowMs: 15 * 60 * 1000,
+    maxAttempts: 5,
+  });
+
+  if (!allowed) {
+    logger.warn('Login rate limited', { ip });
+    return NextResponse.json(
+      { error: 'Muitas tentativas. Tente novamente mais tarde.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(retryAfterSeconds) },
+      }
+    );
+  }
+
   try {
     const { email, password } = await request.json();
 
