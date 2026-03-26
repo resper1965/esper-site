@@ -27,7 +27,7 @@ export async function requireAuth(
 ): Promise<AdminUser | NextResponse> {
   try {
     const cookieStore = await cookies();
-    const accessToken = cookieStore.get('sb-access-token')?.value;
+    const accessToken = cookieStore.get('session-token')?.value;
 
     if (!accessToken) {
       return NextResponse.json(

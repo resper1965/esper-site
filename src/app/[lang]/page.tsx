@@ -144,7 +144,7 @@ export default async function HomePage({
               return (
                 <FadeIn key={post.slug} delay={index * 80}>
                   <BlogCard
-                    url={`/${lang}/blog/${post.slug}`}
+                    url={`/blog/${post.slug}`}
                     title={post.frontMatter.title}
                     description={description}
                     date={formattedDate}

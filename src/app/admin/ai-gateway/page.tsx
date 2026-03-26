@@ -33,7 +33,7 @@ export default function AIGatewayPage() {
   const router = useRouter();
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [gatewayStatus, setGatewayStatus] = useState<GatewayStatus | null>(null);
-  const [apiKey, setApiKey] = useState('');
+  const [apiToken, setApiToken] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
@@ -67,14 +67,14 @@ export default function AIGatewayPage() {
       
       if (data.success) {
         const settings = data.settings || [];
-        const gatewayKey = settings.find((s: { key: string }) => s.key === 'AI_GATEWAY_API_KEY');
+        const cloudflareToken = settings.find((s: { key: string }) => s.key === 'CLOUDFLARE_API_TOKEN');
         
-        setApiKey(gatewayKey?.value || '');
+        setApiToken(cloudflareToken?.value || '');
         
         setGatewayStatus({
-          connected: !!gatewayKey?.value,
-          apiKeyConfigured: !!gatewayKey?.value,
-          modelsAvailable: 100,
+          connected: !!cloudflareToken?.value,
+          apiKeyConfigured: !!cloudflareToken?.value,
+          modelsAvailable: 2,
         });
       }
     } catch {
@@ -91,15 +91,15 @@ export default function AIGatewayPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          key: 'AI_GATEWAY_API_KEY',
-          value: apiKey 
+          key: 'CLOUDFLARE_API_TOKEN',
+          value: apiToken 
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setMessage({ type: 'success', text: 'Chave API salva com sucesso!' });
+        setMessage({ type: 'success', text: 'Token da Cloudflare salvo com sucesso!' });
         setGatewayStatus((prev) => prev ? { ...prev, apiKeyConfigured: true, connected: true } : null);
         setTimeout(() => setMessage(null), 3000);
       } else {
@@ -120,7 +120,7 @@ export default function AIGatewayPage() {
       const response = await fetch('/api/admin/ai-gateway/test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey }),
+        body: JSON.stringify({}),
       });
 
       const data = await response.json();
@@ -128,7 +128,7 @@ export default function AIGatewayPage() {
       if (data.success) {
         setTestResult({ 
           success: true, 
-          message: `Conexão bem-sucedida! Modelo testado: ${data.model || 'google/gemini-2.5-pro'}` 
+          message: `Conexão bem-sucedida! Modelo testado: ${data.model || '@cf/meta/llama-3.1-8b-instruct-fast'}` 
         });
         setGatewayStatus((prev) => prev ? { 
           ...prev, 
@@ -190,7 +190,7 @@ export default function AIGatewayPage() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <Info className="h-5 w-5 text-primary" />
-              <CardTitle>O que é o Vercel AI Gateway?</CardTitle>
+              <CardTitle>O que é o Cloudflare AI Gateway?</CardTitle>
             </div>
             <CardDescription className="text-slate-400">
               Entenda como funciona e como configurar
@@ -199,10 +199,9 @@ export default function AIGatewayPage() {
           <CardContent className="space-y-4">
             <div className="prose prose-invert max-w-none">
               <p className="text-slate-300 text-sm leading-relaxed">
-                O <strong className="text-slate-100">Vercel AI Gateway</strong> é um serviço que permite acessar 
-                <strong className="text-primary"> 100+ modelos de IA</strong> através de uma única API unificada. 
-                Em vez de configurar chaves individuais para cada provedor (Google, Anthropic, OpenAI, etc.), 
-                você usa apenas uma chave do AI Gateway.
+                O <strong className="text-slate-100">Cloudflare AI Gateway</strong> permite observar, proteger e
+                cachear chamadas de IA em uma única camada. Neste projeto ele complementa o
+                <strong className="text-primary"> Workers AI</strong>, que executa modelos Llama da própria Cloudflare.
               </p>
               
               <div className="mt-4 p-4 bg-slate-800 rounded-lg border border-slate-700">
@@ -211,11 +210,11 @@ export default function AIGatewayPage() {
                   Como Funciona:
                 </h4>
                 <ol className="text-sm text-slate-300 space-y-2 ml-6 list-decimal">
-                  <li>Você obtém uma <strong>chave API do AI Gateway</strong> no dashboard da Vercel</li>
-                  <li>Configura essa chave única aqui no painel admin</li>
-                  <li>A aplicação usa essa chave para acessar qualquer modelo via formato <code className="bg-slate-900 px-1 rounded text-primary">provider/model</code></li>
-                  <li>O AI Gateway roteia automaticamente para o provedor correto</li>
-                  <li>Você pode usar fallback automático entre modelos se um falhar</li>
+                  <li>Você configura <strong>Account ID, API Token e Gateway ID</strong> da Cloudflare</li>
+                  <li>A aplicação usa esses dados para chamar o Workers AI com observabilidade no AI Gateway</li>
+                  <li>Os modelos principais ficam no formato <code className="bg-slate-900 px-1 rounded text-primary">@cf/meta/...</code></li>
+                  <li>O gateway centraliza métricas, cache e políticas</li>
+                  <li>O app usa Llama no caminho principal para reduzir dependência de provedores externos</li>
                 </ol>
               </div>
             </div>
@@ -404,8 +403,8 @@ export default function AIGatewayPage() {
               <div className="flex items-center space-x-2">
                 <input
                   type={showApiKey ? 'text' : 'password'}
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
+                  value={apiToken}
+                  onChange={(e) => setApiToken(e.target.value)}
                   placeholder="vck_..."
                   className="flex-1 px-3 py-2 border border-slate-700 bg-slate-800 text-slate-100 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary font-mono text-sm placeholder:text-slate-500"
                 />
@@ -419,7 +418,7 @@ export default function AIGatewayPage() {
                 </button>
                 <button
                   onClick={handleSaveApiKey}
-                  disabled={saving || !apiKey}
+                  disabled={saving || !apiToken}
                   className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {saving ? (
@@ -438,7 +437,7 @@ export default function AIGatewayPage() {
             <div className="pt-4 border-t border-slate-800">
               <button
                 onClick={handleTestConnection}
-                disabled={testing || !apiKey}
+                disabled={testing || !apiToken}
                 className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {testing ? (
@@ -474,43 +473,44 @@ export default function AIGatewayPage() {
           <CardHeader>
             <CardTitle>Modelos Suportados</CardTitle>
             <CardDescription className="text-slate-400">
-              Exemplos de modelos disponíveis via AI Gateway
+              Modelos atualmente usados no app via Workers AI
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-slate-800 rounded-lg">
-                <h3 className="font-medium text-slate-100 mb-2">Google Gemini</h3>
+                <h3 className="font-medium text-slate-100 mb-2">Llama Fast</h3>
                 <ul className="text-sm text-slate-300 space-y-1">
-                  <li>• <code className="text-primary">google/gemini-2.5-pro</code></li>
-                  <li>• <code className="text-primary">google/gemini-2.5-flash</code></li>
+                  <li>• <code className="text-primary">@cf/meta/llama-3.1-8b-instruct-fast</code></li>
+                  <li>• Baixa latência para chat e prompts auxiliares</li>
                 </ul>
               </div>
               <div className="p-4 bg-slate-800 rounded-lg">
-                <h3 className="font-medium text-slate-100 mb-2">Anthropic Claude</h3>
+                <h3 className="font-medium text-slate-100 mb-2">Llama Qualidade</h3>
                 <ul className="text-sm text-slate-300 space-y-1">
-                  <li>• <code className="text-primary">anthropic/claude-sonnet-4</code></li>
-                  <li>• <code className="text-primary">anthropic/claude-3.5-sonnet</code></li>
+                  <li>• <code className="text-primary">@cf/meta/llama-3.3-70b-instruct-fp8-fast</code></li>
+                  <li>• Melhor opção atual para geração de conteúdo mais longo</li>
                 </ul>
               </div>
               <div className="p-4 bg-slate-800 rounded-lg">
-                <h3 className="font-medium text-slate-100 mb-2">OpenAI</h3>
+                <h3 className="font-medium text-slate-100 mb-2">Observabilidade</h3>
                 <ul className="text-sm text-slate-300 space-y-1">
-                  <li>• <code className="text-primary">openai/gpt-4o</code></li>
-                  <li>• <code className="text-primary">openai/gpt-4o-mini</code></li>
+                  <li>• Cloudflare AI Gateway para cache, métricas e policy</li>
+                  <li>• Configurável por <code className="text-primary">CLOUDFLARE_AI_GATEWAY_ID</code></li>
                 </ul>
               </div>
               <div className="p-4 bg-slate-800 rounded-lg">
-                <h3 className="font-medium text-slate-100 mb-2">xAI Grok</h3>
+                <h3 className="font-medium text-slate-100 mb-2">Documentação</h3>
                 <ul className="text-sm text-slate-300 space-y-1">
-                  <li>• <code className="text-primary">xai/grok-2</code></li>
+                  <li>• Workers AI models</li>
+                  <li>• AI Gateway providers</li>
                 </ul>
               </div>
             </div>
             <p className="mt-4 text-sm text-slate-400">
-              E mais de 100 modelos disponíveis. Consulte a{' '}
+              Consulte a{' '}
               <a
-                href="https://vercel.com/ai-gateway/models"
+                href="https://developers.cloudflare.com/workers-ai/models/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline inline-flex items-center gap-1"

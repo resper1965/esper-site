@@ -148,10 +148,10 @@ export function generateArticleSchema({
     dateModified: dateModified || datePublished,
     author: {
       '@type': 'Person',
-      '@id': `${siteConfig.url}/${lang}/sobre#person`,
+      '@id': `${siteConfig.url}/sobre#person`,
       name: 'Ricardo Esper',
       jobTitle: 'Chief Information Security Officer',
-      url: `${siteConfig.url}/${lang}/sobre`,
+      url: `${siteConfig.url}/sobre`,
       sameAs: [
         'https://www.linkedin.com/in/ricardoesper',
         'https://twitter.com/ricardoesper',
@@ -190,13 +190,13 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    '@id': `${siteConfig.url}/${lang}/sobre#person`,
+    '@id': `${siteConfig.url}/sobre#person`,
     name: 'Ricardo Esper',
     givenName: 'Ricardo',
     familyName: 'Esper',
     jobTitle: 'Chief Information Security Officer',
     description,
-    url: `${siteConfig.url}/${lang}/sobre`,
+    url: `${siteConfig.url}/sobre`,
     image: `${siteConfig.url}/authors/ricardo.png`,
     nationality: { '@type': 'Country', name: 'Brazil' },
     sameAs: [
@@ -250,7 +250,7 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
     // GEO: helps AI understand what topics this person is authoritative on
     mainEntityOfPage: {
       '@type': 'ProfilePage',
-      '@id': `${siteConfig.url}/${lang}/sobre`,
+      '@id': `${siteConfig.url}/sobre`,
       dateCreated: '2024-01-01',
       dateModified: new Date().toISOString().split('T')[0],
     },
@@ -275,16 +275,16 @@ export function generateProfilePageSchema(lang: Locale = 'pt-BR') {
   return {
     '@context': 'https://schema.org',
     '@type': 'ProfilePage',
-    '@id': `${siteConfig.url}/${lang}/sobre`,
+    '@id': `${siteConfig.url}/sobre`,
     name: lang === 'pt-BR' ? 'Sobre Ricardo Esper' : 'About Ricardo Esper',
     description,
-    url: `${siteConfig.url}/${lang}/sobre`,
+    url: `${siteConfig.url}/sobre`,
     inLanguage: lang,
     dateCreated: '2024-01-01',
     dateModified: new Date().toISOString().split('T')[0],
     mainEntity: {
       '@type': 'Person',
-      '@id': `${siteConfig.url}/${lang}/sobre#person`,
+      '@id': `${siteConfig.url}/sobre#person`,
       name: 'Ricardo Esper',
     },
     // GEO: disambiguate — this Ricardo Esper is the cybersecurity CISO, not others
@@ -327,18 +327,18 @@ export function generateWebSiteSchema(lang: Locale = 'pt-BR') {
     '@id': `${siteConfig.url}#website`,
     name: siteConfig.name,
     description: siteConfig.description,
-    url: `${siteConfig.url}/${lang}`,
+    url: siteConfig.url,
     inLanguage: lang,
     publisher: {
       '@type': 'Person',
-      '@id': `${siteConfig.url}/${lang}/sobre#person`,
+      '@id': `${siteConfig.url}/sobre#person`,
       name: 'Ricardo Esper',
     },
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${siteConfig.url}/${lang}/busca?q={search_term_string}`,
+        urlTemplate: `${siteConfig.url}/busca?q={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },
@@ -359,7 +359,7 @@ export function generateOrganizationSchema(lang: Locale = 'pt-BR') {
     '@type': 'Organization',
     '@id': `${siteConfig.url}#organization`,
     name: 'Ricardo Esper',
-    url: `${siteConfig.url}/${lang}`,
+    url: siteConfig.url,
     logo: `${siteConfig.url}/logo.png`,
     description:
       lang === 'pt-BR'
@@ -367,7 +367,7 @@ export function generateOrganizationSchema(lang: Locale = 'pt-BR') {
         : 'Cybersecurity, digital forensics and privacy expert with over 34 years of experience. CISO, international consultant and founder of NESS.',
     founder: {
       '@type': 'Person',
-      '@id': `${siteConfig.url}/${lang}/sobre#person`,
+      '@id': `${siteConfig.url}/sobre#person`,
       name: 'Ricardo Esper',
     },
     sameAs: [
@@ -504,18 +504,18 @@ export function generateProfessionalServiceSchema(lang: Locale = 'pt-BR') {
   return {
     '@context': 'https://schema.org',
     '@type': 'ProfessionalService',
-    '@id': `${siteConfig.url}/${lang}/servicos#service`,
+    '@id': `${siteConfig.url}/servicos#service`,
     name: lang === 'pt-BR'
       ? 'Ricardo Esper — Consultoria em Cibersegurança'
       : 'Ricardo Esper — Cybersecurity Consulting',
     description: lang === 'pt-BR'
       ? 'Consultoria especializada em segurança da informação, compliance, forense digital e proteção executiva. 34+ anos de experiência, atuação em 12+ países.'
       : 'Specialized consulting in information security, compliance, digital forensics and executive protection. 34+ years of experience, operating in 12+ countries.',
-    url: `${siteConfig.url}/${lang}/servicos`,
+    url: `${siteConfig.url}/servicos`,
     priceRange: '$$$$',
     provider: {
       '@type': 'Person',
-      '@id': `${siteConfig.url}/${lang}/sobre#person`,
+      '@id': `${siteConfig.url}/sobre#person`,
       name: 'Ricardo Esper',
     },
     areaServed: [

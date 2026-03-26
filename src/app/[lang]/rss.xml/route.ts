@@ -13,7 +13,8 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ lang: string }> }
 ) {
-  const { lang } = await params;
+  const resolvedParams = await params;
+  const lang = resolvedParams?.lang || 'pt-BR';
 
   // Get all posts from Supabase and filter by language
   let posts: Post[] = [];
@@ -37,14 +38,14 @@ export async function GET(
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>${title}</title>
-    <link>${siteConfig.url}/${lang}</link>
+    <link>${siteConfig.url}</link>
     <description>${description}</description>
     <language>${lang}</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    <atom:link href="${siteConfig.url}/${lang}/rss.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="${siteConfig.url}/rss.xml" rel="self" type="application/rss+xml" />
     ${posts
       .map((post) => {
-        const url = `${siteConfig.url}/${lang}/blog/${post.slug}`;
+        const url = `${siteConfig.url}/blog/${post.slug}`;
         const pubDate = new Date(post.frontMatter.date).toUTCString();
         const description = post.frontMatter.description || post.frontMatter.excerpt || '';
         // Strip HTML tags from description for RSS

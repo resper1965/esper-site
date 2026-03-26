@@ -46,14 +46,14 @@ const navItems: NavItem[] = [
     label: 'AI Gateway', 
     icon: Key, 
     title: 'AI Gateway', 
-    subtitle: 'Configure e gerencie o acesso aos modelos de IA via Vercel AI Gateway' 
+    subtitle: 'Configure Workers AI, Cloudflare AI Gateway e credenciais do stack de IA' 
   },
   { 
     href: '/admin/chat', 
     label: 'AI Chat', 
     icon: MessageSquare, 
     title: 'AI Chat', 
-    subtitle: 'Converse com modelos de IA via AI Gateway' 
+    subtitle: 'Converse com modelos Llama executados na Cloudflare' 
   },
   { 
     href: '/admin/settings', 
@@ -169,4 +169,3 @@ export function Sidebar({ className }: SidebarProps) {
     </aside>
   );
 }
-

@@ -1,25 +1,89 @@
 /**
  * Cloudflare AI Gateway Client
- * Routes all AI API calls through Cloudflare's AI Gateway for:
- * - Caching responses (cost reduction)
- * - Rate limiting
- * - Analytics & observability
- * - Fallback between providers
  *
- * Gateway URL format:
- * https://gateway.ai.cloudflare.com/v1/{account_id}/{gateway_id}/{provider}/{endpoint}
+ * Centralizes Cloudflare AI access for:
+ * - AI Gateway analytics/caching
+ * - Workers AI text generation (Llama)
+ * - Embeddings for Vectorize
  */
 
-const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID || '';
-const CLOUDFLARE_AI_GATEWAY_ID = process.env.CLOUDFLARE_AI_GATEWAY_ID || 'esper-ai-gateway';
+const DEFAULT_GATEWAY_ID = 'esper-ai-gateway';
 
-export const AI_GATEWAY_BASE = `https://gateway.ai.cloudflare.com/v1/${CLOUDFLARE_ACCOUNT_ID}/${CLOUDFLARE_AI_GATEWAY_ID}`;
+export type WorkersAITextModel =
+  | '@cf/meta/llama-3.1-8b-instruct-fast'
+  | '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+
+export interface ChatMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
+interface CloudflareAIConfig {
+  accountId: string;
+  apiToken: string;
+  gatewayId: string;
+}
+
+interface WorkersAITextResponse {
+  response?: string;
+  result?: {
+    response?: string;
+    usage?: {
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      total_tokens?: number;
+    };
+  };
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+  };
+}
+
+async function getSettingValue(key: string): Promise<string | null> {
+  try {
+    const { getSetting } = await import('../settings');
+    return await getSetting(key);
+  } catch {
+    return null;
+  }
+}
+
+async function getCloudflareAIConfig(): Promise<CloudflareAIConfig> {
+  const accountId =
+    (await getSettingValue('CLOUDFLARE_ACCOUNT_ID')) ||
+    process.env.CLOUDFLARE_ACCOUNT_ID ||
+    '';
+  const apiToken =
+    (await getSettingValue('CLOUDFLARE_API_TOKEN')) ||
+    process.env.CLOUDFLARE_API_TOKEN ||
+    '';
+  const gatewayId =
+    (await getSettingValue('CLOUDFLARE_AI_GATEWAY_ID')) ||
+    process.env.CLOUDFLARE_AI_GATEWAY_ID ||
+    DEFAULT_GATEWAY_ID;
+
+  return { accountId, apiToken, gatewayId };
+}
+
+export async function getAIGatewayBase(): Promise<string> {
+  const { accountId, gatewayId } = await getCloudflareAIConfig();
+  return `https://gateway.ai.cloudflare.com/v1/${accountId}/${gatewayId}`;
+}
 
 /**
  * Build gateway URL for a specific AI provider
  */
 export function getGatewayUrl(provider: 'anthropic' | 'google-ai-studio' | 'openai'): string {
-  return `${AI_GATEWAY_BASE}/${provider}`;
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID || '';
+  const gatewayId = process.env.CLOUDFLARE_AI_GATEWAY_ID || DEFAULT_GATEWAY_ID;
+
+  if (!accountId) {
+    return provider;
+  }
+
+  return `https://gateway.ai.cloudflare.com/v1/${accountId}/${gatewayId}/${provider}`;
 }
 
 /**
@@ -27,7 +91,7 @@ export function getGatewayUrl(provider: 'anthropic' | 'google-ai-studio' | 'open
  * Replace direct Anthropic API calls with gateway URL
  */
 export function getAnthropicGatewayConfig() {
-  if (!CLOUDFLARE_ACCOUNT_ID) {
+  if (!process.env.CLOUDFLARE_ACCOUNT_ID) {
     // Fallback to direct Anthropic API if gateway not configured
     return {
       baseURL: 'https://api.anthropic.com',
@@ -35,7 +99,7 @@ export function getAnthropicGatewayConfig() {
     };
   }
   return {
-    baseURL: `${AI_GATEWAY_BASE}/anthropic`,
+    baseURL: `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/${process.env.CLOUDFLARE_AI_GATEWAY_ID || DEFAULT_GATEWAY_ID}/anthropic`,
     apiKey: process.env.ANTHROPIC_API_KEY || '',
     defaultHeaders: {
       'cf-aig-cache-ttl': '3600', // Cache for 1 hour
@@ -49,14 +113,14 @@ export function getAnthropicGatewayConfig() {
  * Google Gemini via Cloudflare AI Gateway
  */
 export function getGeminiGatewayConfig() {
-  if (!CLOUDFLARE_ACCOUNT_ID) {
+  if (!process.env.CLOUDFLARE_ACCOUNT_ID) {
     return {
       baseURL: 'https://generativelanguage.googleapis.com',
       apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || '',
     };
   }
   return {
-    baseURL: `${AI_GATEWAY_BASE}/google-ai-studio`,
+    baseURL: `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/${process.env.CLOUDFLARE_AI_GATEWAY_ID || DEFAULT_GATEWAY_ID}/google-ai-studio`,
     apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || '',
     defaultHeaders: {
       'cf-aig-cache-ttl': '1800',
@@ -79,35 +143,87 @@ export async function runWorkersAI<T = unknown>(
   }
 
   // Fallback: Call via REST API
-  if (!CLOUDFLARE_ACCOUNT_ID) return null;
+  const { accountId, apiToken, gatewayId } = await getCloudflareAIConfig();
+  if (!accountId || !apiToken) return null;
 
-  const apiToken = process.env.CLOUDFLARE_API_TOKEN;
-  if (!apiToken) return null;
+  const endpoint = gatewayId
+    ? `https://gateway.ai.cloudflare.com/v1/${accountId}/${gatewayId}/workers-ai/${model}`
+    : `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`;
 
   try {
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/run/${model}`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${apiToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(inputs),
-      }
-    );
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(inputs),
+    });
 
     if (!response.ok) {
       console.error('Workers AI error:', response.statusText);
       return null;
     }
 
-    const data = await response.json() as { result: T };
-    return data.result;
+    const data = await response.json() as { result?: T } | T;
+    if (typeof data === 'object' && data !== null && 'result' in data) {
+      return data.result ?? null;
+    }
+    return data as T;
   } catch (error) {
     console.error('Workers AI fetch error:', error);
     return null;
   }
+}
+
+export async function generateChatCompletion(options: {
+  messages: ChatMessage[];
+  model?: WorkersAITextModel;
+  temperature?: number;
+  maxTokens?: number;
+  env?: { AI?: { run: (model: string, input: unknown) => Promise<WorkersAITextResponse> } };
+}): Promise<{
+  text: string;
+  model: WorkersAITextModel;
+  usage?: {
+    input: number;
+    output: number;
+    total: number;
+  };
+}> {
+  const model = options.model || '@cf/meta/llama-3.1-8b-instruct-fast';
+  const result = await runWorkersAI<WorkersAITextResponse>(
+    model,
+    {
+      messages: options.messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.maxTokens ?? 1024,
+    },
+    options.env
+  );
+
+  const responseText =
+    result?.response ||
+    result?.result?.response ||
+    '';
+
+  if (!responseText) {
+    throw new Error('Workers AI returned an empty response');
+  }
+
+  const usage = result?.usage || result?.result?.usage;
+
+  return {
+    text: responseText,
+    model,
+    usage: usage
+      ? {
+          input: usage.prompt_tokens ?? 0,
+          output: usage.completion_tokens ?? 0,
+          total: usage.total_tokens ?? 0,
+        }
+      : undefined,
+  };
 }
 
 /**

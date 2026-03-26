@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { generatePost, savePostDraft } from '@/lib/ai/post-generator';
+import { requireAuth } from '@/lib/requireAuth';
 
 export async function POST(request: Request) {
   try {
+    const authResult = await requireAuth(request);
+    if (authResult instanceof NextResponse) return authResult;
+
     const body = await request.json();
     const { topic, category, sources = [], keywords = [] } = body;
 
@@ -47,18 +51,6 @@ export async function POST(request: Request) {
   }
 }
 
-// GET para testar
-export async function GET() {
-  return NextResponse.json({
-    message: 'API de geração de posts funcionando!',
-    usage: {
-      method: 'POST',
-      body: {
-        topic: 'string (obrigatório)',
-        category: 'cybersecurity | counterespionage | homeautomation | travel | general',
-        sources: 'array opcional [{ title, url, summary }]',
-        keywords: 'array opcional de strings'
-      }
-    }
-  });
-}
+// GET removed — was leaking API surface to unauthenticated users.
+// Use POST with auth instead.
+

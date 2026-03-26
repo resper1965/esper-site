@@ -14,8 +14,8 @@ interface AdminLayoutProps {
 const navItems = [
   { href: '/admin/generate', title: 'Gerar Conteúdo', subtitle: 'Crie conteúdo de alta qualidade usando IA generativa', icon: Sparkles },
   { href: '/admin/analytics', title: 'Analytics', subtitle: 'Estatísticas detalhadas dos posts e performance', icon: BarChart3 },
-  { href: '/admin/ai-gateway', title: 'AI Gateway', subtitle: 'Configure e gerencie o acesso aos modelos de IA via Vercel AI Gateway', icon: Key },
-  { href: '/admin/chat', title: 'AI Chat', subtitle: 'Converse com modelos de IA via AI Gateway', icon: MessageSquare },
+  { href: '/admin/ai-gateway', title: 'AI Gateway', subtitle: 'Configure Workers AI, Cloudflare AI Gateway e credenciais do stack de IA', icon: Key },
+  { href: '/admin/chat', title: 'AI Chat', subtitle: 'Converse com modelos Llama executados na Cloudflare', icon: MessageSquare },
   { href: '/admin/settings', title: 'Configurações', subtitle: 'Gerencie variáveis de ambiente e configurações do sistema', icon: Settings },
 ];
 

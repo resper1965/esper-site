@@ -52,7 +52,7 @@ Blog profissional com geração automática de posts usando IA, construído com 
 ## Estrutura de Diretórios
 
 ```
-ricardo-esper-blog/
+esper-site/
 ├── src/
 │   ├── app/              # Next.js App Router
 │   │   ├── [lang]/       # Rotas internacionalizadas

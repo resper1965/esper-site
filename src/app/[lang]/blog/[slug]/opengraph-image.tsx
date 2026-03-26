@@ -60,7 +60,8 @@ export default async function Image({
   params: Promise<{ lang: string; slug: string }>;
 }) {
   try {
-    const { slug } = await params;
+    const resolvedParams = await params;
+    const slug = resolvedParams?.slug || '';
     
     // Get post data from Supabase
     let post = null;

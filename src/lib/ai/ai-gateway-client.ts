@@ -1,31 +1,16 @@
 /**
- * AI Gateway Client - Unified API for multiple AI models
- * 
- * Uses Vercel AI Gateway to access 100+ models through a single endpoint.
- * Supports automatic fallbacks, rate limiting, and cost monitoring.
- * 
- * Documentation: https://vercel.com/docs/ai-gateway
- * 
- * O AI SDK detecta automaticamente o AI Gateway quando:
- * - A variável de ambiente VERCEL_AI_GATEWAY_API_KEY está configurada, OU
- * - O baseURL 'https://ai-gateway.vercel.sh/v1' é especificado
- * 
- * O seletor de modelos permite usar diretamente: 'provider/model' (ex: 'openai/gpt-4.1')
+ * AI client built on Cloudflare Workers AI + AI Gateway.
+ *
+ * Uses Llama models on Cloudflare as the primary text generation path.
  */
 
-import { generateText } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
 import { logger } from '@/lib/logger';
+import {
+  generateChatCompletion,
+  type WorkersAITextModel,
+} from '@/lib/cloudflare/ai-gateway';
 
-// Supported models via AI Gateway
-export type AIModel = 
-  | 'google/gemini-2.5-pro'
-  | 'google/gemini-2.5-flash'
-  | 'anthropic/claude-sonnet-4'
-  | 'anthropic/claude-3.5-sonnet'
-  | 'openai/gpt-4o'
-  | 'openai/gpt-4o-mini'
-  | 'xai/grok-2';
+export type AIModel = WorkersAITextModel;
 
 export interface GenerateTextOptions {
   prompt: string;
@@ -46,36 +31,6 @@ export interface GenerateTextResult {
 }
 
 /**
- * Get AI Gateway API key from settings or environment
- * 
- * Ordem de prioridade:
- * 1. Supabase settings (configurado via /admin/settings)
- * 2. Variável de ambiente AI_GATEWAY_API_KEY
- * 
- * Formato da chave: vck_... (Vercel AI Gateway API Key)
- */
-async function getApiKey(): Promise<string> {
-  // Primeiro tenta buscar do Supabase (configurado via admin)
-  const { getSetting } = await import('@/lib/settings');
-  const apiKey = await getSetting('AI_GATEWAY_API_KEY');
-  
-  if (apiKey) {
-    return apiKey;
-  }
-
-  // Fallback para process.env
-  const envKey = process.env.AI_GATEWAY_API_KEY;
-  if (!envKey) {
-    throw new Error(
-      'AI_GATEWAY_API_KEY não configurada. ' +
-      'Configure via painel admin (/admin/settings) ou variáveis de ambiente.'
-    );
-  }
-  
-  return envKey;
-}
-
-/**
  * Generate text using AI Gateway with automatic fallback
  * 
  * @param options - Generation options
@@ -87,75 +42,52 @@ export async function generateTextWithAI(
   const {
     prompt,
     systemInstruction,
-    model = 'google/gemini-2.5-pro',
+    model = '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
     temperature = 0.7,
     maxTokens,
-    fallbackModels = ['anthropic/claude-sonnet-4', 'openai/gpt-4o-mini'],
+    fallbackModels = ['@cf/meta/llama-3.1-8b-instruct-fast'],
   } = options;
 
-  // Verificar se API key está configurada (será usada automaticamente pelo AI SDK)
-  await getApiKey();
   const modelsToTry = [model, ...fallbackModels];
 
   let lastError: Error | null = null;
 
-  // Get API key from settings (Supabase) or environment
-  const apiKey = await getApiKey();
-  
-  // AI Gateway: criar cliente OpenAI com baseURL do AI Gateway
-  // O AI Gateway aceita modelos no formato provider/model via OpenAI-compatible endpoint
-  // Base URL oficial: https://ai-gateway.vercel.sh/v1
-  // Documentação: https://vercel.com/docs/ai-gateway
-  // 
-  // O seletor de modelos permite usar diretamente: 'provider/model' (ex: 'openai/gpt-4.1')
-  // A chave API é passada via createOpenAI, e o baseURL indica que é AI Gateway
-  const openai = createOpenAI({
-    apiKey: apiKey,
-    baseURL: 'https://ai-gateway.vercel.sh/v1',
-  });
-
-  // Tentar cada modelo em sequência (fallback manual)
-  // O AI Gateway gerencia automaticamente a rota para o provider correto
   for (const currentModel of modelsToTry) {
     try {
-      logger.info('Generating text with AI Gateway', {
+      logger.info('Generating text with Cloudflare Workers AI', {
         model: currentModel,
         promptLength: prompt.length,
       });
 
-      // Seletor de modelo: usar diretamente 'provider/model' via openai()
-      // O AI Gateway aceita modelos no formato provider/model
-      // Exemplos:
-      //   - openai('google/gemini-2.5-pro')
-      //   - openai('openai/gpt-4.1')
-      //   - openai('anthropic/claude-sonnet-4')
-      // 
-      // A chave API é passada via createOpenAI, e o baseURL indica que é AI Gateway
-      // O AI Gateway roteia automaticamente para o provider correto
-      const result = await generateText({
-        model: openai(currentModel), // Seletor: 'provider/model'
-        system: systemInstruction || 'You are a helpful assistant.',
-        prompt: prompt,
+      const result = await generateChatCompletion({
+        model: currentModel,
+        messages: [
+          {
+            role: 'system',
+            content: systemInstruction || 'You are a helpful assistant.',
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
         temperature,
-        ...(maxTokens && { maxTokens }),
+        maxTokens,
       });
-
-      // Extract token usage - AI SDK uses inputTokens and outputTokens as numbers
-      const tokensUsed = result.usage
-        ? {
-            input: typeof result.usage.inputTokens === 'number' ? result.usage.inputTokens : 0,
-            output: typeof result.usage.outputTokens === 'number' ? result.usage.outputTokens : 0,
-          }
-        : undefined;
 
       logger.info('Text generated successfully', {
         model: currentModel,
-        tokensUsed,
+        tokensUsed: result.usage,
       });
 
       return {
         text: result.text,
-        tokensUsed,
+        tokensUsed: result.usage
+          ? {
+              input: result.usage.input,
+              output: result.usage.output,
+            }
+          : undefined,
         model: currentModel,
       };
     } catch (error) {
@@ -189,11 +121,10 @@ export async function generateTextWithGemini(
   systemInstruction?: string,
   model: 'gemini-1.5-pro' | 'gemini-1.5-flash' = 'gemini-1.5-pro'
 ): Promise<GenerateTextResult> {
-  // Map old model names to new AI Gateway model names
   const aiGatewayModel: AIModel =
     model === 'gemini-1.5-flash'
-      ? 'google/gemini-2.5-flash'
-      : 'google/gemini-2.5-pro';
+      ? '@cf/meta/llama-3.1-8b-instruct-fast'
+      : '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 
   return generateTextWithAI({
     prompt,
@@ -249,7 +180,7 @@ Retorne APENAS o prompt de imagem, sem explicações, sem markdown, sem aspas. A
     const result = await generateTextWithAI({
       prompt,
       systemInstruction,
-      model: 'google/gemini-2.5-flash', // Flash é suficiente para melhorar prompts
+      model: '@cf/meta/llama-3.1-8b-instruct-fast',
       temperature: 0.8,
     });
 
@@ -313,7 +244,7 @@ Exemplo: "cybersecurity shield icon, network connections, lock symbol, digital s
     const result = await generateTextWithAI({
       prompt,
       systemInstruction,
-      model: 'google/gemini-2.5-flash',
+      model: '@cf/meta/llama-3.1-8b-instruct-fast',
       temperature: 0.7,
     });
 
@@ -329,4 +260,3 @@ Exemplo: "cybersecurity shield icon, network connections, lock symbol, digital s
     return `${category} theme, ${keywords.slice(0, 2).join(' and ')}`;
   }
 }
-

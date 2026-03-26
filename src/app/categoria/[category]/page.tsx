@@ -1,6 +1,5 @@
 import { BlogCard } from "@/components/blog-card";
 import { getDictionary } from "@/i18n/dictionaries";
-import { Locale } from "@/i18n/config";
 import { generatePageMetadata, generateCollectionPageSchema } from "@/lib/metadata";
 import { siteConfig } from "@/lib/site";
 import type { Metadata } from "next";
@@ -9,78 +8,71 @@ import { getPostsByCategory, type Post } from "@/lib/posts";
 import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
 import { filterPostsByLanguage } from "@/lib/utils";
 
+const lang = "pt-BR" as const;
+
 const categoryMap: Record<string, { pt: string; en: string }> = {
-  cybersecurity: { pt: 'Cibersegurança', en: 'Cybersecurity' },
-  counterespionage: { pt: 'Contraespionagem', en: 'Counterespionage' },
-  forensics: { pt: 'Forense Digital', en: 'Digital Forensics' },
-  intelligence: { pt: 'Inteligência', en: 'Intelligence' },
-  compliance: { pt: 'Compliance', en: 'Compliance' },
-  leadership: { pt: 'Liderança', en: 'Leadership' },
-  homeautomation: { pt: 'Automação Residencial', en: 'Home Automation' },
-  general: { pt: 'Geral', en: 'General' },
-  vida: { pt: 'Vida', en: 'Life' },
-  travel: { pt: 'Viagens', en: 'Travel' },
+  cybersecurity: { pt: "Cibersegurança", en: "Cybersecurity" },
+  counterespionage: { pt: "Contraespionagem", en: "Counterespionage" },
+  forensics: { pt: "Forense Digital", en: "Digital Forensics" },
+  intelligence: { pt: "Inteligência", en: "Intelligence" },
+  compliance: { pt: "Compliance", en: "Compliance" },
+  leadership: { pt: "Liderança", en: "Leadership" },
+  homeautomation: { pt: "Automação Residencial", en: "Home Automation" },
+  general: { pt: "Geral", en: "General" },
+  vida: { pt: "Vida", en: "Life" },
+  travel: { pt: "Viagens", en: "Travel" },
 };
 
 interface CategoryPageProps {
-  params: Promise<{ lang: Locale; category: string }>;
+  params: Promise<{ category: string }>;
 }
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const resolvedParams = await params;
-  const lang = (resolvedParams?.lang || 'pt-BR') as Locale;
-  const category = resolvedParams?.category || '';
+  const category = resolvedParams?.category || "";
   const dict = await getDictionary(lang);
-  
+
   const categoryInfo = categoryMap[category];
   if (!categoryInfo) {
     return {};
   }
 
-  const categoryName = lang === 'pt-BR' ? categoryInfo.pt : categoryInfo.en;
-  const description = lang === 'pt-BR'
-    ? `Artigos sobre ${categoryName.toLowerCase()} por Ricardo Esper. Especialista em cibersegurança com mais de 34 anos de experiência.`
-    : `Articles about ${categoryName.toLowerCase()} by Ricardo Esper. Cybersecurity expert with over 34 years of experience.`;
+  const categoryName = categoryInfo.pt;
+  const description = `Artigos sobre ${categoryName.toLowerCase()} por Ricardo Esper. Especialista em cibersegurança com mais de 34 anos de experiência.`;
 
   return generatePageMetadata({
     title: `${categoryName} - ${dict.site.name}`,
     description,
     path: `/categoria/${category}`,
     lang,
-    keywords: [categoryName, 'Ricardo Esper', 'cibersegurança', 'cybersecurity'],
+    keywords: [categoryName, "Ricardo Esper", "cibersegurança", "cybersecurity"],
   });
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const resolvedParams = await params;
-  const lang = (resolvedParams?.lang || 'pt-BR') as Locale;
-  const category = resolvedParams?.category || '';
+  const category = resolvedParams?.category || "";
 
   const categoryInfo = categoryMap[category];
   if (!categoryInfo) {
     notFound();
   }
 
-  const categoryName = lang === 'pt-BR' ? categoryInfo.pt : categoryInfo.en;
+  const categoryName = categoryInfo.pt;
 
-  // Get all posts for this category from Supabase
   let categoryPosts: Post[] = [];
   try {
     const allCategoryPosts = await getPostsByCategory(category);
-    // Filter by language
     categoryPosts = filterPostsByLanguage(allCategoryPosts, lang);
   } catch (error) {
-    console.error('Error getting category posts from Supabase:', error);
+    console.error("Error getting category posts from Supabase:", error);
     categoryPosts = [];
   }
 
-  // Generate CollectionPage schema
   const url = `${siteConfig.url}/categoria/${category}`;
   const collectionSchema = generateCollectionPageSchema({
     name: categoryName,
-    description: lang === 'pt-BR'
-      ? `Artigos sobre ${categoryName.toLowerCase()}`
-      : `Articles about ${categoryName.toLowerCase()}`,
+    description: `Artigos sobre ${categoryName.toLowerCase()}`,
     url,
     items: categoryPosts.map((post) => ({
       name: post.frontMatter.title,
@@ -101,33 +93,33 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             {categoryName}
           </h1>
           <p className="text-base sm:text-lg text-muted-foreground">
-            {categoryPosts.length} {lang === 'pt-BR' ? 'artigo(s)' : 'article(s)'}
+            {categoryPosts.length} artigo(s)
           </p>
         </div>
 
         {categoryPosts.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">
-              {lang === 'pt-BR' ? 'Nenhum artigo encontrado nesta categoria.' : 'No articles found in this category.'}
+              Nenhum artigo encontrado nesta categoria.
             </p>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {categoryPosts.map((post) => {
-              const description = post.frontMatter.description || post.frontMatter.excerpt || '';
+              const description = post.frontMatter.description || post.frontMatter.excerpt || "";
               const readingTime = calculateReadingTime(description + " " + post.frontMatter.title + " " + (post.content || ""));
               const isNew = isNewPost(post.frontMatter.date);
-              
+
               return (
                 <BlogCard
                   key={post.slug}
                   url={`/blog/${post.slug}`}
                   title={post.frontMatter.title}
                   description={description}
-                  date={new Date(post.frontMatter.date).toLocaleDateString(lang, {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
+                  date={new Date(post.frontMatter.date).toLocaleDateString("pt-BR", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
                   })}
                   thumbnail={post.frontMatter.coverImage}
                   tags={post.frontMatter.tags || []}
@@ -143,4 +135,3 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     </div>
   );
 }
-

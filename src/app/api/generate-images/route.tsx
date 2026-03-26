@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 import { getPostBySlug } from "@/lib/posts";
 import fs from 'fs';
 import path from 'path';
+import { requireAuth } from '@/lib/requireAuth';
 
 const categoryColors: Record<string, { bg: string; accent: string; icon: string }> = {
   cybersecurity: { bg: '#0f172a', accent: '#3b82f6', icon: '🛡️' },
@@ -29,6 +30,9 @@ const categoryLabels: Record<string, string> = {
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
+  const authResult = await requireAuth(request);
+  if (authResult instanceof Response) return authResult;
+
   const { searchParams } = new URL(request.url);
   const slug = searchParams.get('slug');
   const download = searchParams.get('download') === 'true';
@@ -153,4 +157,3 @@ export async function GET(request: NextRequest) {
     return new Response('Error generating image', { status: 500 });
   }
 }
-

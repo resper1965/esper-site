@@ -24,8 +24,7 @@ export async function GET() {
     ${sortedPosts
       .map(
         (post) => {
-          const lang = post.frontMatter.language || 'pt-BR';
-          const url = `${baseUrl}/${lang}/blog/${post.slug}`;
+          const url = `${baseUrl}/blog/${post.slug}`;
           const description = post.frontMatter.description || post.frontMatter.excerpt || '';
           // Strip HTML tags from description for RSS
           const plainDescription = description.replace(/<[^>]*>/g, '').substring(0, 500);

@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { generateText } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
 import { logger } from '@/lib/logger';
 import { requireAuth } from '@/lib/requireAuth';
+import { generateChatCompletion } from '@/lib/cloudflare/ai-gateway';
 
 /**
  * POST /api/admin/ai-gateway/test - Testar conexão com AI Gateway
@@ -12,36 +11,37 @@ export async function POST(request: Request) {
     const authResult = await requireAuth(request);
     if (authResult instanceof NextResponse) return authResult;
 
-    const { apiKey } = await request.json();
+    await request.json().catch(() => ({}));
 
-    if (!apiKey) {
-      return NextResponse.json({ error: 'Chave API é obrigatória' }, { status: 400 });
-    }
-
-    // Testar conexão com um modelo simples
     try {
-      const openai = createOpenAI({
-        apiKey: apiKey,
-        baseURL: 'https://ai-gateway.vercel.sh/v1',
+      const result = await generateChatCompletion({
+        model: '@cf/meta/llama-3.1-8b-instruct-fast',
+        maxTokens: 32,
+        temperature: 0,
+        messages: [
+          {
+            role: 'system',
+            content: 'Responda de forma extremamente curta.',
+          },
+          {
+            role: 'user',
+            content: 'Responda apenas OK',
+          },
+        ],
       });
 
-      const result = await generateText({
-        model: openai('google/gemini-2.5-flash'),
-        prompt: 'Responda apenas: OK',
-      });
-
-      logger.info('AI Gateway test successful', {
-        model: 'google/gemini-2.5-flash',
+      logger.info('Cloudflare AI test successful', {
+        model: result.model,
         responseLength: result.text.length,
       });
 
       return NextResponse.json({
         success: true,
-        model: 'google/gemini-2.5-flash',
+        model: result.model,
         response: result.text,
       });
     } catch (error) {
-      logger.error('AI Gateway test failed', { error });
+      logger.error('Cloudflare AI test failed', { error });
       return NextResponse.json(
         {
           success: false,

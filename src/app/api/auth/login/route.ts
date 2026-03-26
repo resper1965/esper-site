@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       authenticated: true,
     });
 
-    response.cookies.set('sb-access-token', session.access_token, {
+    response.cookies.set('session-token', session.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

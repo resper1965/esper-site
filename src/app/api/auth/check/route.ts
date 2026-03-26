@@ -5,7 +5,7 @@ import { verifySession } from '../../../../lib/cloudflare/auth';
 export async function GET() {
   try {
     const cookieStore = await cookies();
-    const accessToken = cookieStore.get('sb-access-token')?.value;
+    const accessToken = cookieStore.get('session-token')?.value;
 
     if (!accessToken) {
       return NextResponse.json({ authenticated: false });

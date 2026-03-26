@@ -63,31 +63,24 @@ export default function SettingsPage() {
   const initializeDefaultSettings = () => {
     const defaultVars: EnvVariable[] = [
       {
-        key: 'AI_GATEWAY_API_KEY',
+        key: 'CLOUDFLARE_ACCOUNT_ID',
         value: '',
-        masked: true,
-        description: 'Chave API do Vercel AI Gateway para acesso a múltiplos modelos de IA',
+        masked: false,
+        description: 'Account ID da Cloudflare usado por Workers AI, D1, R2 e AI Gateway',
         category: 'ai',
       },
       {
-        key: 'GEMINI_API_KEY',
+        key: 'CLOUDFLARE_API_TOKEN',
         value: '',
         masked: true,
-        description: 'Chave API do Google Gemini (opcional, pode usar BYOK no AI Gateway)',
+        description: 'Token da Cloudflare com permissões para Workers AI, D1, R2 e Vectorize',
         category: 'ai',
       },
       {
-        key: 'ANTHROPIC_API_KEY',
+        key: 'CLOUDFLARE_AI_GATEWAY_ID',
         value: '',
-        masked: true,
-        description: 'Chave API da Anthropic Claude (opcional, para BYOK no AI Gateway)',
-        category: 'ai',
-      },
-      {
-        key: 'OPENAI_API_KEY',
-        value: '',
-        masked: true,
-        description: 'Chave API da OpenAI (opcional, para BYOK no AI Gateway)',
+        masked: false,
+        description: 'Nome do AI Gateway da Cloudflare para observabilidade e cache das chamadas de IA',
         category: 'ai',
       },
     ];
@@ -335,4 +328,3 @@ export default function SettingsPage() {
     </AdminLayout>
   );
 }
-

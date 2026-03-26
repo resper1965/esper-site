@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SiteNav } from "@/components/site-nav";
 import Footer from "@/components/footer";
 import { Analytics as GoogleAnalytics } from "@/components/analytics";
-import { Analytics } from "@vercel/analytics/next";
+
 import { generatePageMetadata, generatePersonSchema, generateWebSiteSchema, generateOrganizationSchema, generateProfilePageSchema } from "@/lib/metadata";
 import { ChatWidget } from "@/components/chat-widget";
 import "../globals.css";
@@ -127,7 +127,6 @@ export default async function LangLayout({
         </a>
 
         <GoogleAnalytics />
-        <Analytics />
 
         <ThemeProvider
           attribute="class"

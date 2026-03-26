@@ -12,8 +12,12 @@ interface NotFoundProps {
 }
 
 export async function generateMetadata({ params }: NotFoundProps): Promise<Metadata> {
-  const { lang: langParam } = await params;
-  const lang = (langParam === 'pt-BR' || langParam === 'en' ? langParam : 'pt-BR') as 'pt-BR' | 'en';
+  let lang: 'pt-BR' | 'en' = 'pt-BR';
+  try {
+    const resolvedParams = await params;
+    const langParam = resolvedParams?.lang;
+    if (langParam === 'pt-BR' || langParam === 'en') lang = langParam;
+  } catch { lang = 'pt-BR'; }
   const dict = await getDictionary(lang);
   
   return generatePageMetadata({
@@ -26,8 +30,12 @@ export async function generateMetadata({ params }: NotFoundProps): Promise<Metad
 }
 
 export default async function NotFound({ params }: NotFoundProps) {
-  const { lang: langParam } = await params;
-  const lang = (langParam === 'pt-BR' || langParam === 'en' ? langParam : 'pt-BR') as 'pt-BR' | 'en';
+  let lang: 'pt-BR' | 'en' = 'pt-BR';
+  try {
+    const resolvedParams = await params;
+    const langParam = resolvedParams?.lang;
+    if (langParam === 'pt-BR' || langParam === 'en') lang = langParam;
+  } catch { lang = 'pt-BR'; }
   const dict = await getDictionary(lang);
 
   // Get latest posts for suggestions from Supabase
@@ -55,13 +63,13 @@ export default async function NotFound({ params }: NotFoundProps) {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
           <Link
-            href={`/${lang}`}
+            href={`/`}
             className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
             {dict.notFound?.backHome || 'Voltar para o início'}
           </Link>
           <Link
-            href={`/${lang}/blog`}
+            href={`/blog`}
             className="inline-flex items-center justify-center px-6 py-3 border border-border rounded-lg hover:bg-muted transition-colors"
           >
             {dict.notFound?.viewBlog || 'Ver todos os artigos'}
@@ -82,7 +90,7 @@ export default async function NotFound({ params }: NotFoundProps) {
                 return (
                   <BlogCard
                     key={post.slug}
-                    url={`/${lang}/blog/${post.slug}`}
+                    url={`/blog/${post.slug}`}
                     title={post.frontMatter.title}
                     description={description}
                     date={new Date(post.frontMatter.date).toLocaleDateString(lang, {

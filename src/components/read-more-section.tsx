@@ -64,7 +64,7 @@ export async function ReadMoreSection({
             const formattedDate = formatDate(date, lang || 'pt-BR');
             const coverImage = post.frontMatter.coverImage;
             const description = post.frontMatter.description || post.frontMatter.excerpt || '';
-            const postUrl = `/${lang}/blog/${post.slug}`;
+            const postUrl = `/blog/${post.slug}`;
 
             return (
               <Link

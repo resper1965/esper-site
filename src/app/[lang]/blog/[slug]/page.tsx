@@ -26,7 +26,9 @@ import { formatDate } from "@/lib/utils";
 import { getAuthor } from "@/lib/authors";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { lang, slug } = await params;
+  const resolvedParams = await params;
+  const lang = (resolvedParams?.lang || 'pt-BR') as Locale;
+  const slug = resolvedParams?.slug || '';
 
   try {
     const post = await getPostBySlug(slug);
@@ -37,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     const keywords = post.frontMatter.keywords || [];
     // Use dynamic Open Graph image (Next.js will automatically use opengraph-image.tsx)
-    const image = `${siteConfig.url}/${lang}/blog/${slug}/opengraph-image`;
+    const image = `${siteConfig.url}/blog/${slug}/opengraph-image`;
 
     return generatePageMetadata({
       title: post.frontMatter.title,
@@ -57,7 +59,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function BlogPost({ params }: PageProps) {
-  const { lang, slug } = await params;
+  const resolvedParams = await params;
+  const lang = (resolvedParams?.lang || 'pt-BR') as Locale;
+  const slug = resolvedParams?.slug || '';
   const dict = await getDictionary(lang);
 
   if (!slug || slug.length === 0) {
@@ -75,7 +79,7 @@ export default async function BlogPost({ params }: PageProps) {
   const formattedDate = formatDate(date, lang);
 
   // Generate structured data
-  const url = `${siteConfig.url}/${lang}/blog/${slug}`;
+  const url = `${siteConfig.url}/blog/${slug}`;
   const postImage = post.frontMatter.coverImage;
   const image = postImage ? `${siteConfig.url}${postImage}` : undefined;
 
@@ -100,9 +104,9 @@ export default async function BlogPost({ params }: PageProps) {
 
   // Breadcrumb schema
   const breadcrumbItems = [
-    { name: dict.nav.home, url: `/${lang}` },
+    { name: dict.nav.home, url: `/` },
     ...(post.frontMatter.tags && post.frontMatter.tags.length > 0
-      ? [{ name: post.frontMatter.tags[0], url: `/${lang}?tag=${post.frontMatter.tags[0]}` }]
+      ? [{ name: post.frontMatter.tags[0], url: `/?tag=${post.frontMatter.tags[0]}` }]
       : []),
     { name: post.frontMatter.title, url },
   ];
@@ -128,9 +132,9 @@ export default async function BlogPost({ params }: PageProps) {
           {/* Breadcrumbs */}
           <Breadcrumbs
             items={[
-              { label: dict.nav.home, href: `/${lang}` },
+              { label: dict.nav.home, href: `/` },
               ...(post.frontMatter.tags && post.frontMatter.tags.length > 0
-                ? [{ label: post.frontMatter.tags[0], href: `/${lang}?tag=${post.frontMatter.tags[0]}` }]
+                ? [{ label: post.frontMatter.tags[0], href: `/?tag=${post.frontMatter.tags[0]}` }]
                 : []),
               { label: post.frontMatter.title },
             ]}
@@ -138,7 +142,7 @@ export default async function BlogPost({ params }: PageProps) {
 
           <div className="flex flex-wrap items-center gap-3 gap-y-5 text-sm text-muted-foreground">
             <Button variant="outline" asChild className="h-6 w-6">
-              <Link href={`/${lang}`}>
+              <Link href={`/`}>
                 <ArrowLeft className="w-4 h-4" />
                 <span className="sr-only">{dict.blog.backToArticles}</span>
               </Link>

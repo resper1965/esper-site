@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { generateBilingualPost, saveBilingualPosts } from '@/lib/ai/post-generator-bilingual';
+import { requireAuth } from '@/lib/requireAuth';
 
 export async function POST(request: Request) {
   try {
+    const authResult = await requireAuth(request);
+    if (authResult instanceof NextResponse) return authResult;
+
     const body = await request.json();
     const { topic, category, sources = [], keywords = [] } = body;
 

@@ -99,11 +99,12 @@ export {
 
 // AI Gateway
 export {
-  AI_GATEWAY_BASE,
+  getAIGatewayBase,
   getGatewayUrl,
   getAnthropicGatewayConfig,
   getGeminiGatewayConfig,
   runWorkersAI,
+  generateChatCompletion,
   generateEmbedding,
   buildGatewayHeaders,
 } from './ai-gateway';

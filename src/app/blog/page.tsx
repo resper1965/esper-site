@@ -1,64 +1,83 @@
-import Layout from '@/components/layout/Layout';
-import PostCard from '@/components/PostCard';
-import { getAllPosts } from '@/lib/posts';
-import Link from 'next/link';
+import { BlogCard } from "@/components/blog-card";
+import { TagFilter } from "@/components/tag-filter";
+import { getDictionary } from "@/i18n/dictionaries";
+import { getAllPosts, type Post } from "@/lib/posts";
+import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
+import { formatDate, filterPostsByLanguage } from "@/lib/utils";
 
-// ISR: revalidate every hour for fresh content with static performance
-export const revalidate = 3600;
+const lang = "pt-BR" as const;
 
-export default async function BlogPage() {
-  let posts: Awaited<ReturnType<typeof getAllPosts>> = [];
-  
+export default async function BlogListPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tag?: string }>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const dict = await getDictionary(lang);
+
+  let allPosts: Post[] = [];
   try {
-    posts = await getAllPosts();
+    allPosts = await getAllPosts();
   } catch (error) {
-    console.error('Error fetching posts:', error);
-    // Return empty array if database is not available
-    posts = [];
+    console.error("Error fetching posts from Supabase:", error);
+    allPosts = [];
   }
 
+  const filteredByLanguage = filterPostsByLanguage(allPosts, lang);
+  const sortedBlogs = filteredByLanguage;
+
+  const allTags = [
+    dict.home.allTags || "Todos",
+    ...Array.from(
+      new Set(sortedBlogs.flatMap((blog) => blog.frontMatter.tags || []))
+    ).sort(),
+  ];
+
+  const selectedTag = resolvedSearchParams.tag || dict.home.allTags || "Todos";
+  const filteredBlogs =
+    selectedTag === (dict.home.allTags || "Todos")
+      ? sortedBlogs
+      : sortedBlogs.filter((blog) => blog.frontMatter.tags?.includes(selectedTag));
+
   return (
-    <Layout>
-      <div className="bg-background">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <div className="mb-12">
-            <h1 className="text-3xl font-bold text-foreground sm:text-4xl md:text-5xl">
-              Blog
-            </h1>
-            <p className="mt-4 text-base sm:text-lg text-muted-foreground">
-              Artigos sobre cibersegurança, contraespionagem e tecnologia.
-            </p>
-          </div>
+    <main className="min-h-screen">
+      <div className="container mx-auto px-4 py-16">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8">Blog</h1>
+        <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8">
+          Artigos sobre cibersegurança, contraespionagem e tecnologia.
+        </p>
 
-          {posts.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">Nenhum post encontrado.</p>
-            </div>
-          ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 justify-items-center">
-              {posts.map((post) => (
-                <PostCard
-                  key={post.slug}
-                  title={post.frontMatter.title}
-                  slug={post.slug}
-                  excerpt={post.frontMatter.excerpt}
-                  date={post.frontMatter.date}
-                  category={post.frontMatter.category}
-                />
-              ))}
-            </div>
-          )}
+        <div className="flex justify-center">
+          <TagFilter
+            tags={allTags}
+            selectedTag={selectedTag}
+          />
+        </div>
 
-          <div className="mt-12 text-center">
-            <Link
-              href="/"
-              className="inline-flex items-center text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
-            >
-              ← Voltar para início
-            </Link>
-          </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-8 justify-items-center">
+          {filteredBlogs.map((post) => {
+            const formattedDate = formatDate(new Date(post.frontMatter.date), lang);
+            const description = post.frontMatter.description || post.frontMatter.excerpt || "";
+            const readingTime = calculateReadingTime(description + " " + post.frontMatter.title + " " + (post.content || ""));
+            const isNew = isNewPost(post.frontMatter.date);
+
+            return (
+              <BlogCard
+                key={post.slug}
+                url={`/blog/${post.slug}`}
+                title={post.frontMatter.title}
+                description={description}
+                date={formattedDate}
+                tags={post.frontMatter.tags}
+                readingTime={readingTime}
+                isNew={isNew}
+                lang={lang}
+                thumbnail={post.frontMatter.coverImage}
+              />
+            );
+          })}
         </div>
       </div>
-    </Layout>
+    </main>
   );
 }

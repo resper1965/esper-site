@@ -6,7 +6,7 @@ import { verifySession } from './lib/cloudflare/auth';
 // Verify auth session from cookie using Cloudflare JWT
 async function checkAuth(request: NextRequest): Promise<boolean> {
   try {
-    const accessToken = request.cookies.get('sb-access-token')?.value;
+    const accessToken = request.cookies.get('session-token')?.value;
     if (!accessToken) return false;
 
     const user = await verifySession(accessToken);
@@ -14,41 +14,6 @@ async function checkAuth(request: NextRequest): Promise<boolean> {
   } catch {
     return false;
   }
-}
-
-function getLocale(request: NextRequest): string {
-  const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
-  if (cookieLocale && i18n.locales.includes(cookieLocale as typeof i18n.locales[number])) {
-    return cookieLocale;
-  }
-
-  const acceptLanguage = request.headers.get('accept-language');
-  if (acceptLanguage) {
-    const languages = acceptLanguage
-      .split(',')
-      .map((lang) => {
-        const [locale, q] = lang.trim().split(';q=');
-        return {
-          locale: locale.trim(),
-          quality: q ? parseFloat(q) : 1.0,
-        };
-      })
-      .sort((a, b) => b.quality - a.quality);
-
-    for (const { locale } of languages) {
-      if (i18n.locales.includes(locale as typeof i18n.locales[number])) {
-        return locale;
-      }
-    }
-
-    for (const { locale } of languages) {
-      const lang = locale.split('-')[0];
-      if (lang === 'pt') return 'pt-BR';
-      if (lang === 'en') return 'en';
-    }
-  }
-
-  return i18n.defaultLocale;
 }
 
 export async function middleware(request: NextRequest) {
@@ -80,23 +45,30 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check if the pathname already has a locale
+  // Redirect old /pt-BR/... and /en/... routes to root equivalents for backward compat
   const pathnameHasLocale = i18n.locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
-  if (pathnameHasLocale) return;
-
-  // Detect locale and redirect
-  const locale = getLocale(request);
-
-  if (pathname === '/') {
-    request.nextUrl.pathname = `/${locale}`;
-  } else {
-    request.nextUrl.pathname = `/${locale}${pathname}`;
+  if (pathnameHasLocale) {
+    // Strip locale prefix and redirect to root path
+    let rootPath = pathname;
+    for (const locale of i18n.locales) {
+      if (pathname.startsWith(`/${locale}/`)) {
+        rootPath = pathname.replace(`/${locale}`, '');
+        break;
+      }
+      if (pathname === `/${locale}`) {
+        rootPath = '/';
+        break;
+      }
+    }
+    request.nextUrl.pathname = rootPath;
+    return NextResponse.redirect(request.nextUrl, 301);
   }
 
-  return NextResponse.redirect(request.nextUrl);
+  // All other routes pass through to root pages (no locale prefix needed)
+  return NextResponse.next();
 }
 
 export const config = {

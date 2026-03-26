@@ -5,7 +5,7 @@ export async function POST() {
   try {
     // Clear the auth cookie — no server-side session to invalidate
     const response = NextResponse.json({ success: true });
-    response.cookies.delete('sb-access-token');
+    response.cookies.delete('session-token');
 
     logger.info('Logout successful');
     return response;

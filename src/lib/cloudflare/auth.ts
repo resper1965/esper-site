@@ -29,9 +29,12 @@ interface Session {
 
 // ── Helpers ───────────────────────────────────────────────
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error('FATAL: JWT_SECRET environment variable is not set. Refusing to start with an insecure configuration.');
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('FATAL: JWT_SECRET environment variable is not set. Refusing to start with an insecure configuration.');
+  }
+  return secret;
 }
 const SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -45,7 +48,7 @@ async function createToken(payload: Record<string, unknown>): Promise<string> {
 
   const key = await crypto.subtle.importKey(
     'raw',
-    new TextEncoder().encode(JWT_SECRET),
+    new TextEncoder().encode(getJwtSecret()),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign']
@@ -63,7 +66,7 @@ async function verifyToken(token: string): Promise<Record<string, unknown> | nul
 
     const key = await crypto.subtle.importKey(
       'raw',
-      new TextEncoder().encode(JWT_SECRET),
+      new TextEncoder().encode(getJwtSecret()),
       { name: 'HMAC', hash: 'SHA-256' },
       false,
       ['verify']
@@ -89,13 +92,59 @@ async function verifyToken(token: string): Promise<Record<string, unknown> | nul
   }
 }
 
-async function hashPassword(password: string): Promise<string> {
+/**
+ * Hash a password using PBKDF2 with a random 16-byte salt.
+ * Returns "salt:hash" hex string for storage.
+ */
+async function hashPassword(password: string, existingSalt?: string): Promise<string> {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password + JWT_SECRET);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hash))
+  const salt = existingSalt
+    ? Uint8Array.from(existingSalt.match(/.{2}/g)!.map((h) => parseInt(h, 16)))
+    : crypto.getRandomValues(new Uint8Array(16));
+
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits']
+  );
+
+  const derivedBits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt, iterations: 100_000, hash: 'SHA-256' },
+    keyMaterial,
+    256
+  );
+
+  const saltHex = Array.from(salt)
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
+  const hashHex = Array.from(new Uint8Array(derivedBits))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+
+  return `${saltHex}:${hashHex}`;
+}
+
+/**
+ * Verify a password against a stored "salt:hash" string.
+ * Also supports legacy SHA-256 hashes (no colon) for migration.
+ */
+async function verifyPassword(password: string, storedHash: string): Promise<boolean> {
+  if (storedHash.includes(':')) {
+    // PBKDF2 format: "salt:hash"
+    const [salt] = storedHash.split(':');
+    const computed = await hashPassword(password, salt);
+    return computed === storedHash;
+  }
+  // Legacy SHA-256 fallback (for migration period only)
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + getJwtSecret());
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  const legacyHash = Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+  return legacyHash === storedHash;
 }
 
 // ── Public API ────────────────────────────────────────────
@@ -108,8 +157,6 @@ export async function signIn(
   password: string
 ): Promise<{ user: AdminUser | null; session: Session | null; error: string | null }> {
   try {
-    const passwordHash = await hashPassword(password);
-
     const row = await db().first<{
       id: string;
       email: string;
@@ -121,7 +168,12 @@ export async function signIn(
       [email]
     );
 
-    if (!row || row.password_hash !== passwordHash) {
+    if (!row) {
+      return { user: null, session: null, error: 'Invalid email or password' };
+    }
+
+    const passwordValid = await verifyPassword(password, row.password_hash);
+    if (!passwordValid) {
       return { user: null, session: null, error: 'Invalid email or password' };
     }
 
@@ -144,9 +196,16 @@ export async function signIn(
 }
 
 /**
- * Sign out — client should call API route to clear cookies
+ * Sign out — client-side only.
+ * Callers should POST to /api/auth/logout to clear HTTP-only cookies.
+ * This function is a no-op on the server (cookies are HTTP-only).
  */
 export async function signOut(): Promise<{ error: string | null }> {
+  if (typeof window === 'undefined') {
+    // Server-side: cannot clear HTTP-only cookies from here.
+    // The API route handler clears the cookie directly.
+    return { error: null };
+  }
   try {
     const response = await fetch('/api/auth/logout', { method: 'POST' });
     if (!response.ok) throw new Error('Logout failed');
@@ -158,19 +217,61 @@ export async function signOut(): Promise<{ error: string | null }> {
 }
 
 /**
- * Verify the current session from a token
+ * Verify the current session from a token.
+ * Server-side: reads from cookies(). Client-side: calls /api/auth/check.
  */
 export async function getSession(): Promise<{ session: Session | null; error: string | null }> {
-  // In SSR context, the token is read from cookies by the caller.
-  // This function is primarily used client-side via stored token.
-  return { session: null, error: null };
+  if (typeof window !== 'undefined') {
+    // Client-side: call the auth check API
+    try {
+      const res = await fetch('/api/auth/check');
+      const data = await res.json();
+      if (data.authenticated && data.user) {
+        return {
+          session: {
+            access_token: '',
+            user: data.user as AdminUser,
+            expires_at: '',
+          },
+          error: null,
+        };
+      }
+      return { session: null, error: null };
+    } catch {
+      return { session: null, error: 'Failed to check session' };
+    }
+  }
+
+  // Server-side: use Next.js cookies()
+  try {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    const token = cookieStore.get('session-token')?.value;
+    if (!token) return { session: null, error: null };
+
+    const user = await verifySession(token);
+    if (!user) return { session: null, error: null };
+
+    return {
+      session: {
+        access_token: token,
+        user,
+        expires_at: '',
+      },
+      error: null,
+    };
+  } catch {
+    return { session: null, error: 'Failed to read session cookies' };
+  }
 }
 
 /**
- * Verify a token and return the user
+ * Get the currently authenticated user.
  */
 export async function getCurrentUser(): Promise<{ user: AdminUser | null; error: string | null }> {
-  return { user: null, error: null };
+  const { session, error } = await getSession();
+  if (error) return { user: null, error };
+  return { user: session?.user ?? null, error: null };
 }
 
 /**
@@ -194,7 +295,7 @@ export async function isAuthenticated(): Promise<boolean> {
 }
 
 /**
- * Auth state change listener — no-op for non-Supabase auth
+ * Auth state change listener — no-op for cookie-based auth
  */
 export function onAuthStateChange(
   _callback: (event: string, session: unknown) => void
@@ -211,28 +312,20 @@ export function onAuthStateChange(
 }
 
 /**
- * Password reset — sends email with reset link
- * Requires a mail service (e.g., Resend, Mailgun)
+ * Password reset — not yet implemented.
+ * Returns an error so callers know the operation did not succeed.
  */
 export async function resetPassword(_email: string): Promise<{ error: string | null }> {
-  // TODO: integrate with email service
-  console.warn('⚠️ Password reset not yet implemented for Cloudflare auth');
-  return { error: null };
+  return { error: 'Password reset is not yet implemented. Contact the administrator.' };
 }
 
 /**
  * Update password for the current user
  */
-export async function updatePassword(newPassword: string): Promise<{ error: string | null }> {
-  try {
-    const passwordHash = await hashPassword(newPassword);
-    // Requires knowing the current user — called from authenticated context
-    // For now, a stub that returns success
-    console.warn('⚠️ updatePassword needs user context — implement with middleware');
-    void passwordHash; // suppress unused
-    return { error: null };
-  } catch (error) {
-    console.error('Update password error:', error);
-    return { error: error instanceof Error ? error.message : 'Unknown error' };
-  }
+/**
+ * Update password — not yet implemented.
+ * Returns an error so callers know the operation did not succeed.
+ */
+export async function updatePassword(_newPassword: string): Promise<{ error: string | null }> {
+  return { error: 'Password update is not yet implemented. Use the admin CLI to change passwords.' };
 }
