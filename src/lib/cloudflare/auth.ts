@@ -127,6 +127,22 @@ async function hashPassword(password: string, existingSalt?: string): Promise<st
 }
 
 /**
+ * Constant-time comparison of two hex strings.
+ * Prevents timing side-channel attacks on password verification.
+ */
+function constantTimeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  const encoder = new TextEncoder();
+  const bufA = encoder.encode(a);
+  const bufB = encoder.encode(b);
+  let diff = 0;
+  for (let i = 0; i < bufA.length; i++) {
+    diff |= bufA[i] ^ bufB[i];
+  }
+  return diff === 0;
+}
+
+/**
  * Verify a password against a stored "salt:hash" string.
  * Also supports legacy SHA-256 hashes (no colon) for migration.
  */
@@ -135,16 +151,17 @@ async function verifyPassword(password: string, storedHash: string): Promise<boo
     // PBKDF2 format: "salt:hash"
     const [salt] = storedHash.split(':');
     const computed = await hashPassword(password, salt);
-    return computed === storedHash;
+    return constantTimeEqual(computed, storedHash);
   }
-  // Legacy SHA-256 fallback (for migration period only)
+  // Legacy SHA-256 fallback — DEPRECATED: migrate these users to PBKDF2
+  console.warn('[AUTH] Legacy SHA-256 password hash detected — schedule migration to PBKDF2');
   const encoder = new TextEncoder();
   const data = encoder.encode(password + getJwtSecret());
   const hash = await crypto.subtle.digest('SHA-256', data);
   const legacyHash = Array.from(new Uint8Array(hash))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
-  return legacyHash === storedHash;
+  return constantTimeEqual(legacyHash, storedHash);
 }
 
 // ── Public API ────────────────────────────────────────────
@@ -181,6 +198,7 @@ export async function signIn(
     const token = await createToken({
       sub: row.id,
       email: row.email,
+      name: row.name,
       role: row.role,
       exp: Date.now() + SESSION_DURATION_MS,
     });
@@ -284,7 +302,7 @@ export async function verifySession(token: string): Promise<AdminUser | null> {
   return {
     id: payload.sub as string,
     email: payload.email as string,
-    name: '',
+    name: (payload.name as string) || '',
     role: payload.role as string,
   };
 }

@@ -4,6 +4,7 @@ import * as React from "react"
 import { motion, useInView } from "framer-motion"
 import Link from "next/link"
 import { Shield, Award, Globe, Terminal, ChevronDown, ExternalLink } from "lucide-react"
+import { ParticleNetwork } from "./particle-network"
 
 // ── Animated stat counter ──────────────────────────────────────────────────
 function StatCounter({ value, suffix = "", label, icon: Icon, delay = 0 }: {
@@ -104,6 +105,9 @@ function CyberGridBackground() {
 
       {/* Radial gradient overlay */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(0,180,216,0.12),transparent)]" />
+
+      {/* Interactive particle network */}
+      <ParticleNetwork />
 
       {/* Bottom fade */}
       <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#050a12] to-transparent" />

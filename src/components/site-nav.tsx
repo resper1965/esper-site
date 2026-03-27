@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { Menu, X, Shield, ChevronDown } from "lucide-react"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { CommandPalette } from "@/components/command-palette"
 import { Locale } from "@/i18n/config"
 
 interface SiteNavProps {
@@ -102,6 +103,9 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
+            {/* ⌘K search */}
+            <CommandPalette />
+
             {/* Language switcher */}
             <div className="hidden md:flex items-center">
               <LanguageSwitcher currentLocale={lang} />

@@ -85,3 +85,34 @@ export function checkRateLimit(
     retryAfterSeconds: 0,
   };
 }
+
+/**
+ * Extract client IP from a Request (works with Next.js and Cloudflare).
+ */
+export function getClientIp(request: Request): string {
+  const headers = request.headers;
+  const forwarded = headers.get('x-forwarded-for');
+  if (forwarded) return forwarded.split(',')[0].trim();
+  return headers.get('x-real-ip') || headers.get('cf-connecting-ip') || 'unknown';
+}
+
+// ── Preset configs ────────────────────────────────────────
+
+/** Chat endpoint: 10 requests per minute */
+export const CHAT_RATE_LIMIT: RateLimitConfig = {
+  windowMs: 60_000,
+  maxAttempts: 10,
+};
+
+/** Login endpoint: 5 requests per minute */
+export const LOGIN_RATE_LIMIT: RateLimitConfig = {
+  windowMs: 60_000,
+  maxAttempts: 5,
+};
+
+/**
+ * Reset all rate limit state. For testing only.
+ */
+export function _resetStore(): void {
+  store.clear();
+}

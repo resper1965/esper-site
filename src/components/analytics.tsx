@@ -15,32 +15,46 @@ import Script from 'next/script';
  */
 export function Analytics() {
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
+  const cfToken = process.env.NEXT_PUBLIC_CF_ANALYTICS_TOKEN;
 
-  // Don't render if GA ID is not configured
-  if (!gaId) {
+  // Don't render if nothing is configured
+  if (!gaId && !cfToken) {
     return null;
   }
 
   return (
     <>
       {/* Google Analytics 4 */}
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-        strategy="afterInteractive"
-      />
-      <Script id="google-analytics" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
+      {gaId && (
+        <>
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
 
-          gtag('config', '${gaId}', {
-            anonymize_ip: true,
-            cookie_flags: 'SameSite=None;Secure',
-            page_path: window.location.pathname,
-          });
-        `}
-      </Script>
+              gtag('config', '${gaId}', {
+                anonymize_ip: true,
+                cookie_flags: 'SameSite=None;Secure',
+                page_path: window.location.pathname,
+              });
+            `}
+          </Script>
+        </>
+      )}
+
+      {/* Cloudflare Web Analytics — privacy-first, cookie-free */}
+      {cfToken && (
+        <Script
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={`{"token": "${cfToken}"}`}
+          strategy="afterInteractive"
+        />
+      )}
     </>
   );
 }

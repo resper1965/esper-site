@@ -85,6 +85,17 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
         />
+        {/* Cloudflare Turnstile CAPTCHA */}
+        <script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad"
+          async
+          defer
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.onTurnstileLoad = function() { window.dispatchEvent(new Event('turnstile-loaded')); };`,
+          }}
+        />
       </head>
       <body>
         {/* Skip to main content link for accessibility */}

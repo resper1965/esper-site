@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('❌ Erro:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Erro desconhecido' },
+      { error: 'Erro interno ao gerar post' },
       { status: 500 }
     );
   }

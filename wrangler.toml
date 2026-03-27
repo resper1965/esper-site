@@ -11,20 +11,24 @@ assets = { directory = ".open-next/assets", binding = "ASSETS" }
 [vars]
 NEXT_PUBLIC_SITE_URL = "https://esper.ws"
 NEXT_PUBLIC_GA_ID = ""
+NEXT_PUBLIC_TURNSTILE_SITE_KEY = ""   # Cloudflare Turnstile widget key
+# TURNSTILE_SECRET_KEY → set via `wrangler secret put TURNSTILE_SECRET_KEY`
+NEXT_PUBLIC_CF_ANALYTICS_TOKEN = ""   # Cloudflare Web Analytics token
 
 # Cloudflare KV for ISR/caching
-# Uncomment and set IDs after creating resources in CF dashboard:
-# [[kv_namespaces]]
-# binding = "NEXT_CACHE_WORKERS_KV"
-# id = "<your-kv-namespace-id>"
+# Set IDs after creating resources in CF dashboard:
+[[kv_namespaces]]
+binding = "NEXT_CACHE_WORKERS_KV"
+id = ""  # ← paste your KV namespace ID
 
-# Cloudflare D1 (SQLite) – uncomment when migrating from Supabase
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "esper-site-db"
-# database_id = "<your-d1-database-id>"
+# Cloudflare D1 (SQLite)
+[[d1_databases]]
+binding = "DB"
+database_name = "esper-site-db"
+database_id = ""  # ← paste your D1 database ID
 
-# Cloudflare R2 for image storage – uncomment when ready
-# [[r2_buckets]]
-# binding = "IMAGES"
-# bucket_name = "esper-site-images"
+# Cloudflare R2 for image storage
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "esper-site-images"
+

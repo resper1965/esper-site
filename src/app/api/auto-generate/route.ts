@@ -148,7 +148,3 @@ export async function GET(request: Request) {
   }
 }
 
-// Método POST para teste manual
-export async function POST(request: Request) {
-  return GET(request);
-}

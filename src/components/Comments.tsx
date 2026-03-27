@@ -1,8 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { getPostComments, createComment, getCommentCount, type Comment } from '@/lib/cloudflare';
-import { MessageCircle, Send, Loader2, CheckCircle } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { getPostComments, getCommentCount, type Comment } from '@/lib/cloudflare';
+import { MessageCircle, Send, Loader2, CheckCircle, ShieldCheck } from 'lucide-react';
+
+// Turnstile site key — set in env or wrangler.toml
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
 
 interface CommentsProps {
   postSlug: string;
@@ -23,6 +26,11 @@ export function Comments({ postSlug, lang }: CommentsProps) {
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
 
+  // Turnstile state
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<string | null>(null);
+
   const texts = {
     'pt-br': {
       title: 'Comentários',
@@ -42,6 +50,9 @@ export function Comments({ postSlug, lang }: CommentsProps) {
       minLength: 'Comentário deve ter pelo menos 10 caracteres',
       required: 'Este campo é obrigatório',
       invalidEmail: 'Email inválido',
+      captchaRequired: 'Por favor, complete a verificação de segurança',
+      captchaFailed: 'Verificação de segurança falhou. Tente novamente.',
+      verifiedHuman: 'Verificado como humano',
     },
     'en': {
       title: 'Comments',
@@ -61,10 +72,72 @@ export function Comments({ postSlug, lang }: CommentsProps) {
       minLength: 'Comment must be at least 10 characters',
       required: 'This field is required',
       invalidEmail: 'Invalid email',
+      captchaRequired: 'Please complete the security verification',
+      captchaFailed: 'Security verification failed. Please try again.',
+      verifiedHuman: 'Verified as human',
     },
   };
 
   const t = texts[lang];
+
+  // Render Turnstile widget
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || !turnstileRef.current) return;
+
+    const renderWidget = () => {
+      if (!turnstileRef.current || widgetIdRef.current) return;
+
+      const w = window as unknown as {
+        turnstile?: {
+          render: (el: HTMLElement, opts: Record<string, unknown>) => string;
+          reset: (id: string) => void;
+          remove: (id: string) => void;
+        };
+      };
+
+      if (w.turnstile) {
+        widgetIdRef.current = w.turnstile.render(turnstileRef.current, {
+          sitekey: TURNSTILE_SITE_KEY,
+          theme: 'dark',
+          language: lang === 'pt-br' ? 'pt-br' : 'en',
+          callback: (token: string) => setTurnstileToken(token),
+          'expired-callback': () => setTurnstileToken(''),
+          'error-callback': () => setTurnstileToken(''),
+        });
+      }
+    };
+
+    // If turnstile script already loaded, render immediately
+    const w = window as unknown as { turnstile?: unknown };
+    if (w.turnstile) {
+      renderWidget();
+    } else {
+      // Wait for script to load
+      const onLoad = () => renderWidget();
+      window.addEventListener('turnstile-loaded', onLoad);
+      return () => window.removeEventListener('turnstile-loaded', onLoad);
+    }
+
+    return () => {
+      const w2 = window as unknown as {
+        turnstile?: { remove: (id: string) => void };
+      };
+      if (widgetIdRef.current && w2.turnstile) {
+        w2.turnstile.remove(widgetIdRef.current);
+        widgetIdRef.current = null;
+      }
+    };
+  }, [lang]);
+
+  const resetTurnstile = useCallback(() => {
+    const w = window as unknown as {
+      turnstile?: { reset: (id: string) => void };
+    };
+    if (widgetIdRef.current && w.turnstile) {
+      w.turnstile.reset(widgetIdRef.current);
+      setTurnstileToken('');
+    }
+  }, []);
 
   const loadComments = useCallback(async () => {
     setLoading(true);
@@ -106,28 +179,46 @@ export function Comments({ postSlug, lang }: CommentsProps) {
       return;
     }
 
+    // Turnstile check
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setError(t.captchaRequired);
+      return;
+    }
+
     setSubmitting(true);
 
     try {
-      const result = await createComment({
-        postSlug,
-        authorName: name.trim(),
-        authorEmail: email.trim(),
-        authorWebsite: website.trim() || undefined,
-        content: content.trim(),
+      const res = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postSlug,
+          authorName: name.trim(),
+          authorEmail: email.trim(),
+          authorWebsite: website.trim() || undefined,
+          content: content.trim(),
+          turnstileToken,
+        }),
       });
 
-      if (result) {
+      if (res.ok) {
         setSubmitted(true);
         setName('');
         setEmail('');
         setWebsite('');
         setContent('');
+        resetTurnstile();
 
         // Limpar mensagem de sucesso após 5 segundos
         setTimeout(() => setSubmitted(false), 5000);
       } else {
-        setError('Erro ao enviar comentário. Tente novamente.');
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 403) {
+          setError(t.captchaFailed);
+          resetTurnstile();
+        } else {
+          setError(data.error || 'Erro ao enviar comentário. Tente novamente.');
+        }
       }
     } catch (error) {
       console.error('Error submitting comment:', error);
@@ -250,6 +341,19 @@ export function Comments({ postSlug, lang }: CommentsProps) {
             />
           </div>
 
+          {/* Turnstile Widget */}
+          {TURNSTILE_SITE_KEY && (
+            <div className="flex items-center gap-3">
+              <div ref={turnstileRef} />
+              {turnstileToken && (
+                <div className="flex items-center gap-1.5 text-sm text-green-400">
+                  <ShieldCheck className="h-4 w-4" />
+                  <span>{t.verifiedHuman}</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {error && (
             <div className="p-4 bg-red-950/50 border border-red-800 rounded-lg text-red-400">
               {error}
@@ -258,7 +362,7 @@ export function Comments({ postSlug, lang }: CommentsProps) {
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || (!!TURNSTILE_SITE_KEY && !turnstileToken)}
             className="w-full px-6 py-3 bg-cyan text-grey-950 font-semibold rounded-lg hover:bg-cyan/90 disabled:bg-grey-700 disabled:text-grey-500 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
           >
             {submitting ? (

@@ -3,6 +3,33 @@ import { generateChatCompletion } from "@/lib/cloudflare/ai-gateway"
 
 export const runtime = "edge"
 
+// ── Inline rate limiter for edge runtime ──────────────────
+const CHAT_WINDOW_MS = 60_000
+const CHAT_MAX_REQUESTS = 10
+const chatStore = new Map<string, number[]>()
+
+function chatRateLimit(ip: string): { allowed: boolean; retryAfter: number } {
+  const now = Date.now()
+  let timestamps = chatStore.get(ip) || []
+  timestamps = timestamps.filter((t) => now - t < CHAT_WINDOW_MS)
+
+  if (timestamps.length >= CHAT_MAX_REQUESTS) {
+    const retryAfter = Math.ceil((timestamps[0] + CHAT_WINDOW_MS - now) / 1000)
+    chatStore.set(ip, timestamps)
+    return { allowed: false, retryAfter: Math.max(retryAfter, 1) }
+  }
+
+  timestamps.push(now)
+  chatStore.set(ip, timestamps)
+  return { allowed: true, retryAfter: 0 }
+}
+
+function getIp(req: NextRequest): string {
+  const forwarded = req.headers.get("x-forwarded-for")
+  if (forwarded) return forwarded.split(",")[0].trim()
+  return req.headers.get("x-real-ip") || req.headers.get("cf-connecting-ip") || "unknown"
+}
+
 const SYSTEM_PROMPT = `Você é um assistente especializado que representa Ricardo Esper, um dos maiores especialistas em cibersegurança do Brasil com mais de 34 anos de experiência.
 
 SOBRE RICARDO ESPER:
@@ -37,6 +64,16 @@ TÓPICOS QUE VOCÊ DOMINA:
 type ChatRole = "user" | "assistant";
 
 export async function POST(req: NextRequest) {
+  // ── Rate limiting (10 req/min per IP) ──────────────────
+  const ip = getIp(req)
+  const { allowed, retryAfter } = chatRateLimit(ip)
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Try again later." },
+      { status: 429, headers: { "Retry-After": String(retryAfter) } }
+    )
+  }
+
   try {
     const { messages } = await req.json()
 
