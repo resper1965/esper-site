@@ -272,7 +272,7 @@ export function HeroCommand({ lang = 'pt-BR', subtitle }: HeroCommandProps) {
             <ChevronDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
           </Link>
           <Link
-            href="/sobre"
+            href={`/${lang}/sobre`}
             className="group inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200
               border border-[rgba(0,180,216,0.3)] text-primary hover:bg-[rgba(0,180,216,0.08)]
               hover:border-primary"

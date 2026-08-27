@@ -75,7 +75,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   }
 
   // Generate CollectionPage schema
-  const url = `${siteConfig.url}/categoria/${category}`;
+  const url = `${siteConfig.url}/${lang}/categoria/${category}`;
   const collectionSchema = generateCollectionPageSchema({
     name: categoryName,
     description: lang === 'pt-BR'

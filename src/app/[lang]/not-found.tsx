@@ -63,13 +63,13 @@ export default async function NotFound({ params }: NotFoundProps) {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
           <Link
-            href={`/`}
+            href={`/${lang}`}
             className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
             {dict.notFound?.backHome || 'Voltar para o início'}
           </Link>
           <Link
-            href={`/blog`}
+            href={`/${lang}/blog`}
             className="inline-flex items-center justify-center px-6 py-3 border border-border rounded-lg hover:bg-muted transition-colors"
           >
             {dict.notFound?.viewBlog || 'Ver todos os artigos'}
