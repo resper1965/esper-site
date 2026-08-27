@@ -1,34 +1,38 @@
-# ── Cloudflare Workers configuration (OpenNext adapter) ──────
-# Docs: https://opennext.js.org/cloudflare
+# ── Cloudflare Workers (adaptador OpenNext) ──────────────────
+# Docs: https://developers.cloudflare.com/workers/framework-guides/web-apps/opennext/
 name = "esper-site"
 main = ".open-next/worker.js"
-compatibility_date = "2024-09-23"
+compatibility_date = "2026-08-27"
 compatibility_flags = ["nodejs_compat"]
 
-# OpenNext assets
-assets = { directory = ".open-next/assets", binding = "ASSETS" }
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[observability]
+enabled = true
 
 [vars]
-NEXT_PUBLIC_SITE_URL = "https://esper.ws"
+NEXT_PUBLIC_SITE_URL = "https://www.ricardoesper.com.br"
 NEXT_PUBLIC_GA_ID = ""
-NEXT_PUBLIC_TURNSTILE_SITE_KEY = ""   # Cloudflare Turnstile widget key
-# TURNSTILE_SECRET_KEY → set via `wrangler secret put TURNSTILE_SECRET_KEY`
-NEXT_PUBLIC_CF_ANALYTICS_TOKEN = ""   # Cloudflare Web Analytics token
+NEXT_PUBLIC_TURNSTILE_SITE_KEY = ""
+NEXT_PUBLIC_CF_ANALYTICS_TOKEN = ""
+# Segredos (TURNSTILE_SECRET_KEY, JWT_SECRET, ANTHROPIC_API_KEY…) entram por
+# `wrangler secret put`, nunca aqui.
 
-# Cloudflare KV for ISR/caching
-# Set IDs after creating resources in CF dashboard:
+# Cache incremental do Next (ISR) — usado por open-next.config.ts
 [[kv_namespaces]]
 binding = "NEXT_CACHE_WORKERS_KV"
-id = ""  # ← paste your KV namespace ID
+id = "be713a5886ce4375af6513a548b7381c"
 
-# Cloudflare D1 (SQLite)
+# Banco dos posts. Já populado: 35 posts publicados.
+# Como binding, dispensa CLOUDFLARE_API_TOKEN em runtime.
 [[d1_databases]]
 binding = "DB"
-database_name = "esper-site-db"
-database_id = ""  # ← paste your D1 database ID
+database_name = "esper"
+database_id = "a7d71d17-0737-4996-8c66-36b945ea9a1f"
 
-# Cloudflare R2 for image storage
+# Imagens do blog
 [[r2_buckets]]
 binding = "IMAGES"
 bucket_name = "esper-site-images"
-

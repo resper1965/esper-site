@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { generateChatCompletion } from "@/lib/cloudflare/ai-gateway"
 
-export const runtime = "edge"
+// Sem `export const runtime = 'edge'`: no Cloudflare Workers a aplicação
+// inteira já roda no runtime de edge, e a declaração quebra o bundler do
+// OpenNext, que exige funções edge em bundles separados.
 
 // ── Inline rate limiter for edge runtime ──────────────────
 const CHAT_WINDOW_MS = 60_000

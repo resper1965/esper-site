@@ -6,6 +6,8 @@
  * - Outside Workers (Next.js dev): uses the D1 REST API
  */
 
+import { getCloudflareContext } from '@opennextjs/cloudflare';
+
 const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID || '';
 const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN || '';
 const D1_DATABASE_ID = process.env.CLOUDFLARE_D1_DATABASE_ID || '';
@@ -172,14 +174,47 @@ class D1RestApiClient extends D1RestClient {
 let _db: D1RestClient | null = null;
 
 /**
+ * Read the DB binding from the Workers runtime.
+ *
+ * On Cloudflare, D1 is a binding: an in-process reference with no network hop
+ * and no credential. Outside Workers — a local build, `next dev` without the
+ * platform proxy — there is no context and this throws, which is the signal to
+ * fall back to the REST client.
+ */
+function bindingFromRuntime(): { DB?: unknown } | undefined {
+  try {
+    const { env } = getCloudflareContext();
+    return env as unknown as { DB?: unknown };
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Get the D1 database client (singleton in server context).
- * Pass `env` when running inside Cloudflare Workers to use the bound binding.
+ *
+ * Resolution order:
+ *   1. `env` passed explicitly by the caller
+ *   2. the DB binding, when running inside Workers
+ *   3. the REST API, which needs CLOUDFLARE_API_TOKEN
+ *
+ * Only the third needs a secret. Once the site runs on Workers it stops being
+ * reached, and the token stops being part of the deployment.
  */
 export function db(env?: { DB?: unknown }): D1RestClient {
   if (env?.DB) {
     // Always use fresh binding client when env is provided
     return getDB(env);
   }
+
+  const runtimeEnv = bindingFromRuntime();
+  if (runtimeEnv?.DB) {
+    // Not cached: the binding belongs to the request's context, and holding it
+    // in a module-level variable would leak it across requests in a reused
+    // isolate.
+    return getDB(runtimeEnv);
+  }
+
   if (!_db) {
     _db = getDB();
   }
