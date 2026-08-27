@@ -4,22 +4,6 @@ import { legacyRedirects } from "./src/lib/legacy-redirects";
 const nextConfig: NextConfig = {
   transpilePackages: ["geist"],
 
-  // Keep jsdom out of the serverless bundle.
-  //
-  // isomorphic-dompurify pulls jsdom, and jsdom@29 (plus whatwg-url@16 and
-  // html-encoding-sniffer@6) `require()` @exodus/bytes, which ships ESM only.
-  // Node 22+ supports require(ESM) natively, so this works locally — but
-  // Vercel's bundler rewrites the modules and breaks that interop, so every
-  // blog post route died with ERR_REQUIRE_ESM at module load:
-  //
-  //   require() of ES Module @exodus/bytes/encoding-lite.js from
-  //   html-encoding-sniffer/lib/html-encoding-sniffer.js not supported
-  //
-  // Listing the packages here leaves them in node_modules and loads them with
-  // the platform's own require, which handles ESM correctly. Pinning the
-  // transitive dep instead does not work: jsdom and whatwg-url require
-  // @exodus/bytes directly, from several files each.
-  serverExternalPackages: ["isomorphic-dompurify", "jsdom"],
   // TypeScript errors will now be caught during build
   // SEO & Performance Optimizations
   compress: true,
