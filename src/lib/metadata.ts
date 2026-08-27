@@ -151,7 +151,9 @@ export function generateArticleSchema({
       '@id': `${siteConfig.url}/sobre#person`,
       name: 'Ricardo Esper',
       jobTitle: 'Chief Information Security Officer',
-      url: `${siteConfig.url}/sobre`,
+      // Locale-prefixed: the un-prefixed form redirects. `@id` stays as-is —
+      // it is an opaque identifier other schemas reference, not an address.
+      url: `${siteConfig.url}/${lang}/sobre`,
       sameAs: sameAsUrls,
     },
     publisher: {
@@ -193,7 +195,7 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
     familyName: 'Esper',
     jobTitle: 'Chief Information Security Officer',
     description,
-    url: `${siteConfig.url}/sobre`,
+    url: `${siteConfig.url}/${lang}/sobre`,
     image: `${siteConfig.url}/authors/ricardo.png`,
     nationality: { '@type': 'Country', name: 'Brazil' },
     sameAs: [
@@ -246,7 +248,7 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
     // GEO: helps AI understand what topics this person is authoritative on
     mainEntityOfPage: {
       '@type': 'ProfilePage',
-      '@id': `${siteConfig.url}/sobre`,
+      '@id': `${siteConfig.url}/${lang}/sobre`,
       dateCreated: '2024-01-01',
       dateModified: new Date().toISOString().split('T')[0],
     },
@@ -274,7 +276,7 @@ export function generateProfilePageSchema(lang: Locale = 'pt-BR') {
     '@id': `${siteConfig.url}/sobre`,
     name: lang === 'pt-BR' ? 'Sobre Ricardo Esper' : 'About Ricardo Esper',
     description,
-    url: `${siteConfig.url}/sobre`,
+    url: `${siteConfig.url}/${lang}/sobre`,
     inLanguage: lang,
     dateCreated: '2024-01-01',
     dateModified: new Date().toISOString().split('T')[0],
@@ -334,7 +336,7 @@ export function generateWebSiteSchema(lang: Locale = 'pt-BR') {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${siteConfig.url}/busca?q={search_term_string}`,
+        urlTemplate: `${siteConfig.url}/${lang}/busca?q={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },
@@ -504,7 +506,7 @@ export function generateProfessionalServiceSchema(lang: Locale = 'pt-BR') {
     description: lang === 'pt-BR'
       ? 'Consultoria especializada em segurança da informação, compliance, forense digital e proteção executiva. 34+ anos de experiência, atuação em 12+ países.'
       : 'Specialized consulting in information security, compliance, digital forensics and executive protection. 34+ years of experience, operating in 12+ countries.',
-    url: `${siteConfig.url}/servicos`,
+    url: `${siteConfig.url}/${lang}/servicos`,
     priceRange: '$$$$',
     provider: {
       '@type': 'Person',

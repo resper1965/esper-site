@@ -40,39 +40,33 @@ export async function middleware(request: NextRequest) {
   // NOTE: API routes are excluded from middleware by the matcher config below.
   // All API auth is handled in-route via requireAuth() — see src/lib/requireAuth.ts.
 
-  // Exclude admin and API routes from locale redirect
+  // Admin is not localized.
   if (pathname.startsWith('/admin/') || pathname.startsWith('/api/')) {
     return NextResponse.next();
   }
 
-  // Redirect old /pt-BR/... and /en/... routes to root equivalents for backward compat
+  // Locale-prefixed URLs are the canonical ones: they carry the hreflang pair
+  // and are what `generatePageMetadata` emits as canonical. Serve them as-is.
   const pathnameHasLocale = i18n.locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
   if (pathnameHasLocale) {
-    // Strip locale prefix and redirect to root path
-    let rootPath = pathname;
-    for (const locale of i18n.locales) {
-      if (pathname.startsWith(`/${locale}/`)) {
-        rootPath = pathname.replace(`/${locale}`, '');
-        break;
-      }
-      if (pathname === `/${locale}`) {
-        rootPath = '/';
-        break;
-      }
-    }
-    request.nextUrl.pathname = rootPath;
-    return NextResponse.redirect(request.nextUrl, 301);
+    return NextResponse.next();
   }
 
-  // All other routes pass through to root pages (no locale prefix needed)
-  return NextResponse.next();
+  // Everything else is an un-prefixed path: send it to the default locale.
+  // 307 rather than 301 — the default locale is a routing choice we may want
+  // to revisit (e.g. negotiating from Accept-Language), and a cached 301 would
+  // outlive that decision in every visitor's browser.
+  request.nextUrl.pathname = `/${i18n.defaultLocale}${pathname === '/' ? '' : pathname}`;
+  return NextResponse.redirect(request.nextUrl, 307);
 }
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|images|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)).*)',
+    // Crawler-facing files must never be redirected: a 307 on /robots.txt or
+    // /sitemap.xml is indistinguishable from not having one.
+    '/((?!api|_next/static|_next/image|favicon.ico|images|robots\\.txt|sitemap\\.xml|llms\\.txt|rss\\.xml|opengraph-image|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)).*)',
   ],
 };

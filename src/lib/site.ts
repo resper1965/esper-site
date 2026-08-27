@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: "Ricardo Esper",
-  url: "https://esper.ws",
+  url: "https://www.ricardoesper.com.br",
   description:
     "Ricardo Esper — CISO, especialista em cibersegurança com mais de 34 anos de experiência. Fundador da NESS (1991), CISO da IONIC Health, fundador da forense.io. Especialista em LGPD, GDPR, HIPAA, forense digital e proteção executiva.",
   // English variant for i18n
