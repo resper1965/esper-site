@@ -41,6 +41,13 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
     { label: dict.nav.blog ?? "Blog", href: `/blog` },
   ]
 
+  // Rendered after the main links on desktop and appended to the drawer list
+  // on mobile, so both menus stay in sync from one place.
+  const secondaryLinks = [
+    { label: lang === 'pt-BR' ? 'Serviços' : 'Services', href: `/servicos` },
+    { label: lang === 'pt-BR' ? 'Imprensa' : 'Press', href: `/imprensa` },
+  ]
+
   return (
     <>
       <header
@@ -85,20 +92,23 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
               </Link>
             ))}
 
-            {/* Services link */}
-            <Link
-              href={`/servicos`}
-              className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
-                isActive(`/servicos`)
-                  ? "text-primary bg-primary/8"
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/4"
-              }`}
-            >
-              {lang === 'pt-BR' ? 'Serviços' : 'Services'}
-              {isActive(`/servicos`) && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
-              )}
-            </Link>
+            {/* Services + Press */}
+            {secondaryLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                  isActive(link.href)
+                    ? "text-primary bg-primary/8"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/4"
+                }`}
+              >
+                {link.label}
+                {isActive(link.href) && (
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                )}
+              </Link>
+            ))}
           </nav>
 
           {/* Right side */}
@@ -168,7 +178,7 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
 
           {/* Links */}
           <nav className="px-4 py-6 space-y-1">
-            {[...navLinks, { label: lang === 'pt-BR' ? 'Serviços' : 'Services', href: `/servicos` }].map((link) => (
+            {[...navLinks, ...secondaryLinks].map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

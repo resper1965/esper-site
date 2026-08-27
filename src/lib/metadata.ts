@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { siteConfig } from './site';
+import { siteConfig, sameAsUrls } from './site';
 import { i18n, type Locale } from '@/i18n/config';
 
 interface PageMetadataProps {
@@ -152,10 +152,7 @@ export function generateArticleSchema({
       name: 'Ricardo Esper',
       jobTitle: 'Chief Information Security Officer',
       url: `${siteConfig.url}/sobre`,
-      sameAs: [
-        'https://www.linkedin.com/in/ricardoesper',
-        'https://twitter.com/ricardoesper',
-      ],
+      sameAs: sameAsUrls,
     },
     publisher: {
       '@type': 'Organization',
@@ -200,8 +197,7 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
     image: `${siteConfig.url}/authors/ricardo.png`,
     nationality: { '@type': 'Country', name: 'Brazil' },
     sameAs: [
-      'https://www.linkedin.com/in/ricardoesper',
-      'https://twitter.com/ricardoesper',
+      ...sameAsUrls,
       `${siteConfig.url}/pt-BR/sobre`,
       `${siteConfig.url}/en/sobre`,
     ],
@@ -370,10 +366,7 @@ export function generateOrganizationSchema(lang: Locale = 'pt-BR') {
       '@id': `${siteConfig.url}/sobre#person`,
       name: 'Ricardo Esper',
     },
-    sameAs: [
-      'https://www.linkedin.com/in/ricardoesper',
-      'https://twitter.com/ricardoesper',
-    ],
+    sameAs: sameAsUrls,
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'Professional Inquiry',

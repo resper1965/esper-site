@@ -23,7 +23,13 @@ interface BlogPostContentProps {
   post: Post;
   slug: string;
   lang: Locale;
-  dict: Record<string, Record<string, string>>;
+  // Narrowed to the keys actually read below. The full dictionary is nested
+  // deeper than one level, so a Record<string, Record<string, string>> does
+  // not accept it.
+  dict: {
+    nav: { home: string };
+    blog: { backToArticles: string };
+  };
 }
 
 export function BlogPostContent({ post, slug, lang, dict }: BlogPostContentProps) {
