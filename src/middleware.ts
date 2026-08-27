@@ -19,9 +19,14 @@ async function checkAuth(request: NextRequest): Promise<boolean> {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // `/admin` e `/admin/...` são o mesmo território. Comparar só com
+  // '/admin/' deixava a forma sem barra escapar de todas as checagens
+  // abaixo e cair no redirect de idioma, indo parar em /pt-BR/admin.
+  const isAdmin = pathname === '/admin' || pathname.startsWith('/admin/');
+
   // Remove locale from admin routes - rewrite instead of redirect to avoid 404
   for (const locale of i18n.locales) {
-    if (pathname.startsWith(`/${locale}/admin/`)) {
+    if (pathname === `/${locale}/admin` || pathname.startsWith(`/${locale}/admin/`)) {
       const adminPath = pathname.replace(`/${locale}`, '');
       request.nextUrl.pathname = adminPath;
       return NextResponse.rewrite(request.nextUrl);
@@ -29,7 +34,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check authentication for admin routes (except login)
-  if (pathname.startsWith('/admin/') && pathname !== '/admin/login') {
+  if (isAdmin && pathname !== '/admin/login') {
     const isAuthenticated = await checkAuth(request);
     if (!isAuthenticated) {
       const loginUrl = new URL('/admin/login', request.url);
@@ -41,7 +46,7 @@ export async function middleware(request: NextRequest) {
   // All API auth is handled in-route via requireAuth() — see src/lib/requireAuth.ts.
 
   // Admin is not localized.
-  if (pathname.startsWith('/admin/') || pathname.startsWith('/api/')) {
+  if (isAdmin || pathname.startsWith('/api/')) {
     return NextResponse.next();
   }
 

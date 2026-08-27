@@ -5,7 +5,6 @@ import { SiteNav } from "@/components/site-nav";
 import Footer from "@/components/footer";
 
 import { generatePageMetadata, generatePersonSchema, generateWebSiteSchema, generateOrganizationSchema, generateProfilePageSchema } from "@/lib/metadata";
-import { ChatWidget } from "@/components/chat-widget";
 import "../globals.css";
 
 export const viewport: Viewport = {
@@ -105,7 +104,6 @@ export default async function LangLayout({
         {children}
       </main>
       <Footer lang={lang} />
-      <ChatWidget lang={lang} />
     </>
   );
 }

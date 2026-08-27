@@ -155,12 +155,6 @@ export default function Footer({ lang }: FooterProps) {
             <span className="opacity-40">
               {isPT ? "Powered by" : "Powered by"} Cloudflare
             </span>
-            <Link
-              href="/admin/generate"
-              className="opacity-30 hover:opacity-50 transition-opacity"
-            >
-              Admin
-            </Link>
           </div>
         </div>
       </div>

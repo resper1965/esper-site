@@ -98,21 +98,5 @@ export {
 } from './settings';
 
 // AI Gateway
-export {
-  getAIGatewayBase,
-  getGatewayUrl,
-  getAnthropicGatewayConfig,
-  getGeminiGatewayConfig,
-  runWorkersAI,
-  generateChatCompletion,
-  generateEmbedding,
-  buildGatewayHeaders,
-} from './ai-gateway';
 
 // Vectorize (semantic search)
-export {
-  upsertPostVector,
-  semanticSearch,
-  deletePostVector,
-  getRelatedPosts as getSemanticRelatedPosts,
-} from './vectorize';
