@@ -5,6 +5,20 @@ main = ".open-next/worker.js"
 compatibility_date = "2026-08-27"
 compatibility_flags = ["nodejs_compat"]
 
+# Exposição em workers.dev, declarada em vez de herdada do default.
+#
+# workers_dev continua ligado até o cutover: é a única URL pela qual o Worker
+# é alcançável enquanto os domínios apontam para a Vercel. Depois do cutover,
+# desligar — o site inteiro emite canonical para www.ricardoesper.com.br, e
+# um espelho indexável em workers.dev só dilui o que estamos concentrando.
+workers_dev = true
+
+# preview_urls dá uma URL própria a cada versão publicada. Num site cuja meta
+# é concentrar autoridade num único domínio, isso é uma fábrica de conteúdo
+# duplicado: dezenas de cópias do site, servidas de hosts que ninguém controla
+# por robots.txt separado.
+preview_urls = false
+
 [assets]
 directory = ".open-next/assets"
 binding = "ASSETS"
