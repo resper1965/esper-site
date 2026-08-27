@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { legacyRedirects } from "./src/lib/legacy-redirects";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["geist"],
@@ -31,6 +32,28 @@ const nextConfig: NextConfig = {
   },
 
   // Headers for Security & SEO
+  async redirects() {
+    return [
+      // Recover the WordPress URLs Google still has indexed. Permanent (308):
+      // the old blog is gone for good, and we want the link equity moved, not
+      // borrowed. See src/lib/legacy-redirects.ts.
+      ...legacyRedirects.map(({ from, to }) => ({
+        source: from,
+        destination: to,
+        permanent: true,
+      })),
+      // Safety net for the old posts not yet enumerated. Any /YYYY/MM/slug
+      // that did not match a rule above lands on the blog index instead of a
+      // 404 — a worse signal than a real match, but a far better one than
+      // nothing while the list is completed from Search Console.
+      {
+        source: '/:year(\\d{4})/:month(\\d{2})/:slug*',
+        destination: '/pt-BR/blog',
+        permanent: false,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {

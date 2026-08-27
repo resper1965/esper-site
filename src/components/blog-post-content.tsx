@@ -36,7 +36,7 @@ export function BlogPostContent({ post, slug, lang, dict }: BlogPostContentProps
   const date = new Date(post.frontMatter.date);
   const formattedDate = formatDate(date, lang);
 
-  const url = `${siteConfig.url}/blog/${slug}`;
+  const url = `${siteConfig.url}/${lang}/blog/${slug}`;
   const postImage = post.frontMatter.coverImage;
   const image = postImage ? `${siteConfig.url}${postImage}` : undefined;
 
