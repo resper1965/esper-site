@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { yearsOfExperience } from '@/lib/site';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -10,7 +11,7 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-4">Ricardo Esper</h3>
             <p className="text-sm text-muted-foreground">
-              Especialista em cibersegurança com mais de três décadas de experiência.
+              Especialista em cibersegurança com mais de {yearsOfExperience()} anos de experiência.
             </p>
           </div>
 

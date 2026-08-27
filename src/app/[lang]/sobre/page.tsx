@@ -2,6 +2,7 @@ import { getDictionary } from "@/i18n/dictionaries"
 import { Locale, i18n } from "@/i18n/config"
 import { generatePageMetadata } from "@/lib/metadata"
 import type { Metadata } from "next"
+import { yearsOfExperience } from "@/lib/site"
 import {
   Shield, Award, Globe, Building2, Users, BookOpen,
   CheckCircle2, ExternalLink, ChevronRight, Lock, Zap, FileSearch
@@ -31,8 +32,8 @@ export async function generateMetadata({
     title: lang === "pt-BR" ? "Sobre Ricardo Esper — CISO, Forense Digital, Consultor Internacional" : "About Ricardo Esper — CISO, Digital Forensics, International Consultant",
     description:
       lang === "pt-BR"
-        ? "Ricardo Esper: CISO com 34+ anos em cibersegurança. CEO da NESS (desde 1991), CISO da IONIC Health, fundador da forense.io. Especialista em LGPD, GDPR, HIPAA, SOC 2 e proteção executiva."
-        : "Ricardo Esper: CISO with 34+ years in cybersecurity. CEO of NESS (since 1991), CISO of IONIC Health, founder of forense.io. Expert in LGPD, GDPR, HIPAA, SOC 2 and executive protection.",
+        ? `Ricardo Esper: CISO com ${yearsOfExperience()} anos em cibersegurança. CEO da NESS (desde 1991), CISO da IONIC Health, fundador da forense.io. Especialista em LGPD, GDPR, HIPAA, SOC 2 e proteção executiva.`
+        : `Ricardo Esper: CISO with ${yearsOfExperience()} years in cybersecurity. CEO of NESS (since 1991), CISO of IONIC Health, founder of forense.io. Expert in LGPD, GDPR, HIPAA, SOC 2 and executive protection.`,
     path: "/sobre",
     lang,
     keywords,
@@ -97,8 +98,8 @@ export default async function Sobre({
     {
       q: isPT ? "Qual é a experiência de Ricardo Esper em cibersegurança?" : "What is Ricardo Esper's experience in cybersecurity?",
       a: isPT
-        ? "Ricardo Esper tem mais de 34 anos de experiência em cibersegurança, tendo fundado a NESS em 1991. É CISO da IONIC Health, fundador da forense.io, Trustness e Infinity Safe. Possui certificações CCISO, CEHv8 e GDPR."
-        : "Ricardo Esper has over 34 years of experience in cybersecurity, having founded NESS in 1991. He is CISO of IONIC Health, founder of forense.io, Trustness and Infinity Safe. He holds CCISO, CEHv8 and GDPR certifications.",
+        ? `Ricardo Esper tem mais de ${yearsOfExperience()} anos de experiência em cibersegurança, tendo fundado a NESS em 1991. É CISO da IONIC Health, fundador da forense.io, Trustness e Infinity Safe. Possui certificações CCISO, CEHv8 e GDPR.`
+        : `Ricardo Esper has over ${yearsOfExperience()} years of experience in cybersecurity, having founded NESS in 1991. He is CISO of IONIC Health, founder of forense.io, Trustness and Infinity Safe. He holds CCISO, CEHv8 and GDPR certifications.`,
     },
     {
       q: isPT ? "Em quais países Ricardo Esper atua como consultor?" : "In which countries does Ricardo Esper work as a consultant?",
@@ -159,7 +160,7 @@ export default async function Sobre({
           <div className="flex flex-wrap justify-center gap-3">
             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono border cat-cyber">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              {isPT ? "34+ anos de experiência" : "34+ years experience"}
+              {isPT ? `${yearsOfExperience()} anos de experiência` : `${yearsOfExperience()} years experience`}
             </span>
             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono border cat-automation">
               <CheckCircle2 className="w-3 h-3" />
