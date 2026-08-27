@@ -14,19 +14,20 @@ export default function Footer({ lang }: FooterProps) {
     {
       title: isPT ? "Navegação" : "Navigation",
       links: [
-        { label: isPT ? "Início" : "Home", href: `/` },
-        { label: "Blog", href: `/blog` },
-        { label: isPT ? "Sobre" : "About", href: `/sobre` },
-        { label: isPT ? "Serviços" : "Services", href: `/servicos` },
+        { label: isPT ? "Início" : "Home", href: `/${lang}` },
+        { label: "Blog", href: `/${lang}/blog` },
+        { label: isPT ? "Sobre" : "About", href: `/${lang}/sobre` },
+        { label: isPT ? "Serviços" : "Services", href: `/${lang}/servicos` },
+        { label: isPT ? "Imprensa" : "Press", href: `/${lang}/imprensa` },
       ],
     },
     {
       title: isPT ? "Expertise" : "Expertise",
       links: [
-        { label: isPT ? "Cibersegurança" : "Cybersecurity", href: `/categoria/cybersecurity` },
-        { label: isPT ? "Contraespionagem" : "Counter-Espionage", href: `/categoria/counterespionage` },
-        { label: isPT ? "Automação" : "Automation", href: `/categoria/automation` },
-        { label: "Compliance & Privacy", href: `/servicos` },
+        { label: isPT ? "Cibersegurança" : "Cybersecurity", href: `/${lang}/categoria/cybersecurity` },
+        { label: isPT ? "Contraespionagem" : "Counter-Espionage", href: `/${lang}/categoria/counterespionage` },
+        { label: isPT ? "Automação" : "Automation", href: `/${lang}/categoria/automation` },
+        { label: "Compliance & Privacy", href: `/${lang}/servicos` },
       ],
     },
     {
@@ -52,7 +53,7 @@ export default function Footer({ lang }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Brand column */}
           <div className="lg:col-span-1">
-            <Link href={`/`} className="flex items-center gap-2.5 group mb-4">
+            <Link href={`/${lang}`} className="flex items-center gap-2.5 group mb-4">
               <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-all">
                 <Shield className="w-5 h-5 text-primary" />
               </div>

@@ -35,10 +35,19 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/")
 
+  // Internal links carry the locale prefix: those are the canonical URLs, and
+  // linking to the un-prefixed form would bounce every click through a 307.
   const navLinks = [
-    { label: dict.nav.home, href: `/` },
-    { label: dict.nav.about, href: `/sobre` },
-    { label: dict.nav.blog ?? "Blog", href: `/blog` },
+    { label: dict.nav.home, href: `/${lang}` },
+    { label: dict.nav.about, href: `/${lang}/sobre` },
+    { label: dict.nav.blog ?? "Blog", href: `/${lang}/blog` },
+  ]
+
+  // Rendered after the main links on desktop and appended to the drawer list
+  // on mobile, so both menus stay in sync from one place.
+  const secondaryLinks = [
+    { label: lang === 'pt-BR' ? 'Serviços' : 'Services', href: `/${lang}/servicos` },
+    { label: lang === 'pt-BR' ? 'Imprensa' : 'Press', href: `/${lang}/imprensa` },
   ]
 
   return (
@@ -53,7 +62,7 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           {/* Logo */}
           <Link
-            href={`/`}
+            href={`/${lang}`}
             className="flex items-center gap-2.5 group"
             aria-label="Ricardo Esper — Home"
           >
@@ -85,20 +94,23 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
               </Link>
             ))}
 
-            {/* Services link */}
-            <Link
-              href={`/servicos`}
-              className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
-                isActive(`/servicos`)
-                  ? "text-primary bg-primary/8"
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/4"
-              }`}
-            >
-              {lang === 'pt-BR' ? 'Serviços' : 'Services'}
-              {isActive(`/servicos`) && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
-              )}
-            </Link>
+            {/* Services + Press */}
+            {secondaryLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`relative px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                  isActive(link.href)
+                    ? "text-primary bg-primary/8"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/4"
+                }`}
+              >
+                {link.label}
+                {isActive(link.href) && (
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                )}
+              </Link>
+            ))}
           </nav>
 
           {/* Right side */}
@@ -168,7 +180,7 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
 
           {/* Links */}
           <nav className="px-4 py-6 space-y-1">
-            {[...navLinks, { label: lang === 'pt-BR' ? 'Serviços' : 'Services', href: `/servicos` }].map((link) => (
+            {[...navLinks, ...secondaryLinks].map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

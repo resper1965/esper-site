@@ -23,14 +23,20 @@ interface BlogPostContentProps {
   post: Post;
   slug: string;
   lang: Locale;
-  dict: Record<string, Record<string, string>>;
+  // Narrowed to the keys actually read below. The full dictionary is nested
+  // deeper than one level, so a Record<string, Record<string, string>> does
+  // not accept it.
+  dict: {
+    nav: { home: string };
+    blog: { backToArticles: string };
+  };
 }
 
 export function BlogPostContent({ post, slug, lang, dict }: BlogPostContentProps) {
   const date = new Date(post.frontMatter.date);
   const formattedDate = formatDate(date, lang);
 
-  const url = `${siteConfig.url}/blog/${slug}`;
+  const url = `${siteConfig.url}/${lang}/blog/${slug}`;
   const postImage = post.frontMatter.coverImage;
   const image = postImage ? `${siteConfig.url}${postImage}` : undefined;
 
@@ -53,9 +59,9 @@ export function BlogPostContent({ post, slug, lang, dict }: BlogPostContentProps
   });
 
   const breadcrumbItems = [
-    { name: dict.nav.home, url: `/` },
+    { name: dict.nav.home, url: `/${lang}` },
     ...(post.frontMatter.tags && post.frontMatter.tags.length > 0
-      ? [{ name: post.frontMatter.tags[0], url: `/?tag=${post.frontMatter.tags[0]}` }]
+      ? [{ name: post.frontMatter.tags[0], url: `/${lang}?tag=${post.frontMatter.tags[0]}` }]
       : []),
     { name: post.frontMatter.title, url },
   ];
@@ -83,9 +89,9 @@ export function BlogPostContent({ post, slug, lang, dict }: BlogPostContentProps
         <div className="max-w-7xl mx-auto flex flex-col gap-6 p-6">
           <Breadcrumbs
             items={[
-              { label: dict.nav.home, href: `/` },
+              { label: dict.nav.home, href: `/${lang}` },
               ...(post.frontMatter.tags && post.frontMatter.tags.length > 0
-                ? [{ label: post.frontMatter.tags[0], href: `/?tag=${post.frontMatter.tags[0]}` }]
+                ? [{ label: post.frontMatter.tags[0], href: `/${lang}?tag=${post.frontMatter.tags[0]}` }]
                 : []),
               { label: post.frontMatter.title },
             ]}
@@ -93,7 +99,7 @@ export function BlogPostContent({ post, slug, lang, dict }: BlogPostContentProps
 
           <div className="flex flex-wrap items-center gap-3 gap-y-5 text-sm text-muted-foreground">
             <Button variant="outline" asChild className="h-6 w-6">
-              <Link href={`/`}>
+              <Link href={`/${lang}`}>
                 <ArrowLeft className="w-4 h-4" />
                 <span className="sr-only">{dict.blog.backToArticles}</span>
               </Link>
