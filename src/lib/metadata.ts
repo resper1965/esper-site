@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { siteConfig, sameAsUrls } from './site';
 import { i18n, type Locale } from '@/i18n/config';
 import { yearsOfExperience } from '@/lib/site';
+import { careerTimeline, foundedOrganizations, currentEmployers } from '@/lib/career';
 
 interface PageMetadataProps {
   title: string;
@@ -204,16 +205,34 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
       `${siteConfig.url}/pt-BR/sobre`,
       `${siteConfig.url}/en/sobre`,
     ],
-    worksFor: [
-      { '@type': 'Organization', name: 'IONIC Health', url: 'https://ionic.health' },
-      { '@type': 'Organization', name: 'NESS', url: 'https://ness.com.br' },
-    ],
-    founder: [
-      { '@type': 'Organization', name: 'NESS', foundingDate: '1991' },
-      { '@type': 'Organization', name: 'forense.io' },
-      { '@type': 'Organization', name: 'Trustness' },
-      { '@type': 'Organization', name: 'Infinity Safe' },
-    ],
+    // Derivados de src/lib/career.ts. Antes eram três listas de empresas
+    // escritas à mão — aqui, no worksFor e na página Sobre —, e o IONIC
+    // Health aparecia em duas delas mas não na terceira.
+    worksFor: currentEmployers().map((e) => ({
+      '@type': 'Organization',
+      name: e.organization,
+      ...(e.url ? { url: e.url } : {}),
+    })),
+    founder: foundedOrganizations().map((e) => ({
+      '@type': 'Organization',
+      name: e.organization,
+      ...(e.startYear ? { foundingDate: String(e.startYear) } : {}),
+      ...(e.url ? { url: e.url } : {}),
+    })),
+    // A trajetória como dado, não como prosa: é o que permite a um
+    // buscador ou a um agente responder "desde quando" sem inferir do
+    // texto corrido.
+    hasOccupation: careerTimeline().map((e) => ({
+      '@type': 'Role',
+      roleName: e.role[lang],
+      ...(e.startYear ? { startDate: String(e.startYear) } : {}),
+      ...(e.endYear ? { endDate: String(e.endYear) } : {}),
+      'schema:worksFor': {
+        '@type': 'Organization',
+        name: e.organization,
+        ...(e.url ? { url: e.url } : {}),
+      },
+    })),
     knowsAbout: [
       'Cybersecurity',
       'Information Security',

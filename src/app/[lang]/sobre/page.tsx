@@ -3,9 +3,9 @@ import { Locale, i18n } from "@/i18n/config"
 import { generatePageMetadata } from "@/lib/metadata"
 import type { Metadata } from "next"
 import { yearsOfExperience } from "@/lib/site"
+import { CareerTimeline } from "@/components/career-timeline"
 import {
-  Shield, Award, Globe, Building2, Users, BookOpen,
-  CheckCircle2, ExternalLink, ChevronRight, Lock, Zap, FileSearch
+  Shield, Award, Globe, Building2, BookOpen, CheckCircle2, ExternalLink, ChevronRight, Lock, Zap, FileSearch
 } from "lucide-react"
 
 export async function generateStaticParams() {
@@ -60,15 +60,6 @@ export default async function Sobre({
 
   const dict = await getDictionary(lang)
   const isPT = lang === "pt-BR"
-
-  const companies = [
-    { role: "CEO & Founder", company: "NESS", detail: isPT ? "desde 1991" : "since 1991", url: "https://ness.com.br", icon: Building2 },
-    { role: "CISO & Co-Founder", company: "IONIC Health", detail: isPT ? "Saúde Digital" : "Digital Health", url: "https://ionic.health", icon: Shield },
-    { role: "CEO", company: "forense.io", detail: isPT ? "Forense Digital" : "Digital Forensics", url: null, icon: FileSearch },
-    { role: "CEO", company: "Trustness", detail: isPT ? "Privacidade & Compliance" : "Privacy & Compliance", url: null, icon: Lock },
-    { role: "CEO", company: "Infinity Safe", detail: isPT ? "Proteção Executiva" : "Executive Protection", url: null, icon: Zap },
-    { role: "Board Member", company: "Bekaa Trusted Advisors", detail: isPT ? "Conselheiro" : "Advisor", url: null, icon: Users },
-  ]
 
   const certifications: Credential[] = [
     { label: "CCISO — Chief Information Security Officer", color: "cyber" },
@@ -186,36 +177,15 @@ export default async function Sobre({
           <p className="text-muted-foreground leading-relaxed">{dict.about.intro3}</p>
         </section>
 
-        {/* ── COMPANIES ─────────────────────────────────────── */}
+        {/* ── TRAJETÓRIA ────────────────────────────────────── */}
         <section>
           <div className="flex items-center gap-2 mb-6">
             <Building2 className="w-4 h-4 text-primary" />
             <h2 className="text-sm font-mono uppercase tracking-widest text-primary opacity-80">
-              {dict.about.globalPresence}
+              {isPT ? "Trajetória" : "Career"}
             </h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {companies.map(({ role, company, detail, url, icon: Icon }) => (
-              <div key={company} className="glass-card rounded-xl p-4 stat-card group">
-                <div className="flex items-start justify-between mb-3">
-                  <Icon className="w-5 h-5 text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
-                  {url && (
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="opacity-0 group-hover:opacity-60 transition-opacity"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
-                    </a>
-                  )}
-                </div>
-                <p className="text-xs font-mono text-muted-foreground mb-1">{role}</p>
-                <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{company}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{detail}</p>
-              </div>
-            ))}
-          </div>
+          <CareerTimeline lang={lang} />
         </section>
 
         {/* ── EXPERTISE GRID ───────────────────────────────── */}
