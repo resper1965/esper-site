@@ -1,8 +1,6 @@
 import { BlogCard } from "@/components/blog-card";
 import { TagFilter } from "@/components/tag-filter";
 import { getDictionary } from "@/i18n/dictionaries";
-import { SiteNav } from "@/components/site-nav";
-import Footer from "@/components/footer";
 import { getAllPosts, type Post } from "@/lib/posts";
 import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
 import { formatDate, filterPostsByLanguage } from "@/lib/utils";
@@ -51,7 +49,6 @@ export default async function BlogListPage({
 
   return (
     <>
-      <SiteNav lang={lang} dict={dict} />
       <main className="min-h-screen">
         <div className="container mx-auto px-4 py-16">
           <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8">Blog</h1>
@@ -93,7 +90,6 @@ export default async function BlogListPage({
           </div>
         </div>
       </main>
-      <Footer lang={lang} />
     </>
   );
 }

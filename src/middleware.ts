@@ -52,7 +52,15 @@ export async function middleware(request: NextRequest) {
   );
 
   if (pathnameHasLocale) {
-    return NextResponse.next();
+    // O layout raiz é o único que emite <html>, e ele não recebe o param
+    // [lang]. Sem isto, /en sairia declarado como português — e um lang
+    // errado contradiz o hreflang que a própria página anuncia.
+    const locale = i18n.locales.find(
+      (l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`)
+    )!;
+    const headers = new Headers(request.headers);
+    headers.set('x-locale', locale);
+    return NextResponse.next({ request: { headers } });
   }
 
   // Everything else is an un-prefixed path: send it to the default locale.
