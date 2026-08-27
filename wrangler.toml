@@ -22,7 +22,7 @@ NEXT_PUBLIC_CF_ANALYTICS_TOKEN = ""
 
 # Cache incremental do Next (ISR) — usado por open-next.config.ts
 [[kv_namespaces]]
-binding = "NEXT_CACHE_WORKERS_KV"
+binding = "NEXT_INC_CACHE_KV"
 id = "be713a5886ce4375af6513a548b7381c"
 
 # Banco dos posts. Já populado: 35 posts publicados.

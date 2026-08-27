@@ -1,7 +1,9 @@
 import { getAllPosts, type Post } from '@/lib/posts';
+import { siteConfig } from '@/lib/site';
+import { postUrl } from '@/lib/urls';
 
 export async function GET() {
-  const baseUrl = 'https://esper.ws';
+  const baseUrl = siteConfig.url;
 
   // Get all published posts from Supabase (already sorted by date)
   let sortedPosts: Post[] = [];
@@ -24,7 +26,7 @@ export async function GET() {
     ${sortedPosts
       .map(
         (post) => {
-          const url = `${baseUrl}/blog/${post.slug}`;
+          const url = postUrl(post.frontMatter.language, post.slug);
           const description = post.frontMatter.description || post.frontMatter.excerpt || '';
           // Strip HTML tags from description for RSS
           const plainDescription = description.replace(/<[^>]*>/g, '').substring(0, 500);

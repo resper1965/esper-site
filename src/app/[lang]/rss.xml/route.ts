@@ -1,5 +1,6 @@
 import { getAllPosts, type Post } from '@/lib/posts';
 import { siteConfig } from '@/lib/site';
+import { postUrl } from '@/lib/urls';
 import { filterPostsByLanguage } from '@/lib/utils';
 
 /**
@@ -42,10 +43,10 @@ export async function GET(
     <description>${description}</description>
     <language>${lang}</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    <atom:link href="${siteConfig.url}/rss.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="${siteConfig.url}/${lang}/rss.xml" rel="self" type="application/rss+xml" />
     ${posts
       .map((post) => {
-        const url = `${siteConfig.url}/blog/${post.slug}`;
+        const url = postUrl(lang, post.slug);
         const pubDate = new Date(post.frontMatter.date).toUTCString();
         const description = post.frontMatter.description || post.frontMatter.excerpt || '';
         // Strip HTML tags from description for RSS

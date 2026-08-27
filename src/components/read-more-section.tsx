@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { getAllPosts, type Post } from "@/lib/posts";
 import { formatDate, filterPostsByLanguage } from "@/lib/utils";
+import { postPath } from "@/lib/urls";
 
 interface ReadMoreSectionProps {
   currentSlug: string[];
@@ -64,7 +65,7 @@ export async function ReadMoreSection({
             const formattedDate = formatDate(date, lang || 'pt-BR');
             const coverImage = post.frontMatter.coverImage;
             const description = post.frontMatter.description || post.frontMatter.excerpt || '';
-            const postUrl = `/blog/${post.slug}`;
+            const postUrl = postPath(lang, post.slug);
 
             return (
               <Link

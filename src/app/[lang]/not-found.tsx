@@ -90,7 +90,7 @@ export default async function NotFound({ params }: NotFoundProps) {
                 return (
                   <BlogCard
                     key={post.slug}
-                    url={`/blog/${post.slug}`}
+                    url={`/${lang}/blog/${post.slug}`}
                     title={post.frontMatter.title}
                     description={description}
                     date={new Date(post.frontMatter.date).toLocaleDateString(lang, {
