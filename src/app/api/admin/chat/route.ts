@@ -3,7 +3,9 @@ import { logger } from '@/lib/logger';
 import { requireAuth } from '@/lib/requireAuth';
 import { generateChatCompletion } from '@/lib/cloudflare/ai-gateway';
 
-export const runtime = 'edge';
+// Sem `export const runtime = 'edge'`: no Cloudflare Workers a aplicação
+// inteira já roda no runtime de edge, e a declaração quebra o bundler do
+// OpenNext, que exige funções edge em bundles separados.
 
 const SYSTEM_PROMPT = `You are a helpful AI assistant for the admin of esper.blog — a cybersecurity blog by Ricardo Esper. You can help with content ideas, technical questions, SEO, blog management, and general tasks. Be concise and professional. Respond in the language of the user's message.`;
 

@@ -1,5 +1,6 @@
 import { getAllPosts } from '@/lib/posts';
 import { siteConfig, sameAsUrls } from '@/lib/site';
+import { postUrl } from '@/lib/urls';
 
 // Cloudflare Workers runtime, matching the rest of the app's route handlers.
 export const dynamic = 'force-dynamic';
@@ -23,7 +24,7 @@ export async function GET() {
         const { title, description, excerpt } = post.frontMatter;
         const blurb = description || excerpt;
         const summary = blurb ? `: ${blurb}` : '';
-        return `- [${title}](${siteConfig.url}/blog/${post.slug})${summary}`;
+        return `- [${title}](${postUrl(post.frontMatter.language, post.slug)})${summary}`;
       })
       .join('\n');
   } catch (error) {

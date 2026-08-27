@@ -78,7 +78,7 @@ export default async function BlogListPage({
               return (
                 <BlogCard
                   key={post.slug}
-                  url={`/blog/${post.slug}`}
+                  url={`/${lang}/blog/${post.slug}`}
                   title={post.frontMatter.title}
                   description={description}
                   date={formattedDate}

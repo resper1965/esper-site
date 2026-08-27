@@ -53,3 +53,7 @@ next-env.d.ts
 
 # OpenNext Cloudflare build output
 .open-next/
+
+# Estado local do wrangler (bundles e assets temporários do `wrangler dev`)
+.wrangler/
+cloudflare-env.d.ts

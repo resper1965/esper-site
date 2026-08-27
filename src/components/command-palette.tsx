@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Search, FileText, ArrowRight, Command, Loader2 } from "lucide-react"
+import { i18n } from "@/i18n/config"
 
 interface SearchResult {
   slug: string
@@ -23,11 +24,19 @@ interface PaletteItem {
   external?: boolean
 }
 
+/**
+ * Paths are relative to the active locale — the palette prefixes them at
+ * render time so a click lands on the URL the page declares as canonical
+ * instead of bouncing through a redirect.
+ */
 const QUICK_LINKS = [
-  { label: "Início", href: "/", section: "Navegação" },
-  { label: "Blog", href: "/blog", section: "Navegação" },
-  { label: "Serviços", href: "/servicos", section: "Navegação" },
-  { label: "Sobre", href: "/sobre", section: "Navegação" },
+  { label: "Início", path: "", section: "Navegação" },
+  { label: "Blog", path: "/blog", section: "Navegação" },
+  { label: "Serviços", path: "/servicos", section: "Navegação" },
+  { label: "Sobre", path: "/sobre", section: "Navegação" },
+]
+
+const EXTERNAL_LINKS: PaletteItem[] = [
   { label: "LinkedIn", href: "https://www.linkedin.com/in/ricardoesper", section: "Social", external: true },
 ]
 
@@ -39,6 +48,8 @@ export function CommandPalette() {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+  const pathname = usePathname()
+  const localePrefix = i18n.locales.find((l) => pathname?.startsWith(`/${l}`)) ?? i18n.defaultLocale
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   // Global keyboard shortcut
@@ -103,10 +114,13 @@ export function CommandPalette() {
     ? results.map((r) => ({
         label: r.title,
         description: r.excerpt?.slice(0, 80) || r.category,
-        href: `/blog/${r.slug}`,
+        href: `/${localePrefix}/blog/${r.slug}`,
         section: "Resultados",
       }))
-    : QUICK_LINKS
+    : [
+        ...QUICK_LINKS.map((l) => ({ ...l, href: `/${localePrefix}${l.path}` })),
+        ...EXTERNAL_LINKS,
+      ]
 
   // Reset selected index when items change
   useEffect(() => {

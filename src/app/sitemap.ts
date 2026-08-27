@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
 import { getAllPosts } from '@/lib/posts';
-import { i18n, type Locale } from '@/i18n/config';
+import { i18n } from '@/i18n/config';
 import { siteConfig } from '@/lib/site';
+import { postUrl } from '@/lib/urls';
 
 /** Static pages, as paths relative to a locale root. */
 const STATIC_PATHS: Array<{
@@ -30,6 +31,13 @@ function alternatesFor(path: string) {
   };
 }
 
+/**
+ * The post list comes from D1, which is unreachable at build time. Without
+ * this the sitemap is prerendered empty and cached, so every article stays
+ * invisible to crawlers while the feeds show them.
+ */
+export const dynamic = 'force-dynamic';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
@@ -48,18 +56,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let posts: MetadataRoute.Sitemap = [];
   try {
     const allPosts = await getAllPosts();
-    posts = allPosts.map((post) => {
-      const language = i18n.locales.includes(post.frontMatter.language as Locale)
-        ? (post.frontMatter.language as Locale)
-        : i18n.defaultLocale;
-
-      return {
-        url: `${siteConfig.url}/${language}/blog/${post.slug}`,
-        lastModified: new Date(post.frontMatter.date),
-        changeFrequency: 'monthly' as const,
-        priority: 0.8,
-      };
-    });
+    posts = allPosts.map((post) => ({
+      url: postUrl(post.frontMatter.language, post.slug),
+      lastModified: new Date(post.frontMatter.date),
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+    }));
   } catch (error) {
     console.error('Error generating sitemap from posts:', error);
   }

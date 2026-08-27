@@ -84,7 +84,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     url,
     items: categoryPosts.map((post) => ({
       name: post.frontMatter.title,
-      url: `/blog/${post.slug}`,
+      url: `/${lang}/blog/${post.slug}`,
     })),
     lang,
   });
@@ -121,7 +121,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               return (
                 <BlogCard
                   key={post.slug}
-                  url={`/blog/${post.slug}`}
+                  url={`/${lang}/blog/${post.slug}`}
                   title={post.frontMatter.title}
                   description={description}
                   date={new Date(post.frontMatter.date).toLocaleDateString(lang, {

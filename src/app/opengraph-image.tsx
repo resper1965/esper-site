@@ -1,6 +1,8 @@
 import { ImageResponse } from 'next/og';
 
-export const runtime = 'edge';
+// Sem `export const runtime = 'edge'`: no Cloudflare Workers a aplicação
+// inteira já roda no runtime de edge, e a declaração quebra o bundler do
+// OpenNext, que exige funções edge em bundles separados.
 
 export const alt = 'Ricardo Esper — CISO & Cybersecurity Expert';
 export const size = { width: 1200, height: 630 };

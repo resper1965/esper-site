@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     const keywords = post.frontMatter.keywords || [];
-    const image = `${siteConfig.url}/blog/${slug}/opengraph-image`;
+    const image = `${siteConfig.url}/${lang}/blog/${slug}/opengraph-image`;
 
     return generatePageMetadata({
       title: post.frontMatter.title,
