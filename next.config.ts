@@ -3,6 +3,7 @@ import { legacyRedirects } from "./src/lib/legacy-redirects";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["geist"],
+
   // TypeScript errors will now be caught during build
   // SEO & Performance Optimizations
   compress: true,
