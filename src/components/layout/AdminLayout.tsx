@@ -5,17 +5,14 @@ import Link from 'next/link';
 import { Sidebar } from '@/components/admin/sidebar';
 import AdminHeader from './AdminHeader';
 import AdminFooter from './AdminFooter';
-import { Sparkles, BarChart3, Settings, Key, MessageSquare } from 'lucide-react';
+import { BarChart3, Settings } from 'lucide-react';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
 const navItems = [
-  { href: '/admin/generate', title: 'Gerar Conteúdo', subtitle: 'Crie conteúdo de alta qualidade usando IA generativa', icon: Sparkles },
   { href: '/admin/analytics', title: 'Analytics', subtitle: 'Estatísticas detalhadas dos posts e performance', icon: BarChart3 },
-  { href: '/admin/ai-gateway', title: 'AI Gateway', subtitle: 'Configure Workers AI, Cloudflare AI Gateway e credenciais do stack de IA', icon: Key },
-  { href: '/admin/chat', title: 'AI Chat', subtitle: 'Converse com modelos Llama executados na Cloudflare', icon: MessageSquare },
   { href: '/admin/settings', title: 'Configurações', subtitle: 'Gerencie variáveis de ambiente e configurações do sistema', icon: Settings },
 ];
 
@@ -32,7 +29,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return pathname?.startsWith(item.href);
   });
 
-  // Se estiver na rota /admin, redirecionar para /admin/generate
+  // Se estiver na rota /admin, redirecionar para /admin/analytics
   if (pathname === '/admin') {
     return null; // O redirect será feito pelo page.tsx
   }

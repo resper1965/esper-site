@@ -1,22 +1,22 @@
 {
   "site": {
     "name": "Ricardo Esper - Blog",
-    "description": "Perspectivas de quem dedica mais de três décadas à segurança da informação. CISO, forense digital e consultor internacional em privacidade e compliance. Experiência global em proteção de dados corporativos e defesa cibernética."
+    "description": "Perspectivas de quem dedica mais de {{years}} anos à segurança da informação. CISO, forense digital e consultor internacional em privacidade e compliance. Experiência global em proteção de dados corporativos e defesa cibernética."
   },
   "home": {
     "title": "Ricardo Esper",
-    "bio": "Três décadas moldando estratégias de segurança em escala global. CISO, forense digital e especialista internacional em privacidade e compliance (LGPD/GDPR). Insights de quem viveu a evolução da cibersegurança desde seus primeiros dias.",
+    "bio": "{{years}} anos moldando estratégias de segurança em escala global. CISO, forense digital e especialista internacional em privacidade e compliance (LGPD/GDPR). Insights de quem viveu a evolução da cibersegurança desde seus primeiros dias.",
     "loading": "Carregando artigos...",
     "allTags": "Todos",
     "hero": {
       "title": "Ricardo Esper",
-      "subtitle": "Três décadas na linha de frente da segurança digital. CEO da NESS, CISO da IONIC Health, e fundador da forense.io. Pai de duas filhas, apaixonado por tecnologia e automação residencial. Aqui compartilho o que aprendi na prática: desde contraespionagem até os desafios reais de proteger o que importa.",
+      "subtitle": "{{years}} anos na linha de frente da segurança digital. CEO da NESS, CISO da IONIC Health, e fundador da forense.io. Pai de duas filhas, apaixonado por tecnologia e automação residencial. Aqui compartilho o que aprendi na prática: desde contraespionagem até os desafios reais de proteger o que importa.",
       "readArticles": "Ler Artigos"
     }
   },
   "about": {
     "title": "Sobre",
-    "intro1": "Em mais de três décadas dedicadas à segurança da informação, testemunhei a transformação completa do cenário de ameaças digitais—desde os primeiros vírus de boot até campanhas de ransomware orquestradas por estados-nação. Essa perspectiva temporal me ensinou que segurança não é apenas sobre tecnologia, mas sobre pessoas, processos e a sabedoria de antecipar o que ainda não foi visto.",
+    "intro1": "Em mais de {{years}} anos dedicados à segurança da informação, testemunhei a transformação completa do cenário de ameaças digitais—desde os primeiros vírus de boot até campanhas de ransomware orquestradas por estados-nação. Essa perspectiva temporal me ensinou que segurança não é apenas sobre tecnologia, mas sobre pessoas, processos e a sabedoria de antecipar o que ainda não foi visto.",
     "intro2": "Como fundador da NESS desde 1991 e CISO da IONIC Health, construí minha carreira na intersecção entre tecnologia e governança corporativa. Meu trabalho se estende além das fronteiras brasileiras—atuo como consultor internacional em privacidade e compliance, navegando os complexos frameworks regulatórios da LGPD, GDPR, HIPAA e SOC 2.",
     "intro3": "Aos 60 anos, pai de duas filhas, compreendo visceralmente que proteger dados corporativos é proteger vidas, reputações e legados. Cada política de segurança que desenho, cada estratégia de defesa que implemento, carrega essa convicção.",
     "globalPresence": "Atuação Global",
@@ -49,7 +49,7 @@
   },
   "services": {
     "title": "Serviços",
-    "experience": "34 anos de experiência",
+    "experience": "{{years}} anos de experiência",
     "subtitle": "Transformo complexidade em vantagem competitiva. Expertise em segurança, compliance e proteção executiva para organizações que não podem falhar.",
     "ctaTitle": "Vamos Conversar?",
     "ctaDescription": "Cada organização tem desafios únicos. Agende uma conversa inicial para entendermos suas necessidades e explorarmos como posso contribuir.",

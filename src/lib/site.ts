@@ -1,11 +1,38 @@
+/**
+ * Ano em que a carreira em segurança da informação começou.
+ *
+ * Fonte única do tempo de experiência afirmado em todo o site. Antes disto
+ * o número estava escrito à mão em treze lugares — e em duas versões que se
+ * contradiziam: "34+ anos" em nove deles e "três décadas" (trinta) nos
+ * outros quatro. Uma entidade que declara durações diferentes sobre si mesma
+ * enfraquece exatamente o sinal que este site existe para emitir.
+ *
+ * Havia também um problema aritmético: 34 anos antes de 2026 é 1992, e a
+ * NESS foi fundada em 1991 — não se funda uma empresa de segurança um ano
+ * antes de entrar na área.
+ *
+ * 1985 é o ano que o Ricardo confirmou. A NESS, fundada seis anos depois,
+ * passa a fazer sentido na linha do tempo.
+ */
+export const CAREER_START_YEAR = 1985;
+
+/**
+ * Anos de experiência, calculados. Um número escrito à mão envelhece em
+ * silêncio: "34 anos" continuaria dizendo 34 no ano que vem, e ninguém
+ * lembraria dos treze arquivos.
+ */
+export function yearsOfExperience(now: Date = new Date()): number {
+  return now.getFullYear() - CAREER_START_YEAR;
+}
+
 export const siteConfig = {
   name: "Ricardo Esper",
   url: "https://www.ricardoesper.com.br",
   description:
-    "Ricardo Esper — CISO, especialista em cibersegurança com mais de 34 anos de experiência. Fundador da NESS (1991), CISO da IONIC Health, fundador da forense.io. Especialista em LGPD, GDPR, HIPAA, forense digital e proteção executiva.",
+    `Ricardo Esper — CISO, especialista em cibersegurança com mais de ${yearsOfExperience()} anos de experiência. Fundador da NESS (1991), CISO da IONIC Health, fundador da forense.io. Especialista em LGPD, GDPR, HIPAA, forense digital e proteção executiva.`,
   // English variant for i18n
   descriptionEn:
-    "Ricardo Esper — CISO and cybersecurity expert with over 34 years of experience. Founder of NESS (1991), CISO of IONIC Health, founder of forense.io. Expert in LGPD, GDPR, HIPAA, digital forensics and executive protection.",
+    `Ricardo Esper — CISO and cybersecurity expert with over ${yearsOfExperience()} years of experience. Founder of NESS (1991), CISO of IONIC Health, founder of forense.io. Expert in LGPD, GDPR, HIPAA, digital forensics and executive protection.`,
 };
 
 export type SiteConfig = typeof siteConfig;

@@ -8,7 +8,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     // Redirecionar para a página de geração de conteúdo
-    router.replace('/admin/generate');
+    router.replace('/admin/analytics');
   }, [router]);
 
   return null;

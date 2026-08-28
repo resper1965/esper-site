@@ -2,7 +2,7 @@ import { BlogCard } from "@/components/blog-card";
 import { getDictionary } from "@/i18n/dictionaries";
 import { Locale } from "@/i18n/config";
 import { generatePageMetadata, generateCollectionPageSchema } from "@/lib/metadata";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, yearsOfExperience } from '@/lib/site';
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPostsByCategory, type Post } from "@/lib/posts";
@@ -39,8 +39,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
   const categoryName = lang === 'pt-BR' ? categoryInfo.pt : categoryInfo.en;
   const description = lang === 'pt-BR'
-    ? `Artigos sobre ${categoryName.toLowerCase()} por Ricardo Esper. Especialista em cibersegurança com mais de 34 anos de experiência.`
-    : `Articles about ${categoryName.toLowerCase()} by Ricardo Esper. Cybersecurity expert with over 34 years of experience.`;
+    ? `Artigos sobre ${categoryName.toLowerCase()} por Ricardo Esper. Especialista em cibersegurança com mais de ${yearsOfExperience()} anos de experiência.`
+    : `Articles about ${categoryName.toLowerCase()} by Ricardo Esper. Cybersecurity expert with over ${yearsOfExperience()} years of experience.`;
 
   return generatePageMetadata({
     title: `${categoryName} - ${dict.site.name}`,

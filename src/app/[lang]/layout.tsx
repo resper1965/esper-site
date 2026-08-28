@@ -1,27 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
-import { Montserrat } from "next/font/google";
 import { i18n, type Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/dictionaries';
-import { ThemeProvider } from "@/components/theme-provider";
 import { SiteNav } from "@/components/site-nav";
 import Footer from "@/components/footer";
-import { Analytics as GoogleAnalytics } from "@/components/analytics";
 
 import { generatePageMetadata, generatePersonSchema, generateWebSiteSchema, generateOrganizationSchema, generateProfilePageSchema } from "@/lib/metadata";
-import { ChatWidget } from "@/components/chat-widget";
 import "../globals.css";
-
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-montserrat",
-  display: "swap",
-  fallback: ["system-ui", "arial"], // Fallback caso download falhe
-  preload: true, // Pré-carregar fonte
-  adjustFontFallback: true, // Ajustar fallback automaticamente
-});
 
 export const viewport: Viewport = {
   themeColor: "#050a12",
@@ -92,57 +76,34 @@ export default async function LangLayout({
   const organizationSchema = generateOrganizationSchema(lang);
   const profilePageSchema = generateProfilePageSchema(lang);
 
-        return (
-          <html
-            lang={lang}
-            className={`${montserrat.variable} ${GeistSans.variable} ${GeistMono.variable} antialiased dark`}
-            suppressHydrationWarning
-          >
-      <head>
-        {/* Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
-        />
-      </head>
-      <body>
-        {/* Skip to main content link for accessibility */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-        >
-          {dict.nav.skipToContent}
-        </a>
+  return (
+    <>
+      {/* Grafo de identidade: emitido aqui, e só aqui, porque depende do
+          idioma da rota. O layout raiz não o emite — quando os dois
+          emitiam, cada página saía com o Person repetido, que é
+          exatamente o que confunde a resolução de entidade. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
+      />
 
-        <GoogleAnalytics />
-
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          forcedTheme="dark"
-          enableSystem={false}
-          disableTransitionOnChange
-        >
-          <SiteNav lang={lang} dict={dict} />
-          <main id="main-content">
-            {children}
-          </main>
-          <Footer lang={lang} />
-          <ChatWidget lang={lang} />
-        </ThemeProvider>
-      </body>
-    </html>
+      <SiteNav lang={lang} dict={dict} />
+      <main id="main-content">
+        {children}
+      </main>
+      <Footer lang={lang} />
+    </>
   );
 }

@@ -4,11 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { 
-  Sparkles, 
   BarChart3, 
   Settings, 
-  Key,
-  MessageSquare,
   Home,
   LogOut,
   ChevronLeft,
@@ -28,32 +25,11 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { 
-    href: '/admin/generate', 
-    label: 'Gerar Conteúdo', 
-    icon: Sparkles, 
-    title: 'Gerador de Posts com IA', 
-    subtitle: 'Crie conteúdo de alta qualidade usando IA generativa' 
-  },
-  { 
     href: '/admin/analytics', 
     label: 'Analytics', 
     icon: BarChart3, 
     title: 'Analytics', 
     subtitle: 'Estatísticas detalhadas dos posts e performance' 
-  },
-  { 
-    href: '/admin/ai-gateway', 
-    label: 'AI Gateway', 
-    icon: Key, 
-    title: 'AI Gateway', 
-    subtitle: 'Configure Workers AI, Cloudflare AI Gateway e credenciais do stack de IA' 
-  },
-  { 
-    href: '/admin/chat', 
-    label: 'AI Chat', 
-    icon: MessageSquare, 
-    title: 'AI Chat', 
-    subtitle: 'Converse com modelos Llama executados na Cloudflare' 
   },
   { 
     href: '/admin/settings', 

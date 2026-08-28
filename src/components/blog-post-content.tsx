@@ -12,7 +12,7 @@ import { ReadingProgress } from "@/components/reading-progress";
 import { BackToTop } from "@/components/back-to-top";
 import { CodeCopyButtons } from "@/components/code-copy-button";
 import { generateArticleSchema, generateBreadcrumbSchema } from "@/lib/metadata";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, yearsOfExperience } from '@/lib/site';
 import { formatDate } from "@/lib/utils";
 import { getAuthor } from "@/lib/authors";
 import { sanitizeHtml } from "@/lib/sanitize";
@@ -175,7 +175,7 @@ export function BlogPostContent({ post, slug, lang, dict }: BlogPostContentProps
                     {author.position}
                   </p>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Mais de três décadas de experiência em cibersegurança, CISO da IONIC Health e fundador da NESS. Especialista em privacidade e compliance (LGPD/GDPR).
+                    Mais de {yearsOfExperience()} anos de experiência em cibersegurança, CISO da IONIC Health e fundador da NESS. Especialista em privacidade e compliance (LGPD/GDPR).
                   </p>
                 </div>
               </div>

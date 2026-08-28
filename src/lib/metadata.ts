@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 import { siteConfig, sameAsUrls } from './site';
 import { i18n, type Locale } from '@/i18n/config';
+import { yearsOfExperience } from '@/lib/site';
+import { careerTimeline, foundedOrganizations, currentEmployers } from '@/lib/career';
 
 interface PageMetadataProps {
   title: string;
@@ -183,8 +185,8 @@ export function generateArticleSchema({
 export function generatePersonSchema(lang: Locale = 'pt-BR') {
   const description =
     lang === 'pt-BR'
-      ? 'Ricardo Esper é CISO, especialista em forense digital e consultor internacional em cibersegurança e privacidade. Com mais de 34 anos de experiência, fundou a NESS em 1991, é CISO da IONIC Health e fundador da forense.io. Especialista em LGPD, GDPR, HIPAA e SOC 2.'
-      : 'Ricardo Esper is a CISO, digital forensics expert and international consultant in cybersecurity and privacy. With over 34 years of experience, he founded NESS in 1991, is CISO of IONIC Health and founder of forense.io. Expert in LGPD, GDPR, HIPAA and SOC 2.';
+      ? `Ricardo Esper é CISO, especialista em forense digital e consultor internacional em cibersegurança e privacidade. Com mais de ${yearsOfExperience()} anos de experiência, fundou a NESS em 1991, é CISO da IONIC Health e fundador da forense.io. Especialista em LGPD, GDPR, HIPAA e SOC 2.`
+      : `Ricardo Esper is a CISO, digital forensics expert and international consultant in cybersecurity and privacy. With over ${yearsOfExperience()} years of experience, he founded NESS in 1991, is CISO of IONIC Health and founder of forense.io. Expert in LGPD, GDPR, HIPAA and SOC 2.`;
 
   return {
     '@context': 'https://schema.org',
@@ -203,16 +205,34 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
       `${siteConfig.url}/pt-BR/sobre`,
       `${siteConfig.url}/en/sobre`,
     ],
-    worksFor: [
-      { '@type': 'Organization', name: 'IONIC Health', url: 'https://ionic.health' },
-      { '@type': 'Organization', name: 'NESS', url: 'https://ness.com.br' },
-    ],
-    founder: [
-      { '@type': 'Organization', name: 'NESS', foundingDate: '1991' },
-      { '@type': 'Organization', name: 'forense.io' },
-      { '@type': 'Organization', name: 'Trustness' },
-      { '@type': 'Organization', name: 'Infinity Safe' },
-    ],
+    // Derivados de src/lib/career.ts. Antes eram três listas de empresas
+    // escritas à mão — aqui, no worksFor e na página Sobre —, e o IONIC
+    // Health aparecia em duas delas mas não na terceira.
+    worksFor: currentEmployers().map((e) => ({
+      '@type': 'Organization',
+      name: e.organization,
+      ...(e.url ? { url: e.url } : {}),
+    })),
+    founder: foundedOrganizations().map((e) => ({
+      '@type': 'Organization',
+      name: e.organization,
+      ...(e.startYear ? { foundingDate: String(e.startYear) } : {}),
+      ...(e.url ? { url: e.url } : {}),
+    })),
+    // A trajetória como dado, não como prosa: é o que permite a um
+    // buscador ou a um agente responder "desde quando" sem inferir do
+    // texto corrido.
+    hasOccupation: careerTimeline().map((e) => ({
+      '@type': 'Role',
+      roleName: e.role[lang],
+      ...(e.startYear ? { startDate: String(e.startYear) } : {}),
+      ...(e.endYear ? { endDate: String(e.endYear) } : {}),
+      'schema:worksFor': {
+        '@type': 'Organization',
+        name: e.organization,
+        ...(e.url ? { url: e.url } : {}),
+      },
+    })),
     knowsAbout: [
       'Cybersecurity',
       'Information Security',
@@ -267,8 +287,8 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
 export function generateProfilePageSchema(lang: Locale = 'pt-BR') {
   const description =
     lang === 'pt-BR'
-      ? 'Página oficial de Ricardo Esper — CISO, especialista em cibersegurança com 34+ anos de experiência no Brasil e no mundo.'
-      : "Ricardo Esper's official page — CISO, cybersecurity expert with 34+ years of experience in Brazil and worldwide.";
+      ? `Página oficial de Ricardo Esper — CISO, especialista em cibersegurança com ${yearsOfExperience()} anos de experiência no Brasil e no mundo.`
+      : `Ricardo Esper's official page — CISO, cybersecurity expert with ${yearsOfExperience()} years of experience in Brazil and worldwide.`;
 
   return {
     '@context': 'https://schema.org',
@@ -361,8 +381,8 @@ export function generateOrganizationSchema(lang: Locale = 'pt-BR') {
     logo: `${siteConfig.url}/logo.png`,
     description:
       lang === 'pt-BR'
-        ? 'Especialista em cibersegurança, forense digital e privacidade com mais de 34 anos de experiência. CISO, consultor internacional e fundador da NESS.'
-        : 'Cybersecurity, digital forensics and privacy expert with over 34 years of experience. CISO, international consultant and founder of NESS.',
+        ? `Especialista em cibersegurança, forense digital e privacidade com mais de ${yearsOfExperience()} anos de experiência. CISO, consultor internacional e fundador da NESS.`
+        : `Cybersecurity, digital forensics and privacy expert with over ${yearsOfExperience()} years of experience. CISO, international consultant and founder of NESS.`,
     founder: {
       '@type': 'Person',
       '@id': `${siteConfig.url}/sobre#person`,
@@ -504,8 +524,8 @@ export function generateProfessionalServiceSchema(lang: Locale = 'pt-BR') {
       ? 'Ricardo Esper — Consultoria em Cibersegurança'
       : 'Ricardo Esper — Cybersecurity Consulting',
     description: lang === 'pt-BR'
-      ? 'Consultoria especializada em segurança da informação, compliance, forense digital e proteção executiva. 34+ anos de experiência, atuação em 12+ países.'
-      : 'Specialized consulting in information security, compliance, digital forensics and executive protection. 34+ years of experience, operating in 12+ countries.',
+      ? `Consultoria especializada em segurança da informação, compliance, forense digital e proteção executiva. ${yearsOfExperience()} anos de experiência, atuação em 12+ países.`
+      : `Specialized consulting in information security, compliance, digital forensics and executive protection. ${yearsOfExperience()} years of experience, operating in 12+ countries.`,
     url: `${siteConfig.url}/${lang}/servicos`,
     priceRange: '$$$$',
     provider: {

@@ -1,5 +1,5 @@
 import { getAllPosts, type Post } from '@/lib/posts';
-import { siteConfig } from '@/lib/site';
+import { siteConfig, yearsOfExperience } from '@/lib/site';
 import { postUrl } from '@/lib/urls';
 import { filterPostsByLanguage } from '@/lib/utils';
 
@@ -32,8 +32,8 @@ export async function GET(
     : 'Ricardo Esper - Cybersecurity Blog';
 
   const description = lang === 'pt-BR'
-    ? 'Perspectivas de quem dedica mais de três décadas à segurança da informação'
-    : 'Insights from three decades of information security experience';
+    ? `Perspectivas de quem dedica mais de ${yearsOfExperience()} anos à segurança da informação`
+    : `Insights from ${yearsOfExperience()} years of information security experience`;
 
   const rss = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">

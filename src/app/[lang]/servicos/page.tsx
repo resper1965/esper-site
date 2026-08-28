@@ -5,6 +5,7 @@ import { PageBackground } from '@/components/ui/page-background';
 import type { Metadata } from 'next';
 import { Shield, Eye, Search, FileCheck, Briefcase, Phone, Calendar, ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { yearsOfExperience } from '@/lib/site';
 
 export async function generateStaticParams() {
   return i18n.locales.map((locale) => ({ lang: locale }));
@@ -34,8 +35,8 @@ export async function generateMetadata({
   return generatePageMetadata({
     title: dict.services.title,
     description: lang === 'pt-BR'
-      ? 'Serviços de consultoria em cibersegurança, CISO as a Service, forense digital, compliance (LGPD, GDPR, HIPAA, SOC 2) e contraespionagem corporativa. Mais de 34 anos de experiência.'
-      : 'Cybersecurity consulting services, CISO as a Service, digital forensics, compliance (LGPD, GDPR, HIPAA, SOC 2) and corporate counterespionage. Over 34 years of experience.',
+      ? `Serviços de consultoria em cibersegurança, CISO as a Service, forense digital, compliance (LGPD, GDPR, HIPAA, SOC 2) e contraespionagem corporativa. Mais de ${yearsOfExperience()} anos de experiência.`
+      : `Cybersecurity consulting services, CISO as a Service, digital forensics, compliance (LGPD, GDPR, HIPAA, SOC 2) and corporate counterespionage. Over ${yearsOfExperience()} years of experience.`,
     path: '/servicos',
     lang,
     keywords,
@@ -136,7 +137,7 @@ export default async function Servicos({
       subtitle: "Conselheiro Estratégico",
       description: "Participação em boards e conselhos consultivos, trazendo perspectiva de segurança para decisões estratégicas de negócio.",
       benefits: [
-        "Visão executiva de 34 anos de mercado",
+        `Visão executiva de ${yearsOfExperience()} anos de mercado`,
         "Conexões com ecossistema de segurança",
         "Due diligence em M&A tech",
         "Mentoria para executivos de tecnologia"
@@ -222,7 +223,7 @@ export default async function Servicos({
       subtitle: "Strategic Advisor",
       description: "Participation in boards and advisory councils, bringing security perspective to strategic business decisions.",
       benefits: [
-        "34 years of executive market vision",
+        `${yearsOfExperience()} years of executive market vision`,
         "Connections with security ecosystem",
         "Due diligence in tech M&A",
         "Mentoring for technology executives"

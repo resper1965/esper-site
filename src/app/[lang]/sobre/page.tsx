@@ -2,9 +2,10 @@ import { getDictionary } from "@/i18n/dictionaries"
 import { Locale, i18n } from "@/i18n/config"
 import { generatePageMetadata } from "@/lib/metadata"
 import type { Metadata } from "next"
+import { yearsOfExperience } from "@/lib/site"
+import { CareerTimeline } from "@/components/career-timeline"
 import {
-  Shield, Award, Globe, Building2, Users, BookOpen,
-  CheckCircle2, ExternalLink, ChevronRight, Lock, Zap, FileSearch
+  Shield, Award, Globe, Building2, BookOpen, CheckCircle2, ExternalLink, ChevronRight, Lock, Zap, FileSearch
 } from "lucide-react"
 
 export async function generateStaticParams() {
@@ -31,8 +32,8 @@ export async function generateMetadata({
     title: lang === "pt-BR" ? "Sobre Ricardo Esper — CISO, Forense Digital, Consultor Internacional" : "About Ricardo Esper — CISO, Digital Forensics, International Consultant",
     description:
       lang === "pt-BR"
-        ? "Ricardo Esper: CISO com 34+ anos em cibersegurança. CEO da NESS (desde 1991), CISO da IONIC Health, fundador da forense.io. Especialista em LGPD, GDPR, HIPAA, SOC 2 e proteção executiva."
-        : "Ricardo Esper: CISO with 34+ years in cybersecurity. CEO of NESS (since 1991), CISO of IONIC Health, founder of forense.io. Expert in LGPD, GDPR, HIPAA, SOC 2 and executive protection.",
+        ? `Ricardo Esper: CISO com ${yearsOfExperience()} anos em cibersegurança. CEO da NESS (desde 1991), CISO da IONIC Health, fundador da forense.io. Especialista em LGPD, GDPR, HIPAA, SOC 2 e proteção executiva.`
+        : `Ricardo Esper: CISO with ${yearsOfExperience()} years in cybersecurity. CEO of NESS (since 1991), CISO of IONIC Health, founder of forense.io. Expert in LGPD, GDPR, HIPAA, SOC 2 and executive protection.`,
     path: "/sobre",
     lang,
     keywords,
@@ -59,15 +60,6 @@ export default async function Sobre({
 
   const dict = await getDictionary(lang)
   const isPT = lang === "pt-BR"
-
-  const companies = [
-    { role: "CEO & Founder", company: "NESS", detail: isPT ? "desde 1991" : "since 1991", url: "https://ness.com.br", icon: Building2 },
-    { role: "CISO & Co-Founder", company: "IONIC Health", detail: isPT ? "Saúde Digital" : "Digital Health", url: "https://ionic.health", icon: Shield },
-    { role: "CEO", company: "forense.io", detail: isPT ? "Forense Digital" : "Digital Forensics", url: null, icon: FileSearch },
-    { role: "CEO", company: "Trustness", detail: isPT ? "Privacidade & Compliance" : "Privacy & Compliance", url: null, icon: Lock },
-    { role: "CEO", company: "Infinity Safe", detail: isPT ? "Proteção Executiva" : "Executive Protection", url: null, icon: Zap },
-    { role: "Board Member", company: "Bekaa Trusted Advisors", detail: isPT ? "Conselheiro" : "Advisor", url: null, icon: Users },
-  ]
 
   const certifications: Credential[] = [
     { label: "CCISO — Chief Information Security Officer", color: "cyber" },
@@ -97,8 +89,8 @@ export default async function Sobre({
     {
       q: isPT ? "Qual é a experiência de Ricardo Esper em cibersegurança?" : "What is Ricardo Esper's experience in cybersecurity?",
       a: isPT
-        ? "Ricardo Esper tem mais de 34 anos de experiência em cibersegurança, tendo fundado a NESS em 1991. É CISO da IONIC Health, fundador da forense.io, Trustness e Infinity Safe. Possui certificações CCISO, CEHv8 e GDPR."
-        : "Ricardo Esper has over 34 years of experience in cybersecurity, having founded NESS in 1991. He is CISO of IONIC Health, founder of forense.io, Trustness and Infinity Safe. He holds CCISO, CEHv8 and GDPR certifications.",
+        ? `Ricardo Esper tem mais de ${yearsOfExperience()} anos de experiência em cibersegurança, tendo fundado a NESS em 1991. É CISO da IONIC Health, fundador da forense.io, Trustness e Infinity Safe. Possui certificações CCISO, CEHv8 e GDPR.`
+        : `Ricardo Esper has over ${yearsOfExperience()} years of experience in cybersecurity, having founded NESS in 1991. He is CISO of IONIC Health, founder of forense.io, Trustness and Infinity Safe. He holds CCISO, CEHv8 and GDPR certifications.`,
     },
     {
       q: isPT ? "Em quais países Ricardo Esper atua como consultor?" : "In which countries does Ricardo Esper work as a consultant?",
@@ -159,7 +151,7 @@ export default async function Sobre({
           <div className="flex flex-wrap justify-center gap-3">
             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono border cat-cyber">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              {isPT ? "34+ anos de experiência" : "34+ years experience"}
+              {isPT ? `${yearsOfExperience()} anos de experiência` : `${yearsOfExperience()} years experience`}
             </span>
             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono border cat-automation">
               <CheckCircle2 className="w-3 h-3" />
@@ -185,36 +177,15 @@ export default async function Sobre({
           <p className="text-muted-foreground leading-relaxed">{dict.about.intro3}</p>
         </section>
 
-        {/* ── COMPANIES ─────────────────────────────────────── */}
+        {/* ── TRAJETÓRIA ────────────────────────────────────── */}
         <section>
           <div className="flex items-center gap-2 mb-6">
             <Building2 className="w-4 h-4 text-primary" />
             <h2 className="text-sm font-mono uppercase tracking-widest text-primary opacity-80">
-              {dict.about.globalPresence}
+              {isPT ? "Trajetória" : "Career"}
             </h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {companies.map(({ role, company, detail, url, icon: Icon }) => (
-              <div key={company} className="glass-card rounded-xl p-4 stat-card group">
-                <div className="flex items-start justify-between mb-3">
-                  <Icon className="w-5 h-5 text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
-                  {url && (
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="opacity-0 group-hover:opacity-60 transition-opacity"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
-                    </a>
-                  )}
-                </div>
-                <p className="text-xs font-mono text-muted-foreground mb-1">{role}</p>
-                <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{company}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{detail}</p>
-              </div>
-            ))}
-          </div>
+          <CareerTimeline lang={lang} />
         </section>
 
         {/* ── EXPERTISE GRID ───────────────────────────────── */}

@@ -1,3 +1,4 @@
+import { yearsOfExperience } from '@/lib/site';
 // Schema.org JSON-LD structured data for SEO
 // https://schema.org/Person + https://schema.org/ProfessionalService
 
@@ -9,7 +10,7 @@ export const personSchema = {
   "givenName": "Ricardo",
   "familyName": "Esper",
   "jobTitle": "Chief Information Security Officer (CISO)",
-  "description": "Especialista em cibersegurança com 34 anos de experiência. CEO da NESS, CISO da IONIC Health, consultor internacional em privacidade e compliance.",
+  "description": `Especialista em cibersegurança com ${yearsOfExperience()} anos de experiência. CEO da NESS, CISO da IONIC Health, consultor internacional em privacidade e compliance.`,
   "url": "https://esper.ws",
   "image": "https://esper.ws/images/ricardo-esper.jpg",
   "sameAs": [
@@ -141,7 +142,7 @@ export const websiteSchema = {
   "@id": "https://esper.ws/#website",
   "name": "Ricardo Esper - Blog de Cibersegurança",
   "url": "https://esper.ws",
-  "description": "Insights de cibersegurança, compliance e proteção executiva por Ricardo Esper, CISO com 34 anos de experiência.",
+  "description": `Insights de cibersegurança, compliance e proteção executiva por Ricardo Esper, CISO com ${yearsOfExperience()} anos de experiência.`,
   "publisher": {
     "@id": "https://esper.ws/#person"
   },

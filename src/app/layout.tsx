@@ -4,14 +4,13 @@ import { GeistMono } from "geist/font/mono";
 import { Montserrat } from "next/font/google";
 import { getDictionary } from '@/i18n/dictionaries';
 import { ThemeProvider } from "@/components/theme-provider";
-import { SiteNav } from "@/components/site-nav";
-import Footer from "@/components/footer";
 import { Analytics as GoogleAnalytics } from "@/components/analytics";
-import { generatePageMetadata, generatePersonSchema, generateWebSiteSchema, generateOrganizationSchema, generateProfilePageSchema } from "@/lib/metadata";
-import { ChatWidget } from "@/components/chat-widget";
+import { generatePageMetadata } from "@/lib/metadata";
+import { headers } from "next/headers";
+import { i18n, type Locale } from "@/i18n/config";
 import "./globals.css";
 
-const LANG = 'pt-BR' as const;
+const LANG = i18n.defaultLocale;
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -28,7 +27,12 @@ export const viewport: Viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const dict = await getDictionary(LANG);
+  // O idioma vem do middleware, que é quem enxerga o prefixo da rota.
+  const headerLocale = (await headers()).get('x-locale');
+  const lang: Locale = i18n.locales.includes(headerLocale as Locale)
+    ? (headerLocale as Locale)
+    : LANG;
+  const dict = await getDictionary(lang);
 
   const keywords = ['cibersegurança', 'CISO', 'segurança da informação', 'privacidade', 'LGPD', 'forense digital', 'Ricardo Esper'];
 
@@ -53,44 +57,22 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const dict = await getDictionary(LANG);
+  // O idioma vem do middleware, que é quem enxerga o prefixo da rota.
+  const headerLocale = (await headers()).get('x-locale');
+  const lang: Locale = i18n.locales.includes(headerLocale as Locale)
+    ? (headerLocale as Locale)
+    : LANG;
+  const dict = await getDictionary(lang);
 
-  // Generate structured data for the site
-  const personSchema = generatePersonSchema(LANG);
-  const websiteSchema = generateWebSiteSchema(LANG);
-  const organizationSchema = generateOrganizationSchema(LANG);
-  const profilePageSchema = generateProfilePageSchema(LANG);
 
   return (
     <html
-      lang={LANG}
+      lang={lang}
       className={`${montserrat.variable} ${GeistSans.variable} ${GeistMono.variable} antialiased dark`}
       suppressHydrationWarning
     >
       <head>
-        {/* Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
-        />
-        {/* Cloudflare Turnstile CAPTCHA */}
-        <script
-          src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad"
-          async
-          defer
-        />
+
         <script
           dangerouslySetInnerHTML={{
             __html: `window.onTurnstileLoad = function() { window.dispatchEvent(new Event('turnstile-loaded')); };`,
@@ -115,12 +97,7 @@ export default async function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <SiteNav lang={LANG} dict={dict} />
-          <main id="main-content">
-            {children}
-          </main>
-          <Footer lang={LANG} />
-          <ChatWidget lang={LANG} />
+          {children}
         </ThemeProvider>
       </body>
     </html>
