@@ -57,3 +57,14 @@ next-env.d.ts
 # Estado local do wrangler (bundles e assets temporários do `wrangler dev`)
 .wrangler/
 cloudflare-env.d.ts
+
+# Skills de terceiro instaladas por `npx skills add`.
+#
+# O código fica fora do repositório — são 824K de arquivos de terceiro, e
+# este repositório é público. O que entra é o skills-lock.json, que fixa
+# cada skill por hash SHA-256 da origem: registra o que foi instalado,
+# permite reinstalar igual, e denuncia se o upstream mudar.
+#
+# `npx skills@latest install` reconstrói ambos a partir do lock.
+.agents/
+.claude/skills/
