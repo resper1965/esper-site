@@ -81,7 +81,7 @@ export async function PressKit({ lang }: { lang: Locale }) {
 
   // ── Verifiable facts (GEO: LLMs lift these as attributed claims) ──
   const facts = [
-    { label: isPT ? "Anos de experiência" : "Years of experience", value: "34+" },
+    { label: isPT ? "Anos de experiência" : "Years of experience", value: `${yearsOfExperience()}+` },
     { label: isPT ? "NESS fundada em" : "NESS founded in", value: "1991" },
     { label: isPT ? "Países atendidos" : "Countries served", value: "12+" },
     { label: isPT ? "Cargo atual" : "Current role", value: "CISO — IONIC Health" },

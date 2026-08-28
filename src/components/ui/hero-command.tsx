@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Shield, Award, Globe, Terminal, ChevronDown, ExternalLink } from "lucide-react"
 import { ParticleNetwork } from "./particle-network"
 
+import { yearsOfExperience } from "@/lib/site"
 // ── Animated stat counter ──────────────────────────────────────────────────
 function StatCounter({ value, suffix = "", label, icon: Icon, delay = 0 }: {
   value: number
@@ -153,7 +154,7 @@ export function HeroCommand({ lang = 'pt-BR', subtitle }: HeroCommandProps) {
 
   const stats = [
     {
-      value: 34, suffix: "+", label: isPT ? "Anos em Cyber" : "Years in Cyber",
+      value: yearsOfExperience(), suffix: "+", label: isPT ? "Anos em Cyber" : "Years in Cyber",
       icon: Shield, delay: 0
     },
     {
