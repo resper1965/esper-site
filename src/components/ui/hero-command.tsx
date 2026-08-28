@@ -7,6 +7,7 @@ import { Shield, Award, Globe, Terminal, ChevronDown, ExternalLink } from "lucid
 import { ParticleNetwork } from "./particle-network"
 
 import { yearsOfExperience } from "@/lib/site"
+import { certificationBadges } from '@/lib/credentials'
 // ── Animated stat counter ──────────────────────────────────────────────────
 function StatCounter({ value, suffix = "", label, icon: Icon, delay = 0 }: {
   value: number
@@ -171,7 +172,9 @@ export function HeroCommand({ lang = 'pt-BR', subtitle }: HeroCommandProps) {
     },
   ]
 
-  const credentials = ["CCISO", "CEHv8", "GDPR", "HackerOne", "OWASP", "IAPP", "OAB/SP"]
+  // Só certificações. Filiação (OWASP, IAPP, HackerOne) é outra coisa e
+  // aparece na página Sobre, não como selo de credencial.
+  const credentials = certificationBadges()
 
   return (
     <section className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden">
@@ -216,8 +219,14 @@ export function HeroCommand({ lang = 'pt-BR', subtitle }: HeroCommandProps) {
 
           {/* Name */}
           <div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-              <span className="text-shimmer">Ricardo Esper</span>
+            {/* O nome já aparece no nav em toda página. Repeti-lo aqui gastava
+                o H1 — o elemento mais forte da home — com uma informação que
+                o visitante acabou de ler. O H1 passa a dizer o que ele faz,
+                que é também o que a página deveria rankear. */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-balance">
+              {isPT
+                ? "Segurança da informação, sem atalho"
+                : "Information security, without shortcuts"}
             </h1>
           </div>
         </motion.div>

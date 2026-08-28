@@ -4,6 +4,7 @@ import { generatePageMetadata } from "@/lib/metadata"
 import type { Metadata } from "next"
 import { yearsOfExperience } from "@/lib/site"
 import { CareerTimeline } from "@/components/career-timeline"
+import { certifications as certs } from "@/lib/credentials"
 import {
   Shield, Award, Globe, Building2, BookOpen, CheckCircle2, ExternalLink, ChevronRight, Lock, Zap, FileSearch
 } from "lucide-react"
@@ -61,12 +62,10 @@ export default async function Sobre({
   const dict = await getDictionary(lang)
   const isPT = lang === "pt-BR"
 
-  const certifications: Credential[] = [
-    { label: "CCISO — Chief Information Security Officer", color: "cyber" },
-    { label: "CEHv8 — Certified Ethical Hacker", color: "cyber" },
-    { label: "GDPR Compliance", color: "counter" },
-    { label: "Cybersecurity Awareness", color: "general" },
-  ]
+  const certifications: Credential[] = certs.map((c) => ({
+    label: c.full[lang],
+    color: "cyber" as const,
+  }))
 
   const expertiseAreas = [
     { label: isPT ? "Arquitetura de Segurança da Informação" : "Information Security Architecture", icon: Shield },
@@ -95,8 +94,8 @@ export default async function Sobre({
     {
       q: isPT ? "Em quais países Ricardo Esper atua como consultor?" : "In which countries does Ricardo Esper work as a consultant?",
       a: isPT
-        ? "Ricardo Esper atua como consultor internacional em mais de 12 países, com foco especial em Brasil, EUA e Europa. Suas especialidades incluem LGPD (Brasil), GDPR (Europa), HIPAA e SOC 2 (EUA)."
-        : "Ricardo Esper works as an international consultant in over 12 countries, with special focus on Brazil, USA and Europe. His specialties include LGPD (Brazil), GDPR (Europe), HIPAA and SOC 2 (USA).",
+        ? "Ricardo Esper atua como consultor internacional com foco em Brasil, EUA e Europa. Suas especialidades incluem LGPD (Brasil), GDPR (Europa), HIPAA e SOC 2 (EUA)."
+        : "Ricardo Esper works as an international consultant focused on Brazil, USA and Europe. His specialties include LGPD (Brazil), GDPR (Europe), HIPAA and SOC 2 (USA).",
     },
     {
       q: isPT ? "Quais são os serviços oferecidos por Ricardo Esper?" : "What services does Ricardo Esper offer?",
@@ -159,7 +158,7 @@ export default async function Sobre({
             </span>
             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono border cat-counter">
               <Globe className="w-3 h-3" />
-              {isPT ? "12+ países atendidos" : "12+ countries served"}
+              {isPT ? "Auditor líder ISO 27001 e 27701" : "ISO 27001 and 27701 Lead Auditor"}
             </span>
           </div>
         </section>
