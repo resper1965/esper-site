@@ -4,6 +4,7 @@ import { i18n, type Locale } from '@/i18n/config';
 import { yearsOfExperience } from '@/lib/site';
 import { careerTimeline, foundedOrganizations, currentEmployers } from '@/lib/career';
 
+import { certifications, memberships } from '@/lib/credentials'
 interface PageMetadataProps {
   title: string;
   description: string;
@@ -253,18 +254,15 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
       'Ransomware Defense',
       'Cloud Security',
     ],
-    hasCredential: [
-      { '@type': 'EducationalOccupationalCredential', name: 'CCISO — Certified Chief Information Security Officer' },
-      { '@type': 'EducationalOccupationalCredential', name: 'CEHv8 — Certified Ethical Hacker' },
-      { '@type': 'EducationalOccupationalCredential', name: 'GDPR Compliance Certification' },
-    ],
-    memberOf: [
-      { '@type': 'Organization', name: 'HackerOne', url: 'https://hackerone.com' },
-      { '@type': 'Organization', name: 'OWASP', url: 'https://owasp.org' },
-      { '@type': 'Organization', name: 'IAPP', url: 'https://iapp.org' },
-      { '@type': 'Organization', name: 'ERII' },
-      { '@type': 'Organization', name: 'OAB/SP', url: 'https://oabsp.org.br' },
-    ],
+    hasCredential: certifications.map((c) => ({
+      '@type': 'EducationalOccupationalCredential',
+      name: c.full[lang],
+    })),
+    memberOf: memberships.map((m) => ({
+      '@type': 'Organization',
+      name: m.name,
+      ...('url' in m && m.url ? { url: m.url } : {}),
+    })),
     // GEO: helps AI understand what topics this person is authoritative on
     mainEntityOfPage: {
       '@type': 'ProfilePage',
@@ -524,8 +522,8 @@ export function generateProfessionalServiceSchema(lang: Locale = 'pt-BR') {
       ? 'Ricardo Esper — Consultoria em Cibersegurança'
       : 'Ricardo Esper — Cybersecurity Consulting',
     description: lang === 'pt-BR'
-      ? `Consultoria especializada em segurança da informação, compliance, forense digital e proteção executiva. ${yearsOfExperience()} anos de experiência, atuação em 12+ países.`
-      : `Specialized consulting in information security, compliance, digital forensics and executive protection. ${yearsOfExperience()} years of experience, operating in 12+ countries.`,
+      ? `Consultoria especializada em segurança da informação, compliance, forense digital e proteção executiva. ${yearsOfExperience()} anos de experiência. Auditor líder ISO/IEC 27001 e 27701.`
+      : `Specialized consulting in information security, compliance, digital forensics and executive protection. ${yearsOfExperience()} years of experience. ISO/IEC 27001 and 27701 Lead Auditor.`,
     url: `${siteConfig.url}/${lang}/servicos`,
     priceRange: '$$$$',
     provider: {

@@ -7,6 +7,7 @@ import { Shield, Award, Globe, Terminal, ChevronDown, ExternalLink } from "lucid
 import { ParticleNetwork } from "./particle-network"
 
 import { yearsOfExperience } from "@/lib/site"
+import { certificationBadges } from '@/lib/credentials'
 // ── Animated stat counter ──────────────────────────────────────────────────
 function StatCounter({ value, suffix = "", label, icon: Icon, delay = 0 }: {
   value: number
@@ -92,7 +93,6 @@ function TypewriterRole() {
   return (
     <span className="text-primary font-mono text-sm sm:text-base font-medium">
       {text}
-      <span className="inline-block w-0.5 h-4 bg-primary ml-0.5 align-middle animate-[terminal-blink_1s_step-end_infinite]" />
     </span>
   )
 }
@@ -111,7 +111,7 @@ function CyberGridBackground() {
       <ParticleNetwork />
 
       {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#050a12] to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#0B0F14] to-transparent" />
 
       {/* Floating orbs */}
       <motion.div
@@ -126,7 +126,6 @@ function CyberGridBackground() {
       />
 
       {/* Scan line */}
-      <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent animate-[scan-line_8s_linear_infinite] opacity-60" />
     </div>
   )
 }
@@ -135,7 +134,7 @@ function CyberGridBackground() {
 function CredentialBadge({ label }: { label: string }) {
   return (
     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium border cat-cyber">
-      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-[glow-pulse_2s_ease-in-out_infinite]" />
+      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
       {label}
     </span>
   )
@@ -171,7 +170,9 @@ export function HeroCommand({ lang = 'pt-BR', subtitle }: HeroCommandProps) {
     },
   ]
 
-  const credentials = ["CCISO", "CEHv8", "GDPR", "HackerOne", "OWASP", "IAPP", "OAB/SP"]
+  // Só certificações. Filiação (OWASP, IAPP, HackerOne) é outra coisa e
+  // aparece na página Sobre, não como selo de credencial.
+  const credentials = certificationBadges()
 
   return (
     <section className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden">
@@ -209,15 +210,21 @@ export function HeroCommand({ lang = 'pt-BR', subtitle }: HeroCommandProps) {
               />
             </div>
             {/* Shield badge */}
-            <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#050a12] border-2 border-primary flex items-center justify-center">
+            <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#0B0F14] border-2 border-primary flex items-center justify-center">
               <Shield className="w-4 h-4 text-primary" />
             </div>
           </div>
 
           {/* Name */}
           <div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-              <span className="text-shimmer">Ricardo Esper</span>
+            {/* O nome já aparece no nav em toda página. Repeti-lo aqui gastava
+                o H1 — o elemento mais forte da home — com uma informação que
+                o visitante acabou de ler. O H1 passa a dizer o que ele faz,
+                que é também o que a página deveria rankear. */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-balance">
+              {isPT
+                ? "Segurança da informação, sem atalho"
+                : "Information security, without shortcuts"}
             </h1>
           </div>
         </motion.div>
@@ -266,7 +273,7 @@ export function HeroCommand({ lang = 'pt-BR', subtitle }: HeroCommandProps) {
           <Link
             href="#posts"
             className="group inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200
-              bg-primary text-[#050a12] hover:bg-primary/90
+              bg-primary text-[#0B0F14] hover:bg-primary/90
               shadow-[0_0_20px_rgba(0,180,216,0.3)] hover:shadow-[0_0_30px_rgba(0,180,216,0.5)]"
           >
             {isPT ? "Ler Artigos" : "Read Articles"}

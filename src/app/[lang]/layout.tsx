@@ -8,7 +8,7 @@ import { generatePageMetadata, generatePersonSchema, generateWebSiteSchema, gene
 import "../globals.css";
 
 export const viewport: Viewport = {
-  themeColor: "#050a12",
+  themeColor: "#0B0F14",
 };
 
 export async function generateStaticParams() {

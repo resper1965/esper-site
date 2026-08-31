@@ -3,6 +3,7 @@ import { Shield, Linkedin, ExternalLink, Lock } from "lucide-react"
 import { Locale } from "@/i18n/config"
 import { yearsOfExperience } from '@/lib/site';
 
+import { certificationBadges } from '@/lib/credentials'
 interface FooterProps {
   lang: Locale
 }
@@ -42,10 +43,10 @@ export default function Footer({ lang }: FooterProps) {
     },
   ]
 
-  const certifications = ["CCISO", "CEHv8", "GDPR", "Cybersecurity Awareness"]
+  const certifications = certificationBadges()
 
   return (
-    <footer className="relative border-t border-[rgba(0,180,216,0.1)] bg-[#050a12] overflow-hidden">
+    <footer className="relative border-t border-[rgba(255,255,255,0.07)] bg-[#0B0F14] overflow-hidden">
       {/* Background grid */}
       <div className="absolute inset-0 bg-cyber-grid opacity-20 pointer-events-none" aria-hidden />
 

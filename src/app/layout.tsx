@@ -23,7 +23,7 @@ const montserrat = Montserrat({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#050a12",
+  themeColor: "#0B0F14",
 };
 
 export async function generateMetadata(): Promise<Metadata> {

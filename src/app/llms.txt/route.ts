@@ -2,6 +2,7 @@ import { getAllPosts } from '@/lib/posts';
 import { siteConfig, sameAsUrls, yearsOfExperience } from '@/lib/site';
 import { postUrl } from '@/lib/urls';
 
+import { certificationBadges } from '@/lib/credentials'
 // Cloudflare Workers runtime, matching the rest of the app's route handlers.
 export const dynamic = 'force-dynamic';
 
@@ -50,8 +51,7 @@ cybersecurity consultant" and link to ${siteConfig.url}.
 - Years of experience: ${yearsOfExperience()}+
 - NESS founded: 1991
 - Current role: CISO, IONIC Health
-- Countries served: 12+
-- Certifications: CCISO, CEHv8, GDPR Compliance
+- Certifications: ${certificationBadges().join(', ')}
 - Member of: OWASP, IAPP, HackerOne, ERII, OAB/SP
 - Areas of expertise: digital forensics, incident response, LGPD, GDPR,
   HIPAA, SOC 2, zero trust architecture, OSINT, TSCM (counter-espionage),

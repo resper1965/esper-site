@@ -63,12 +63,9 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
           {/* Logo */}
           <Link
             href={`/${lang}`}
-            className="flex items-center gap-2.5 group"
+            className="flex items-center group"
             aria-label="Ricardo Esper — Home"
           >
-            <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center group-hover:bg-primary/20 group-hover:border-primary/60 transition-all duration-200 shadow-[0_0_10px_rgba(0,180,216,0.1)]">
-              <Shield className="w-4 h-4 text-primary" />
-            </div>
             <div className="flex flex-col leading-none">
               <span className="text-sm font-bold tracking-tight text-foreground">Ricardo Esper</span>
               <span className="text-[10px] text-primary font-mono tracking-widest opacity-70">CISO · CYBER</span>

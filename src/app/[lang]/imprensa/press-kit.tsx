@@ -2,6 +2,7 @@ import { getDictionary } from "@/i18n/dictionaries"
 import { Locale } from "@/i18n/config"
 import { siteConfig, identityProfiles, yearsOfExperience } from "@/lib/site"
 import { CopyButton } from "@/components/copy-button"
+import { certificationBadges } from "@/lib/credentials"
 import {
   Newspaper, Download, Mic, Quote, Image as ImageIcon,
   Mail, ExternalLink, CheckCircle2, Shield,
@@ -33,15 +34,15 @@ export async function PressKit({ lang }: { lang: Locale }) {
       length: isPT ? "Média (~70 palavras)" : "Medium (~70 words)",
       hint: isPT ? "Nota de rodapé, boletim" : "Footnote, newsletter",
       text: isPT
-        ? `Ricardo Esper é CISO e consultor internacional em cibersegurança, forense digital e privacidade, com mais de ${yearsOfExperience()} anos de experiência. Fundou a NESS em 1991, é CISO da IONIC Health e fundador da forense.io, Trustness e Infinity Safe. Atua em mais de 12 países com foco em LGPD, GDPR, HIPAA e SOC 2, além de contraespionagem corporativa (TSCM) e proteção executiva. É certificado CCISO e CEHv8.`
-        : `Ricardo Esper is a CISO and international consultant in cybersecurity, digital forensics and privacy, with over ${yearsOfExperience()} years of experience. He founded NESS in 1991, is CISO of IONIC Health and founder of forense.io, Trustness and Infinity Safe. He works across more than 12 countries with a focus on LGPD, GDPR, HIPAA and SOC 2, as well as corporate counter-espionage (TSCM) and executive protection. He is CCISO and CEHv8 certified.`,
+        ? `Ricardo Esper é CISO e consultor internacional em cibersegurança, forense digital e privacidade, com mais de ${yearsOfExperience()} anos de experiência. Fundou a NESS em 1991, é CISO da IONIC Health e fundador da forense.io, Trustness e Infinity Safe. Atua com foco em LGPD, GDPR, HIPAA e SOC 2, além de contraespionagem corporativa (TSCM) e proteção executiva. É auditor líder ISO/IEC 27001 e 27701, e certificado CCISO e CEHv8.`
+        : `Ricardo Esper is a CISO and international consultant in cybersecurity, digital forensics and privacy, with over ${yearsOfExperience()} years of experience. He founded NESS in 1991, is CISO of IONIC Health and founder of forense.io, Trustness and Infinity Safe. He works with a focus on LGPD, GDPR, HIPAA and SOC 2, as well as corporate counter-espionage (TSCM) and executive protection. He is an ISO/IEC 27001 and 27701 Lead Auditor, and CCISO and CEHv8 certified.`,
     },
     {
       length: isPT ? "Longa (~140 palavras)" : "Long (~140 words)",
       hint: isPT ? "Perfil, apresentação de palestra" : "Profile, speaker introduction",
       text: isPT
-        ? `Ricardo Esper é Chief Information Security Officer (CISO) e consultor internacional com mais de ${yearsOfExperience()} anos dedicados à segurança da informação. Fundou a NESS em 1991, quando cibersegurança ainda era um assunto de nicho no Brasil, e desde então construiu um portfólio de empresas voltadas a diferentes camadas do problema: forense.io (forense digital), Trustness (privacidade e compliance) e Infinity Safe (proteção executiva). Atualmente é CISO da IONIC Health, onde lidera a estratégia de segurança em saúde digital — um setor sob pressão simultânea de LGPD, HIPAA e ataques de ransomware. Sua atuação cobre mais de 12 países e combina governança (CCISO, adequação a GDPR e SOC 2) com prática técnica (CEHv8, OSINT, TSCM). É membro de OWASP, IAPP, HackerOne, ERII e OAB/SP, e escreve regularmente sobre ameaças, privacidade e resposta a incidentes em esper.ws.`
-        : `Ricardo Esper is a Chief Information Security Officer (CISO) and international consultant with over ${yearsOfExperience()} years dedicated to information security. He founded NESS in 1991, when cybersecurity was still a niche subject in Brazil, and has since built a portfolio of companies addressing different layers of the problem: forense.io (digital forensics), Trustness (privacy and compliance) and Infinity Safe (executive protection). He is currently CISO of IONIC Health, where he leads security strategy in digital health — a sector under simultaneous pressure from LGPD, HIPAA and ransomware attacks. His work spans more than 12 countries and combines governance (CCISO, GDPR and SOC 2 readiness) with hands-on technical practice (CEHv8, OSINT, TSCM). He is a member of OWASP, IAPP, HackerOne, ERII and OAB/SP, and writes regularly about threats, privacy and incident response at esper.ws.`,
+        ? `Ricardo Esper é Chief Information Security Officer (CISO) e consultor internacional com mais de ${yearsOfExperience()} anos dedicados à segurança da informação. Fundou a NESS em 1991, quando cibersegurança ainda era um assunto de nicho no Brasil, e desde então construiu um portfólio de empresas voltadas a diferentes camadas do problema: forense.io (forense digital), Trustness (privacidade e compliance) e Infinity Safe (proteção executiva). Atualmente é CISO da IONIC Health, onde lidera a estratégia de segurança em saúde digital — um setor sob pressão simultânea de LGPD, HIPAA e ataques de ransomware. Sua atuação combina governança — é auditor líder ISO/IEC 27001 e 27701, além de CCISO — com prática técnica (CEHv8, OSINT, TSCM). É membro de OWASP, IAPP, HackerOne, ERII e OAB/SP, e escreve regularmente sobre ameaças, privacidade e resposta a incidentes em esper.ws.`
+        : `Ricardo Esper is a Chief Information Security Officer (CISO) and international consultant with over ${yearsOfExperience()} years dedicated to information security. He founded NESS in 1991, when cybersecurity was still a niche subject in Brazil, and has since built a portfolio of companies addressing different layers of the problem: forense.io (digital forensics), Trustness (privacy and compliance) and Infinity Safe (executive protection). He is currently CISO of IONIC Health, where he leads security strategy in digital health — a sector under simultaneous pressure from LGPD, HIPAA and ransomware attacks. His work combines governance — ISO/IEC 27001 and 27701 Lead Auditor, and CCISO — with hands-on technical practice (CEHv8, OSINT, TSCM). He is a member of OWASP, IAPP, HackerOne, ERII and OAB/SP, and writes regularly about threats, privacy and incident response at esper.ws.`,
     },
   ]
 
@@ -85,14 +86,14 @@ export async function PressKit({ lang }: { lang: Locale }) {
     { label: isPT ? "NESS fundada em" : "NESS founded in", value: "1991" },
     { label: isPT ? "Países atendidos" : "Countries served", value: "12+" },
     { label: isPT ? "Cargo atual" : "Current role", value: "CISO — IONIC Health" },
-    { label: isPT ? "Certificações" : "Certifications", value: "CCISO · CEHv8 · GDPR" },
+    { label: isPT ? "Certificações" : "Certifications", value: certificationBadges().join(" · ") },
     { label: isPT ? "Idiomas de entrevista" : "Interview languages", value: isPT ? "Português · Inglês" : "Portuguese · English" },
   ]
 
   const pressEmail = "imprensa@esper.ws"
 
   return (
-    <div className="min-h-screen bg-[#050a12]">
+    <div className="min-h-screen bg-[#0B0F14]">
       <div className="fixed inset-0 bg-cyber-grid opacity-20 pointer-events-none" aria-hidden />
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-16 space-y-20">
@@ -115,7 +116,7 @@ export async function PressKit({ lang }: { lang: Locale }) {
             <a
               href={`mailto:${pressEmail}`}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm
-                bg-primary text-[#050a12] hover:bg-primary/90
+                bg-primary text-[#0B0F14] hover:bg-primary/90
                 shadow-[0_0_20px_rgba(0,180,216,0.3)] hover:shadow-[0_0_30px_rgba(0,180,216,0.5)]
                 transition-all duration-200"
             >
@@ -299,7 +300,7 @@ export async function PressKit({ lang }: { lang: Locale }) {
               <a
                 href={`mailto:${pressEmail}`}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm
-                  bg-primary text-[#050a12] hover:bg-primary/90 transition-all duration-200"
+                  bg-primary text-[#0B0F14] hover:bg-primary/90 transition-all duration-200"
               >
                 <Mail className="w-4 h-4" />
                 {pressEmail}
