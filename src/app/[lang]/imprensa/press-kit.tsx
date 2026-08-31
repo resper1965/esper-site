@@ -93,7 +93,7 @@ export async function PressKit({ lang }: { lang: Locale }) {
   const pressEmail = "imprensa@esper.ws"
 
   return (
-    <div className="min-h-screen bg-[#050a12]">
+    <div className="min-h-screen bg-[#0B0F14]">
       <div className="fixed inset-0 bg-cyber-grid opacity-20 pointer-events-none" aria-hidden />
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-16 space-y-20">
@@ -116,7 +116,7 @@ export async function PressKit({ lang }: { lang: Locale }) {
             <a
               href={`mailto:${pressEmail}`}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm
-                bg-primary text-[#050a12] hover:bg-primary/90
+                bg-primary text-[#0B0F14] hover:bg-primary/90
                 shadow-[0_0_20px_rgba(0,180,216,0.3)] hover:shadow-[0_0_30px_rgba(0,180,216,0.5)]
                 transition-all duration-200"
             >
@@ -300,7 +300,7 @@ export async function PressKit({ lang }: { lang: Locale }) {
               <a
                 href={`mailto:${pressEmail}`}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm
-                  bg-primary text-[#050a12] hover:bg-primary/90 transition-all duration-200"
+                  bg-primary text-[#0B0F14] hover:bg-primary/90 transition-all duration-200"
               >
                 <Mail className="w-4 h-4" />
                 {pressEmail}

@@ -93,7 +93,6 @@ function TypewriterRole() {
   return (
     <span className="text-primary font-mono text-sm sm:text-base font-medium">
       {text}
-      <span className="inline-block w-0.5 h-4 bg-primary ml-0.5 align-middle animate-[terminal-blink_1s_step-end_infinite]" />
     </span>
   )
 }
@@ -112,7 +111,7 @@ function CyberGridBackground() {
       <ParticleNetwork />
 
       {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#050a12] to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#0B0F14] to-transparent" />
 
       {/* Floating orbs */}
       <motion.div
@@ -127,7 +126,6 @@ function CyberGridBackground() {
       />
 
       {/* Scan line */}
-      <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent animate-[scan-line_8s_linear_infinite] opacity-60" />
     </div>
   )
 }
@@ -136,7 +134,7 @@ function CyberGridBackground() {
 function CredentialBadge({ label }: { label: string }) {
   return (
     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium border cat-cyber">
-      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-[glow-pulse_2s_ease-in-out_infinite]" />
+      <span className="w-1.5 h-1.5 rounded-full bg-primary" />
       {label}
     </span>
   )
@@ -212,7 +210,7 @@ export function HeroCommand({ lang = 'pt-BR', subtitle }: HeroCommandProps) {
               />
             </div>
             {/* Shield badge */}
-            <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#050a12] border-2 border-primary flex items-center justify-center">
+            <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#0B0F14] border-2 border-primary flex items-center justify-center">
               <Shield className="w-4 h-4 text-primary" />
             </div>
           </div>
@@ -275,7 +273,7 @@ export function HeroCommand({ lang = 'pt-BR', subtitle }: HeroCommandProps) {
           <Link
             href="#posts"
             className="group inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200
-              bg-primary text-[#050a12] hover:bg-primary/90
+              bg-primary text-[#0B0F14] hover:bg-primary/90
               shadow-[0_0_20px_rgba(0,180,216,0.3)] hover:shadow-[0_0_30px_rgba(0,180,216,0.5)]"
           >
             {isPT ? "Ler Artigos" : "Read Articles"}

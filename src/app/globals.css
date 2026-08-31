@@ -63,7 +63,7 @@
   --radius: 0.5rem;
 
   /* ── Deep Cyber Dark (default / forced dark) ── */
-  --background: #050a12;
+  --background: #0B0F14;  /* tinta neutra; era #0B0F14, azulado */
   --foreground: #e2e8f0;
   --card: #0d1520;
   --card-foreground: #e2e8f0;
@@ -71,9 +71,9 @@
   --popover-foreground: #e2e8f0;
 
   /* ── Cyber Cyan (brand) ── */
-  --primary: #00b4d8;
-  --primary-foreground: #050a12;
-  --primary-glow: rgba(0, 180, 216, 0.3);
+  --primary: #00ADE8;   /* acento da ness — era #00b4d8, quase certo */
+  --primary-foreground: #0B0F14;
+  --primary-glow: rgba(0, 173, 232, 0.18);
 
   /* ── Security Purple (accent) ── */
   --secondary: #161f2e;
@@ -99,13 +99,13 @@
   --warning: #f59e0b;
 
   /* ── Borders + inputs ── */
-  --border: rgba(0, 180, 216, 0.12);
+  --border: rgba(255, 255, 255, 0.07);
   --border-strong: rgba(0, 180, 216, 0.3);
   --input: #161f2e;
   --ring: rgba(0, 180, 216, 0.5);
 
   /* ── Charts ── */
-  --chart-1: #00b4d8;
+  --chart-1: #00ADE8;
   --chart-2: #7c3aed;
   --chart-3: #10b981;
   --chart-4: #f59e0b;
@@ -114,15 +114,15 @@
   /* ── Sidebar ── */
   --sidebar: #0d1520;
   --sidebar-foreground: #e2e8f0;
-  --sidebar-primary: #00b4d8;
-  --sidebar-primary-foreground: #050a12;
+  --sidebar-primary: #00ADE8;
+  --sidebar-primary-foreground: #0B0F14;
   --sidebar-accent: #161f2e;
   --sidebar-accent-foreground: #e2e8f0;
-  --sidebar-border: rgba(0, 180, 216, 0.12);
+  --sidebar-border: rgba(255, 255, 255, 0.07);
   --sidebar-ring: rgba(0, 180, 216, 0.5);
 
   /* ── Category accent colors ── */
-  --cat-cyber: #00b4d8;
+  --cat-cyber: #00ADE8;
   --cat-counter: #7c3aed;
   --cat-automation: #10b981;
   --cat-travel: #f59e0b;
@@ -199,10 +199,10 @@
 /* Cyber grid background */
 .bg-cyber-grid {
   background-image:
-    linear-gradient(rgba(0, 180, 216, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 180, 216, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(0, 173, 232, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 173, 232, 0.03) 1px, transparent 1px);
   background-size: 60px 60px;
-  animation: grid-pan 20s linear infinite;
+  /* Sem animação: um fundo que desliza sozinho é inquietação, não textura. */
 }
 
 /* Scanline overlay */
@@ -222,30 +222,20 @@
 }
 
 /* Glow text */
-.text-glow {
-  text-shadow:
-    0 0 20px var(--primary-glow),
-    0 0 40px var(--primary-glow);
-}
-
+/* Texto não brilha. O que era text-shadow vira uma mudança de cor no
+   hover — o mesmo sinal de "isto responde ao mouse", sem o halo. */
+.text-glow,
 .text-glow-sm {
-  text-shadow: 0 0 10px var(--primary-glow);
+  color: var(--primary);
+  filter: brightness(1.25);
 }
 
 /* Shimmer gradient text */
+/* Era um gradiente ciano→branco→roxo varrendo o próprio nome, animado.
+   Um nome que brilha sozinho é a coisa mais "gamer" da página. Agora é
+   texto — que é o que um nome é. */
 .text-shimmer {
-  background: linear-gradient(
-    90deg,
-    var(--primary) 0%,
-    #fff 40%,
-    var(--primary) 60%,
-    var(--purple) 100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 4s linear infinite;
+  color: var(--foreground);
 }
 
 /* Glass card effect */
@@ -253,24 +243,22 @@
   background: rgba(13, 21, 32, 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 180, 216, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   box-shadow:
     0 4px 24px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .glass-card:hover {
-  border-color: rgba(0, 180, 216, 0.35);
+  border-color: rgba(255, 255, 255, 0.14);
   box-shadow:
     0 8px 40px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(0, 180, 216, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* Cyber border */
 .border-cyber {
-  border: 1px solid rgba(0, 180, 216, 0.2);
-  box-shadow: 0 0 8px rgba(0, 180, 216, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.09);
 }
 
 /* Stat card accent */
@@ -286,18 +274,15 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--primary), transparent);
-  animation: shimmer 3s linear infinite;
-  background-size: 200% auto;
+  background: linear-gradient(90deg, transparent, rgba(0, 173, 232, 0.45), transparent);
 }
 
 /* Pulsing glow ring for avatar */
+/* O anel fica — dá foco ao retrato. O halo de 40px e a pulsação saem. */
 .avatar-glow {
   box-shadow:
-    0 0 0 3px rgba(0, 180, 216, 0.3),
-    0 0 0 6px rgba(0, 180, 216, 0.1),
-    0 0 40px rgba(0, 180, 216, 0.2);
-  animation: pulse-glow 3s ease-in-out infinite;
+    0 0 0 1px rgba(0, 173, 232, 0.45),
+    0 0 0 5px rgba(0, 173, 232, 0.08);
 }
 
 /* Terminal cursor */
@@ -309,11 +294,14 @@
 }
 
 /* Category pill colors */
-.cat-cyber     { color: var(--cat-cyber);      border-color: rgba(0, 180, 216, 0.3);    background: rgba(0, 180, 216, 0.08); }
-.cat-counter   { color: var(--cat-counter);    border-color: rgba(124, 58, 237, 0.3);   background: rgba(124, 58, 237, 0.08); }
-.cat-automation{ color: var(--cat-automation); border-color: rgba(16, 185, 129, 0.3);   background: rgba(16, 185, 129, 0.08); }
-.cat-travel    { color: var(--cat-travel);     border-color: rgba(245, 158, 11, 0.3);   background: rgba(245, 158, 11, 0.08); }
-.cat-general   { color: var(--cat-general);    border-color: rgba(100, 116, 139, 0.3);  background: rgba(100, 116, 139, 0.08); }
+/* Quatro matizes concorrentes (ciano, roxo, esmeralda, âmbar) eram o que
+   mais fazia a página parecer HUD de jogo — mais que os brilhos. Agora a
+   categoria se distingue por peso dentro de uma família só. */
+.cat-cyber     { color: #7FD8F2; border-color: rgba(0, 173, 232, 0.28); background: rgba(0, 173, 232, 0.07); }
+.cat-counter   { color: #A8C6D4; border-color: rgba(168, 198, 212, 0.22); background: rgba(168, 198, 212, 0.05); }
+.cat-automation{ color: #8FB4C4; border-color: rgba(143, 180, 196, 0.22); background: rgba(143, 180, 196, 0.05); }
+.cat-travel    { color: #B9C6CD; border-color: rgba(185, 198, 205, 0.20); background: rgba(185, 198, 205, 0.05); }
+.cat-general   { color: #8C979F; border-color: rgba(140, 151, 159, 0.22); background: rgba(140, 151, 159, 0.05); }
 
 /* Animate in */
 .animate-fade-in-up {

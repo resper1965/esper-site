@@ -106,7 +106,7 @@ export default async function Sobre({
   ]
 
   return (
-    <div className="min-h-screen bg-[#050a12]">
+    <div className="min-h-screen bg-[#0B0F14]">
       {/* Background */}
       <div className="fixed inset-0 bg-cyber-grid opacity-20 pointer-events-none" aria-hidden />
 
@@ -125,7 +125,7 @@ export default async function Sobre({
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full bg-[#050a12] border-2 border-primary flex items-center justify-center">
+              <div className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full bg-[#0B0F14] border-2 border-primary flex items-center justify-center">
                 <Shield className="w-5 h-5 text-primary" />
               </div>
             </div>
@@ -280,7 +280,7 @@ export default async function Sobre({
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm
-                bg-primary text-[#050a12] hover:bg-primary/90
+                bg-primary text-[#0B0F14] hover:bg-primary/90
                 shadow-[0_0_20px_rgba(0,180,216,0.3)] hover:shadow-[0_0_30px_rgba(0,180,216,0.5)]
                 transition-all duration-200"
             >

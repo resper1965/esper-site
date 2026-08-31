@@ -29,7 +29,7 @@ function getCategoryClass(tag: string): string {
 function getCategoryAccent(tag: string): string {
   const t = tag.toLowerCase()
   if (t.includes("cyber") || t.includes("segu") || t.includes("security"))
-    return "from-[#00b4d8] to-[#0077a8]"
+    return "from-[#00ADE8] to-[#00658A]"
   if (t.includes("contra") || t.includes("counter") || t.includes("espio"))
     return "from-[#7c3aed] to-[#5b21b6]"
   if (t.includes("autom") || t.includes("home") || t.includes("smart"))
