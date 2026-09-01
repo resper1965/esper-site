@@ -51,7 +51,6 @@ export type SiteConfig = typeof siteConfig;
 export const identityProfiles = {
   linkedin: "https://www.linkedin.com/in/ricardoesper",
   github: "https://github.com/resper1965",
-  twitter: "https://twitter.com/ricardoesper",
 } as const;
 
 /**

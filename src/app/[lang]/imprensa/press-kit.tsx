@@ -41,8 +41,8 @@ export async function PressKit({ lang }: { lang: Locale }) {
       length: isPT ? "Longa (~140 palavras)" : "Long (~140 words)",
       hint: isPT ? "Perfil, apresentação de palestra" : "Profile, speaker introduction",
       text: isPT
-        ? `Ricardo Esper é Chief Information Security Officer (CISO) e consultor internacional com mais de ${yearsOfExperience()} anos dedicados à segurança da informação. Fundou a NESS em 1991, quando cibersegurança ainda era um assunto de nicho no Brasil, e desde então construiu um portfólio de empresas voltadas a diferentes camadas do problema: forense.io (forense digital), Trustness (privacidade e compliance) e Infinity Safe (proteção executiva). Atualmente é CISO da IONIC Health, onde lidera a estratégia de segurança em saúde digital — um setor sob pressão simultânea de LGPD, HIPAA e ataques de ransomware. Sua atuação combina governança — é auditor líder ISO/IEC 27001 e 27701, além de CCISO — com prática técnica (CEHv8, OSINT, TSCM). É membro de OWASP, IAPP, HackerOne, ERII e OAB/SP, e escreve regularmente sobre ameaças, privacidade e resposta a incidentes em esper.ws.`
-        : `Ricardo Esper is a Chief Information Security Officer (CISO) and international consultant with over ${yearsOfExperience()} years dedicated to information security. He founded NESS in 1991, when cybersecurity was still a niche subject in Brazil, and has since built a portfolio of companies addressing different layers of the problem: forense.io (digital forensics), Trustness (privacy and compliance) and Infinity Safe (executive protection). He is currently CISO of IONIC Health, where he leads security strategy in digital health — a sector under simultaneous pressure from LGPD, HIPAA and ransomware attacks. His work combines governance — ISO/IEC 27001 and 27701 Lead Auditor, and CCISO — with hands-on technical practice (CEHv8, OSINT, TSCM). He is a member of OWASP, IAPP, HackerOne, ERII and OAB/SP, and writes regularly about threats, privacy and incident response at esper.ws.`,
+        ? `Ricardo Esper é Chief Information Security Officer (CISO) e consultor internacional com mais de ${yearsOfExperience()} anos dedicados à segurança da informação. Fundou a NESS em 1991, quando cibersegurança ainda era um assunto de nicho no Brasil, e desde então construiu um portfólio de empresas voltadas a diferentes camadas do problema: forense.io (forense digital), Trustness (privacidade e compliance) e Infinity Safe (proteção executiva). Atualmente é CISO da IONIC Health, onde lidera a estratégia de segurança em saúde digital — um setor sob pressão simultânea de LGPD, HIPAA e ataques de ransomware. Sua atuação combina governança — é auditor líder ISO/IEC 27001 e 27701, além de CCISO — com prática técnica (CEHv8, OSINT, TSCM). É membro de OWASP, IAPP, HackerOne, ERII e OAB/SP, e escreve regularmente sobre ameaças, privacidade e resposta a incidentes em ricardoesper.com.br.`
+        : `Ricardo Esper is a Chief Information Security Officer (CISO) and international consultant with over ${yearsOfExperience()} years dedicated to information security. He founded NESS in 1991, when cybersecurity was still a niche subject in Brazil, and has since built a portfolio of companies addressing different layers of the problem: forense.io (digital forensics), Trustness (privacy and compliance) and Infinity Safe (executive protection). He is currently CISO of IONIC Health, where he leads security strategy in digital health — a sector under simultaneous pressure from LGPD, HIPAA and ransomware attacks. His work combines governance — ISO/IEC 27001 and 27701 Lead Auditor, and CCISO — with hands-on technical practice (CEHv8, OSINT, TSCM). He is a member of OWASP, IAPP, HackerOne, ERII and OAB/SP, and writes regularly about threats, privacy and incident response at ricardoesper.com.br.`,
     },
   ]
 
@@ -84,7 +84,6 @@ export async function PressKit({ lang }: { lang: Locale }) {
   const facts = [
     { label: isPT ? "Anos de experiência" : "Years of experience", value: `${yearsOfExperience()}+` },
     { label: isPT ? "NESS fundada em" : "NESS founded in", value: "1991" },
-    { label: isPT ? "Países atendidos" : "Countries served", value: "12+" },
     { label: isPT ? "Cargo atual" : "Current role", value: "CISO — IONIC Health" },
     { label: isPT ? "Certificações" : "Certifications", value: certificationBadges().join(" · ") },
     { label: isPT ? "Idiomas de entrevista" : "Interview languages", value: isPT ? "Português · Inglês" : "Portuguese · English" },
@@ -265,10 +264,9 @@ export async function PressKit({ lang }: { lang: Locale }) {
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { name: "esper.ws", url: siteConfig.url },
+              { name: "ricardoesper.com.br", url: siteConfig.url },
               { name: "LinkedIn", url: identityProfiles.linkedin },
               { name: "GitHub", url: identityProfiles.github },
-              { name: "X / Twitter", url: identityProfiles.twitter },
             ].map(({ name, url }) => (
               <a
                 key={name}
