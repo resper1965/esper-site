@@ -6,6 +6,7 @@ import { getDictionary } from '@/i18n/dictionaries';
 import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics as GoogleAnalytics } from "@/components/analytics";
 import { generatePageMetadata } from "@/lib/metadata";
+import { siteConfig } from "@/lib/site";
 import { headers } from "next/headers";
 import { i18n, type Locale } from "@/i18n/config";
 import "./globals.css";
@@ -44,7 +45,7 @@ export async function generateMetadata(): Promise<Metadata> {
       lang: LANG,
       keywords,
     }),
-    metadataBase: new URL("https://esper.ws"),
+    metadataBase: new URL(siteConfig.url),
     title: {
       default: dict.site.name,
       template: `%s - ${dict.site.name}`,

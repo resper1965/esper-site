@@ -93,10 +93,11 @@ export function generatePageMetadata({
       }),
     },
 
+    // O card continua valendo: X, Slack, WhatsApp e vários leitores usam estas
+    // tags para montar o preview. O que saiu foram `site` e `creator`, que
+    // atribuiriam o conteúdo a uma conta que nao esta mais em uso.
     twitter: {
       card: 'summary_large_image',
-      site: '@ricardoesper',
-      creator: '@ricardoesper',
       title,
       description,
       images: [ogImage],

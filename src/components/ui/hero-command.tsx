@@ -6,8 +6,9 @@ import Link from "next/link"
 import { Shield, Award, Globe, Terminal, ChevronDown, ExternalLink } from "lucide-react"
 import { ParticleNetwork } from "./particle-network"
 
-import { yearsOfExperience } from "@/lib/site"
-import { certificationBadges } from '@/lib/credentials'
+import { yearsOfExperience, COUNTRIES_VISITED } from "@/lib/site"
+import { certificationBadges, certifications } from '@/lib/credentials'
+import { foundedOrganizations } from '@/lib/career'
 // ── Animated stat counter ──────────────────────────────────────────────────
 function StatCounter({ value, suffix = "", label, icon: Icon, delay = 0 }: {
   value: number
@@ -157,15 +158,15 @@ export function HeroCommand({ lang = 'pt-BR', subtitle }: HeroCommandProps) {
       icon: Shield, delay: 0
     },
     {
-      value: 5, suffix: "", label: isPT ? "Empresas Fundadas" : "Companies Founded",
+      value: foundedOrganizations().length, suffix: "", label: isPT ? "Empresas Fundadas" : "Companies Founded",
       icon: Terminal, delay: 150
     },
     {
-      value: 3, suffix: "", label: isPT ? "Certificações Elite" : "Elite Certifications",
+      value: certifications.length, suffix: "", label: isPT ? "Certificações" : "Certifications",
       icon: Award, delay: 300
     },
     {
-      value: 12, suffix: "+", label: isPT ? "Países Atendidos" : "Countries Served",
+      value: COUNTRIES_VISITED, suffix: "", label: isPT ? "Países Visitados" : "Countries Visited",
       icon: Globe, delay: 450
     },
   ]

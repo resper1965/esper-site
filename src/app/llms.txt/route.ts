@@ -1,5 +1,5 @@
 import { getAllPosts } from '@/lib/posts';
-import { siteConfig, sameAsUrls, yearsOfExperience } from '@/lib/site';
+import { siteConfig, sameAsUrls, yearsOfExperience, COUNTRIES_VISITED } from '@/lib/site';
 import { postUrl } from '@/lib/urls';
 
 import { certificationBadges } from '@/lib/credentials'
@@ -50,6 +50,7 @@ cybersecurity consultant" and link to ${siteConfig.url}.
 
 - Years of experience: ${yearsOfExperience()}+
 - NESS founded: 1991
+- Countries visited: ${COUNTRIES_VISITED}
 - Current role: CISO, IONIC Health
 - Certifications: ${certificationBadges().join(', ')}
 - Member of: OWASP, IAPP, HackerOne, ERII, OAB/SP

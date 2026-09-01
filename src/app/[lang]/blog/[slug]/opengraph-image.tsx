@@ -211,7 +211,7 @@ export default async function Image({
                 marginLeft: 'auto',
               }}
             >
-              esper.ws
+              ricardoesper.com.br
             </div>
           </div>
         </div>
