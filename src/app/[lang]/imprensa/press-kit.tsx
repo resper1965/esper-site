@@ -1,6 +1,6 @@
 import { getDictionary } from "@/i18n/dictionaries"
 import { Locale } from "@/i18n/config"
-import { siteConfig, identityProfiles, yearsOfExperience } from "@/lib/site"
+import { siteConfig, identityProfiles, yearsOfExperience, COUNTRIES_VISITED } from "@/lib/site"
 import { CopyButton } from "@/components/copy-button"
 import { certificationBadges } from "@/lib/credentials"
 import {
@@ -84,6 +84,7 @@ export async function PressKit({ lang }: { lang: Locale }) {
   const facts = [
     { label: isPT ? "Anos de experiência" : "Years of experience", value: `${yearsOfExperience()}+` },
     { label: isPT ? "NESS fundada em" : "NESS founded in", value: "1991" },
+    { label: isPT ? "Países visitados" : "Countries visited", value: `${COUNTRIES_VISITED}` },
     { label: isPT ? "Cargo atual" : "Current role", value: "CISO — IONIC Health" },
     { label: isPT ? "Certificações" : "Certifications", value: certificationBadges().join(" · ") },
     { label: isPT ? "Idiomas de entrevista" : "Interview languages", value: isPT ? "Português · Inglês" : "Portuguese · English" },

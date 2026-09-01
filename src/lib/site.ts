@@ -25,6 +25,17 @@ export function yearsOfExperience(now: Date = new Date()): number {
   return now.getFullYear() - CAREER_START_YEAR;
 }
 
+/**
+ * Países que ele conhece pessoalmente.
+ *
+ * Substitui o "12 países atendidos" que estava no ar até setembro de 2026 —
+ * número inventado, e ainda por cima com moldura corporativa. Este é
+ * biográfico e informado por ele: visitou, não "atendeu". A distinção
+ * importa, porque é a diferença entre um fato que ele sustenta numa
+ * entrevista e um que não.
+ */
+export const COUNTRIES_VISITED = 74;
+
 export const siteConfig = {
   name: "Ricardo Esper",
   url: "https://www.ricardoesper.com.br",

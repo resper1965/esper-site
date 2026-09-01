@@ -3,10 +3,10 @@
 import * as React from "react"
 import { motion, useInView } from "framer-motion"
 import Link from "next/link"
-import { Shield, Award, Terminal, ChevronDown, ExternalLink } from "lucide-react"
+import { Shield, Award, Globe, Terminal, ChevronDown, ExternalLink } from "lucide-react"
 import { ParticleNetwork } from "./particle-network"
 
-import { yearsOfExperience } from "@/lib/site"
+import { yearsOfExperience, COUNTRIES_VISITED } from "@/lib/site"
 import { certificationBadges, certifications } from '@/lib/credentials'
 import { foundedOrganizations } from '@/lib/career'
 // ── Animated stat counter ──────────────────────────────────────────────────
@@ -164,6 +164,10 @@ export function HeroCommand({ lang = 'pt-BR', subtitle }: HeroCommandProps) {
     {
       value: certifications.length, suffix: "", label: isPT ? "Certificações" : "Certifications",
       icon: Award, delay: 300
+    },
+    {
+      value: COUNTRIES_VISITED, suffix: "", label: isPT ? "Países Visitados" : "Countries Visited",
+      icon: Globe, delay: 450
     },
   ]
 
