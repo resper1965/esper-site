@@ -32,8 +32,12 @@ export interface Talk {
    * verdade; uma data completa inventada seria mais bonita e falsa.
    */
   startDate: string;
-  /** Online, ou o lugar. */
-  mode: 'online' | 'presencial';
+  /**
+   * Online ou presencial. Opcional porque nem todo material divulgado diz —
+   * e adivinhar erra tanto para um lado quanto para o outro. Ausente, o
+   * schema simplesmente omite `eventAttendanceMode` em vez de afirmar.
+   */
+  mode?: 'online' | 'presencial';
   location?: string;
   /**
    * Página pública de inscrição — o endereço que a organização divulgou.
@@ -109,6 +113,35 @@ export const talks: Talk[] = [
         'Painel sobre ameaças, incidentes no mundo real, boas práticas e soluções recomendadas em cibersegurança.',
       en: 'A panel on threats, real-world incidents, good practice and recommended solutions in cybersecurity.',
     },
+  },
+  {
+    id: 'ibdee-congresso-2024-fraudes-do-futuro',
+    title: {
+      'pt-BR': 'Fraudes do mundo de digitalização e reputação: o que será preciso fazer para prevenir e tratar?',
+      en: 'Fraud in a digitalised, reputation-driven world: what will it take to prevent and address it?',
+    },
+    program: {
+      'pt-BR': '2º Congresso IBDEE de Compliance e Ética Empresarial — painel Fraudes do Futuro',
+      en: '2nd IBDEE Congress on Compliance and Business Ethics — Fraud of the Future panel',
+    },
+    host: {
+      name: 'Instituto Brasileiro de Direito e Ética Empresarial (IBDEE)',
+      url: 'https://ibdee.org.br',
+    },
+    // Data completa, do próprio material de divulgação.
+    startDate: '2024-04-18',
+    // O card não informa o formato. Sem `mode`, o schema omite o campo em
+    // vez de chutar entre presencial e online.
+    role: {
+      'pt-BR': 'Palestrante, ao lado da RD Saúde e da Polícia Civil de São Paulo',
+      en: 'Speaker, alongside RD Saúde and the São Paulo Civil Police',
+    },
+    summary: {
+      'pt-BR':
+        'Painel sobre as fraudes que a digitalização torna possíveis e o que a reputação tem a ver com prevenção e resposta.',
+      en: 'A panel on the frauds that digitalisation makes possible, and what reputation has to do with prevention and response.',
+    },
+    relatedPostSlug: 'ninguem-escreve-propina',
   },
 ];
 

@@ -586,6 +586,7 @@ export function generateProfessionalServiceSchema(lang: Locale = 'pt-BR') {
  */
 export function generateEventSchema(talk: Talk, lang: Locale = 'pt-BR') {
   const isOnline = talk.mode === 'online';
+  const isPresencial = talk.mode === 'presencial';
 
   return {
     '@context': 'https://schema.org',
@@ -599,23 +600,34 @@ export function generateEventSchema(talk: Talk, lang: Locale = 'pt-BR') {
     description: talk.summary[lang],
     startDate: talk.startDate,
     eventStatus: 'https://schema.org/EventScheduled',
-    eventAttendanceMode: isOnline
-      ? 'https://schema.org/OnlineEventAttendanceMode'
-      : 'https://schema.org/OfflineEventAttendanceMode',
+    // Sem `mode` não há afirmação: omitir é mais honesto que escolher um
+    // dos dois e errar metade das vezes.
+    ...(talk.mode
+      ? {
+          eventAttendanceMode: isOnline
+            ? 'https://schema.org/OnlineEventAttendanceMode'
+            : 'https://schema.org/OfflineEventAttendanceMode',
+        }
+      : {}),
     // Para evento online o schema.org quer um VirtualLocation com URL; um
     // Place com nome "Online" é o erro comum e o Google reclama dele.
     // Para evento online o schema.org quer VirtualLocation; um Place chamado
     // "Online" é o erro comum. A URL de acesso é a da sala quando ela existe;
     // quando só há a página de inscrição, é ela que vai, porque é o endereço
     // público que a organização de fato divulgou.
-    location: isOnline
+    ...(isOnline
       ? {
-          '@type': 'VirtualLocation',
-          ...(talk.accessUrl ?? talk.registrationUrl
-            ? { url: talk.accessUrl ?? talk.registrationUrl }
-            : {}),
+          location: {
+            '@type': 'VirtualLocation',
+            ...(talk.accessUrl ?? talk.registrationUrl
+              ? { url: talk.accessUrl ?? talk.registrationUrl }
+              : {}),
+          },
         }
-      : { '@type': 'Place', name: talk.location ?? '', address: talk.location ?? '' },
+      : {}),
+    ...(isPresencial && talk.location
+      ? { location: { '@type': 'Place', name: talk.location, address: talk.location } }
+      : {}),
     performer: {
       '@type': 'Person',
       '@id': `${siteConfig.url}/sobre#person`,

@@ -125,24 +125,26 @@ export default async function Palestras({
                     {formatDate(talk.startDate, lang)}
                   </dd>
                 </div>
-                <div>
-                  <dt className="text-xs font-mono uppercase tracking-wide text-muted-foreground mb-1">
-                    {isPT ? "Formato" : "Format"}
-                  </dt>
-                  <dd className="flex items-center gap-2">
-                    {talk.mode === "online" ? (
-                      <>
-                        <Video className="w-3.5 h-3.5 text-primary shrink-0" />
-                        Online
-                      </>
-                    ) : (
-                      <>
-                        <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
-                        {talk.location}
-                      </>
-                    )}
-                  </dd>
-                </div>
+                {talk.mode && (
+                  <div>
+                    <dt className="text-xs font-mono uppercase tracking-wide text-muted-foreground mb-1">
+                      {isPT ? "Formato" : "Format"}
+                    </dt>
+                    <dd className="flex items-center gap-2">
+                      {talk.mode === "online" ? (
+                        <>
+                          <Video className="w-3.5 h-3.5 text-primary shrink-0" />
+                          Online
+                        </>
+                      ) : (
+                        <>
+                          <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
+                          {talk.location ?? (isPT ? "Presencial" : "In person")}
+                        </>
+                      )}
+                    </dd>
+                  </div>
+                )}
                 <div>
                   <dt className="text-xs font-mono uppercase tracking-wide text-muted-foreground mb-1">
                     {isPT ? "Realização" : "Host"}
