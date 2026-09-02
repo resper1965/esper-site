@@ -113,6 +113,11 @@ export const identityProfiles = {
   // legado, e é o que resolve. Verificar antes de escrever poupa um 404 no
   // grafo, que enfraquece em vez de fortalecer.
   youtube: "https://www.youtube.com/ricardoesper",
+  // Crunchbase devolve 403 a acesso automatizado, então a verificação aqui
+  // é a do Ricardo, não minha — ele forneceu a URL. Mesmo caso do LinkedIn
+  // e do GitHub: a regra de "verificar antes de incluir" continua valendo,
+  // mas quem verifica é quem consegue abrir a página.
+  crunchbase: "https://www.crunchbase.com/person/ricardo-esper-9f53",
 } as const;
 
 /**
@@ -127,7 +132,6 @@ export const identityProfiles = {
 export const pendingIdentityProfiles: Record<string, string> = {
   // wikidata: "https://www.wikidata.org/wiki/Q...",
   // orcid: "https://orcid.org/0000-...",
-  // crunchbase: "https://www.crunchbase.com/person/...",
   // lattes: "http://lattes.cnpq.br/...",
 };
 
