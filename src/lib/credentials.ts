@@ -16,22 +16,62 @@ export interface Credential {
   short: string;
   /** Nome por extenso, para o schema e para quem não conhece a sigla. */
   full: { 'pt-BR': string; en: string };
+  /**
+   * Quem emitiu, quando, e como conferir.
+   *
+   * Opcionais porque nem toda credencial da lista tem o documento em mãos —
+   * e uma certificação sem emissor continua sendo verdade, só não é
+   * verificável. Onde temos, o `hasCredential` deixa de ser um nome solto e
+   * vira um nó com órgão emissor e número: é a diferença entre "ele diz que
+   * é auditor líder" e "este número confere no site do organismo".
+   */
+  issuer?: { name: string; url?: string };
+  /** Número do certificado — o que se digita para conferir. */
+  identifier?: string;
+  /** Página onde a validade é confirmada. */
+  verificationUrl?: string;
+  /** Data de conclusão, ISO. */
+  dateIssued?: string;
+  /** Carga horária declarada no certificado. */
+  hours?: number;
 }
 
 export const certifications: Credential[] = [
+  // As duas ISO saem do mesmo exame, o PC01E09 da Global PCS: um curso de 40h
+  // encerrado em 20/08/2026 que cobre a 27001:2022 com extensão para a
+  // 27701:2025. Ficam separadas na lista porque são duas normas e o mercado
+  // procura por cada uma — mas compartilham emissor e número de certificado.
   {
     short: 'ISO 27001 Lead Auditor',
     full: {
-      'pt-BR': 'Auditor Líder ISO/IEC 27001 — Sistemas de Gestão de Segurança da Informação',
-      en: 'ISO/IEC 27001 Lead Auditor — Information Security Management Systems',
+      'pt-BR':
+        'Auditor Líder ISO/IEC 27001:2022 — Sistemas de Gestão de Segurança da Informação',
+      en: 'ISO/IEC 27001:2022 Lead Auditor — Information Security Management Systems',
     },
+    issuer: {
+      name: 'Global PCS Certificações',
+      url: 'https://www.globalpersoncert.com',
+    },
+    identifier: 'PC01E090056',
+    verificationUrl: 'https://www.globalpersoncert.com',
+    dateIssued: '2026-08-20',
+    hours: 40,
   },
   {
     short: 'ISO 27701 Lead Auditor',
     full: {
-      'pt-BR': 'Auditor Líder ISO/IEC 27701 — Sistemas de Gestão de Privacidade da Informação',
-      en: 'ISO/IEC 27701 Lead Auditor — Privacy Information Management Systems',
+      'pt-BR':
+        'Auditor Líder ISO/IEC 27701:2025 — Sistemas de Gestão de Privacidade da Informação',
+      en: 'ISO/IEC 27701:2025 Lead Auditor — Privacy Information Management Systems',
     },
+    issuer: {
+      name: 'Global PCS Certificações',
+      url: 'https://www.globalpersoncert.com',
+    },
+    identifier: 'PC01E090056',
+    verificationUrl: 'https://www.globalpersoncert.com',
+    dateIssued: '2026-08-20',
+    hours: 40,
   },
   {
     short: 'CCISO',

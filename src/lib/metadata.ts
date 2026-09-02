@@ -278,9 +278,33 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
       'Ransomware Defense',
       'Cloud Security',
     ],
+    // Uma credencial com emissor e número é conferível; uma só com o nome é
+    // afirmação. `recognizedBy` e `identifier` são os campos que um buscador
+    // usa para distinguir as duas.
     hasCredential: certifications.map((c) => ({
       '@type': 'EducationalOccupationalCredential',
       name: c.full[lang],
+      credentialCategory: 'certification',
+      ...(c.issuer
+        ? {
+            recognizedBy: {
+              '@type': 'Organization',
+              name: c.issuer.name,
+              ...(c.issuer.url ? { url: c.issuer.url } : {}),
+            },
+          }
+        : {}),
+      ...(c.identifier
+        ? {
+            identifier: {
+              '@type': 'PropertyValue',
+              propertyID: 'certificateNumber',
+              value: c.identifier,
+            },
+          }
+        : {}),
+      ...(c.verificationUrl ? { url: c.verificationUrl } : {}),
+      ...(c.dateIssued ? { dateCreated: c.dateIssued } : {}),
     })),
     memberOf: memberships.map((m) => ({
       '@type': 'Organization',

@@ -202,6 +202,28 @@ export function isYearOnly(startDate: string): boolean {
   return /^\d{4}$/.test(startDate);
 }
 
+/**
+ * Verdadeiro quando temos o dia mas não a hora — `2024-04-18`.
+ *
+ * Precisa de tratamento próprio porque `new Date('2024-04-18')` é meia-noite
+ * UTC, e meia-noite UTC em São Paulo é 21:00 do dia anterior. Formatar isso
+ * com fuso mostraria a palestra do IBDEE um dia antes da data confirmada no
+ * card do evento — e ainda inventaria um horário que ninguém nos deu.
+ */
+export function isDateOnly(startDate: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(startDate);
+}
+
+/**
+ * O instante usado para comparar com "agora".
+ *
+ * Uma data sem hora vale o dia inteiro: só deixa de ser futura quando o dia
+ * acaba em São Paulo, que é o fuso em que estas palestras acontecem.
+ */
+export function talkInstant(startDate: string): Date {
+  return new Date(isDateOnly(startDate) ? `${startDate}T23:59:59-03:00` : startDate);
+}
+
 /** Mais recente primeiro. Comparar strings ISO ordena certo em ambos os casos. */
 export function talksByDate(): Talk[] {
   return [...talks].sort((a, b) => b.startDate.localeCompare(a.startDate));
@@ -212,13 +234,13 @@ export function upcomingTalks(now: Date = new Date()): Talk[] {
   // Um registro só com o ano nunca conta como "em breve": ele existe
   // justamente porque a data exata se perdeu, o que significa que já passou.
   return talks
-    .filter((t) => !isYearOnly(t.startDate) && new Date(t.startDate) >= now)
+    .filter((t) => !isYearOnly(t.startDate) && talkInstant(t.startDate) >= now)
     .sort((a, b) => a.startDate.localeCompare(b.startDate));
 }
 
 /** Já aconteceram, mais recente primeiro. */
 export function pastTalks(now: Date = new Date()): Talk[] {
   return talks
-    .filter((t) => isYearOnly(t.startDate) || new Date(t.startDate) < now)
+    .filter((t) => isYearOnly(t.startDate) || talkInstant(t.startDate) < now)
     .sort((a, b) => b.startDate.localeCompare(a.startDate));
 }

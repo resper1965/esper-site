@@ -1,6 +1,6 @@
 import { Locale, i18n } from "@/i18n/config"
 import { generatePageMetadata, generateEventSchema, generateAppearanceSchema, generateWorkSchema } from "@/lib/metadata"
-import { talksByDate, upcomingTalks, isYearOnly } from "@/lib/talks"
+import { talksByDate, upcomingTalks, isYearOnly, isDateOnly } from "@/lib/talks"
 import { appearancesByDate } from "@/lib/appearances"
 import { worksByYear } from "@/lib/works"
 import { postUrl } from "@/lib/urls"
@@ -46,10 +46,27 @@ export async function generateMetadata({
 }
 
 function formatDate(iso: string, lang: Locale): string {
+  const locale = lang === "pt-BR" ? "pt-BR" : "en-US"
+
+  // Cada formato mostra exatamente a precisão que temos, e nada além dela.
+
   // Ano puro sai como ano. Passar "2024" ao Intl com opções de dia e hora
   // renderiza "1 de janeiro, 00:00" — uma precisão que não temos.
   if (isYearOnly(iso)) return iso
-  return new Intl.DateTimeFormat(lang === "pt-BR" ? "pt-BR" : "en-US", {
+
+  // Dia sem hora é data de calendário, não instante: converter de fuso aqui
+  // mostraria 18/04 como 17/04 às 21:00. Formatar em UTC, que é como a
+  // string foi lida, devolve o dia que o card do evento anuncia.
+  if (isDateOnly(iso)) {
+    return new Intl.DateTimeFormat(locale, {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(new Date(iso))
+  }
+
+  return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "long",
     year: "numeric",
