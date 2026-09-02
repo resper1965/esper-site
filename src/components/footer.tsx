@@ -20,6 +20,7 @@ export default function Footer({ lang }: FooterProps) {
         { label: "Blog", href: `/${lang}/blog` },
         { label: isPT ? "Sobre" : "About", href: `/${lang}/sobre` },
         { label: isPT ? "Serviços" : "Services", href: `/${lang}/servicos` },
+        { label: isPT ? "Palestras" : "Talks", href: `/${lang}/palestras` },
         { label: isPT ? "Imprensa" : "Press", href: `/${lang}/imprensa` },
       ],
     },

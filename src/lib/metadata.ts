@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { siteConfig, sameAsUrls, yearsInSecurity, BIRTH_DATE } from './site';
 import { i18n, type Locale } from '@/i18n/config';
 import { careerTimeline, foundedOrganizations, currentEmployers } from '@/lib/career';
+import type { Talk } from '@/lib/talks';
 
 import { certifications, memberships } from '@/lib/credentials'
 interface PageMetadataProps {
@@ -550,5 +551,62 @@ export function generateProfessionalServiceSchema(lang: Locale = 'pt-BR') {
         },
       })),
     },
+  };
+}
+
+/**
+ * JSON-LD para as palestras e aulas.
+ *
+ * Um `Event` com `performer` apontando para o mesmo `@id` do Person é o que
+ * transforma "sou palestrante" em dado: uma instituição nomeada, uma data,
+ * um assunto. Vale mais que qualquer adjetivo no texto corrido, porque não é
+ * o site afirmando sobre si mesmo — é o site declarando um fato que a
+ * organização anfitriã também publica, e que portanto pode ser conferido.
+ */
+export function generateEventSchema(talk: Talk, lang: Locale = 'pt-BR') {
+  const isOnline = talk.mode === 'online';
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    // `@id` sem locale, como `#person` e `#organization`: a palestra é uma
+    // só. Incluir o idioma criaria dois eventos para o mesmo fato, que é
+    // exatamente o tipo de duplicação de entidade que este site existe
+    // para evitar. A URL localizada vai em `url`, que é endereço.
+    '@id': `${siteConfig.url}/palestras#${talk.id}`,
+    name: talk.title[lang],
+    description: talk.summary[lang],
+    startDate: talk.startDate,
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: isOnline
+      ? 'https://schema.org/OnlineEventAttendanceMode'
+      : 'https://schema.org/OfflineEventAttendanceMode',
+    // Para evento online o schema.org quer um VirtualLocation com URL; um
+    // Place com nome "Online" é o erro comum e o Google reclama dele.
+    // Para evento online o schema.org quer VirtualLocation; um Place chamado
+    // "Online" é o erro comum. A URL de acesso é a da sala quando ela existe;
+    // quando só há a página de inscrição, é ela que vai, porque é o endereço
+    // público que a organização de fato divulgou.
+    location: isOnline
+      ? {
+          '@type': 'VirtualLocation',
+          ...(talk.accessUrl ?? talk.registrationUrl
+            ? { url: talk.accessUrl ?? talk.registrationUrl }
+            : {}),
+        }
+      : { '@type': 'Place', name: talk.location ?? '', address: talk.location ?? '' },
+    performer: {
+      '@type': 'Person',
+      '@id': `${siteConfig.url}/sobre#person`,
+      name: siteConfig.name,
+    },
+    organizer: {
+      '@type': 'Organization',
+      name: talk.host.name,
+      ...(talk.host.url ? { url: talk.host.url } : {}),
+    },
+    ...(talk.program ? { superEvent: { '@type': 'EventSeries', name: talk.program[lang] } } : {}),
+    ...(talk.registrationUrl ? { url: talk.registrationUrl } : {}),
+    inLanguage: lang,
   };
 }
