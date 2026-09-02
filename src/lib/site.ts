@@ -93,7 +93,10 @@ export type SiteConfig = typeof siteConfig;
  *
  * Search engines and LLMs reconcile "Ricardo Esper" into one entity by
  * cross-referencing these URLs. Every profile listed here MUST link back to
- * esper.ws, otherwise the link is one-way and carries far less weight.
+ * ricardoesper.com.br, otherwise the link is one-way and carries far less
+ * weight. (A regra dizia "esper.ws" até setembro de 2026, quando o canônico
+ * mudou — um comentário que aponta para o domínio preterido é uma instrução
+ * errada esperando alguém segui-la.)
  *
  * Only add a URL once the profile actually exists and is verified — a 404 in
  * `sameAs` weakens the whole graph instead of strengthening it.
@@ -101,6 +104,11 @@ export type SiteConfig = typeof siteConfig;
 export const identityProfiles = {
   linkedin: "https://www.linkedin.com/in/ricardoesper",
   github: "https://github.com/resper1965",
+  // about.me/resper cumpre a regra acima de forma verificável: a página
+  // responde 200 e traz um link de volta para ricardoesper.com.br. É a
+  // primeira ligação de mão dupla confirmada por medição, e não por
+  // suposição — LinkedIn e GitHub bloqueiam a checagem automatizada.
+  aboutMe: "https://about.me/resper",
 } as const;
 
 /**
