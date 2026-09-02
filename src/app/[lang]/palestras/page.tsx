@@ -1,9 +1,10 @@
 import { Locale, i18n } from "@/i18n/config"
-import { generatePageMetadata, generateEventSchema } from "@/lib/metadata"
+import { generatePageMetadata, generateEventSchema, generateAppearanceSchema } from "@/lib/metadata"
 import { talksByDate, upcomingTalks } from "@/lib/talks"
+import { appearancesByDate } from "@/lib/appearances"
 import { postUrl } from "@/lib/urls"
 import type { Metadata } from "next"
-import { Mic, Calendar, ExternalLink, Video, MapPin, ArrowRight } from "lucide-react"
+import { Mic, Calendar, ExternalLink, Video, MapPin, ArrowRight, Radio } from "lucide-react"
 import Link from "next/link"
 
 export async function generateStaticParams() {
@@ -63,6 +64,7 @@ export default async function Palestras({
   const isPT = lang === "pt-BR"
   const talks = talksByDate()
   const upcoming = new Set(upcomingTalks().map((t) => t.id))
+  const appearances = appearancesByDate()
 
   return (
     <div className="min-h-screen bg-[#0B0F14]">
@@ -169,6 +171,53 @@ export default async function Palestras({
             </li>
           ))}
         </ul>
+
+        {/* ── APARIÇÕES ─────────────────────────────────────── */}
+        {/* Separado das palestras porque a natureza é outra: aqui ele é o
+            assunto, não quem ensina. É o que responde "quem mais fala dessa
+            pessoa?" — e a resposta vem de fora, que é o que dá peso. */}
+        {appearances.length > 0 && (
+          <section className="space-y-6">
+            <div className="flex items-center gap-2">
+              <Radio className="w-4 h-4 text-primary" />
+              <h2 className="text-sm font-mono uppercase tracking-widest text-primary opacity-80">
+                {isPT ? "Aparições" : "Appearances"}
+              </h2>
+            </div>
+            <p className="text-muted-foreground leading-relaxed max-w-2xl">
+              {isPT
+                ? "Entrevistas e conversas em veículos de terceiros."
+                : "Interviews and conversations on third-party outlets."}
+            </p>
+            <ul className="space-y-4">
+              {appearances.map((a) => (
+                <li key={a.id} className="glass-card rounded-2xl p-6 space-y-3">
+                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <h3 className="text-lg font-semibold leading-snug">{a.title[lang]}</h3>
+                    {a.publishedDate && (
+                      <span className="text-xs font-mono text-muted-foreground">
+                        {new Date(a.publishedDate + "T12:00:00Z").getFullYear()}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{a.summary[lang]}</p>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm pt-1">
+                    <span className="text-muted-foreground">{a.series ?? a.outlet.name}</span>
+                    <a
+                      href={a.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-primary hover:underline"
+                    >
+                      {isPT ? "Assistir" : "Watch"}
+                      <ExternalLink className="w-3 h-3 shrink-0" />
+                    </a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </div>
 
       {/* Um Event por palestra, cada um apontando para o mesmo @id do Person.
@@ -179,6 +228,14 @@ export default async function Palestras({
           key={`schema-${talk.id}`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(generateEventSchema(talk, lang)) }}
+        />
+      ))}
+
+      {appearances.map((a) => (
+        <script
+          key={`schema-${a.id}`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(generateAppearanceSchema(a, lang)) }}
         />
       ))}
     </div>

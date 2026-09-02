@@ -46,3 +46,34 @@ describe('Event schema', () => {
     expect((s.location as Record<string, string>).url).toBe('https://sala.example/aula');
   });
 });
+
+describe('Aparições', () => {
+  it('só entram veículos independentes no subjectOf', async () => {
+    const { independentAppearances, appearances } = await import('@/lib/appearances');
+    expect(independentAppearances().every((a) => a.outlet.independent)).toBe(true);
+    expect(appearances.length).toBeGreaterThan(0);
+  });
+  it('o Person declara subjectOf com o veículo nomeado', async () => {
+    const { generatePersonSchema } = await import('@/lib/metadata');
+    const p = generatePersonSchema('pt-BR') as Record<string, unknown>;
+    const subj = p.subjectOf as Array<Record<string, unknown>>;
+    expect(subj.length).toBeGreaterThan(0);
+    expect((subj[0].publisher as Record<string, string>).name).toBeTruthy();
+  });
+  it('não emite uploadDate quando a data não foi confirmada', async () => {
+    const { generateAppearanceSchema } = await import('@/lib/metadata');
+    const { appearances } = await import('@/lib/appearances');
+    const semData = appearances.find((a) => !a.publishedDate);
+    if (semData) {
+      const s = generateAppearanceSchema(semData, 'pt-BR') as Record<string, unknown>;
+      expect(s).not.toHaveProperty('uploadDate');
+    }
+  });
+  it('a aparição aponta o Ricardo como about, não como performer', async () => {
+    const { generateAppearanceSchema } = await import('@/lib/metadata');
+    const { appearances } = await import('@/lib/appearances');
+    const s = generateAppearanceSchema(appearances[0], 'pt-BR') as Record<string, unknown>;
+    expect((s.about as Record<string, string>)['@id']).toMatch(/\/sobre#person$/);
+    expect(s).not.toHaveProperty('performer');
+  });
+});

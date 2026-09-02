@@ -109,6 +109,10 @@ export const identityProfiles = {
   // primeira ligação de mão dupla confirmada por medição, e não por
   // suposição — LinkedIn e GitHub bloqueiam a checagem automatizada.
   aboutMe: "https://about.me/resper",
+  // Canal próprio. A forma `@ricardoesper` devolve 404 — este é o handle
+  // legado, e é o que resolve. Verificar antes de escrever poupa um 404 no
+  // grafo, que enfraquece em vez de fortalecer.
+  youtube: "https://www.youtube.com/ricardoesper",
 } as const;
 
 /**
@@ -124,7 +128,6 @@ export const pendingIdentityProfiles: Record<string, string> = {
   // wikidata: "https://www.wikidata.org/wiki/Q...",
   // orcid: "https://orcid.org/0000-...",
   // crunchbase: "https://www.crunchbase.com/person/...",
-  // youtube: "https://www.youtube.com/@...",
   // lattes: "http://lattes.cnpq.br/...",
 };
 
