@@ -569,7 +569,11 @@ export function generateEventSchema(talk: Talk, lang: Locale = 'pt-BR') {
   return {
     '@context': 'https://schema.org',
     '@type': 'Event',
-    '@id': `${siteConfig.url}/${lang}/palestras#${talk.id}`,
+    // `@id` sem locale, como `#person` e `#organization`: a palestra é uma
+    // só. Incluir o idioma criaria dois eventos para o mesmo fato, que é
+    // exatamente o tipo de duplicação de entidade que este site existe
+    // para evitar. A URL localizada vai em `url`, que é endereço.
+    '@id': `${siteConfig.url}/palestras#${talk.id}`,
     name: talk.title[lang],
     description: talk.summary[lang],
     startDate: talk.startDate,
@@ -579,8 +583,17 @@ export function generateEventSchema(talk: Talk, lang: Locale = 'pt-BR') {
       : 'https://schema.org/OfflineEventAttendanceMode',
     // Para evento online o schema.org quer um VirtualLocation com URL; um
     // Place com nome "Online" é o erro comum e o Google reclama dele.
+    // Para evento online o schema.org quer VirtualLocation; um Place chamado
+    // "Online" é o erro comum. A URL de acesso é a da sala quando ela existe;
+    // quando só há a página de inscrição, é ela que vai, porque é o endereço
+    // público que a organização de fato divulgou.
     location: isOnline
-      ? { '@type': 'VirtualLocation', url: talk.url ?? siteConfig.url }
+      ? {
+          '@type': 'VirtualLocation',
+          ...(talk.accessUrl ?? talk.registrationUrl
+            ? { url: talk.accessUrl ?? talk.registrationUrl }
+            : {}),
+        }
       : { '@type': 'Place', name: talk.location ?? '', address: talk.location ?? '' },
     performer: {
       '@type': 'Person',
@@ -593,7 +606,7 @@ export function generateEventSchema(talk: Talk, lang: Locale = 'pt-BR') {
       ...(talk.host.url ? { url: talk.host.url } : {}),
     },
     ...(talk.program ? { superEvent: { '@type': 'EventSeries', name: talk.program[lang] } } : {}),
-    ...(talk.url ? { url: talk.url } : {}),
+    ...(talk.registrationUrl ? { url: talk.registrationUrl } : {}),
     inLanguage: lang,
   };
 }

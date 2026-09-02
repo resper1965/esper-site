@@ -37,6 +37,9 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
 
   // Internal links carry the locale prefix: those are the canonical URLs, and
   // linking to the un-prefixed form would bounce every click through a 307.
+  // Ponto de virada em `lg`, não `md`: com seis links mais logo, busca,
+  // seletor de idioma e o CTA do LinkedIn, a linha estoura por volta de
+  // 768px. Em tablet o menu vai para a gaveta.
   const navLinks = [
     { label: dict.nav.home, href: `/${lang}` },
     { label: dict.nav.about, href: `/${lang}/sobre` },
@@ -74,7 +77,7 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
+          <nav className="hidden lg:flex items-center gap-1" aria-label="Main navigation">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -117,7 +120,7 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
             <CommandPalette />
 
             {/* Language switcher */}
-            <div className="hidden md:flex items-center">
+            <div className="hidden lg:flex items-center">
               <LanguageSwitcher currentLocale={lang} />
             </div>
 
@@ -126,7 +129,7 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
               href="https://www.linkedin.com/in/ricardoesper"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold
+              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold
                 border border-[rgba(0,180,216,0.3)] text-primary hover:bg-[rgba(0,180,216,0.08)] hover:border-primary
                 transition-all duration-200"
             >
@@ -137,7 +140,7 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
             {/* Mobile menu toggle */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
+              className="lg:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200"
               aria-label={isOpen ? "Close menu" : "Open menu"}
               aria-expanded={isOpen}
             >
@@ -149,7 +152,7 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
 
       {/* Mobile drawer */}
       <div
-        className={`fixed inset-0 z-40 md:hidden transition-all duration-300 ${
+        className={`fixed inset-0 z-40 lg:hidden transition-all duration-300 ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >

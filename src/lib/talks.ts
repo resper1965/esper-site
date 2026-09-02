@@ -26,8 +26,17 @@ export interface Talk {
   /** Online, ou o lugar. */
   mode: 'online' | 'presencial';
   location?: string;
-  /** Onde se inscrever, quando público. */
-  url?: string;
+  /**
+   * Página pública de inscrição — o endereço que a organização divulgou.
+   * Vira `url` do Event: é por onde alguém confirma que o evento existe.
+   */
+  registrationUrl?: string;
+  /**
+   * Endereço da sala, quando conhecido. Separado da inscrição de propósito:
+   * apontar a página institucional como se fosse o local do evento diz ao
+   * consumidor de dados estruturados algo que não é verdade.
+   */
+  accessUrl?: string;
   /** O que a aula cobre — vira `description` no schema. */
   summary: { 'pt-BR': string; en: string };
   /** Post do blog que desenvolve o tema, quando existir. */
@@ -51,7 +60,10 @@ export const talks: Talk[] = [
     },
     startDate: '2026-09-10T19:00:00-03:00',
     mode: 'online',
-    url: 'https://ibdee.org.br',
+    // O card do IBDEE traz "inscrições em ibdee.org.br" — é o que eles
+    // divulgaram, então é o que declaramos. Sem `accessUrl`: o link da sala
+    // não é público, e inventar um seria pior que omitir.
+    registrationUrl: 'https://ibdee.org.br',
     summary: {
       'pt-BR':
         'O que já se usa hoje para apurar fraude, o que a inteligência artificial entrega — e o que ela quebra — e as primeiras 48 horas de uma investigação interna.',
