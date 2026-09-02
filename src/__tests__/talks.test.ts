@@ -77,3 +77,35 @@ describe('Aparições', () => {
     expect(s).not.toHaveProperty('performer');
   });
 });
+
+describe('Data só com o ano', () => {
+  it('reconhece o formato', async () => {
+    const { isYearOnly } = await import('@/lib/talks');
+    expect(isYearOnly('2024')).toBe(true);
+    expect(isYearOnly('2026-09-10T19:00:00-03:00')).toBe(false);
+  });
+  it('nunca conta como "em breve", por mais no futuro que o ano pareça', async () => {
+    const { upcomingTalks } = await import('@/lib/talks');
+    const ids = upcomingTalks(new Date('2020-01-01')).map((t) => t.id);
+    expect(ids).not.toContain('microsoft-reactor-cybersecurity-night-2024');
+  });
+  it('e sempre conta como passado', async () => {
+    const { pastTalks } = await import('@/lib/talks');
+    const ids = pastTalks(new Date('2020-01-01')).map((t) => t.id);
+    expect(ids).toContain('microsoft-reactor-cybersecurity-night-2024');
+  });
+  it('o schema emite o ano como startDate, sem inventar dia', async () => {
+    const { generateEventSchema } = await import('@/lib/metadata');
+    const { talks } = await import('@/lib/talks');
+    const ms = talks.find((t) => t.id === 'microsoft-reactor-cybersecurity-night-2024')!;
+    const s = generateEventSchema(ms, 'pt-BR') as Record<string, unknown>;
+    expect(s.startDate).toBe('2024');
+  });
+  it('nomeia a Microsoft como organizadora', async () => {
+    const { generateEventSchema } = await import('@/lib/metadata');
+    const { talks } = await import('@/lib/talks');
+    const ms = talks.find((t) => t.id === 'microsoft-reactor-cybersecurity-night-2024')!;
+    const s = generateEventSchema(ms, 'pt-BR') as Record<string, unknown>;
+    expect((s.organizer as Record<string, string>).name).toContain('Microsoft');
+  });
+});

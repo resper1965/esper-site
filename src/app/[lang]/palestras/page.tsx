@@ -1,6 +1,6 @@
 import { Locale, i18n } from "@/i18n/config"
 import { generatePageMetadata, generateEventSchema, generateAppearanceSchema } from "@/lib/metadata"
-import { talksByDate, upcomingTalks } from "@/lib/talks"
+import { talksByDate, upcomingTalks, isYearOnly } from "@/lib/talks"
 import { appearancesByDate } from "@/lib/appearances"
 import { postUrl } from "@/lib/urls"
 import type { Metadata } from "next"
@@ -45,6 +45,9 @@ export async function generateMetadata({
 }
 
 function formatDate(iso: string, lang: Locale): string {
+  // Ano puro sai como ano. Passar "2024" ao Intl com opções de dia e hora
+  // renderiza "1 de janeiro, 00:00" — uma precisão que não temos.
+  if (isYearOnly(iso)) return iso
   return new Intl.DateTimeFormat(lang === "pt-BR" ? "pt-BR" : "en-US", {
     day: "2-digit",
     month: "long",
@@ -105,6 +108,9 @@ export default async function Palestras({
                   </p>
                 )}
                 <h2 className="text-xl font-semibold leading-snug">{talk.title[lang]}</h2>
+                {talk.role && (
+                  <p className="text-sm text-muted-foreground mt-1">{talk.role[lang]}</p>
+                )}
               </div>
 
               <p className="text-muted-foreground leading-relaxed">{talk.summary[lang]}</p>
