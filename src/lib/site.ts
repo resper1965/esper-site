@@ -1,28 +1,67 @@
 /**
- * Ano em que a carreira em segurança da informação começou.
+ * Duas carreiras, duas contas.
  *
- * Fonte única do tempo de experiência afirmado em todo o site. Antes disto
- * o número estava escrito à mão em treze lugares — e em duas versões que se
- * contradiziam: "34+ anos" em nove deles e "três décadas" (trinta) nos
- * outros quatro. Uma entidade que declara durações diferentes sobre si mesma
- * enfraquece exatamente o sinal que este site existe para emitir.
+ * 1985 é o início em tecnologia; 1991, o início em segurança da informação —
+ * o ano em que ele fundou a ness. Os dois números são verdadeiros sobre
+ * coisas diferentes, e por um tempo o site chamou os 41 de "anos em cyber",
+ * o que contradizia o material que o próprio Ricardo distribui (o card do
+ * IBDEE, por exemplo, diz 35 anos em cibersegurança).
  *
- * Havia também um problema aritmético: 34 anos antes de 2026 é 1992, e a
- * NESS foi fundada em 1991 — não se funda uma empresa de segurança um ano
- * antes de entrar na área.
+ * Uma entidade que declara durações diferentes sobre si mesma enfraquece
+ * exatamente o sinal que este site existe para emitir. Separar as contas
+ * resolve na origem: cada número passa a ter um rótulo que o sustenta.
  *
- * 1985 é o ano que o Ricardo confirmou. A NESS, fundada seis anos depois,
- * passa a fazer sentido na linha do tempo.
+ * Antes disto o número estava escrito à mão em treze lugares, em duas
+ * versões que se contradiziam — "34+ anos" em nove e "três décadas" nos
+ * outros quatro. E 34 anos antes de 2026 daria 1992, um ano depois da
+ * fundação da ness: não se funda uma empresa de segurança antes de entrar
+ * na área.
  */
-export const CAREER_START_YEAR = 1985;
+export const TECH_START_YEAR = 1985;
+
+/** Início em segurança da informação — o ano da fundação da ness. */
+export const SECURITY_START_YEAR = 1991;
 
 /**
- * Anos de experiência, calculados. Um número escrito à mão envelhece em
- * silêncio: "34 anos" continuaria dizendo 34 no ano que vem, e ninguém
- * lembraria dos treze arquivos.
+ * Mantido como apelido de TECH_START_YEAR: `career.ts` e a página Sobre
+ * ancoram a linha do tempo no começo da trajetória, não no recorte de
+ * segurança.
+ */
+export const CAREER_START_YEAR = TECH_START_YEAR;
+
+/**
+ * Anos em tecnologia. Um número escrito à mão envelhece em silêncio: "34
+ * anos" continuaria dizendo 34 no ano que vem, e ninguém lembraria dos
+ * treze arquivos.
  */
 export function yearsOfExperience(now: Date = new Date()): number {
-  return now.getFullYear() - CAREER_START_YEAR;
+  return now.getFullYear() - TECH_START_YEAR;
+}
+
+/** Anos em segurança da informação — o recorte mais estrito, desde a ness. */
+export function yearsInSecurity(now: Date = new Date()): number {
+  return now.getFullYear() - SECURITY_START_YEAR;
+}
+
+/**
+ * Data de nascimento — 12 de março de 1965.
+ *
+ * Vira conta pelo mesmo motivo que os anos de carreira viraram: um número
+ * escrito à mão envelhece em silêncio e passa a mentir sozinho no aniversário
+ * seguinte. Aqui também alimenta o `birthDate` do schema Person, que é campo
+ * próprio do schema.org e ajuda um buscador a distinguir este Ricardo Esper
+ * de qualquer homônimo.
+ */
+export const BIRTH_DATE = '1965-03-12';
+
+/** Idade em anos completos — respeita se o aniversário do ano já passou. */
+export function age(now: Date = new Date()): number {
+  const [y, m, d] = BIRTH_DATE.split('-').map(Number);
+  let years = now.getFullYear() - y;
+  const jaFezAniversario =
+    now.getMonth() + 1 > m || (now.getMonth() + 1 === m && now.getDate() >= d);
+  if (!jaFezAniversario) years -= 1;
+  return years;
 }
 
 /**
@@ -40,10 +79,10 @@ export const siteConfig = {
   name: "Ricardo Esper",
   url: "https://www.ricardoesper.com.br",
   description:
-    `Ricardo Esper — CISO, especialista em cibersegurança com mais de ${yearsOfExperience()} anos de experiência. Fundador da NESS (1991), CISO da IONIC Health, fundador da forense.io. Especialista em LGPD, GDPR, HIPAA, forense digital e proteção executiva.`,
+    `Ricardo Esper — CISO, especialista em cibersegurança com mais de ${yearsInSecurity()} anos de experiência. Fundador da NESS (1991), CISO da IONIC Health, fundador da forense.io. Especialista em LGPD, GDPR, HIPAA, forense digital e proteção executiva.`,
   // English variant for i18n
   descriptionEn:
-    `Ricardo Esper — CISO and cybersecurity expert with over ${yearsOfExperience()} years of experience. Founder of NESS (1991), CISO of IONIC Health, founder of forense.io. Expert in LGPD, GDPR, HIPAA, digital forensics and executive protection.`,
+    `Ricardo Esper — CISO and cybersecurity expert with over ${yearsInSecurity()} years of experience. Founder of NESS (1991), CISO of IONIC Health, founder of forense.io. Expert in LGPD, GDPR, HIPAA, digital forensics and executive protection.`,
 };
 
 export type SiteConfig = typeof siteConfig;

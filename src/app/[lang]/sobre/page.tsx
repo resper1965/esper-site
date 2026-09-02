@@ -2,11 +2,13 @@ import { getDictionary } from "@/i18n/dictionaries"
 import { Locale, i18n } from "@/i18n/config"
 import { generatePageMetadata } from "@/lib/metadata"
 import type { Metadata } from "next"
-import { yearsOfExperience } from "@/lib/site"
+import { yearsOfExperience, yearsInSecurity, COUNTRIES_VISITED } from "@/lib/site"
 import { CareerTimeline } from "@/components/career-timeline"
 import { certifications as certs } from "@/lib/credentials"
+import { journeyTimeline } from "@/lib/journeys"
 import {
-  Shield, Award, Globe, Building2, BookOpen, CheckCircle2, ExternalLink, ChevronRight, Lock, Zap, FileSearch
+  Shield, Award, Globe, Building2, BookOpen, CheckCircle2, ExternalLink,
+  ChevronRight, Lock, Zap, FileSearch, Mountain,
 } from "lucide-react"
 
 export async function generateStaticParams() {
@@ -33,8 +35,8 @@ export async function generateMetadata({
     title: lang === "pt-BR" ? "Sobre Ricardo Esper — CISO, Forense Digital, Consultor Internacional" : "About Ricardo Esper — CISO, Digital Forensics, International Consultant",
     description:
       lang === "pt-BR"
-        ? `Ricardo Esper: CISO com ${yearsOfExperience()} anos em cibersegurança. CEO da NESS (desde 1991), CISO da IONIC Health, fundador da forense.io. Especialista em LGPD, GDPR, HIPAA, SOC 2 e proteção executiva.`
-        : `Ricardo Esper: CISO with ${yearsOfExperience()} years in cybersecurity. CEO of NESS (since 1991), CISO of IONIC Health, founder of forense.io. Expert in LGPD, GDPR, HIPAA, SOC 2 and executive protection.`,
+        ? `Ricardo Esper: CISO com ${yearsInSecurity()} anos em cibersegurança. CEO da NESS (desde 1991), CISO da IONIC Health, fundador da forense.io. Especialista em LGPD, GDPR, HIPAA, SOC 2 e proteção executiva.`
+        : `Ricardo Esper: CISO with ${yearsInSecurity()} years in cybersecurity. CEO of NESS (since 1991), CISO of IONIC Health, founder of forense.io. Expert in LGPD, GDPR, HIPAA, SOC 2 and executive protection.`,
     path: "/sobre",
     lang,
     keywords,
@@ -88,8 +90,8 @@ export default async function Sobre({
     {
       q: isPT ? "Qual é a experiência de Ricardo Esper em cibersegurança?" : "What is Ricardo Esper's experience in cybersecurity?",
       a: isPT
-        ? `Ricardo Esper tem mais de ${yearsOfExperience()} anos de experiência em cibersegurança, tendo fundado a NESS em 1991. É CISO da IONIC Health, fundador da forense.io, Trustness e Infinity Safe. Possui certificações CCISO, CEHv8 e GDPR.`
-        : `Ricardo Esper has over ${yearsOfExperience()} years of experience in cybersecurity, having founded NESS in 1991. He is CISO of IONIC Health, founder of forense.io, Trustness and Infinity Safe. He holds CCISO, CEHv8 and GDPR certifications.`,
+        ? `Ricardo Esper tem mais de ${yearsInSecurity()} anos de experiência em cibersegurança, tendo fundado a NESS em 1991. É CISO da IONIC Health, fundador da forense.io, Trustness e Infinity Safe. Possui certificações CCISO, CEHv8 e GDPR.`
+        : `Ricardo Esper has over ${yearsInSecurity()} years of experience in cybersecurity, having founded NESS in 1991. He is CISO of IONIC Health, founder of forense.io, Trustness and Infinity Safe. He holds CCISO, CEHv8 and GDPR certifications.`,
     },
     {
       q: isPT ? "Em quais países Ricardo Esper atua como consultor?" : "In which countries does Ricardo Esper work as a consultant?",
@@ -244,6 +246,37 @@ export default async function Sobre({
                 <ExternalLink className="w-3 h-3 text-muted-foreground mx-auto mt-2 opacity-0 group-hover:opacity-60 transition-opacity" />
               </a>
             ))}
+          </div>
+        </section>
+
+        {/* ── FORA DO TRABALHO ──────────────────────────────── */}
+        {/* O número de países existia solto entre certificações e empresas.
+            Aqui ele vira biografia: duas travessias datadas, que sustentam a
+            contagem em vez de só afirmá-la. */}
+        <section>
+          <div className="flex items-center gap-2 mb-6">
+            <Mountain className="w-4 h-4 text-primary" />
+            <h2 className="text-sm font-mono uppercase tracking-widest text-primary opacity-80">
+              {isPT ? "Fora do trabalho" : "Away from work"}
+            </h2>
+          </div>
+          <div className="glass-card rounded-2xl p-6 sm:p-8 space-y-5">
+            <p className="text-muted-foreground leading-relaxed">
+              {isPT
+                ? `Viajar é o que me mantém curioso — e o que me deu a leitura de contexto que uso no trabalho. Conheço ${COUNTRIES_VISITED} países.`
+                : `Travelling is what keeps me curious — and what gave me the sense of context I use at work. I have visited ${COUNTRIES_VISITED} countries.`}
+            </p>
+            <ul className="space-y-3">
+              {journeyTimeline().map((j) => (
+                <li key={j.year} className="flex gap-4 items-baseline">
+                  <span className="font-mono text-sm text-primary shrink-0 w-12">{j.year}</span>
+                  <span>
+                    <span className="font-medium">{j.name[lang]}</span>
+                    <span className="text-muted-foreground"> — {j.note[lang]}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 

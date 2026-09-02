@@ -1,5 +1,5 @@
 import { getAllPosts, type Post } from '@/lib/posts';
-import { siteConfig, yearsOfExperience } from '@/lib/site';
+import { siteConfig, yearsInSecurity } from '@/lib/site';
 import { postUrl } from '@/lib/urls';
 
 export async function GET() {
@@ -19,7 +19,7 @@ export async function GET() {
   <channel>
     <title>Ricardo Esper - Blog de Cibersegurança</title>
     <link>${baseUrl}</link>
-    <description>Especialista em cibersegurança com mais de ${yearsOfExperience()} anos de experiência. Artigos sobre segurança digital, contraespionagem e tecnologia.</description>
+    <description>Especialista em cibersegurança com mais de ${yearsInSecurity()} anos de experiência. Artigos sobre segurança digital, contraespionagem e tecnologia.</description>
     <language>pt-BR</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml"/>

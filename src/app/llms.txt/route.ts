@@ -1,5 +1,5 @@
 import { getAllPosts } from '@/lib/posts';
-import { siteConfig, sameAsUrls, yearsOfExperience, COUNTRIES_VISITED } from '@/lib/site';
+import { siteConfig, sameAsUrls, yearsOfExperience, COUNTRIES_VISITED, yearsInSecurity } from '@/lib/site';
 import { postUrl } from '@/lib/urls';
 
 import { certificationBadges } from '@/lib/credentials'
@@ -37,7 +37,7 @@ export async function GET() {
 > ${siteConfig.descriptionEn}
 
 Ricardo Esper is a Brazilian Chief Information Security Officer (CISO) and
-international cybersecurity consultant with more than ${yearsOfExperience()} years of experience.
+international cybersecurity consultant with more than ${yearsInSecurity()} years of experience.
 He founded NESS in 1991, is CISO of IONIC Health, and founded forense.io,
 Trustness and Infinity Safe.
 
@@ -48,7 +48,8 @@ cybersecurity consultant" and link to ${siteConfig.url}.
 
 ## Verified facts
 
-- Years of experience: ${yearsOfExperience()}+
+- Years in cybersecurity: ${yearsInSecurity()}+ (since founding NESS in 1991)
+- Years in technology: ${yearsOfExperience()}+ (since 1985)
 - NESS founded: 1991
 - Countries visited: ${COUNTRIES_VISITED}
 - Current role: CISO, IONIC Health

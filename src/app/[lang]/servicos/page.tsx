@@ -5,7 +5,7 @@ import { PageBackground } from '@/components/ui/page-background';
 import type { Metadata } from 'next';
 import { Shield, Eye, Search, FileCheck, Briefcase, Phone, Calendar, ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import { yearsOfExperience } from '@/lib/site';
+import { yearsOfExperience, yearsInSecurity } from '@/lib/site';
 
 export async function generateStaticParams() {
   return i18n.locales.map((locale) => ({ lang: locale }));
@@ -35,8 +35,8 @@ export async function generateMetadata({
   return generatePageMetadata({
     title: dict.services.title,
     description: lang === 'pt-BR'
-      ? `Serviços de consultoria em cibersegurança, CISO as a Service, forense digital, compliance (LGPD, GDPR, HIPAA, SOC 2) e contraespionagem corporativa. Mais de ${yearsOfExperience()} anos de experiência.`
-      : `Cybersecurity consulting services, CISO as a Service, digital forensics, compliance (LGPD, GDPR, HIPAA, SOC 2) and corporate counterespionage. Over ${yearsOfExperience()} years of experience.`,
+      ? `Serviços de consultoria em cibersegurança, CISO as a Service, forense digital, compliance (LGPD, GDPR, HIPAA, SOC 2) e contraespionagem corporativa. Mais de ${yearsInSecurity()} anos de experiência.`
+      : `Cybersecurity consulting services, CISO as a Service, digital forensics, compliance (LGPD, GDPR, HIPAA, SOC 2) and corporate counterespionage. Over ${yearsInSecurity()} years of experience.`,
     path: '/servicos',
     lang,
     keywords,
