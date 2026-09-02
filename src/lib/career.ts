@@ -7,10 +7,12 @@ import { CAREER_START_YEAR } from '@/lib/site';
  * Person. Ter os dois saindo daqui é o ponto: uma trajetória que a página
  * conta de um jeito e o JSON-LD de outro é pior que não ter nenhuma.
  *
- * `startYear` é opcional de propósito. Cinco dos seis vínculos abaixo não
- * têm data publicada em lugar nenhum do site, e um currículo é material que
- * jornalista confere — uma data inventada custa mais do que uma data
- * ausente. Enquanto o ano não vier do Ricardo, a entrada aparece sem ele.
+ * `startYear` é opcional de propósito. Um currículo é material que jornalista
+ * confere: uma data inventada custa mais do que uma data ausente. Enquanto o
+ * ano não vier do Ricardo, a entrada aparece sem ele.
+ *
+ * Confirmados por ele: NESS 1991, forense.io 2019, Trustness 2021, IONIC
+ * Health 2023. Infinity Safe e Bekaa seguem sem data.
  */
 export interface CareerEntry {
   /** Nome da organização, como ela se escreve. */
@@ -47,14 +49,14 @@ export const career: CareerEntry[] = [
     organization: 'forense.io',
     role: { 'pt-BR': 'Fundador e CEO', en: 'Founder and CEO' },
     focus: { 'pt-BR': 'Forense digital e resposta a incidentes', en: 'Digital forensics and incident response' },
-    // startYear: pendente de confirmação
+    startYear: 2019,
     founded: true,
   },
   {
     organization: 'Trustness',
     role: { 'pt-BR': 'Fundador e CEO', en: 'Founder and CEO' },
     focus: { 'pt-BR': 'Privacidade e compliance — LGPD, GDPR', en: 'Privacy and compliance — LGPD, GDPR' },
-    // startYear: pendente de confirmação
+    startYear: 2021,
     founded: true,
   },
   {
@@ -69,7 +71,7 @@ export const career: CareerEntry[] = [
     role: { 'pt-BR': 'CISO e cofundador', en: 'CISO and co-founder' },
     focus: { 'pt-BR': 'Segurança em saúde digital', en: 'Security in digital health' },
     url: 'https://ionic.health',
-    // startYear: pendente de confirmação
+    startYear: 2023,
     founded: true,
     worksFor: true,
   },
