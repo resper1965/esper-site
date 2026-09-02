@@ -4,6 +4,7 @@ import { i18n, type Locale } from '@/i18n/config';
 import { careerTimeline, foundedOrganizations, currentEmployers } from '@/lib/career';
 import type { Talk } from '@/lib/talks';
 import type { Appearance } from '@/lib/appearances';
+import type { Work } from '@/lib/works';
 import { independentAppearances } from '@/lib/appearances';
 
 import { certifications, memberships } from '@/lib/credentials'
@@ -689,6 +690,35 @@ export function generateAppearanceSchema(a: Appearance, lang: Locale = 'pt-BR') 
       name: a.outlet.name,
       ...(a.outlet.url ? { url: a.outlet.url } : {}),
     },
+    inLanguage: 'pt-BR',
+  };
+}
+
+/**
+ * JSON-LD para obra publicada com colaboração dele.
+ *
+ * O Ricardo entra como `contributor`, nunca como `author`: prefaciar não é
+ * escrever o livro. A distinção não é preciosismo — atribuir a ele a autoria
+ * de uma obra de terceiro é o tipo de erro que, num currículo, custa a
+ * credibilidade de tudo o mais que está na página.
+ */
+export function generateWorkSchema(w: Work, lang: Locale = 'pt-BR') {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Book',
+    '@id': `${siteConfig.url}/palestras#${w.id}`,
+    name: w.title,
+    author: { '@type': 'Person', name: w.author },
+    contributor: {
+      '@type': 'Person',
+      '@id': `${siteConfig.url}/sobre#person`,
+      name: siteConfig.name,
+    },
+    ...(w.publisher ? { publisher: { '@type': 'Organization', name: w.publisher } } : {}),
+    ...(w.year ? { datePublished: String(w.year) } : {}),
+    ...(w.isbn ? { isbn: w.isbn } : {}),
+    ...(w.url ? { url: w.url } : {}),
+    ...(w.note ? { description: w.note[lang] } : {}),
     inLanguage: 'pt-BR',
   };
 }

@@ -143,6 +143,37 @@ export const talks: Talk[] = [
     },
     relatedPostSlug: 'ninguem-escreve-propina',
   },
+  {
+    id: 'spr-get-seguranca-2022',
+    title: {
+      'pt-BR': 'Segurança da Informação',
+      en: 'Information Security',
+    },
+    program: {
+      'pt-BR': 'GET — Grupo de Estudos de Tecnologia e Informática em Radiologia da SPR',
+      en: 'GET — Technology and Informatics in Radiology study group, SPR',
+    },
+    host: {
+      name: 'Sociedade Paulista de Radiologia (SPR)',
+      url: 'https://spr.org.br',
+    },
+    // O card traz "13/09 · 20h" sem ano. O ano vem do link de transmissão
+    // que ele mesmo estampa — bit.ly/Get-13-09-22 —, cujo slug codifica
+    // 13-09-22. É inferência, mas de um dado impresso na própria peça, e
+    // fica registrada aqui em vez de passar por leitura direta.
+    startDate: '2022-09-13T20:00:00-03:00',
+    mode: 'online',
+    registrationUrl: 'https://bit.ly/Get-13-09-22',
+    role: {
+      'pt-BR': 'Convidado',
+      en: 'Guest speaker',
+    },
+    summary: {
+      'pt-BR':
+        'Segurança da informação para um grupo de estudos de tecnologia em radiologia — dado clínico, que é o de regime mais estrito.',
+      en: 'Information security for a radiology technology study group — clinical data, the most tightly regulated kind.',
+    },
+  },
 ];
 
 /** Verdadeiro quando só temos o ano. */

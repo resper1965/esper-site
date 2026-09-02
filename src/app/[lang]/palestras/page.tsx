@@ -1,10 +1,11 @@
 import { Locale, i18n } from "@/i18n/config"
-import { generatePageMetadata, generateEventSchema, generateAppearanceSchema } from "@/lib/metadata"
+import { generatePageMetadata, generateEventSchema, generateAppearanceSchema, generateWorkSchema } from "@/lib/metadata"
 import { talksByDate, upcomingTalks, isYearOnly } from "@/lib/talks"
 import { appearancesByDate } from "@/lib/appearances"
+import { worksByYear } from "@/lib/works"
 import { postUrl } from "@/lib/urls"
 import type { Metadata } from "next"
-import { Mic, Calendar, ExternalLink, Video, MapPin, ArrowRight, Radio } from "lucide-react"
+import { Mic, Calendar, ExternalLink, Video, MapPin, ArrowRight, Radio, BookOpen } from "lucide-react"
 import Link from "next/link"
 
 export async function generateStaticParams() {
@@ -68,6 +69,7 @@ export default async function Palestras({
   const talks = talksByDate()
   const upcoming = new Set(upcomingTalks().map((t) => t.id))
   const appearances = appearancesByDate()
+  const works = worksByYear()
 
   return (
     <div className="min-h-screen bg-[#0B0F14]">
@@ -226,6 +228,46 @@ export default async function Palestras({
             </ul>
           </section>
         )}
+
+        {/* ── PUBLICAÇÕES ───────────────────────────────────── */}
+        {/* A categoria mais durável das três: evento passa, livro fica em
+            catálogo. Um prefácio é escolha do autor — ele decidiu que aquele
+            nome dá lastro ao livro dele. */}
+        {works.length > 0 && (
+          <section className="space-y-6">
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-primary" />
+              <h2 className="text-sm font-mono uppercase tracking-widest text-primary opacity-80">
+                {isPT ? "Publicações" : "Publications"}
+              </h2>
+            </div>
+            <ul className="space-y-4">
+              {works.map((w) => (
+                <li key={w.id} className="glass-card rounded-2xl p-6 space-y-2">
+                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <h3 className="text-lg font-semibold leading-snug">{w.title}</h3>
+                    {w.year && (
+                      <span className="text-xs font-mono text-muted-foreground">{w.year}</span>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {isPT ? "de" : "by"} {w.author}
+                    {w.publisher ? ` · ${w.publisher}` : ""}
+                  </p>
+                  {w.note && (
+                    <p className="text-sm text-muted-foreground leading-relaxed">{w.note[lang]}</p>
+                  )}
+                  <p className="text-sm">
+                    <span className="text-primary font-medium">{w.role[lang]}</span>
+                    {w.attributedTo ? (
+                      <span className="text-muted-foreground"> — {w.attributedTo}</span>
+                    ) : null}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </div>
 
       {/* Um Event por palestra, cada um apontando para o mesmo @id do Person.
@@ -244,6 +286,14 @@ export default async function Palestras({
           key={`schema-${a.id}`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(generateAppearanceSchema(a, lang)) }}
+        />
+      ))}
+
+      {works.map((w) => (
+        <script
+          key={`schema-${w.id}`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(generateWorkSchema(w, lang)) }}
         />
       ))}
     </div>
