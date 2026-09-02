@@ -32,8 +32,12 @@ export interface Talk {
    * verdade; uma data completa inventada seria mais bonita e falsa.
    */
   startDate: string;
-  /** Online, ou o lugar. */
-  mode: 'online' | 'presencial';
+  /**
+   * Online ou presencial. Opcional porque nem todo material divulgado diz —
+   * e adivinhar erra tanto para um lado quanto para o outro. Ausente, o
+   * schema simplesmente omite `eventAttendanceMode` em vez de afirmar.
+   */
+  mode?: 'online' | 'presencial';
   location?: string;
   /**
    * Página pública de inscrição — o endereço que a organização divulgou.
@@ -110,11 +114,114 @@ export const talks: Talk[] = [
       en: 'A panel on threats, real-world incidents, good practice and recommended solutions in cybersecurity.',
     },
   },
+  {
+    id: 'ibdee-congresso-2024-fraudes-do-futuro',
+    title: {
+      'pt-BR': 'Fraudes do mundo de digitalização e reputação: o que será preciso fazer para prevenir e tratar?',
+      en: 'Fraud in a digitalised, reputation-driven world: what will it take to prevent and address it?',
+    },
+    program: {
+      'pt-BR': '2º Congresso IBDEE de Compliance e Ética Empresarial — painel Fraudes do Futuro',
+      en: '2nd IBDEE Congress on Compliance and Business Ethics — Fraud of the Future panel',
+    },
+    host: {
+      name: 'Instituto Brasileiro de Direito e Ética Empresarial (IBDEE)',
+      url: 'https://ibdee.org.br',
+    },
+    // Data completa, do próprio material de divulgação.
+    startDate: '2024-04-18',
+    // O card não informa o formato. Sem `mode`, o schema omite o campo em
+    // vez de chutar entre presencial e online.
+    role: {
+      'pt-BR': 'Palestrante, ao lado da RD Saúde e da Polícia Civil de São Paulo',
+      en: 'Speaker, alongside RD Saúde and the São Paulo Civil Police',
+    },
+    summary: {
+      'pt-BR':
+        'Painel sobre as fraudes que a digitalização torna possíveis e o que a reputação tem a ver com prevenção e resposta.',
+      en: 'A panel on the frauds that digitalisation makes possible, and what reputation has to do with prevention and response.',
+    },
+    relatedPostSlug: 'ninguem-escreve-propina',
+  },
+  {
+    id: 'spr-get-seguranca-2022',
+    title: {
+      'pt-BR': 'Segurança da Informação',
+      en: 'Information Security',
+    },
+    program: {
+      'pt-BR': 'GET — Grupo de Estudos de Tecnologia e Informática em Radiologia da SPR',
+      en: 'GET — Technology and Informatics in Radiology study group, SPR',
+    },
+    host: {
+      name: 'Sociedade Paulista de Radiologia (SPR)',
+      url: 'https://spr.org.br',
+    },
+    // O card traz "13/09 · 20h" sem ano. O ano vem do link de transmissão
+    // que ele mesmo estampa — bit.ly/Get-13-09-22 —, cujo slug codifica
+    // 13-09-22. É inferência, mas de um dado impresso na própria peça, e
+    // fica registrada aqui em vez de passar por leitura direta.
+    startDate: '2022-09-13T20:00:00-03:00',
+    mode: 'online',
+    registrationUrl: 'https://bit.ly/Get-13-09-22',
+    role: {
+      'pt-BR': 'Convidado',
+      en: 'Guest speaker',
+    },
+    summary: {
+      'pt-BR':
+        'Segurança da informação para um grupo de estudos de tecnologia em radiologia — dado clínico, que é o de regime mais estrito.',
+      en: 'Information security for a radiology technology study group — clinical data, the most tightly regulated kind.',
+    },
+  },
+  {
+    id: 'miguel-silva-yamashita-2022',
+    title: {
+      'pt-BR': 'Ataque cibernético e cibersegurança: análise no campo jurídico e tecnológico',
+      en: 'Cyber attack and cybersecurity: a legal and technological analysis',
+    },
+    host: {
+      name: 'Miguel Silva & Yamashita Advogados',
+    },
+    startDate: '2022-05-11T09:30:00-03:00',
+    mode: 'online',
+    role: {
+      'pt-BR': 'Palestrante convidado',
+      en: 'Guest speaker',
+    },
+    summary: {
+      'pt-BR':
+        'Abordagem prática sobre as fragilidades do mundo virtual na vida das empresas e as providências para prevenir contingências.',
+      en: 'A practical look at the vulnerabilities the virtual world creates for companies, and what to do to prevent them.',
+    },
+  },
 ];
 
 /** Verdadeiro quando só temos o ano. */
 export function isYearOnly(startDate: string): boolean {
   return /^\d{4}$/.test(startDate);
+}
+
+/**
+ * Verdadeiro quando temos o dia mas não a hora — `2024-04-18`.
+ *
+ * Precisa de tratamento próprio porque `new Date('2024-04-18')` é meia-noite
+ * UTC, e meia-noite UTC em São Paulo é 21:00 do dia anterior. Formatar isso
+ * com fuso mostraria a palestra do IBDEE um dia antes da data confirmada no
+ * card do evento — e ainda inventaria um horário que ninguém nos deu.
+ */
+export function isDateOnly(startDate: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(startDate);
+}
+
+/**
+ * O instante usado para comparar com "agora".
+ *
+ * Uma data sem hora vale o dia inteiro: só deixa de ser futura quando o dia
+ * acaba em São Paulo, que é o fuso em que estas palestras acontecem.
+ */
+export function talkInstant(startDate: string): Date {
+  return new Date(isDateOnly(startDate) ? `${startDate}T23:59:59-03:00` : startDate);
 }
 
 /** Mais recente primeiro. Comparar strings ISO ordena certo em ambos os casos. */
@@ -127,13 +234,13 @@ export function upcomingTalks(now: Date = new Date()): Talk[] {
   // Um registro só com o ano nunca conta como "em breve": ele existe
   // justamente porque a data exata se perdeu, o que significa que já passou.
   return talks
-    .filter((t) => !isYearOnly(t.startDate) && new Date(t.startDate) >= now)
+    .filter((t) => !isYearOnly(t.startDate) && talkInstant(t.startDate) >= now)
     .sort((a, b) => a.startDate.localeCompare(b.startDate));
 }
 
 /** Já aconteceram, mais recente primeiro. */
 export function pastTalks(now: Date = new Date()): Talk[] {
   return talks
-    .filter((t) => isYearOnly(t.startDate) || new Date(t.startDate) < now)
+    .filter((t) => isYearOnly(t.startDate) || talkInstant(t.startDate) < now)
     .sort((a, b) => b.startDate.localeCompare(a.startDate));
 }

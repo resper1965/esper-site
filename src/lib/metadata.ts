@@ -4,6 +4,7 @@ import { i18n, type Locale } from '@/i18n/config';
 import { careerTimeline, foundedOrganizations, currentEmployers } from '@/lib/career';
 import type { Talk } from '@/lib/talks';
 import type { Appearance } from '@/lib/appearances';
+import type { Work } from '@/lib/works';
 import { independentAppearances } from '@/lib/appearances';
 
 import { certifications, memberships } from '@/lib/credentials'
@@ -277,9 +278,33 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
       'Ransomware Defense',
       'Cloud Security',
     ],
+    // Uma credencial com emissor e número é conferível; uma só com o nome é
+    // afirmação. `recognizedBy` e `identifier` são os campos que um buscador
+    // usa para distinguir as duas.
     hasCredential: certifications.map((c) => ({
       '@type': 'EducationalOccupationalCredential',
       name: c.full[lang],
+      credentialCategory: 'certification',
+      ...(c.issuer
+        ? {
+            recognizedBy: {
+              '@type': 'Organization',
+              name: c.issuer.name,
+              ...(c.issuer.url ? { url: c.issuer.url } : {}),
+            },
+          }
+        : {}),
+      ...(c.identifier
+        ? {
+            identifier: {
+              '@type': 'PropertyValue',
+              propertyID: 'certificateNumber',
+              value: c.identifier,
+            },
+          }
+        : {}),
+      ...(c.verificationUrl ? { url: c.verificationUrl } : {}),
+      ...(c.dateIssued ? { dateCreated: c.dateIssued } : {}),
     })),
     memberOf: memberships.map((m) => ({
       '@type': 'Organization',
@@ -586,6 +611,7 @@ export function generateProfessionalServiceSchema(lang: Locale = 'pt-BR') {
  */
 export function generateEventSchema(talk: Talk, lang: Locale = 'pt-BR') {
   const isOnline = talk.mode === 'online';
+  const isPresencial = talk.mode === 'presencial';
 
   return {
     '@context': 'https://schema.org',
@@ -599,23 +625,34 @@ export function generateEventSchema(talk: Talk, lang: Locale = 'pt-BR') {
     description: talk.summary[lang],
     startDate: talk.startDate,
     eventStatus: 'https://schema.org/EventScheduled',
-    eventAttendanceMode: isOnline
-      ? 'https://schema.org/OnlineEventAttendanceMode'
-      : 'https://schema.org/OfflineEventAttendanceMode',
+    // Sem `mode` não há afirmação: omitir é mais honesto que escolher um
+    // dos dois e errar metade das vezes.
+    ...(talk.mode
+      ? {
+          eventAttendanceMode: isOnline
+            ? 'https://schema.org/OnlineEventAttendanceMode'
+            : 'https://schema.org/OfflineEventAttendanceMode',
+        }
+      : {}),
     // Para evento online o schema.org quer um VirtualLocation com URL; um
     // Place com nome "Online" é o erro comum e o Google reclama dele.
     // Para evento online o schema.org quer VirtualLocation; um Place chamado
     // "Online" é o erro comum. A URL de acesso é a da sala quando ela existe;
     // quando só há a página de inscrição, é ela que vai, porque é o endereço
     // público que a organização de fato divulgou.
-    location: isOnline
+    ...(isOnline
       ? {
-          '@type': 'VirtualLocation',
-          ...(talk.accessUrl ?? talk.registrationUrl
-            ? { url: talk.accessUrl ?? talk.registrationUrl }
-            : {}),
+          location: {
+            '@type': 'VirtualLocation',
+            ...(talk.accessUrl ?? talk.registrationUrl
+              ? { url: talk.accessUrl ?? talk.registrationUrl }
+              : {}),
+          },
         }
-      : { '@type': 'Place', name: talk.location ?? '', address: talk.location ?? '' },
+      : {}),
+    ...(isPresencial && talk.location
+      ? { location: { '@type': 'Place', name: talk.location, address: talk.location } }
+      : {}),
     performer: {
       '@type': 'Person',
       '@id': `${siteConfig.url}/sobre#person`,
@@ -677,6 +714,35 @@ export function generateAppearanceSchema(a: Appearance, lang: Locale = 'pt-BR') 
       name: a.outlet.name,
       ...(a.outlet.url ? { url: a.outlet.url } : {}),
     },
+    inLanguage: 'pt-BR',
+  };
+}
+
+/**
+ * JSON-LD para obra publicada com colaboração dele.
+ *
+ * O Ricardo entra como `contributor`, nunca como `author`: prefaciar não é
+ * escrever o livro. A distinção não é preciosismo — atribuir a ele a autoria
+ * de uma obra de terceiro é o tipo de erro que, num currículo, custa a
+ * credibilidade de tudo o mais que está na página.
+ */
+export function generateWorkSchema(w: Work, lang: Locale = 'pt-BR') {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Book',
+    '@id': `${siteConfig.url}/palestras#${w.id}`,
+    name: w.title,
+    author: { '@type': 'Person', name: w.author },
+    contributor: {
+      '@type': 'Person',
+      '@id': `${siteConfig.url}/sobre#person`,
+      name: siteConfig.name,
+    },
+    ...(w.publisher ? { publisher: { '@type': 'Organization', name: w.publisher } } : {}),
+    ...(w.year ? { datePublished: String(w.year) } : {}),
+    ...(w.isbn ? { isbn: w.isbn } : {}),
+    ...(w.url ? { url: w.url } : {}),
+    ...(w.note ? { description: w.note[lang] } : {}),
     inLanguage: 'pt-BR',
   };
 }
