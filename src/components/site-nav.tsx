@@ -47,6 +47,7 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
   // on mobile, so both menus stay in sync from one place.
   const secondaryLinks = [
     { label: lang === 'pt-BR' ? 'Serviços' : 'Services', href: `/${lang}/servicos` },
+    { label: lang === 'pt-BR' ? 'Palestras' : 'Talks', href: `/${lang}/palestras` },
     { label: lang === 'pt-BR' ? 'Imprensa' : 'Press', href: `/${lang}/imprensa` },
   ]
 

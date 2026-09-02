@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { siteConfig, sameAsUrls, yearsInSecurity, BIRTH_DATE } from './site';
 import { i18n, type Locale } from '@/i18n/config';
 import { careerTimeline, foundedOrganizations, currentEmployers } from '@/lib/career';
+import type { Talk } from '@/lib/talks';
 
 import { certifications, memberships } from '@/lib/credentials'
 interface PageMetadataProps {
@@ -550,5 +551,49 @@ export function generateProfessionalServiceSchema(lang: Locale = 'pt-BR') {
         },
       })),
     },
+  };
+}
+
+/**
+ * JSON-LD para as palestras e aulas.
+ *
+ * Um `Event` com `performer` apontando para o mesmo `@id` do Person é o que
+ * transforma "sou palestrante" em dado: uma instituição nomeada, uma data,
+ * um assunto. Vale mais que qualquer adjetivo no texto corrido, porque não é
+ * o site afirmando sobre si mesmo — é o site declarando um fato que a
+ * organização anfitriã também publica, e que portanto pode ser conferido.
+ */
+export function generateEventSchema(talk: Talk, lang: Locale = 'pt-BR') {
+  const isOnline = talk.mode === 'online';
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    '@id': `${siteConfig.url}/${lang}/palestras#${talk.id}`,
+    name: talk.title[lang],
+    description: talk.summary[lang],
+    startDate: talk.startDate,
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: isOnline
+      ? 'https://schema.org/OnlineEventAttendanceMode'
+      : 'https://schema.org/OfflineEventAttendanceMode',
+    // Para evento online o schema.org quer um VirtualLocation com URL; um
+    // Place com nome "Online" é o erro comum e o Google reclama dele.
+    location: isOnline
+      ? { '@type': 'VirtualLocation', url: talk.url ?? siteConfig.url }
+      : { '@type': 'Place', name: talk.location ?? '', address: talk.location ?? '' },
+    performer: {
+      '@type': 'Person',
+      '@id': `${siteConfig.url}/sobre#person`,
+      name: siteConfig.name,
+    },
+    organizer: {
+      '@type': 'Organization',
+      name: talk.host.name,
+      ...(talk.host.url ? { url: talk.host.url } : {}),
+    },
+    ...(talk.program ? { superEvent: { '@type': 'EventSeries', name: talk.program[lang] } } : {}),
+    ...(talk.url ? { url: talk.url } : {}),
+    inLanguage: lang,
   };
 }
