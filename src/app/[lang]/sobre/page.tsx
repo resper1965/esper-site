@@ -2,11 +2,13 @@ import { getDictionary } from "@/i18n/dictionaries"
 import { Locale, i18n } from "@/i18n/config"
 import { generatePageMetadata } from "@/lib/metadata"
 import type { Metadata } from "next"
-import { yearsOfExperience, yearsInSecurity } from "@/lib/site"
+import { yearsOfExperience, yearsInSecurity, COUNTRIES_VISITED } from "@/lib/site"
 import { CareerTimeline } from "@/components/career-timeline"
 import { certifications as certs } from "@/lib/credentials"
+import { journeyTimeline } from "@/lib/journeys"
 import {
-  Shield, Award, Globe, Building2, BookOpen, CheckCircle2, ExternalLink, ChevronRight, Lock, Zap, FileSearch
+  Shield, Award, Globe, Building2, BookOpen, CheckCircle2, ExternalLink,
+  ChevronRight, Lock, Zap, FileSearch, Mountain,
 } from "lucide-react"
 
 export async function generateStaticParams() {
@@ -244,6 +246,37 @@ export default async function Sobre({
                 <ExternalLink className="w-3 h-3 text-muted-foreground mx-auto mt-2 opacity-0 group-hover:opacity-60 transition-opacity" />
               </a>
             ))}
+          </div>
+        </section>
+
+        {/* ── FORA DO TRABALHO ──────────────────────────────── */}
+        {/* O número de países existia solto entre certificações e empresas.
+            Aqui ele vira biografia: duas travessias datadas, que sustentam a
+            contagem em vez de só afirmá-la. */}
+        <section>
+          <div className="flex items-center gap-2 mb-6">
+            <Mountain className="w-4 h-4 text-primary" />
+            <h2 className="text-sm font-mono uppercase tracking-widest text-primary opacity-80">
+              {isPT ? "Fora do trabalho" : "Away from work"}
+            </h2>
+          </div>
+          <div className="glass-card rounded-2xl p-6 sm:p-8 space-y-5">
+            <p className="text-muted-foreground leading-relaxed">
+              {isPT
+                ? `Viajar é o que me mantém curioso — e o que me deu a leitura de contexto que uso no trabalho. Conheço ${COUNTRIES_VISITED} países.`
+                : `Travelling is what keeps me curious — and what gave me the sense of context I use at work. I have visited ${COUNTRIES_VISITED} countries.`}
+            </p>
+            <ul className="space-y-3">
+              {journeyTimeline().map((j) => (
+                <li key={j.year} className="flex gap-4 items-baseline">
+                  <span className="font-mono text-sm text-primary shrink-0 w-12">{j.year}</span>
+                  <span>
+                    <span className="font-medium">{j.name[lang]}</span>
+                    <span className="text-muted-foreground"> — {j.note[lang]}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 

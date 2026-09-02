@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
-import { siteConfig, sameAsUrls, yearsInSecurity } from './site';
+import { siteConfig, sameAsUrls, yearsInSecurity, BIRTH_DATE } from './site';
 import { i18n, type Locale } from '@/i18n/config';
-import {  } from '@/lib/site';
 import { careerTimeline, foundedOrganizations, currentEmployers } from '@/lib/career';
 
 import { certifications, memberships } from '@/lib/credentials'
@@ -202,6 +201,7 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
     url: `${siteConfig.url}/${lang}/sobre`,
     image: `${siteConfig.url}/authors/ricardo.png`,
     nationality: { '@type': 'Country', name: 'Brazil' },
+    birthDate: BIRTH_DATE,
     sameAs: [
       ...sameAsUrls,
       `${siteConfig.url}/pt-BR/sobre`,

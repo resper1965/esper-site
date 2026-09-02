@@ -44,6 +44,27 @@ export function yearsInSecurity(now: Date = new Date()): number {
 }
 
 /**
+ * Data de nascimento — 12 de março de 1965.
+ *
+ * Vira conta pelo mesmo motivo que os anos de carreira viraram: um número
+ * escrito à mão envelhece em silêncio e passa a mentir sozinho no aniversário
+ * seguinte. Aqui também alimenta o `birthDate` do schema Person, que é campo
+ * próprio do schema.org e ajuda um buscador a distinguir este Ricardo Esper
+ * de qualquer homônimo.
+ */
+export const BIRTH_DATE = '1965-03-12';
+
+/** Idade em anos completos — respeita se o aniversário do ano já passou. */
+export function age(now: Date = new Date()): number {
+  const [y, m, d] = BIRTH_DATE.split('-').map(Number);
+  let years = now.getFullYear() - y;
+  const jaFezAniversario =
+    now.getMonth() + 1 > m || (now.getMonth() + 1 === m && now.getDate() >= d);
+  if (!jaFezAniversario) years -= 1;
+  return years;
+}
+
+/**
  * Países que ele conhece pessoalmente.
  *
  * Substitui o "12 países atendidos" que estava no ar até setembro de 2026 —
