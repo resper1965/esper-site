@@ -1,6 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { yearsOfExperience } from '@/lib/site';
+import { yearsInSecurity } from '@/lib/site';
 
 interface PromoContentProps {
   variant?: "desktop" | "mobile";
@@ -44,7 +44,7 @@ export function PromoContent({
             Ricardo Esper
           </h3>
           <p className="text-sm text-muted-foreground">
-            Especialista em cibersegurança com mais de {yearsOfExperience()} anos de experiência.
+            Especialista em cibersegurança com mais de {yearsInSecurity()} anos de experiência.
           </p>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Shield, Linkedin, ExternalLink, Lock } from "lucide-react"
 import { Locale } from "@/i18n/config"
-import { yearsOfExperience } from '@/lib/site';
+import { yearsInSecurity } from '@/lib/site';
 
 import { certificationBadges } from '@/lib/credentials'
 interface FooterProps {
@@ -67,8 +67,8 @@ export default function Footer({ lang }: FooterProps) {
 
             <p className="text-sm text-muted-foreground leading-relaxed mb-5">
               {isPT
-                ? `${yearsOfExperience()}+ anos protegendo organizações no Brasil e no mundo. CEO da NESS, CISO da IONIC Health.`
-                : `${yearsOfExperience()}+ years protecting organizations in Brazil and worldwide. CEO of NESS, CISO of IONIC Health.`}
+                ? `${yearsInSecurity()}+ anos protegendo organizações no Brasil e no mundo. CEO da NESS, CISO da IONIC Health.`
+                : `${yearsInSecurity()}+ years protecting organizations in Brazil and worldwide. CEO of NESS, CISO of IONIC Health.`}
             </p>
 
             {/* Certifications */}
