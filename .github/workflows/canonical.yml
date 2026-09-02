@@ -1,0 +1,27 @@
+name: Canonical
+
+# A consolidação de esper.ws, ricardoesper.com e do apex .com.br para
+# www.ricardoesper.com.br depende de 301 permanentes que o Google reprocessa
+# por meses. Se um deles cair — regra apagada por engano, DNS alterado, domínio
+# expirado — nada quebra visivelmente: as páginas continuam no ar e só a
+# transferência de autoridade se perde, sem aviso e sem como refazer.
+#
+# Este workflow existe para transformar essa falha silenciosa em falha
+# barulhenta. Roda contra produção, não contra o código.
+
+on:
+  schedule:
+    # Segundas, 09:00 UTC (06:00 em São Paulo).
+    - cron: '0 9 * * 1'
+  # Permite disparar à mão após mexer em DNS ou em Redirect Rules.
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verificar a superfície canônica
+        run: ./scripts/check-canonical.sh
