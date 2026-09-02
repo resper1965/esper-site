@@ -267,8 +267,8 @@ export async function PressKit({ lang }: { lang: Locale }) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { name: "ricardoesper.com.br", url: siteConfig.url },
-              { name: "LinkedIn", url: identityProfiles.linkedin },
-              { name: "GitHub", url: identityProfiles.github },
+              { name: "LinkedIn", url: identityProfiles.linkedin.url },
+              { name: "GitHub", url: identityProfiles.github.url },
             ].map(({ name, url }) => (
               <a
                 key={name}
@@ -306,7 +306,7 @@ export async function PressKit({ lang }: { lang: Locale }) {
                 {pressEmail}
               </a>
               <a
-                href={identityProfiles.linkedin}
+                href={identityProfiles.linkedin.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm

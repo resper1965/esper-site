@@ -53,12 +53,22 @@ describe('Aparições', () => {
     expect(independentAppearances().every((a) => a.outlet.independent)).toBe(true);
     expect(appearances.length).toBeGreaterThan(0);
   });
-  it('o Person declara subjectOf com o veículo nomeado', async () => {
-    const { generatePersonSchema } = await import('@/lib/metadata');
+  it('o subjectOf referencia o mesmo @id que a página emite por extenso', async () => {
+    const { generatePersonSchema, generateAppearanceSchema } = await import('@/lib/metadata');
+    const { independentAppearances } = await import('@/lib/appearances');
     const p = generatePersonSchema('pt-BR') as Record<string, unknown>;
     const subj = p.subjectOf as Array<Record<string, unknown>>;
     expect(subj.length).toBeGreaterThan(0);
-    expect((subj[0].publisher as Record<string, string>).name).toBeTruthy();
+    // Sem @id o processador cria um nó anônimo e a aresta Person → VideoObject
+    // nunca alcança o nó rico. Os dois lados têm que casar exatamente.
+    const idsNoPerson = subj.map((n) => n['@id']);
+    const idsNaPagina = independentAppearances().map(
+      (a) => (generateAppearanceSchema(a, 'pt-BR') as Record<string, unknown>)['@id']
+    );
+    for (const id of idsNoPerson) {
+      expect(id).toBeTruthy();
+      expect(idsNaPagina).toContain(id);
+    }
   });
   it('não emite uploadDate quando a data não foi confirmada', async () => {
     const { generateAppearanceSchema } = await import('@/lib/metadata');
