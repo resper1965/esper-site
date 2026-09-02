@@ -174,6 +174,27 @@ export const talks: Talk[] = [
       en: 'Information security for a radiology technology study group — clinical data, the most tightly regulated kind.',
     },
   },
+  {
+    id: 'miguel-silva-yamashita-2022',
+    title: {
+      'pt-BR': 'Ataque cibernético e cibersegurança: análise no campo jurídico e tecnológico',
+      en: 'Cyber attack and cybersecurity: a legal and technological analysis',
+    },
+    host: {
+      name: 'Miguel Silva & Yamashita Advogados',
+    },
+    startDate: '2022-05-11T09:30:00-03:00',
+    mode: 'online',
+    role: {
+      'pt-BR': 'Palestrante convidado',
+      en: 'Guest speaker',
+    },
+    summary: {
+      'pt-BR':
+        'Abordagem prática sobre as fragilidades do mundo virtual na vida das empresas e as providências para prevenir contingências.',
+      en: 'A practical look at the vulnerabilities the virtual world creates for companies, and what to do to prevent them.',
+    },
+  },
 ];
 
 /** Verdadeiro quando só temos o ano. */
