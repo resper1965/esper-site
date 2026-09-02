@@ -57,3 +57,26 @@ describe('tempo de carreira', () => {
     expect(yearsOfExperience(agora)).toBeGreaterThan(yearsInSecurity(agora));
   });
 });
+
+describe('Grafo de identidade', () => {
+  it('nenhum perfil com backlink ausente entra no sameAs', async () => {
+    const { identityProfiles, sameAsUrls } = await import('@/lib/site');
+    const ausentes = Object.values(identityProfiles)
+      .filter((p) => p.backlink === 'ausente')
+      .map((p) => p.url);
+    for (const url of ausentes) expect(sameAsUrls).not.toContain(url);
+  });
+  it('todo perfil declarado tem status e URL absoluta', async () => {
+    const { identityProfiles } = await import('@/lib/site');
+    for (const p of Object.values(identityProfiles)) {
+      expect(p.url).toMatch(/^https:\/\//);
+      expect(['medido', 'inverificavel', 'ausente']).toContain(p.backlink);
+    }
+  });
+  it('lista o que ainda precisa de conferência manual', async () => {
+    const { profilesNeedingBacklinkCheck } = await import('@/lib/site');
+    // Hoje só o about.me foi medido; o resto bloqueia acesso automatizado.
+    expect(profilesNeedingBacklinkCheck().length).toBeGreaterThan(0);
+    expect(profilesNeedingBacklinkCheck().map(([k]) => k)).not.toContain('aboutMe');
+  });
+});

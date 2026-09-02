@@ -88,43 +88,91 @@ export const siteConfig = {
 export type SiteConfig = typeof siteConfig;
 
 /**
- * Identity graph — single source of truth for `sameAs` across every JSON-LD
- * schema on the site.
+ * Grafo de identidade — fonte única do `sameAs` em todo JSON-LD do site.
  *
- * Search engines and LLMs reconcile "Ricardo Esper" into one entity by
- * cross-referencing these URLs. Every profile listed here MUST link back to
- * esper.ws, otherwise the link is one-way and carries far less weight.
+ * Buscadores e modelos reconciliam "Ricardo Esper" numa entidade só cruzando
+ * estas URLs. Uma ligação de mão dupla — o perfil apontando de volta para
+ * ricardoesper.com.br — vale bem mais que uma de mão única.
  *
- * Only add a URL once the profile actually exists and is verified — a 404 in
- * `sameAs` weakens the whole graph instead of strengthening it.
+ * O comentário antigo dizia que todo perfil "MUST link back", e isso era
+ * aspiração escrita como regra: das cinco entradas abaixo, só uma teve a
+ * reciprocidade efetivamente medida. As outras não são suspeitas — são
+ * inverificáveis daqui, porque LinkedIn, GitHub, Crunchbase e YouTube
+ * respondem a acesso automatizado com bloqueio ou com HTML sem os links,
+ * que são renderizados por JavaScript.
+ *
+ * Então o estado da verificação vira dado, não promessa. `ausente` é o
+ * único que exclui do `sameAs`: um perfil que comprovadamente não aponta
+ * de volta enfraquece o grafo, enquanto um que não deu para conferir
+ * apenas rende menos.
  */
-export const identityProfiles = {
-  linkedin: "https://www.linkedin.com/in/ricardoesper",
-  github: "https://github.com/resper1965",
-} as const;
+export type BacklinkStatus =
+  /** Conferido: a página responde e traz link para o site. */
+  | 'medido'
+  /** Bloqueia acesso automatizado, ou renderiza os links via JavaScript. */
+  | 'inverificavel'
+  /** Conferido e não aponta de volta. Fica fora do `sameAs`. */
+  | 'ausente';
+
+export interface IdentityProfile {
+  url: string;
+  backlink: BacklinkStatus;
+  /** Por que este status — para o próximo que abrir o arquivo. */
+  nota?: string;
+}
+
+export const identityProfiles: Record<string, IdentityProfile> = {
+  linkedin: {
+    url: "https://www.linkedin.com/in/ricardoesper",
+    backlink: 'inverificavel',
+    nota: 'Responde 999 a acesso automatizado. O handle foi confirmado por uma URL de post público.',
+  },
+  github: {
+    url: "https://github.com/resper1965",
+    backlink: 'inverificavel',
+    nota: 'A API devolve 403 pelo proxy. A conta é certa: é a dona deste repositório.',
+  },
+  aboutMe: {
+    url: "https://about.me/resper",
+    backlink: 'medido',
+    nota: 'Único com reciprocidade medida: 200 e link de volta no HTML.',
+  },
+  youtube: {
+    url: "https://www.youtube.com/ricardoesper",
+    backlink: 'inverificavel',
+    nota: 'Canal existe e resolve em /ricardoesper (@ricardoesper dá 404). Os links do canal são renderizados por JavaScript, então não aparecem no HTML.',
+  },
+  crunchbase: {
+    url: "https://www.crunchbase.com/person/ricardo-esper-9f53",
+    backlink: 'inverificavel',
+    nota: 'Devolve 403 a acesso automatizado. URL fornecida pelo Ricardo.',
+  },
+};
 
 /**
- * Slots reserved for authority anchors that still need to be created.
+ * Âncoras de autoridade que ainda não existem.
  *
- * Wikidata is the highest-leverage one: it is the item Google's Knowledge
- * Graph and most LLM training pipelines read directly. Fill each value in and
- * it flows into every schema automatically.
- *
- * See docs/REPUTATION-ONLINE.md for how to create them.
+ * Wikidata é a de maior alavancagem: é o item que o Knowledge Graph do
+ * Google e boa parte dos pipelines de treino leem direto.
  */
 export const pendingIdentityProfiles: Record<string, string> = {
   // wikidata: "https://www.wikidata.org/wiki/Q...",
   // orcid: "https://orcid.org/0000-...",
-  // crunchbase: "https://www.crunchbase.com/person/...",
-  // youtube: "https://www.youtube.com/@...",
   // lattes: "http://lattes.cnpq.br/...",
 };
 
-/** Every verified profile URL, ready to drop into a JSON-LD `sameAs`. */
+/** As URLs que entram no `sameAs` — tudo menos os backlinks ausentes. */
 export const sameAsUrls: string[] = [
-  ...Object.values(identityProfiles),
+  ...Object.values(identityProfiles)
+    .filter((p) => p.backlink !== 'ausente')
+    .map((p) => p.url),
   ...Object.values(pendingIdentityProfiles),
 ];
+
+/** Os que ainda merecem uma conferência manual — para o próximo passo. */
+export function profilesNeedingBacklinkCheck(): Array<[string, IdentityProfile]> {
+  return Object.entries(identityProfiles).filter(([, p]) => p.backlink !== 'medido');
+}
 
 /**
  * Organizations Ricardo Esper founded or leads. Used by the Person schema and

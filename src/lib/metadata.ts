@@ -3,6 +3,8 @@ import { siteConfig, sameAsUrls, yearsInSecurity, BIRTH_DATE } from './site';
 import { i18n, type Locale } from '@/i18n/config';
 import { careerTimeline, foundedOrganizations, currentEmployers } from '@/lib/career';
 import type { Talk } from '@/lib/talks';
+import type { Appearance } from '@/lib/appearances';
+import { independentAppearances } from '@/lib/appearances';
 
 import { certifications, memberships } from '@/lib/credentials'
 interface PageMetadataProps {
@@ -222,6 +224,25 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
       ...(e.startYear ? { foundingDate: String(e.startYear) } : {}),
       ...(e.url ? { url: e.url } : {}),
     })),
+    // Conteúdo de terceiro sobre ele. `subjectOf` é o campo que responde
+    // "quem mais fala dessa pessoa?" — a pergunta que separa uma entidade
+    // reconhecida de um site que só fala de si mesmo. Só entram veículos
+    // independentes: uma aparição em canal próprio seria autopublicação
+    // com outro nome, e inflaria o sinal em vez de fortalecê-lo.
+    ...(independentAppearances().length
+      ? {
+          // Referência ao mesmo `@id` que a página emite por extenso. Sem
+          // ele o processador cria um nó anônimo, e a aresta Person →
+          // VideoObject não chega ao nó rico: o `uploadDate` e o
+          // `publisher` ficam num lugar que ninguém liga ao Ricardo.
+          subjectOf: independentAppearances().map((a) => ({
+            '@type': 'VideoObject',
+            '@id': appearanceNodeId(a),
+            name: a.title[lang],
+            url: a.url,
+          })),
+        }
+      : {}),
     // A trajetória como dado, não como prosa: é o que permite a um
     // buscador ou a um agente responder "desde quando" sem inferir do
     // texto corrido.
@@ -608,5 +629,54 @@ export function generateEventSchema(talk: Talk, lang: Locale = 'pt-BR') {
     ...(talk.program ? { superEvent: { '@type': 'EventSeries', name: talk.program[lang] } } : {}),
     ...(talk.registrationUrl ? { url: talk.registrationUrl } : {}),
     inLanguage: lang,
+  };
+}
+
+/**
+ * JSON-LD para as aparições em veículos de terceiros.
+ *
+ * A diferença para `generateEventSchema` é onde o Ricardo aparece: numa
+ * palestra ele é `performer`; aqui ele é `about`. Ou seja, o conteúdo é
+ * sobre ele — que é justamente o que um buscador ou um curador de
+ * notabilidade procura quando pergunta "quem mais fala dessa pessoa?".
+ *
+ * `publisher` nomeia o veículo. Sem isso o item vira mais uma página do
+ * próprio site falando de si mesmo, que é o que já não falta.
+ */
+/**
+ * O `@id` de uma aparição. Existe como função porque dois lugares precisam
+ * dele — o nó completo, na página de palestras, e a referência dentro do
+ * `subjectOf` do Person. Se os dois divergirem, o processador de JSON-LD
+ * trata o segundo como nó anônimo e a ligação entre Person e VideoObject
+ * simplesmente não acontece: os dados existem, mas soltos.
+ */
+export function appearanceNodeId(a: Appearance): string {
+  return `${siteConfig.url}/palestras#${a.id}`;
+}
+
+export function generateAppearanceSchema(a: Appearance, lang: Locale = 'pt-BR') {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    // Sem locale, pelo mesmo motivo do Event: a aparição é uma só.
+    '@id': appearanceNodeId(a),
+    name: a.title[lang],
+    description: a.summary[lang],
+    url: a.url,
+    // `uploadDate` só quando confirmada. O schema.org a recomenda, mas uma
+    // data inventada é pior que um campo ausente.
+    ...(a.publishedDate ? { uploadDate: a.publishedDate } : {}),
+    ...(a.series ? { partOfSeries: { '@type': 'CreativeWorkSeries', name: a.series } } : {}),
+    about: {
+      '@type': 'Person',
+      '@id': `${siteConfig.url}/sobre#person`,
+      name: siteConfig.name,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: a.outlet.name,
+      ...(a.outlet.url ? { url: a.outlet.url } : {}),
+    },
+    inLanguage: 'pt-BR',
   };
 }

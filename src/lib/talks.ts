@@ -21,7 +21,16 @@ export interface Talk {
   program?: { 'pt-BR': string; en: string };
   /** Quem convidou — a parte que dá o valor de terceiro. */
   host: { name: string; url?: string };
-  /** ISO 8601 com fuso. O schema.org quer offset explícito. */
+  /**
+   * ISO 8601. Duas precisões são aceitas de propósito:
+   *
+   *   "2026-09-10T19:00:00-03:00" — data e hora, com offset explícito
+   *   "2024"                      — só o ano
+   *
+   * A segunda existe para eventos passados cuja data exata não está
+   * documentada em lugar nenhum público. Ano é ISO 8601 válido e é
+   * verdade; uma data completa inventada seria mais bonita e falsa.
+   */
   startDate: string;
   /** Online, ou o lugar. */
   mode: 'online' | 'presencial';
@@ -39,6 +48,11 @@ export interface Talk {
   accessUrl?: string;
   /** O que a aula cobre — vira `description` no schema. */
   summary: { 'pt-BR': string; en: string };
+  /**
+   * Papel, quando não é "quem dá a aula" — painelista, mediador, convidado.
+   * Ausente significa aula ou palestra dele.
+   */
+  role?: { 'pt-BR': string; en: string };
   /** Post do blog que desenvolve o tema, quando existir. */
   relatedPostSlug?: string;
 }
@@ -71,23 +85,55 @@ export const talks: Talk[] = [
     },
     relatedPostSlug: 'ninguem-escreve-propina',
   },
+  {
+    id: 'microsoft-reactor-cybersecurity-night-2024',
+    title: {
+      'pt-BR': 'Cybersecurity Night 2024 — painel',
+      en: 'Cybersecurity Night 2024 — panel',
+    },
+    host: {
+      name: 'Microsoft Reactor',
+      url: 'https://developer.microsoft.com/pt-br/reactor/events/23170/',
+    },
+    // Só o ano: a página do evento renderiza a data por JavaScript e ela não
+    // aparece no HTML. O ano está no título, é verdade e é verificável.
+    startDate: '2024',
+    mode: 'online',
+    registrationUrl: 'https://developer.microsoft.com/pt-br/reactor/events/23170/',
+    role: {
+      'pt-BR': 'Painelista, ao lado de três Microsoft MVPs',
+      en: 'Panelist, alongside three Microsoft MVPs',
+    },
+    summary: {
+      'pt-BR':
+        'Painel sobre ameaças, incidentes no mundo real, boas práticas e soluções recomendadas em cibersegurança.',
+      en: 'A panel on threats, real-world incidents, good practice and recommended solutions in cybersecurity.',
+    },
+  },
 ];
 
-/** Mais recente primeiro. */
+/** Verdadeiro quando só temos o ano. */
+export function isYearOnly(startDate: string): boolean {
+  return /^\d{4}$/.test(startDate);
+}
+
+/** Mais recente primeiro. Comparar strings ISO ordena certo em ambos os casos. */
 export function talksByDate(): Talk[] {
   return [...talks].sort((a, b) => b.startDate.localeCompare(a.startDate));
 }
 
 /** Ainda por acontecer, na ordem em que acontecem. */
 export function upcomingTalks(now: Date = new Date()): Talk[] {
+  // Um registro só com o ano nunca conta como "em breve": ele existe
+  // justamente porque a data exata se perdeu, o que significa que já passou.
   return talks
-    .filter((t) => new Date(t.startDate) >= now)
+    .filter((t) => !isYearOnly(t.startDate) && new Date(t.startDate) >= now)
     .sort((a, b) => a.startDate.localeCompare(b.startDate));
 }
 
 /** Já aconteceram, mais recente primeiro. */
 export function pastTalks(now: Date = new Date()): Talk[] {
   return talks
-    .filter((t) => new Date(t.startDate) < now)
+    .filter((t) => isYearOnly(t.startDate) || new Date(t.startDate) < now)
     .sort((a, b) => b.startDate.localeCompare(a.startDate));
 }

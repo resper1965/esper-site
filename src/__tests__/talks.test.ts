@@ -46,3 +46,76 @@ describe('Event schema', () => {
     expect((s.location as Record<string, string>).url).toBe('https://sala.example/aula');
   });
 });
+
+describe('Aparições', () => {
+  it('só entram veículos independentes no subjectOf', async () => {
+    const { independentAppearances, appearances } = await import('@/lib/appearances');
+    expect(independentAppearances().every((a) => a.outlet.independent)).toBe(true);
+    expect(appearances.length).toBeGreaterThan(0);
+  });
+  it('o subjectOf referencia o mesmo @id que a página emite por extenso', async () => {
+    const { generatePersonSchema, generateAppearanceSchema } = await import('@/lib/metadata');
+    const { independentAppearances } = await import('@/lib/appearances');
+    const p = generatePersonSchema('pt-BR') as Record<string, unknown>;
+    const subj = p.subjectOf as Array<Record<string, unknown>>;
+    expect(subj.length).toBeGreaterThan(0);
+    // Sem @id o processador cria um nó anônimo e a aresta Person → VideoObject
+    // nunca alcança o nó rico. Os dois lados têm que casar exatamente.
+    const idsNoPerson = subj.map((n) => n['@id']);
+    const idsNaPagina = independentAppearances().map(
+      (a) => (generateAppearanceSchema(a, 'pt-BR') as Record<string, unknown>)['@id']
+    );
+    for (const id of idsNoPerson) {
+      expect(id).toBeTruthy();
+      expect(idsNaPagina).toContain(id);
+    }
+  });
+  it('não emite uploadDate quando a data não foi confirmada', async () => {
+    const { generateAppearanceSchema } = await import('@/lib/metadata');
+    const { appearances } = await import('@/lib/appearances');
+    const semData = appearances.find((a) => !a.publishedDate);
+    if (semData) {
+      const s = generateAppearanceSchema(semData, 'pt-BR') as Record<string, unknown>;
+      expect(s).not.toHaveProperty('uploadDate');
+    }
+  });
+  it('a aparição aponta o Ricardo como about, não como performer', async () => {
+    const { generateAppearanceSchema } = await import('@/lib/metadata');
+    const { appearances } = await import('@/lib/appearances');
+    const s = generateAppearanceSchema(appearances[0], 'pt-BR') as Record<string, unknown>;
+    expect((s.about as Record<string, string>)['@id']).toMatch(/\/sobre#person$/);
+    expect(s).not.toHaveProperty('performer');
+  });
+});
+
+describe('Data só com o ano', () => {
+  it('reconhece o formato', async () => {
+    const { isYearOnly } = await import('@/lib/talks');
+    expect(isYearOnly('2024')).toBe(true);
+    expect(isYearOnly('2026-09-10T19:00:00-03:00')).toBe(false);
+  });
+  it('nunca conta como "em breve", por mais no futuro que o ano pareça', async () => {
+    const { upcomingTalks } = await import('@/lib/talks');
+    const ids = upcomingTalks(new Date('2020-01-01')).map((t) => t.id);
+    expect(ids).not.toContain('microsoft-reactor-cybersecurity-night-2024');
+  });
+  it('e sempre conta como passado', async () => {
+    const { pastTalks } = await import('@/lib/talks');
+    const ids = pastTalks(new Date('2020-01-01')).map((t) => t.id);
+    expect(ids).toContain('microsoft-reactor-cybersecurity-night-2024');
+  });
+  it('o schema emite o ano como startDate, sem inventar dia', async () => {
+    const { generateEventSchema } = await import('@/lib/metadata');
+    const { talks } = await import('@/lib/talks');
+    const ms = talks.find((t) => t.id === 'microsoft-reactor-cybersecurity-night-2024')!;
+    const s = generateEventSchema(ms, 'pt-BR') as Record<string, unknown>;
+    expect(s.startDate).toBe('2024');
+  });
+  it('nomeia a Microsoft como organizadora', async () => {
+    const { generateEventSchema } = await import('@/lib/metadata');
+    const { talks } = await import('@/lib/talks');
+    const ms = talks.find((t) => t.id === 'microsoft-reactor-cybersecurity-night-2024')!;
+    const s = generateEventSchema(ms, 'pt-BR') as Record<string, unknown>;
+    expect((s.organizer as Record<string, string>).name).toContain('Microsoft');
+  });
+});
