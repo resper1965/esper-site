@@ -10,7 +10,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight
-} from 'lucide-react';
+, Image as ImageIcon } from 'lucide-react';
 import { useState } from 'react';
 import { signOut } from '@/lib/cloudflare';
 import { useRouter } from 'next/navigation';
@@ -30,6 +30,13 @@ const navItems: NavItem[] = [
     icon: BarChart3, 
     title: 'Analytics', 
     subtitle: 'Estatísticas detalhadas dos posts e performance' 
+  },
+  { 
+    href: '/admin/midia', 
+    label: 'Mídia', 
+    icon: ImageIcon, 
+    title: 'Mídia', 
+    subtitle: 'Fotos das viagens — sobem para o R2 sem metadados' 
   },
   { 
     href: '/admin/settings', 
