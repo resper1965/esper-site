@@ -3,7 +3,7 @@ import { Locale, i18n } from '@/i18n/config';
 import { generatePageMetadata, generateProfessionalServiceSchema } from '@/lib/metadata';
 import { PageBackground } from '@/components/ui/page-background';
 import type { Metadata } from 'next';
-import { Shield, Eye, Search, FileCheck, Briefcase, Phone, Calendar, ArrowRight, Sparkles } from 'lucide-react';
+import { Shield, Eye, Search, FileCheck, Briefcase, Phone, ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { yearsOfExperience, yearsInSecurity } from '@/lib/site';
 
@@ -349,25 +349,23 @@ export default async function Servicos({
               {dict.services.ctaDescription}
             </p>
             
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="https://calendly.com/ricardoesper"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-0.5"
-              >
-                <Calendar className="w-5 h-5 transition-transform group-hover:scale-110" />
-                {dict.services.scheduleMeeting}
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </a>
+            {/* Um caminho só, e é o que atende.
+
+                O Calendly saiu daqui: ele entregava uma janela na agenda do
+                CISO a qualquer um que achasse o link, sem qualificar nada, e
+                as páginas dele são `noindex` — não somavam para o nome. O
+                argumento que restava a seu favor era o inbound fora do fuso,
+                e esse caiu quando o WhatsApp passou a atender 24 horas. */}
+            <div className="mt-8 flex justify-center">
               <a
                 href="https://wa.me/5511993252971"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center justify-center gap-2 rounded-xl border-2 border-border bg-background px-8 py-4 text-sm font-semibold transition-all duration-300 hover:bg-muted hover:border-muted-foreground/20"
+                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-lg transition-all duration-300 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-0.5"
               >
                 <Phone className="w-5 h-5 transition-transform group-hover:scale-110" />
                 {dict.services.whatsapp}
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </a>
             </div>
 
