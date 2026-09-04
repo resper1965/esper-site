@@ -12,8 +12,12 @@ import { readObject } from '@/lib/cloudflare/media';
  *   imagem, ou não é servido.
  * - `X-Content-Type-Options: nosniff` impede o navegador de "adivinhar" um
  *   tipo mais interessante que o declarado.
- * - `Content-Security-Policy: sandbox` neutraliza o arquivo caso alguém
- *   consiga abri-lo como documento.
+ * A `Content-Security-Policy` NÃO é definida aqui, e isso é deliberado: um
+ * cabeçalho emitido pelo route handler é substituído pela regra global do
+ * `next.config.ts` em produção — foi medido, não suposto. A política estrita
+ * desta rota (`default-src 'none'; sandbox`) mora lá, numa regra própria
+ * para `/img/`, que é onde ela efetivamente vale. Recolocá-la aqui não
+ * quebra nada, mas cria a ilusão de uma defesa que não chega ao navegador.
  * - `Content-Disposition: inline` com nome fixo evita que o nome do arquivo
  *   influencie o tratamento.
  *
@@ -45,7 +49,6 @@ export async function GET(_request: Request, ctx: { params: Promise<{ key: strin
       'Content-Type': contentType,
       'Cache-Control': 'public, max-age=31536000, immutable',
       'X-Content-Type-Options': 'nosniff',
-      'Content-Security-Policy': "default-src 'none'; sandbox",
       'Content-Disposition': 'inline',
       ...(object.httpEtag ? { ETag: object.httpEtag } : {}),
     },
