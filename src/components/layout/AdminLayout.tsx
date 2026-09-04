@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Sidebar } from '@/components/admin/sidebar';
 import AdminHeader from './AdminHeader';
 import AdminFooter from './AdminFooter';
-import { BarChart3, Settings } from 'lucide-react';
+import { BarChart3, Settings , Image as ImageIcon } from 'lucide-react';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -13,6 +13,7 @@ interface AdminLayoutProps {
 
 const navItems = [
   { href: '/admin/analytics', title: 'Analytics', subtitle: 'Estatísticas detalhadas dos posts e performance', icon: BarChart3 },
+  { href: '/admin/midia', title: 'Mídia', subtitle: 'Fotos das viagens — sobem para o R2 sem metadados', icon: ImageIcon },
   { href: '/admin/settings', title: 'Configurações', subtitle: 'Gerencie variáveis de ambiente e configurações do sistema', icon: Settings },
 ];
 
