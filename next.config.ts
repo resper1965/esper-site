@@ -56,9 +56,42 @@ const nextConfig: NextConfig = {
   },
 
   async headers() {
+    const strictTransport = {
+      key: 'Strict-Transport-Security',
+      value: 'max-age=63072000; includeSubDomains; preload',
+    };
+
     return [
+      // ── Arquivos servidos do R2 ──────────────────────────
+      //
+      // Regra própria, e a global abaixo exclui `/img/` de propósito.
+      //
+      // A rota `/img/[...key]` define os próprios cabeçalhos, mas quem
+      // vence é esta configuração: um `Content-Security-Policy` emitido
+      // pelo route handler foi substituído pelo global em produção —
+      // medido, não suposto. Como a regra do Next prevalece, o lugar certo
+      // da política é aqui.
+      //
+      // O que muda em relação à global: `default-src 'none'; sandbox`
+      // neutraliza o arquivo caso alguém consiga abri-lo como documento, e
+      // `X-Frame-Options: DENY` é mais estrito que o `SAMEORIGIN` do site —
+      // não há motivo para emoldurar uma foto.
       {
-        source: '/:path*',
+        source: '/img/:path*',
+        headers: [
+          strictTransport,
+          { key: 'Content-Security-Policy', value: "default-src 'none'; sandbox" },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' },
+        ],
+      },
+      {
+        // Tudo menos `/img/`, que tem a regra acima. Sem esta exclusão as
+        // duas casariam e a política permissiva do site voltaria a valer
+        // sobre as fotos.
+        source: '/((?!img/).*)',
         headers: [
           {
             key: 'X-DNS-Prefetch-Control',
