@@ -25,7 +25,11 @@ describe('credenciais verificáveis', () => {
     const person = generatePersonSchema('pt-BR') as {
       hasCredential: Array<Record<string, unknown>>;
     };
-    const comEmissor = person.hasCredential.filter((c) => 'recognizedBy' in c);
+    // Filtra por categoria, não só por "tem emissor": treinamento também
+    // traz `recognizedBy`, e a afirmação aqui é sobre as duas ISO.
+    const comEmissor = person.hasCredential.filter(
+      (c) => c.credentialCategory === 'certification' && 'recognizedBy' in c
+    );
     expect(comEmissor).toHaveLength(2);
     for (const c of comEmissor) {
       expect(c.identifier).toMatchObject({ value: 'PC01E090056' });
@@ -37,7 +41,9 @@ describe('credenciais verificáveis', () => {
     const person = generatePersonSchema('pt-BR') as {
       hasCredential: Array<Record<string, unknown>>;
     };
-    const semEmissor = person.hasCredential.filter((c) => !('recognizedBy' in c));
+    const semEmissor = person.hasCredential.filter(
+      (c) => c.credentialCategory === 'certification' && !('recognizedBy' in c)
+    );
     expect(semEmissor.length).toBeGreaterThan(0);
     for (const c of semEmissor) {
       expect(c).not.toHaveProperty('identifier');
