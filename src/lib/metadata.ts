@@ -7,7 +7,7 @@ import type { Appearance } from '@/lib/appearances';
 import type { Work } from '@/lib/works';
 import { independentAppearances } from '@/lib/appearances';
 
-import { certifications, memberships } from '@/lib/credentials'
+import { certifications, memberships, trainings } from '@/lib/credentials'
 interface PageMetadataProps {
   title: string;
   description: string;
@@ -281,31 +281,50 @@ export function generatePersonSchema(lang: Locale = 'pt-BR') {
     // Uma credencial com emissor e número é conferível; uma só com o nome é
     // afirmação. `recognizedBy` e `identifier` são os campos que um buscador
     // usa para distinguir as duas.
-    hasCredential: certifications.map((c) => ({
-      '@type': 'EducationalOccupationalCredential',
-      name: c.full[lang],
-      credentialCategory: 'certification',
-      ...(c.issuer
-        ? {
-            recognizedBy: {
-              '@type': 'Organization',
-              name: c.issuer.name,
-              ...(c.issuer.url ? { url: c.issuer.url } : {}),
-            },
-          }
-        : {}),
-      ...(c.identifier
-        ? {
-            identifier: {
-              '@type': 'PropertyValue',
-              propertyID: 'certificateNumber',
-              value: c.identifier,
-            },
-          }
-        : {}),
-      ...(c.verificationUrl ? { url: c.verificationUrl } : {}),
-      ...(c.dateIssued ? { dateCreated: c.dateIssued } : {}),
-    })),
+    // Certificação e treinamento dividem o mesmo campo do schema, com
+    // `credentialCategory` distinta: é o que deixa um leitor separar "passou
+    // num exame" de "concluiu um curso" sem que a gente ache a diferença.
+    // O array é construído de uma vez para não precisar de `concat` com
+    // conversão de tipo — as duas formas são objetos JSON-LD, e um literal
+    // único deixa isso explícito.
+    hasCredential: [
+      ...certifications.map((c) => ({
+        '@type': 'EducationalOccupationalCredential',
+        name: c.full[lang],
+        credentialCategory: 'certification',
+        ...(c.issuer
+          ? {
+              recognizedBy: {
+                '@type': 'Organization',
+                name: c.issuer.name,
+                ...(c.issuer.url ? { url: c.issuer.url } : {}),
+              },
+            }
+          : {}),
+        ...(c.identifier
+          ? {
+              identifier: {
+                '@type': 'PropertyValue',
+                propertyID: 'certificateNumber',
+                value: c.identifier,
+              },
+            }
+          : {}),
+        ...(c.verificationUrl ? { url: c.verificationUrl } : {}),
+        ...(c.dateIssued ? { dateCreated: c.dateIssued } : {}),
+      })),
+      ...trainings.map((t) => ({
+        '@type': 'EducationalOccupationalCredential',
+        name: t.name[lang],
+        credentialCategory: 'training',
+        recognizedBy: {
+          '@type': 'Organization',
+          name: t.provider.name,
+          ...(t.provider.url ? { url: t.provider.url } : {}),
+        },
+        dateCreated: t.completed,
+      })),
+    ],
     memberOf: memberships.map((m) => ({
       '@type': 'Organization',
       name: m.name,
