@@ -268,7 +268,7 @@ export default async function Sobre({
             </p>
             <ul className="space-y-3">
               {journeyTimeline().map((j) => (
-                <li key={j.year} className="flex gap-4 items-baseline">
+                <li key={j.id} className="flex gap-4 items-baseline">
                   <span className="font-mono text-sm text-primary shrink-0 w-12">{j.year}</span>
                   <span>
                     <span className="font-medium">{j.name[lang]}</span>
