@@ -42,7 +42,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const post = await getPostBySlug(slug);
+    // Rota autenticada (requireAuth acima): pode ver rascunho, porque gerar
+    // a imagem de capa faz parte de preparar um post antes de publicá-lo.
+    const post = await getPostBySlug(slug, { includeDrafts: true });
     
     if (!post || !post.frontMatter) {
       return new Response('Post not found', { status: 404 });

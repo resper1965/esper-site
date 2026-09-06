@@ -178,10 +178,30 @@ export async function getAllPosts(): Promise<Post[]> {
   return rowsToPostsSafe(rows);
 }
 
-export async function getPostBySlug(slug: string): Promise<Post | null> {
+/**
+ * Busca por slug — publicados apenas, salvo pedido explícito.
+ *
+ * Todas as listagens desta camada já filtravam `published = 1`. Esta função,
+ * não: ela lia por slug sem filtro nenhum. O efeito era um rascunho invisível
+ * no índice do blog e servido normalmente para quem digitasse a URL — e slug
+ * é adivinhável, porque é derivado do título. Um post guardado para revisão
+ * estava, na prática, publicado.
+ *
+ * Isso vale tanto para a página do blog quanto para `GET /api/posts/[slug]`,
+ * que não exige autenticação.
+ *
+ * O padrão agora é negar. Quem precisa de rascunho pede — e quem pede são as
+ * rotas autenticadas do admin, que já passam por `requireAuth`.
+ */
+export async function getPostBySlug(
+  slug: string,
+  options: { includeDrafts?: boolean } = {}
+): Promise<Post | null> {
   try {
     const row = await db().first<PostRow>(
-      `SELECT * FROM posts WHERE slug = ?`,
+      options.includeDrafts
+        ? `SELECT * FROM posts WHERE slug = ?`
+        : `SELECT * FROM posts WHERE slug = ? AND published = 1`,
       [slug]
     );
     if (!row || !row.content || row.content.trim().length === 0) return null;
