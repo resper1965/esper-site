@@ -71,6 +71,7 @@ export const journeys: Journey[] = [
       en: 'Seven days in the Peruvian Andes, based in Cusco — the old Inca capital, at 3,400 metres.',
     },
     companion: 'Giovanna',
+    relatedPostSlug: 'machu-picchu-com-giovanna',
   },
   {
     id: 'lencois-maranhenses-2026',
