@@ -60,11 +60,15 @@ export const journeys: Journey[] = [
     id: 'machu-picchu-2026',
     year: 2026,
     month: 7,
-    name: { 'pt-BR': 'Machu Picchu', en: 'Machu Picchu' },
+    name: {
+      'pt-BR': 'Machu Picchu, a partir de Cusco',
+      en: 'Machu Picchu, from Cusco',
+    },
     where: { 'pt-BR': 'Peru', en: 'Peru' },
     note: {
-      'pt-BR': 'A cidade inca a 2.430 metros, nos Andes peruanos.',
-      en: 'The Inca city at 2,430 metres, in the Peruvian Andes.',
+      'pt-BR':
+        'Sete dias nos Andes peruanos, com base em Cusco — a antiga capital inca, a 3.400 metros.',
+      en: 'Seven days in the Peruvian Andes, based in Cusco — the old Inca capital, at 3,400 metres.',
     },
     companion: 'Giovanna',
   },
