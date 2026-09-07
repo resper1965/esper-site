@@ -46,14 +46,12 @@ export async function generateMetadata(): Promise<Metadata> {
       keywords,
     }),
     metadataBase: new URL(siteConfig.url),
-    // `default` é o título da home; `template` é o sufixo das internas.
-    // Enquanto os dois eram `dict.site.name`, e `generatePageMetadata` também
-    // recebia esse nome como título, a home saía "Ricardo Esper - Blog -
-    // Ricardo Esper - Blog": o sufixo aplicado sobre o próprio sufixo.
-    title: {
-      default: dict.site.homeTitle,
-      template: `%s | ${dict.site.name}`,
-    },
+    // Só o layout [lang] declara o `template`. Um template AQUI incidiria
+    // sobre o título que o [lang] resolve — inclusive sobre o `default` da
+    // home —, e o sufixo voltaria a aparecer duas vezes:
+    // "Ricardo Esper — CISO... | Ricardo Esper". Medido em produção depois
+    // da primeira tentativa de correção.
+    title: { absolute: dict.site.homeTitle },
   };
 }
 

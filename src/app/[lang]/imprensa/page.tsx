@@ -27,8 +27,8 @@ export async function generateMetadata({
 
   return generatePageMetadata({
     title: isPT
-      ? "Imprensa — Ricardo Esper | Press Kit, Biografia e Contato"
-      : "Press — Ricardo Esper | Press Kit, Biography and Contact",
+      ? "Imprensa — press kit, biografia e contato"
+      : "Press — press kit, biography and contact",
     description: isPT
       ? "Press kit oficial de Ricardo Esper: biografias prontas para publicação, temas para entrevista, dados verificáveis, fotos em alta resolução e contato direto para imprensa."
       : "Ricardo Esper's official press kit: ready-to-publish biographies, interview topics, verifiable facts, high-resolution photos and direct press contact.",
