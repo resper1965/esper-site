@@ -19,27 +19,31 @@ async function checkAuth(request: NextRequest): Promise<boolean> {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // `/admin` e `/admin/...` são o mesmo território. Comparar só com
-  // '/admin/' deixava a forma sem barra escapar de todas as checagens
-  // abaixo e cair no redirect de idioma, indo parar em /pt-BR/admin.
-  const isAdmin = pathname === '/admin' || pathname.startsWith('/admin/');
+  // O admin pode ser pedido com prefixo de idioma (/pt-BR/admin/...), e o
+  // rewrite abaixo tira esse prefixo. A autenticação precisa olhar o caminho
+  // JÁ NORMALIZADO: enquanto `isAdmin` era calculado sobre o pathname
+  // original, /pt-BR/admin não casava com '/admin', o rewrite retornava
+  // primeiro, e a checagem nunca rodava — o painel renderizava sem sessão.
+  const localePrefix = i18n.locales.find(
+    (locale) => pathname === `/${locale}/admin` || pathname.startsWith(`/${locale}/admin/`)
+  );
+  const adminPath = localePrefix ? pathname.slice(`/${localePrefix}`.length) : pathname;
+  const isAdmin = adminPath === '/admin' || adminPath.startsWith('/admin/');
 
-  // Remove locale from admin routes - rewrite instead of redirect to avoid 404
-  for (const locale of i18n.locales) {
-    if (pathname === `/${locale}/admin` || pathname.startsWith(`/${locale}/admin/`)) {
-      const adminPath = pathname.replace(`/${locale}`, '');
-      request.nextUrl.pathname = adminPath;
-      return NextResponse.rewrite(request.nextUrl);
-    }
-  }
-
-  // Check authentication for admin routes (except login)
-  if (isAdmin && pathname !== '/admin/login') {
+  // Autentica ANTES de qualquer rewrite. Território é território, tenha ou
+  // não prefixo de idioma na URL.
+  if (isAdmin && adminPath !== '/admin/login') {
     const isAuthenticated = await checkAuth(request);
     if (!isAuthenticated) {
       const loginUrl = new URL('/admin/login', request.url);
       return NextResponse.redirect(loginUrl);
     }
+  }
+
+  // Admin não é localizado: serve o caminho sem o prefixo.
+  if (localePrefix) {
+    request.nextUrl.pathname = adminPath;
+    return NextResponse.rewrite(request.nextUrl);
   }
 
   // NOTE: API routes are excluded from middleware by the matcher config below.
