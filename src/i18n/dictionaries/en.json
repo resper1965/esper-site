@@ -1,6 +1,7 @@
 {
   "site": {
-    "name": "Ricardo Esper - Blog",
+    "name": "Ricardo Esper",
+    "homeTitle": "Ricardo Esper — CISO, Digital Forensics and Information Security",
     "description": "Perspectives from over {{years}} years dedicated to information security. CISO, digital forensics expert, and international consultant in privacy and compliance. Global experience in corporate data protection and cyber defense."
   },
   "home": {
