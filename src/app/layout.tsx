@@ -39,16 +39,20 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     ...generatePageMetadata({
-      title: dict.site.name,
+      title: dict.site.homeTitle,
       description: dict.site.description,
       path: '',
       lang: LANG,
       keywords,
     }),
     metadataBase: new URL(siteConfig.url),
+    // `default` é o título da home; `template` é o sufixo das internas.
+    // Enquanto os dois eram `dict.site.name`, e `generatePageMetadata` também
+    // recebia esse nome como título, a home saía "Ricardo Esper - Blog -
+    // Ricardo Esper - Blog": o sufixo aplicado sobre o próprio sufixo.
     title: {
-      default: dict.site.name,
-      template: `%s - ${dict.site.name}`,
+      default: dict.site.homeTitle,
+      template: `%s | ${dict.site.name}`,
     },
   };
 }

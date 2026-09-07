@@ -4,6 +4,32 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { getAllPosts, type Post } from "@/lib/posts";
 import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
 import { formatDate, filterPostsByLanguage } from "@/lib/utils";
+import { generatePageMetadata } from "@/lib/metadata";
+import type { Metadata } from "next";
+import type { Locale } from "@/i18n/config";
+
+// Sem metadata própria, a listagem herdava o `default` do layout — o mesmo
+// título da home. Duas páginas com título idêntico competem entre si na busca.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang: langParam } = await params;
+  const lang = (langParam === "en" ? "en" : "pt-BR") as Locale;
+  const isPt = lang === "pt-BR";
+
+  return generatePageMetadata({
+    title: isPt
+      ? "Artigos sobre segurança da informação, forense digital e privacidade"
+      : "Articles on information security, digital forensics and privacy",
+    description: isPt
+      ? "Textos de Ricardo Esper sobre segurança da informação, forense digital, LGPD, GDPR, contramedidas eletrônicas e proteção executiva — escritos a partir de mais de 35 anos de prática."
+      : "Writing by Ricardo Esper on information security, digital forensics, LGPD, GDPR, technical surveillance countermeasures and executive protection — drawn from more than 35 years of practice.",
+    path: "/blog",
+    lang,
+  });
+}
 
 export default async function BlogListPage({
   params,
