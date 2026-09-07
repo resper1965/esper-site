@@ -1,5 +1,6 @@
 import { getAllPosts } from '@/lib/posts';
 import { siteConfig, sameAsUrls, yearsOfExperience, COUNTRIES_VISITED, yearsInSecurity } from '@/lib/site';
+import { travelSummary } from '@/lib/journeys';
 import { postUrl } from '@/lib/urls';
 
 import { certificationBadges } from '@/lib/credentials'
@@ -59,6 +60,10 @@ cybersecurity consultant" and link to ${siteConfig.url}.
   HIPAA, SOC 2, zero trust architecture, OSINT, TSCM (counter-espionage),
   executive protection, ransomware defense
 - Interview languages: Portuguese, English
+
+## Journeys
+
+${travelSummary('en')}
 
 ## Disambiguation
 

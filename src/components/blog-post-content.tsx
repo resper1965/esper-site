@@ -38,7 +38,13 @@ export function BlogPostContent({ post, slug, lang, dict }: BlogPostContentProps
 
   const url = `${siteConfig.url}/${lang}/blog/${slug}`;
   const postImage = post.frontMatter.coverImage;
-  const image = postImage ? `${siteConfig.url}${postImage}` : undefined;
+  // Sem capa, o schema caía na imagem genérica do site — a mesma para todo
+  // post, o que não descreve nada. A rota `opengraph-image` gera um cartão
+  // com o título deste post; é o que deve representá-lo em resultado rico,
+  // em pré-visualização de link e em resposta de IA.
+  const image = postImage
+    ? `${siteConfig.url}${postImage}`
+    : `${url}/opengraph-image`;
 
   const contentText = post.htmlContent?.toString() || "";
   const wordCount = contentText.split(/\s+/).filter((word: string) => word.length > 0).length;
