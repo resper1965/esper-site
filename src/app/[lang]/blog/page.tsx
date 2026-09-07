@@ -21,8 +21,8 @@ export async function generateMetadata({
 
   return generatePageMetadata({
     title: isPt
-      ? "Artigos sobre segurança da informação, forense digital e privacidade"
-      : "Articles on information security, digital forensics and privacy",
+      ? "Artigos sobre segurança da informação"
+      : "Articles on information security",
     description: isPt
       ? "Textos de Ricardo Esper sobre segurança da informação, forense digital, LGPD, GDPR, contramedidas eletrônicas e proteção executiva — escritos a partir de mais de 35 anos de prática."
       : "Writing by Ricardo Esper on information security, digital forensics, LGPD, GDPR, technical surveillance countermeasures and executive protection — drawn from more than 35 years of practice.",

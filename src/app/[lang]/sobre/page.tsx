@@ -31,16 +31,27 @@ export async function generateMetadata({
       ? ["Ricardo Esper", "CISO", "cibersegurança", "forense digital", "NESS", "IONIC Health", "consultor internacional", "LGPD", "privacidade", "Ricardo Esper CISO", "Ricardo Esper Brasil", "especialista cibersegurança"]
       : ["Ricardo Esper", "CISO", "cybersecurity", "digital forensics", "NESS", "IONIC Health", "international consultant", "GDPR", "privacy", "Ricardo Esper Brazil", "cybersecurity expert"]
 
-  return generatePageMetadata({
-    title: lang === "pt-BR" ? "Sobre Ricardo Esper — CISO, Forense Digital, Consultor Internacional" : "About Ricardo Esper — CISO, Digital Forensics, International Consultant",
-    description:
-      lang === "pt-BR"
-        ? `Ricardo Esper: CISO com ${yearsInSecurity()} anos em cibersegurança. CEO da NESS (desde 1991), CISO da IONIC Health, fundador da forense.io. Especialista em LGPD, GDPR, HIPAA, SOC 2 e proteção executiva.`
-        : `Ricardo Esper: CISO with ${yearsInSecurity()} years in cybersecurity. CEO of NESS (since 1991), CISO of IONIC Health, founder of forense.io. Expert in LGPD, GDPR, HIPAA, SOC 2 and executive protection.`,
-    path: "/sobre",
-    lang,
-    keywords,
-  })
+  const title =
+    lang === "pt-BR"
+      ? "Sobre Ricardo Esper — CISO e forense digital"
+      : "About Ricardo Esper — CISO and digital forensics";
+
+  return {
+    ...generatePageMetadata({
+      title,
+      description:
+        lang === "pt-BR"
+          ? `Ricardo Esper: CISO com ${yearsInSecurity()} anos em cibersegurança. CEO da NESS (desde 1991), CISO da IONIC Health, fundador da forense.io. Especialista em LGPD, GDPR, HIPAA, SOC 2 e proteção executiva.`
+          : `Ricardo Esper: CISO with ${yearsInSecurity()} years in cybersecurity. CEO of NESS (since 1991), CISO of IONIC Health, founder of forense.io. Expert in LGPD, GDPR, HIPAA, SOC 2 and executive protection.`,
+      path: "/sobre",
+      lang,
+      keywords,
+    }),
+    // "Sobre Ricardo Esper" é a expressão que as pessoas digitam, então o nome
+    // fica no título. Com o sufixo do template ele apareceria duas vezes —
+    // `absolute` desliga o sufixo só aqui.
+    title: { absolute: title },
+  };
 }
 
 // Static page — uses generateStaticParams() + dictionary data

@@ -32,7 +32,7 @@ export async function generateMetadata({
 
   return generatePageMetadata({
     title: isPT
-      ? "Palestras e aulas — Ricardo Esper"
+      ? "Palestras e aulas"
       : "Talks and lectures — Ricardo Esper",
     description: isPT
       ? "Aulas e palestras de Ricardo Esper sobre fraude, forense digital, privacidade e resposta a incidentes. Agenda e histórico."
