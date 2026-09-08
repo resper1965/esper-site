@@ -80,6 +80,7 @@ ${sameAsUrls.map((url) => `- ${url}`).join('\n')}
 - [Services](${siteConfig.url}/pt-BR/servicos): CISO as a Service, digital forensics, compliance, TSCM.
 - [Press](${siteConfig.url}/pt-BR/imprensa): ready-to-publish biographies, interview topics, press contact.
 - [Blog](${siteConfig.url}/pt-BR/blog): articles on cybersecurity, privacy and incident response.
+- [Journeys](${siteConfig.url}/pt-BR/viagens): the trips that mattered, with photographs.
 
 ## Articles
 ${postLines ? `\n${postLines}` : '\nSee the blog index above for the current list.'}
