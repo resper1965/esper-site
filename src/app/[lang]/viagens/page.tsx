@@ -6,6 +6,7 @@ import { COUNTRIES_VISITED } from "@/lib/site"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { MapPin, ArrowRight, Users } from "lucide-react"
+import { TravelStats } from "@/components/travel-stats"
 
 export async function generateStaticParams() {
   return i18n.locales.map((locale) => ({ lang: locale }))
@@ -97,6 +98,14 @@ export default async function ViagensPage({
               </>
             )}
           </p>
+
+          <div className="mt-12">
+            <TravelStats
+              journeys={timeline.length}
+              photos={[...photos.values()].reduce((n, list) => n + list.length, 0)}
+              lang={lang}
+            />
+          </div>
         </div>
       </section>
 
