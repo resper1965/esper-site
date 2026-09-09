@@ -33,7 +33,15 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
   // Close mobile menu on route change
   useEffect(() => { setIsOpen(false) }, [pathname])
 
-  const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/")
+  // A home é `/pt-BR`, e todo caminho localizado começa com ela. Com o
+  // prefixo valendo para qualquer href, a Home ficava marcada como ativa em
+  // TODAS as páginas do site — ao lado da página realmente ativa. Só a raiz
+  // do idioma casa por igualdade; as demais aceitam o prefixo, para que
+  // /blog/<post> mantenha "Blog" aceso.
+  const isActive = (href: string) =>
+    href === `/${lang}`
+      ? pathname === href
+      : pathname === href || pathname.startsWith(href + "/")
 
   // Internal links carry the locale prefix: those are the canonical URLs, and
   // linking to the un-prefixed form would bounce every click through a 307.
@@ -51,6 +59,7 @@ export function SiteNav({ lang, dict }: SiteNavProps) {
   const secondaryLinks = [
     { label: lang === 'pt-BR' ? 'Serviços' : 'Services', href: `/${lang}/servicos` },
     { label: lang === 'pt-BR' ? 'Palestras' : 'Talks', href: `/${lang}/palestras` },
+    { label: lang === 'pt-BR' ? 'Viagens' : 'Journeys', href: `/${lang}/viagens` },
     { label: lang === 'pt-BR' ? 'Imprensa' : 'Press', href: `/${lang}/imprensa` },
   ]
 
