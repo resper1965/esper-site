@@ -4,7 +4,6 @@ import { GeistMono } from "geist/font/mono";
 import { Montserrat } from "next/font/google";
 import { getDictionary } from '@/i18n/dictionaries';
 import { ThemeProvider } from "@/components/theme-provider";
-import { Analytics as GoogleAnalytics } from "@/components/analytics";
 import { generatePageMetadata } from "@/lib/metadata";
 import { siteConfig } from "@/lib/site";
 import { headers } from "next/headers";
@@ -91,7 +90,6 @@ export default async function RootLayout({
           {dict.nav.skipToContent}
         </a>
 
-        <GoogleAnalytics />
 
         <ThemeProvider
           attribute="class"

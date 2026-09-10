@@ -16,20 +16,9 @@ const nextConfig: NextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 7, // 7 days
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'source.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-      },
-    ],
+    // Sem `remotePatterns`: nenhuma imagem do site vem de outro domínio.
+    // As fotografias moram no R2 e são servidas pelo próprio site em `/img/`.
+    remotePatterns: [],
   },
 
   // Headers for Security & SEO
@@ -121,9 +110,15 @@ const nextConfig: NextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()'
           },
+          // Nenhuma origem de terceiro aparece aqui, e isso é deliberado.
+          // O site não carrega analytics, pixel, fonte remota nem embed: as
+          // fontes vêm do `next/font`, servidas do próprio domínio, e não há
+          // iframe em página alguma. `connect-src 'self'` significa que o
+          // navegador do leitor não abre conexão para lugar nenhum além daqui.
+          // Se um script de terceiro entrar por descuido, o navegador bloqueia.
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.youtube.com https://platform.twitter.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.anthropic.com https://generativelanguage.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://platform.twitter.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;"
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; frame-src 'none'; object-src 'none'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;"
           },
           {
             key: 'Cross-Origin-Embedder-Policy',
