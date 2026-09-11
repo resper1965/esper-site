@@ -9,6 +9,7 @@
 import { db } from './d1-client';
 import { remark } from 'remark';
 import remarkHtml from 'remark-html';
+import remarkGfm from 'remark-gfm';
 
 // ── Types ─────────────────────────────────────────────────
 
@@ -111,7 +112,10 @@ async function processMarkdown(content: string): Promise<string> {
   if (!content || typeof content !== 'string' || content.trim().length === 0) {
     throw new Error('Content is empty or invalid');
   }
-  const processed = await remark().use(remarkHtml).process(content);
+  // `remark-gfm` e o que habilita tabela, lista de tarefas, tachado e
+  // autolink. Sem ele o markdown de tabela chega ao leitor como uma linha de
+  // pipes -- foi o que aconteceu nos posts com tabela.
+  const processed = await remark().use(remarkGfm).use(remarkHtml).process(content);
   const html = String(processed);
   if (!html || html.trim().length === 0) {
     throw new Error('Processed content is empty');
