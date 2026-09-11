@@ -22,6 +22,8 @@ export interface PostFrontMatter {
   excerpt: string;
   author?: string;
   coverImage?: string;
+  /** Texto alternativo da capa. Vem de `image_alt` no D1. */
+  imageAlt?: string;
   keywords?: string[];
   tags?: string[];
   description?: string;
@@ -143,6 +145,7 @@ function rowToFrontMatter(row: PostRow): PostFrontMatter {
     excerpt: row.excerpt || '',
     author: row.author || undefined,
     coverImage: row.cover_image || undefined,
+    imageAlt: row.image_alt || undefined,
     keywords: parseJsonArray(row.keywords),
     tags: parseJsonArray(row.tags),
     description: row.description || undefined,
