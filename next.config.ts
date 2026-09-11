@@ -12,10 +12,22 @@ const nextConfig: NextConfig = {
   
   // Image Optimization
   images: {
-    formats: ['image/avif', 'image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    minimumCacheTTL: 60 * 60 * 24 * 7, // 7 days
+    // O otimizador embutido do Next (`/_next/image`) NAO funciona no
+    // Cloudflare Workers: em producao ele devolvia 500 com `error code: 1101`
+    // (excecao no Worker), e por isso a foto do autor nunca carregava.
+    // Medido em https://www.ricardoesper.com.br/_next/image?url=%2Fauthors%2Fricardo.png
+    //
+    // O OpenNext oferece duas alternativas, e nenhuma serve aqui sem custo:
+    //   - binding do Cloudflare Images: exigiria o binding `IMAGES`, que ja
+    //     esta ocupado pelo bucket R2 em wrangler.toml;
+    //   - loader para /cdn-cgi/image/: exige habilitar transformacoes na zona.
+    //
+    // Como todas as imagens do site sao estaticas, do proprio dominio e ja
+    // vem no tamanho certo, `unoptimized` entrega o <img> apontando para o
+    // arquivo original. Sem otimizador, `formats`, `deviceSizes`,
+    // `imageSizes` e `minimumCacheTTL` deixam de ter efeito.
+    // https://opennext.js.org/cloudflare/howtos/image
+    unoptimized: true,
     // Sem `remotePatterns`: nenhuma imagem do site vem de outro domínio.
     // As fotografias moram no R2 e são servidas pelo próprio site em `/img/`.
     remotePatterns: [],
