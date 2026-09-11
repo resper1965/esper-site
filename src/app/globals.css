@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* O Tailwind 4 nao carrega tailwind.config.ts sozinho e nao registra plugin
+   por conta propria. Sem estas duas linhas, `prose` e todos os modificadores
+   `prose-*` usados no corpo dos posts nao geram regra nenhuma -- e como o
+   preflight zera a margem de <p>, o texto sai sem espacamento entre
+   paragrafos. Medido no CSS publicado: a string "prose" aparecia uma vez,
+   sem nenhuma regra associada. */
+@plugin "@tailwindcss/typography";
+@config "../../tailwind.config.ts";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
