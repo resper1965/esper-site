@@ -136,6 +136,24 @@ export function BlogPostContent({ post, slug, lang, dict }: BlogPostContentProps
               {post.frontMatter.description}
             </p>
           )}
+
+          {/* A capa so aparecia no cartao de compartilhamento; dentro do
+              artigo nao era exibida em lugar nenhum. As capas sao 1200x630,
+              entao `aspect-[1200/630]` reserva o espaco e evita o salto de
+              layout no carregamento. `priority` porque e a maior imagem
+              acima da dobra. */}
+          {postImage && (
+            <div className="relative w-full max-w-4xl aspect-[1200/630] overflow-hidden rounded-lg border border-border">
+              <Image
+                src={postImage}
+                alt={post.frontMatter.imageAlt || post.frontMatter.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 896px"
+                className="object-cover"
+                priority
+              />
+            </div>
+          )}
         </div>
       </div>
       <div className="flex divide-x divide-border relative max-w-7xl mx-auto px-4 md:px-0">

@@ -24,7 +24,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     const keywords = post.frontMatter.keywords || [];
-    const image = `${siteConfig.url}/${lang}/blog/${slug}/opengraph-image`;
+    // A capa do post, quando existe, e a imagem que o LinkedIn, o WhatsApp e
+    // o Google mostram no cartao do link. O `opengraph-image` e o cartao
+    // gerado automaticamente, e so deve entrar quando nao ha capa propria.
+    //
+    // Antes daqui saia sempre o cartao gerado, ignorando `cover_image` — e o
+    // JSON-LD em blog-post-content.tsx ja preferia a capa, entao as duas
+    // fontes de verdade da mesma pagina discordavam entre si.
+    const cover = post.frontMatter.coverImage;
+    const image = cover
+      ? `${siteConfig.url}${cover}`
+      : `${siteConfig.url}/${lang}/blog/${slug}/opengraph-image`;
 
     return generatePageMetadata({
       title: post.frontMatter.title,
