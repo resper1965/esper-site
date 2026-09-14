@@ -14,6 +14,12 @@ describe('encontrarSegredos', () => {
     expect(encontrarSegredos('ghp_1234567890abcdefghijklmnopqrstuvwxyz')).not.toHaveLength(0);
   });
 
+  it('acha token fine-grained do GitHub', () => {
+    expect(
+      encontrarSegredos('github_pat_11ABCDEFG0aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890'),
+    ).not.toHaveLength(0);
+  });
+
   it('acha chave da OpenAI', () => {
     expect(encontrarSegredos('sk-proj-abcdefghijklmnopqrstuvwxyz1234567890')).not.toHaveLength(0);
   });

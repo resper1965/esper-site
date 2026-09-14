@@ -71,8 +71,11 @@ const PADROES: Array<[string, RegExp]> = [
   ['chave Google', /\bAIza[0-9A-Za-z_-]{30,}/],
   ['token OAuth Google', /\bya29\.[0-9A-Za-z_-]{20,}/],
   ['token GitHub', /\bgh[pousr]_[0-9A-Za-z]{30,}/],
+  ['token GitHub fine-grained', /\bgithub_pat_[0-9A-Za-z_]{20,}/],
   ['chave OpenAI', /\bsk-[0-9A-Za-z_-]{20,}/],
   ['chave Anthropic', /\bsk-ant-[0-9A-Za-z_-]{20,}/],
+  // Estes dois casam apenas sintaxe JSON ("nome": "valor"); texto .env sem
+  // aspas (NOME=valor) passa sem ser detectado por eles.
   ['refresh token', /"refresh_token"\s*:\s*"[^"]+"/],
   ['client secret', /"client_secret"\s*:\s*"[^"]+"/],
   ['chave privada', /-----BEGIN [A-Z ]*PRIVATE KEY-----/],
