@@ -1,0 +1,29 @@
+Quatro dos cinco maiores riscos de cibersegurança para 2026, segundo a Forrester, não são problemas de ataque.
+
+São falhas de governança.
+
+Agentes de IA operando como shadow operators. Cadeia de suprimentos de IA. Identidade e proveniência de agentes. Não existe produto que resolva "não sabemos quantos agentes temos, quem os autorizou, a que dados eles chegam e quem responde quando eles erram".
+
+Isso é sistema de gestão. E é exatamente o que a ISO/IEC 42001 especifica.
+
+Estou em treinamento para as provas de auditor líder da norma. Já passei por esse caminho com a 27001, e a diferença entre as duas experiências diz muito sobre o momento em que estamos: quando estudei a 27001, eu aprendia a auditar uma prática que o mercado já exercia havia duas décadas. Com a 42001 é o contrário — a norma chegou antes da prática.
+
+Três pontos que considero mal compreendidos:
+
+1. Se você já tem 27001, você já tem metade. As duas compartilham a Estrutura Harmonizada, a lógica de Declaração de Aplicabilidade, auditoria interna e análise crítica pela direção. Você não monta um segundo sistema de gestão — estende o que já existe.
+
+2. A avaliação de impacto não é opcional. Ela não é só o objetivo A.5 do Anexo A, que você poderia excluir com justificativa. É requisito de cláusula: 6.1.4 no planejamento e 8.4 na operação. Cláusula não se exclui.
+
+3. O objeto mudou. A 27001 protege a informação. A 42001 responde pelo que o sistema faz. Um SGSI pergunta se o dado está confidencial, íntegro e disponível. Um AIMS pergunta se o sistema é justo, se é explicável, e qual o impacto sobre indivíduos, grupos e sociedades afetados pela decisão — inclusive quem nunca foi seu cliente.
+
+Uma pergunta para quem já colocou agente em produção: quantos agentes existem hoje no seu ambiente, o que cada um pode fazer, e quem aprovou?
+
+Não é quantas licenças de copiloto foram compradas. É quantos processos automatizados, com credencial própria, tocam sistema de produção.
+
+Quando a resposta demora, o achado já apareceu.
+
+Escrevi a análise completa — as cláusulas 4 a 10, os 38 controles do Anexo A e cinco passos que entregam a maior parte do valor sem precisar de certificação — aqui:
+
+https://www.ricardoesper.com.br/pt-BR/blog/iso-42001-governanca-de-ia
+
+#ISO42001 #GovernançaDeIA #Cibersegurança #CISO #InteligênciaArtificial #ISO27001 #Compliance
