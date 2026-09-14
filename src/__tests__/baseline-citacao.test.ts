@@ -51,4 +51,16 @@ describe('detectarCitacao', () => {
     expect(detectarCitacao('').citouSite).toBe(false);
     expect(detectarCitacao('').urls).toEqual([]);
   });
+
+  it('reconhece 27001 como contexto certo sem outra palavra-marcador', () => {
+    expect(detectarCitacao('Ricardo Esper tem ISO 27001.').confundiuHomonimo).toBe(false);
+  });
+
+  it('reconhece 27701 como contexto certo sem outra palavra-marcador', () => {
+    expect(detectarCitacao('Ricardo Esper tem ISO 27701.').confundiuHomonimo).toBe(false);
+  });
+
+  it('reconhece 42001 como contexto certo sem outra palavra-marcador', () => {
+    expect(detectarCitacao('Ricardo Esper tem ISO 42001.').confundiuHomonimo).toBe(false);
+  });
 });

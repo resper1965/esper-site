@@ -22,7 +22,7 @@ const NOME = /ricardo\s+esper/i;
  * Marcadores do domínio correto. A ausência de todos, junto com a presença do
  * nome, é o sinal de que o modelo respondeu sobre outra pessoa.
  */
-const CONTEXTO_CERTO = /\b(ciso|cibersegurança|cybersecurity|iso\s*2770?1|iso\s*42001|lgpd|gdpr|forense|ness|ionic|auditor|contraespionagem|tscm|segurança da informação)\b/i;
+const CONTEXTO_CERTO = /\b(ciso|cibersegurança|cybersecurity|iso\s*(?:27001|27701|42001)|lgpd|gdpr|forense|ness|ionic|auditor|contraespionagem|tscm|segurança da informação)\b/i;
 
 export function detectarCitacao(resposta: string): Citacao {
   const urls = [...resposta.matchAll(DOMINIO)].map((m) => m[0]);
