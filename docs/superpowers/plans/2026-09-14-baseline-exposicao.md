@@ -633,6 +633,16 @@ describe('parseLinksCsv', () => {
   it('rejeita contagem não numérica em vez de virar NaN', () => {
     expect(() => parseLinksCsv('Site,Links\nexemplo.com,muitos\n')).toThrow(/numérica/);
   });
+
+  // `Number('')` é 0 e passa no isFinite — sem este teste, célula em branco
+  // vira `links: 0`, que é dado inventado com cara de medição.
+  it('rejeita contagem vazia em vez de virar zero', () => {
+    expect(() => parseLinksCsv('Site,Links\nexemplo.com,\n')).toThrow(/numérica/);
+  });
+
+  it('rejeita linha com mais campos que o esperado', () => {
+    expect(() => parseLinksCsv('Site,Links\nexemplo.com,3,sobra\n')).toThrow(/esperado 2/);
+  });
 });
 ```
 
@@ -688,9 +698,18 @@ export function parseLinksCsv(csv: string): LinhaLink[] {
   if (linhas.length <= 1) return [];
 
   return linhas.slice(1).map((linha) => {
-    const [dominio, bruto] = campos(linha);
+    // Linha malformada falha alto em vez de virar linha plausível. `Number('')`
+    // é 0 e passa no isFinite: sem o teste de vazio, uma célula em branco vira
+    // `links: 0` — a mesma confusão entre "não medido" e "zero" que este
+    // componente existe para impedir, um nível abaixo. E descartar campo
+    // excedente em silêncio produz linha certa a partir de dado errado.
+    const partes = campos(linha);
+    if (partes.length !== 2) {
+      throw new Error(`linha com ${partes.length} campos, esperado 2: "${linha}"`);
+    }
+    const [dominio, bruto] = partes;
     const links = Number(bruto);
-    if (!Number.isFinite(links)) {
+    if (bruto.trim() === '' || !Number.isFinite(links)) {
       throw new Error(`contagem não numérica para "${dominio}": "${bruto}"`);
     }
     return { dominio, links };
@@ -701,7 +720,7 @@ export function parseLinksCsv(csv: string): LinhaLink[] {
 - [ ] **Step 4: Rodar e confirmar que passa**
 
 Run: `npx vitest run src/__tests__/baseline-links-csv.test.ts`
-Expected: PASS — 6 testes.
+Expected: PASS — 8 testes.
 
 - [ ] **Step 5: Documentar o passo manual**
 

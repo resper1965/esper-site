@@ -40,9 +40,13 @@ export function parseLinksCsv(csv: string): LinhaLink[] {
   if (linhas.length <= 1) return [];
 
   return linhas.slice(1).map((linha) => {
-    const [dominio, bruto] = campos(linha);
+    const partes = campos(linha);
+    if (partes.length !== 2) {
+      throw new Error(`linha com ${partes.length} campos, esperado 2: "${linha}"`);
+    }
+    const [dominio, bruto] = partes;
     const links = Number(bruto);
-    if (!Number.isFinite(links)) {
+    if (bruto.trim() === '' || !Number.isFinite(links)) {
       throw new Error(`contagem não numérica para "${dominio}": "${bruto}"`);
     }
     return { dominio, links };

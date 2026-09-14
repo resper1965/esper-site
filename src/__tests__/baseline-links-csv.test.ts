@@ -33,4 +33,12 @@ describe('parseLinksCsv', () => {
   it('rejeita contagem não numérica em vez de virar NaN', () => {
     expect(() => parseLinksCsv('Site,Links\nexemplo.com,muitos\n')).toThrow(/numérica/);
   });
+
+  it('rejeita contagem vazia em vez de virar zero', () => {
+    expect(() => parseLinksCsv('Site,Links\nexemplo.com,\n')).toThrow(/numérica/);
+  });
+
+  it('rejeita linha com mais campos que o esperado', () => {
+    expect(() => parseLinksCsv('Site,Links\nexemplo.com,3,sobra\n')).toThrow(/esperado 2/);
+  });
 });
