@@ -20,6 +20,16 @@ interface PageMetadataProps {
   keywords?: string[];
   authors?: string[];
   noindex?: boolean;
+  /**
+   * Idiomas em que esta página realmente existe.
+   *
+   * O padrão são todos os locales, que é o certo para páginas estáticas —
+   * home, sobre, palestras existem nos dois. Post de blog NÃO: cada um existe
+   * num idioma só, e declarar um alternate que não existe faz o `hreflang`
+   * apontar para conteúdo no idioma errado. O Google trata divergência assim
+   * descartando o agrupamento inteiro.
+   */
+  availableLocales?: readonly Locale[];
 }
 
 /**
@@ -41,6 +51,7 @@ export function generatePageMetadata({
   keywords = [],
   authors = ['Ricardo Esper'],
   noindex = false,
+  availableLocales = i18n.locales,
 }: PageMetadataProps): Metadata {
   let validLang: 'pt-BR' | 'en' = 'pt-BR';
   if (lang === 'pt-BR' || lang === 'en') validLang = lang;
@@ -49,10 +60,14 @@ export function generatePageMetadata({
   const defaultImage = `${siteConfig.url}/og-image.png`;
   const ogImage = image || defaultImage;
 
+  // Só entra no `hreflang` o idioma em que a página existe de fato. Uma
+  // página que existe num idioma só não declara alternate nenhum — que é
+  // diferente de declarar um alternate falso.
+  const locales = availableLocales.length > 0 ? availableLocales : [validLang];
   const alternates = {
     canonical: url,
     languages: Object.fromEntries(
-      i18n.locales.map((locale) => [locale, `${siteConfig.url}/${locale}${path}`])
+      locales.map((locale) => [locale, `${siteConfig.url}/${locale}${path}`])
     ),
   };
 
@@ -82,7 +97,7 @@ export function generatePageMetadata({
     openGraph: {
       type,
       locale: validLang as 'pt-BR' | 'en',
-      alternateLocale: i18n.locales.filter((l) => l !== validLang) as ('pt-BR' | 'en')[],
+      alternateLocale: locales.filter((l) => l !== validLang) as ('pt-BR' | 'en')[],
       url,
       title,
       description,

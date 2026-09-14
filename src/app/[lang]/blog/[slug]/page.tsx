@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getPostBySlug } from "@/lib/posts";
 import { getDictionary } from "@/i18n/dictionaries";
 import { Locale } from "@/i18n/config";
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     const keywords = post.frontMatter.keywords || [];
+    const postLang = (post.frontMatter.language === 'en' ? 'en' : 'pt-BR') as Locale;
     // A capa do post, quando existe, e a imagem que o LinkedIn, o WhatsApp e
     // o Google mostram no cartao do link. O `opengraph-image` e o cartao
     // gerado automaticamente, e so deve entrar quando nao ha capa propria.
@@ -47,6 +48,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       modifiedTime: post.frontMatter.date,
       keywords,
       authors: [post.frontMatter.author || "Ricardo Esper"],
+      // Um post existe num idioma só. Sem isto o `hreflang` anunciava uma
+      // versão traduzida que nunca existiu — /en/blog/<slug-em-portugues>
+      // servia o texto em português, e o Google recebia o par como se fossem
+      // traduções. Medido: 46 posts ocupando 92 URLs, nenhum com par real.
+      availableLocales: [postLang],
     });
   } catch {
     return {};
@@ -67,6 +73,14 @@ export default async function BlogPost({ params }: PageProps) {
 
   if (!post) {
     notFound();
+  }
+
+  // O post existe num idioma só. Servi-lo tambem sob o outro locale criava
+  // duas URLs para o mesmo texto e fazia o `hreflang` mentir. 308 para a URL
+  // do idioma do proprio post consolida o sinal numa URL so.
+  const postLang = post.frontMatter.language === 'en' ? 'en' : 'pt-BR';
+  if (lang !== postLang) {
+    permanentRedirect(`/${postLang}/blog/${slug}`);
   }
 
   return <BlogPostContent post={post} slug={slug} lang={lang} dict={dict} />;
