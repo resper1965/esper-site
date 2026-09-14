@@ -106,16 +106,32 @@ existe para que mudar seja barato e rastreável.
 
 ### 2. Coletor do Search Console
 
-Uma API, dois resultados: desempenho de busca e relatório de links. Cobre a
-dimensão de busca e a de autoridade de uma vez, sem custo.
+**A API cobre busca, mas não cobre link.** Conferido na documentação em
+14/09/2026: a Search Console API expõe quatro serviços — Search Analytics,
+Sitemaps, Sites e URL Inspection. O relatório de Links existe apenas na
+interface. Isso divide o componente em duas metades com naturezas diferentes,
+e fingir o contrário produziria um plano que quebra na primeira execução.
 
-Coleta, para todo o histórico disponível:
+**Metade automática — desempenho de busca.** `POST` em
+`https://www.googleapis.com/webmasters/v3/sites/{siteUrl}/searchAnalytics/query`,
+autenticado por OAuth com refresh token, escopo `webmasters.readonly`. Coleta,
+para todo o histórico disponível:
 
 - por consulta do conjunto: impressões, cliques, posição média, CTR;
 - as consultas de maior impressão **fora** do conjunto — é como se descobre
-  para o que o site já rankeia sem ninguém ter planejado, e costuma ser o
-  dado mais útil da primeira medição;
-- os domínios que linkam para o site, e quais páginas recebem link.
+  para o que o site já rankeia sem ninguém ter planejado, e costuma ser o dado
+  mais útil da primeira medição.
+
+**Metade manual — links.** Exportação CSV do relatório de Links, feita no
+painel e largada em `orm/baseline/links/`, com a data no nome. Um parser lê o
+CSV e o incorpora ao snapshot.
+
+Trinta segundos de trabalho humano por rodada, contra um ramo inteiro de
+raspagem não suportada que o Google pode quebrar sem aviso. Numa medição
+mensal, a conta é óbvia. O passo manual fica documentado no próprio snapshot:
+se a exportação não foi feita, o campo registra ausência em vez de zero —
+"não medido" e "zero links" são coisas diferentes e confundi-las inverteria a
+leitura do diff.
 
 A credencial do Search Console **não entra no repositório**. Fica em variável
 de ambiente local. Esta é a regra que mais se quebra "temporariamente", e o
@@ -159,12 +175,21 @@ uma frequência, e não uma anedota.
 
     orm/baseline/consultas.json     conjunto de consultas
     orm/baseline/prompts.json       conjunto de prompts da sonda
+    orm/baseline/links/             exportações CSV do relatório de Links
     orm/baseline/snapshots/         um arquivo datado por execução
     scripts/                        os coletores
+    src/lib/baseline/               a lógica pura que os coletores usam
 
 JSON, e não YAML ou texto solto: o projeto já é TypeScript, o parser é nativo,
 e o teste de forma da seção de testes precisa de algo que falhe alto quando a
 estrutura muda. Nenhuma dependência nova.
+
+**A fronteira entre `src/lib/baseline/` e `scripts/` é deliberada.** O Vitest
+do projeto só enxerga `src/**` — lógica fora dali não tem teste. Mas `src/` é
+código do site, varrido pelo `sem-terceiros.test.ts`. Então: lógica pura
+— validação do conjunto, detecção de citação, montagem do snapshot — mora em
+`src/lib/baseline/` e é testada; toda chamada de rede mora em `scripts/`, que
+o Vitest ignora e que não é código do site.
 
 `orm/` está fora de `src/` e de `public/` e não entra no build, conforme o
 `orm/README.md`. `scripts/` já existe e já abriga script operacional.
@@ -200,9 +225,13 @@ onde o diferencial é raro — contraespionagem e ISO 42001 são muito menos
 disputados que "CISO" — e não onde o volume é alto.
 
 **Camada gratuita apenas.** Para medir o backlink do próprio domínio, o
-relatório de links do Search Console basta, e ele já está disponível.
-Ferramenta paga serve à prospecção, que é outro subprojeto. Comprar assinatura
-antes de existir a primeira medição é gastar para adiar.
+relatório de Links do Search Console basta — exportado à mão, porque não tem
+API. Ferramenta paga serve à prospecção, que é outro subprojeto. Comprar
+assinatura antes de existir a primeira medição é gastar para adiar.
+
+**Um passo manual aceito de propósito.** A alternativa à exportação CSV seria
+raspar a interface do Search Console: não suportado, quebra sem aviso e
+custaria mais manutenção que o subprojeto inteiro.
 
 **Sem painel.** O produto é o diff entre dois arquivos de texto.
 
