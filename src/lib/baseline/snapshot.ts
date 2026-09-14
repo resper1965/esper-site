@@ -18,8 +18,10 @@ export interface LinhaBusca {
   grupo: string;
   impressoes: number;
   cliques: number;
-  posicao: number;
-  ctr: number;
+  /** null quando a consulta não teve linha na API: sem impressão não há rank. */
+  posicao: number | null;
+  /** null quando a consulta não teve linha na API: 0/0 é indefinido, não zero. */
+  ctr: number | null;
 }
 
 export interface LinhaLink {
