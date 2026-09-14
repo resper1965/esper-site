@@ -38,6 +38,8 @@ export interface ResultadoSonda {
   prompt: string;
   modelo: string;
   execucoes: number;
+  /** Chamadas que falharam ou voltaram em branco. Não são medição. */
+  falhas: number;
   citou: number;
   mencionou: number;
   homonimo: number;
@@ -56,10 +58,12 @@ export const resumirCitacoes = (
   prompt: string,
   modelo: string,
   citacoes: Citacao[],
+  falhas = 0,
 ): ResultadoSonda => ({
   prompt,
   modelo,
   execucoes: citacoes.length,
+  falhas,
   citou: citacoes.filter((c) => c.citouSite).length,
   mencionou: citacoes.filter((c) => c.mencionouNome).length,
   homonimo: citacoes.filter((c) => c.confundiuHomonimo).length,

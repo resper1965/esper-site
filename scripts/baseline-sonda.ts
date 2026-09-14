@@ -18,6 +18,7 @@ import { join } from 'node:path';
 import { detectarCitacao } from '../src/lib/baseline/citacao';
 import { resumirCitacoes } from '../src/lib/baseline/snapshot';
 import type { ResultadoSonda, Medido } from '../src/lib/baseline/snapshot';
+import { respostaUtilizavel } from '../src/lib/baseline/sonda';
 
 const RAIZ = join(__dirname, '..');
 
@@ -59,8 +60,10 @@ async function openai(prompt: string): Promise<string> {
     }),
   });
   if (!r.ok) throw new Error(`openai ${r.status}: ${await r.text()}`);
-  const j = (await r.json()) as { choices: Array<{ message: { content: string } }> };
-  return j.choices[0].message.content;
+  const j = (await r.json()) as { choices?: Array<{ message?: { content?: string | null } }> };
+  const texto = j.choices?.[0]?.message?.content;
+  if (typeof texto !== 'string') throw new Error(`openai: resposta sem texto (${JSON.stringify(j).slice(0, 200)})`);
+  return texto;
 }
 
 const MODELOS: Modelo[] = [
@@ -78,33 +81,48 @@ async function main(): Promise<void> {
     throw new Error('nenhuma chave de provedor no ambiente — nada a medir');
   }
 
+  const naoMedidos = MODELOS.filter((m) => !process.env[m.chave]).map((m) => m.nome);
+  const hoje = new Date().toISOString().slice(0, 10);
+  const destino = join(RAIZ, 'orm/baseline/snapshots');
+  mkdirSync(destino, { recursive: true });
+  const arquivo = join(destino, `${hoje}-modelos.json`);
+
   const resultados: ResultadoSonda[] = [];
+
+  const gravar = (): void => {
+    const modelos: Medido<ResultadoSonda[]> = { medido: true, valor: resultados };
+    writeFileSync(
+      arquivo,
+      JSON.stringify({ versao: 1, data: hoje, naoMedidos, modelos }, null, 2) + '\n',
+    );
+  };
 
   for (const modelo of disponiveis) {
     for (const prompt of cfg.prompts) {
       const citacoes = [];
+      let falhas = 0;
       for (let i = 0; i < cfg.execucoes; i++) {
-        const resposta = await modelo.perguntar(prompt);
-        citacoes.push(detectarCitacao(resposta));
+        try {
+          const resposta = await modelo.perguntar(prompt);
+          if (!respostaUtilizavel(resposta)) {
+            falhas++;
+            console.warn(`  resposta em branco: ${modelo.nome} | execução ${i + 1}`);
+            continue;
+          }
+          citacoes.push(detectarCitacao(resposta));
+        } catch (e) {
+          falhas++;
+          console.warn(`  falha: ${modelo.nome} | execução ${i + 1} | ${e instanceof Error ? e.message : e}`);
+        }
       }
-      const resumo = resumirCitacoes(prompt, modelo.nome, citacoes);
+      const resumo = resumirCitacoes(prompt, modelo.nome, citacoes, falhas);
       resultados.push(resumo);
       console.log(
-        `${modelo.nome} | ${resumo.citou}/${resumo.execucoes} citou | ${resumo.homonimo} homônimo | ${prompt}`,
+        `${modelo.nome} | ${resumo.citou}/${resumo.execucoes} citou | ${resumo.homonimo} homônimo | ${resumo.falhas} falhas | ${prompt}`,
       );
+      gravar();
     }
   }
-
-  const naoMedidos = MODELOS.filter((m) => !process.env[m.chave]).map((m) => m.nome);
-  const hoje = new Date().toISOString().slice(0, 10);
-  const modelos: Medido<ResultadoSonda[]> = { medido: true, valor: resultados };
-
-  const destino = join(RAIZ, 'orm/baseline/snapshots');
-  mkdirSync(destino, { recursive: true });
-  writeFileSync(
-    join(destino, `${hoje}-modelos.json`),
-    JSON.stringify({ versao: 1, data: hoje, naoMedidos, modelos }, null, 2) + '\n',
-  );
 
   console.log(`gravado ${hoje}-modelos.json`);
 }
