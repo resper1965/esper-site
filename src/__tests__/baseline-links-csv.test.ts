@@ -38,6 +38,12 @@ describe('parseLinksCsv', () => {
     expect(() => parseLinksCsv('Site,Links\nexemplo.com,\n')).toThrow(/numérica/);
   });
 
+  // Exportação pt-BR escreve 1.234 para mil duzentos e trinta e quatro. Aceitar
+  // isso dividiria a contagem por mil passando por todas as guardas.
+  it('rejeita contagem com separador de milhar em vez de dividir por mil', () => {
+    expect(() => parseLinksCsv('Site,Links\nexemplo.com,1.234\n')).toThrow(/numérica/);
+  });
+
   it('rejeita linha com mais campos que o esperado', () => {
     expect(() => parseLinksCsv('Site,Links\nexemplo.com,3,sobra\n')).toThrow(/esperado 2/);
   });

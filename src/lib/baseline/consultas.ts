@@ -14,8 +14,13 @@ export interface ConjuntoConsultas {
   grupos: Record<GrupoConsulta, string[]>;
 }
 
-/** Consulta normalizada: sem espaço nas pontas, sem maiúscula, sem espaço duplo. */
-const normalizada = (s: string): boolean => s === s.trim().toLowerCase().replace(/\s+/g, ' ');
+/**
+ * Consulta normalizada: sem espaço nas pontas, sem maiúscula, sem espaço duplo
+ * e em forma Unicode NFC — acento decomposto (NFD) parece igual na tela mas é
+ * outra string, e cairia em foraDoConjunto enquanto o gêmeo lê tudo zero.
+ */
+const normalizada = (s: string): boolean =>
+  s === s.trim().toLowerCase().replace(/\s+/g, ' ').normalize('NFC');
 
 export function validarConsultas(dados: unknown): ConjuntoConsultas {
   const d = dados as ConjuntoConsultas;

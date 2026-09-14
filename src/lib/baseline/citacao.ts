@@ -10,6 +10,11 @@ export interface Citacao {
   citouSite: boolean;
   urls: string[];
   mencionouNome: boolean;
+  /**
+   * Recusa cita a pessoa sem afirmar nada sobre ela — contar como menção
+   * infla a métrica.
+   */
+  recusou: boolean;
   confundiuHomonimo: boolean;
 }
 
@@ -24,14 +29,33 @@ const NOME = /ricardo\s+esper/i;
  */
 const CONTEXTO_CERTO = /\b(ciso|cibersegurança|cybersecurity|iso\s*(?:27001|27701|42001)|lgpd|gdpr|forense|ness|ionic|auditor|contraespionagem|tscm|segurança da informação)\b/i;
 
+/** Frase, para limitar o contexto ao trecho que de fato fala do nome. */
+const SENTENCA = /[^.!?\n]+[.!?\n]?/g;
+
+/**
+ * Forma de recusa. O modelo que diz não conhecer a pessoa cita o nome sem
+ * afirmar nada sobre ela: contar como menção infla a métrica, e contar como
+ * confusão com homônimo inventa uma confusão que não houve.
+ */
+const RECUSA = /\b(n[ãa]o (tenho|encontrei|disponho|possuo)|n[ãa]o (h[áa]|existem?) informa|sem informa|n[ãa]o (sei|conhe[çc]o)|(don't|do not) have|no information|couldn't find|could not find|unable to find|i'm not (aware|familiar)|not familiar with)\b/i;
+
 export function detectarCitacao(resposta: string): Citacao {
   const urls = [...resposta.matchAll(DOMINIO)].map((m) => m[0]);
-  const mencionouNome = NOME.test(resposta);
+  const nomePresente = NOME.test(resposta);
+  const recusou = nomePresente && RECUSA.test(resposta);
+  const mencionouNome = nomePresente && !recusou;
+
+  // O contexto é checado SÓ nas frases que contêm o nome. Checar a resposta
+  // inteira torna o campo inútil: quatro dos cinco prompts da sonda são sobre
+  // cibersegurança, então qualquer resposta a eles carrega palavra-marcador
+  // independentemente de sobre quem fale.
+  const trechosComNome = (resposta.match(SENTENCA) ?? []).filter((s) => NOME.test(s)).join(' ');
 
   return {
     citouSite: urls.length > 0,
     urls,
     mencionouNome,
-    confundiuHomonimo: mencionouNome && !CONTEXTO_CERTO.test(resposta),
+    recusou,
+    confundiuHomonimo: mencionouNome && !CONTEXTO_CERTO.test(trechosComNome),
   };
 }

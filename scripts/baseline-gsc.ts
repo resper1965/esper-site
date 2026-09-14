@@ -11,6 +11,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { validarConsultas, GRUPOS } from '../src/lib/baseline/consultas';
+import { naoMedido } from '../src/lib/baseline/snapshot';
 import type { LinhaBusca, Medido } from '../src/lib/baseline/snapshot';
 import { montarLinhasBusca, type LinhaApi } from '../src/lib/baseline/busca';
 
@@ -62,40 +63,89 @@ async function main(): Promise<void> {
   const hoje = new Date().toISOString().slice(0, 10);
   // A janela do Search Console atrasa cerca de três dias; 16 meses é o máximo.
   const fim = new Date(Date.now() - 3 * 864e5).toISOString().slice(0, 10);
-  const inicio = new Date(Date.now() - 480 * 864e5).toISOString().slice(0, 10);
+  const inicioHistorico = new Date(Date.now() - 480 * 864e5).toISOString().slice(0, 10);
+  // Duas rodadas com um mês de intervalo compartilham ~450 dos 480 dias: uma
+  // duplicação real mexeria poucos por cento na média. A janela curta é a que
+  // torna o diff entre snapshots consecutivos legível; a longa fica para o
+  // acumulado. As duas, no mesmo arquivo, medindo o mesmo `fim`.
+  const inicio28d = new Date(Date.parse(fim) - 27 * 864e5).toISOString().slice(0, 10);
 
   const token = await accessToken();
 
   // 25.000 é o teto por requisição. Nenhuma paginação aqui: o volume de
   // consultas distintas de um site pessoal fica muito abaixo disso. Se
   // algum dia encostar no teto, o aviso abaixo dispara e aí vale paginar.
-  const porConsulta = await consultar(token, {
-    startDate: inicio,
-    endDate: fim,
-    dimensions: ['query'],
-    rowLimit: 25000,
-    type: 'web',
-  });
+  const coletar = async (
+    rotulo: string,
+    startDate: string,
+  ): Promise<{ medicao: Medido<LinhaBusca[]>; dentro: number; fora: number }> => {
+    const linhas = await consultar(token, {
+      startDate,
+      endDate: fim,
+      dimensions: ['query'],
+      rowLimit: 25000,
+      type: 'web',
+    });
 
-  if (porConsulta.length >= 25000) {
-    console.warn('AVISO: resultado no teto de 25.000 linhas — pode estar truncado, avalie paginar com startRow');
-  }
+    if (linhas.length >= 25000) {
+      console.warn(`AVISO: ${rotulo} no teto de 25.000 linhas — pode estar truncado, avalie paginar com startRow`);
+    }
 
-  const { doConjunto, foraDoConjunto } = montarLinhasBusca(porConsulta, grupoDe);
+    // Zero linha não é zero impressão: é ausência de medição. Acontece com
+    // GSC_SITE_URL errada-mas-válida ou propriedade sem histórico, e gravar
+    // `medido: true` aí registraria quatorze consultas em zero como medidas.
+    if (linhas.length === 0) {
+      return {
+        medicao: naoMedido('a API não devolveu nenhuma linha — confira GSC_SITE_URL e se a propriedade tem histórico'),
+        dentro: 0,
+        fora: 0,
+      };
+    }
 
-  const busca: Medido<LinhaBusca[]> = {
-    medido: true,
-    valor: [...doConjunto, ...foraDoConjunto.slice(0, 50)],
+    const { doConjunto, foraDoConjunto } = montarLinhasBusca(linhas, grupoDe);
+    return {
+      medicao: { medido: true, valor: [...doConjunto, ...foraDoConjunto.slice(0, 50)] },
+      dentro: doConjunto.length,
+      fora: foraDoConjunto.length,
+    };
   };
+
+  const historico = await coletar('histórico', inicioHistorico);
+  const curto = await coletar('28 dias', inicio28d);
 
   const destino = join(RAIZ, 'orm/baseline/snapshots');
   mkdirSync(destino, { recursive: true });
-  writeFileSync(
-    join(destino, `${hoje}-busca.json`),
-    JSON.stringify({ versao: 1, data: hoje, janela: { inicio, fim }, busca }, null, 2) + '\n',
-  );
+  const arquivo = join(destino, `${hoje}-busca.json`);
+  const conteudo =
+    JSON.stringify(
+      {
+        versao: 1,
+        data: hoje,
+        janelas: {
+          buscaHistorico: { inicio: inicioHistorico, fim },
+          busca28d: { inicio: inicio28d, fim },
+        },
+        buscaHistorico: historico.medicao,
+        busca28d: curto.medicao,
+      },
+      null,
+      2,
+    ) + '\n';
 
-  console.log(`gravado ${hoje}-busca.json — ${doConjunto.length} do conjunto, ${foraDoConjunto.length} fora`);
+  // 'wx' falha se o arquivo existe: snapshot não se sobrescreve, o histórico
+  // é o produto.
+  try {
+    writeFileSync(arquivo, conteudo, { flag: 'wx' });
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === 'EEXIST') {
+      throw new Error(`já existe snapshot de hoje em ${arquivo} — renomeie ou mova antes de rodar de novo`);
+    }
+    throw e;
+  }
+
+  console.log(
+    `gravado ${hoje}-busca.json — histórico: ${historico.dentro} do conjunto, ${historico.fora} fora | 28d: ${curto.dentro} do conjunto, ${curto.fora} fora`,
+  );
 }
 
 main().catch((e) => {

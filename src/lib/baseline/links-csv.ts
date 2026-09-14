@@ -46,7 +46,9 @@ export function parseLinksCsv(csv: string): LinhaLink[] {
     }
     const [dominio, bruto] = partes;
     const links = Number(bruto);
-    if (bruto.trim() === '' || !Number.isFinite(links)) {
+    // Inteiro, não só finito: exportação pt-BR escreve "1.234" para 1234, que
+    // viraria 1.234 — a contagem dividida por mil, passando por toda guarda.
+    if (bruto.trim() === '' || !Number.isInteger(links)) {
       throw new Error(`contagem não numérica para "${dominio}": "${bruto}"`);
     }
     return { dominio, links };

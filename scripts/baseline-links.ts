@@ -27,10 +27,22 @@ function main(): void {
   const hoje = new Date().toISOString().slice(0, 10);
   const destino = join(RAIZ, 'orm/baseline/snapshots');
   mkdirSync(destino, { recursive: true });
-  writeFileSync(
-    join(destino, `${hoje}-links.json`),
-    JSON.stringify({ versao: 1, data: hoje, origem: csvs[csvs.length - 1] ?? null, links }, null, 2) + '\n',
-  );
+  const arquivo = join(destino, `${hoje}-links.json`);
+
+  // 'wx' falha se o arquivo existe: snapshot não se sobrescreve, o histórico
+  // é o produto.
+  try {
+    writeFileSync(
+      arquivo,
+      JSON.stringify({ versao: 1, data: hoje, origem: csvs[csvs.length - 1] ?? null, links }, null, 2) + '\n',
+      { flag: 'wx' },
+    );
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === 'EEXIST') {
+      throw new Error(`já existe snapshot de hoje em ${arquivo} — renomeie ou mova antes de rodar de novo`);
+    }
+    throw e;
+  }
 
   console.log(
     links.medido
@@ -39,4 +51,9 @@ function main(): void {
   );
 }
 
-main();
+try {
+  main();
+} catch (e) {
+  console.error(e instanceof Error ? e.message : e);
+  process.exit(1);
+}

@@ -13,10 +13,10 @@
  * por isso que existem N execuções por prompt.
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { detectarCitacao } from '../src/lib/baseline/citacao';
-import { resumirCitacoes } from '../src/lib/baseline/snapshot';
+import { resumirCitacoes, naoMedido } from '../src/lib/baseline/snapshot';
 import type { ResultadoSonda, Medido } from '../src/lib/baseline/snapshot';
 import { respostaUtilizavel } from '../src/lib/baseline/sonda';
 
@@ -81,19 +81,63 @@ async function main(): Promise<void> {
     throw new Error('nenhuma chave de provedor no ambiente — nada a medir');
   }
 
-  const naoMedidos = MODELOS.filter((m) => !process.env[m.chave]).map((m) => m.nome);
+  const semChave = MODELOS.filter((m) => !process.env[m.chave]).map((m) => ({
+    modelo: m.nome,
+    motivo: `sem ${m.chave} no ambiente`,
+  }));
+
   const hoje = new Date().toISOString().slice(0, 10);
   const destino = join(RAIZ, 'orm/baseline/snapshots');
   mkdirSync(destino, { recursive: true });
   const arquivo = join(destino, `${hoje}-modelos.json`);
+  const arquivoRespostas = join(destino, `${hoje}-modelos-respostas.json`);
+
+  // A sonda reescreve o próprio arquivo a cada prompt, então não dá para usar
+  // flag 'wx' como os outros coletores: a checagem é aqui, antes do laço. Um
+  // snapshot nunca é sobrescrito — o histórico é o produto, e uma segunda
+  // rodada no mesmo dia destruiria cinquenta chamadas pagas.
+  for (const existente of [arquivo, arquivoRespostas]) {
+    if (existsSync(existente)) {
+      throw new Error(
+        `já existe snapshot de hoje em ${existente} — renomeie ou mova antes de rodar de novo; snapshot não se sobrescreve`,
+      );
+    }
+  }
 
   const resultados: ResultadoSonda[] = [];
+  /** Evidência crua. Sem ela, um número suspeito nunca mais pode ser conferido. */
+  const respostas: Array<{ modelo: string; prompt: string; execucao: number; resposta: string }> = [];
 
   const gravar = (): void => {
-    const modelos: Medido<ResultadoSonda[]> = { medido: true, valor: resultados };
+    // Modelo que terminou sem nenhuma execução utilizável não foi medido —
+    // é o que um id de modelo aposentado produz, e ficaria invisível se
+    // aparecesse na lista de medidos com tudo zero.
+    const semMedicao = disponiveis
+      .filter((m) => {
+        const seus = resultados.filter((r) => r.modelo === m.nome);
+        return seus.length > 0 && seus.every((r) => r.execucoes === 0);
+      })
+      .map((m) => ({ modelo: m.nome, motivo: 'todas as chamadas falharam — id de modelo aposentado?' }));
+
+    const uteis = resultados.filter((r) => r.execucoes > 0);
+    const modelos: Medido<ResultadoSonda[]> =
+      uteis.length > 0
+        ? { medido: true, valor: resultados }
+        : naoMedido('todas as chamadas falharam — nada foi medido');
+
     writeFileSync(
       arquivo,
-      JSON.stringify({ versao: 1, data: hoje, naoMedidos, modelos }, null, 2) + '\n',
+      JSON.stringify(
+        { versao: 1, data: hoje, naoMedidos: [...semChave, ...semMedicao], modelos },
+        null,
+        2,
+      ) + '\n',
+    );
+    // Respostas de modelo não carregam credencial, então a guarda
+    // encontrarSegredos sobre este diretório continua valendo para o arquivo.
+    writeFileSync(
+      arquivoRespostas,
+      JSON.stringify({ versao: 1, data: hoje, respostas }, null, 2) + '\n',
     );
   };
 
@@ -104,6 +148,7 @@ async function main(): Promise<void> {
       for (let i = 0; i < cfg.execucoes; i++) {
         try {
           const resposta = await modelo.perguntar(prompt);
+          respostas.push({ modelo: modelo.nome, prompt, execucao: i + 1, resposta });
           if (!respostaUtilizavel(resposta)) {
             falhas++;
             console.warn(`  resposta em branco: ${modelo.nome} | execução ${i + 1}`);
@@ -118,13 +163,13 @@ async function main(): Promise<void> {
       const resumo = resumirCitacoes(prompt, modelo.nome, citacoes, falhas);
       resultados.push(resumo);
       console.log(
-        `${modelo.nome} | ${resumo.citou}/${resumo.execucoes} citou | ${resumo.homonimo} homônimo | ${resumo.falhas} falhas | ${prompt}`,
+        `${modelo.nome} | ${resumo.citou}/${resumo.execucoes} citou | ${resumo.mencionou} mencionou | ${resumo.homonimo} homônimo | ${resumo.recusas} recusas | ${resumo.falhas} falhas | ${prompt}`,
       );
       gravar();
     }
   }
 
-  console.log(`gravado ${hoje}-modelos.json`);
+  console.log(`gravado ${hoje}-modelos.json e ${hoje}-modelos-respostas.json`);
 }
 
 main().catch((e) => {

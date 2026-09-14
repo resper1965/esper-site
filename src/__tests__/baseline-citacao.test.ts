@@ -63,4 +63,35 @@ describe('detectarCitacao', () => {
   it('reconhece 42001 como contexto certo sem outra palavra-marcador', () => {
     expect(detectarCitacao('Ricardo Esper tem ISO 42001.').confundiuHomonimo).toBe(false);
   });
+
+  it('recusa que cita o nome não conta como menção nem como homônimo', () => {
+    const r = detectarCitacao('Não tenho informações sobre Ricardo Esper.');
+    expect(r.recusou).toBe(true);
+    expect(r.mencionouNome).toBe(false);
+    expect(r.confundiuHomonimo).toBe(false);
+  });
+
+  it('recusa em inglês também é reconhecida', () => {
+    const r = detectarCitacao("I don't have information about Ricardo Esper.");
+    expect(r.recusou).toBe(true);
+    expect(r.mencionouNome).toBe(false);
+  });
+
+  it('marcador em outra frase não salva o nome do rótulo de homônimo', () => {
+    const r = detectarCitacao(
+      'A contraespionagem corporativa é uma disciplina de segurança. Ricardo Esper é um chef de cozinha.',
+    );
+    expect(r.confundiuHomonimo).toBe(true);
+  });
+
+  it('marcador na mesma frase do nome conta como contexto certo', () => {
+    const r = detectarCitacao(
+      'A contraespionagem corporativa é uma disciplina. Ricardo Esper é auditor líder ISO 27001.',
+    );
+    expect(r.confundiuHomonimo).toBe(false);
+  });
+
+  it('resposta sem o nome não é recusa', () => {
+    expect(detectarCitacao('Não tenho informação sobre essa pessoa.').recusou).toBe(false);
+  });
 });

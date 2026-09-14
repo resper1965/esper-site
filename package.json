@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "typecheck:scripts": "tsc -p tsconfig.scripts.json --noEmit",
     "regenerate-images-free": "node scripts/regenerate-all-images-free.mjs",
     "generate-abstract-images": "node scripts/generate-abstract-images.mjs",
     "setup-gemini-vercel": "tsx scripts/setup-gemini-vercel.ts",

@@ -44,6 +44,13 @@ describe('validarConsultas', () => {
     expect(() => validarConsultas(sujo)).toThrow(/normalizada/);
   });
 
+  // Acento colado (NFD) parece idêntico ao NFC na tela, mas é outra string:
+  // cairia em foraDoConjunto enquanto o gêmeo do conjunto lê tudo zero.
+  it('rejeita consulta em forma Unicode decomposta (NFD)', () => {
+    const nfd = { ...valido, grupos: { ...valido.grupos, categoria_pt: ['auditor líder iso 27001'] } };
+    expect(() => validarConsultas(nfd)).toThrow(/normalizada/);
+  });
+
   it('rejeita data fora do formato AAAA-MM-DD', () => {
     expect(() => validarConsultas({ ...valido, atualizado: '14/09/2026' })).toThrow(/atualizado/);
   });

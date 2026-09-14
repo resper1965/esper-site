@@ -1,0 +1,22 @@
+// O tsconfig raiz exclui scripts/, então "tsc --noEmit limpo" não dizia nada
+// sobre os três arquivos que falam com a rede e gastam dinheiro. Este projeto
+// cobre exatamente esses.
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "incremental": false
+  },
+  "include": ["scripts/**/*.ts", "src/**/*.ts"],
+  // Estes dois já estavam quebrados antes desta verificação existir: importam
+  // módulos que não existem no repositório (src/lib/ai/*, src/lib/supabase/*)
+  // e um pacote que não está nas dependências (@supabase/supabase-js). São
+  // scripts mortos; consertá-los ou apagá-los é decisão de quem os escreveu,
+  // e prender a verificação dos coletores de baseline a eles seria deixá-la
+  // vermelha para sempre — ou seja, desligada.
+  "exclude": [
+    "node_modules",
+    "scripts/generate-batch-posts.ts",
+    "scripts/migrate-content-to-supabase.ts"
+  ]
+}

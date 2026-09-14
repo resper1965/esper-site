@@ -40,6 +40,10 @@ export interface ResultadoSonda {
   execucoes: number;
   /** Chamadas que falharam ou voltaram em branco. Não são medição. */
   falhas: number;
+  /** Recusas: o modelo citou o nome para dizer que não o conhece. */
+  recusas: number;
+  /** URLs do site efetivamente citadas, para conferência posterior. */
+  urls: string[];
   citou: number;
   mencionou: number;
   homonimo: number;
@@ -48,7 +52,10 @@ export interface ResultadoSonda {
 export interface Snapshot {
   versao: number;
   data: string;
-  busca: Medido<LinhaBusca[]>;
+  /** Acumulado longo: bom para volume total, cego para o diff mês a mês. */
+  buscaHistorico: Medido<LinhaBusca[]>;
+  /** Janela fixa de 28 dias terminando no mesmo `fim`: é onde o diff aparece. */
+  busca28d: Medido<LinhaBusca[]>;
   links: Medido<LinhaLink[]>;
   modelos: Medido<ResultadoSonda[]>;
   rastreio: Medido<LinhaRastreio[]>;
@@ -64,6 +71,8 @@ export const resumirCitacoes = (
   modelo,
   execucoes: citacoes.length,
   falhas,
+  recusas: citacoes.filter((c) => c.recusou).length,
+  urls: [...new Set(citacoes.flatMap((c) => c.urls))],
   citou: citacoes.filter((c) => c.citouSite).length,
   mencionou: citacoes.filter((c) => c.mencionouNome).length,
   homonimo: citacoes.filter((c) => c.confundiuHomonimo).length,
