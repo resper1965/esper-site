@@ -30,8 +30,8 @@ export default function Footer({ lang }: FooterProps) {
       links: [
         { label: isPT ? "Cibersegurança" : "Cybersecurity", href: `/${lang}/categoria/cybersecurity` },
         { label: isPT ? "Contraespionagem" : "Counter-Espionage", href: `/${lang}/categoria/counterespionage` },
-        { label: isPT ? "Automação" : "Automation", href: `/${lang}/categoria/automation` },
-        { label: "Compliance & Privacy", href: `/${lang}/servicos` },
+        { label: isPT ? "Privacidade" : "Privacy", href: `/${lang}/categoria/privacy` },
+        { label: isPT ? "Automação" : "Automation", href: `/${lang}/categoria/homeautomation` },
       ],
     },
     {
