@@ -407,6 +407,10 @@ describe('encontrarSegredos', () => {
     expect(encontrarSegredos('ghp_1234567890abcdefghijklmnopqrstuvwxyz')).not.toHaveLength(0);
   });
 
+  it('acha token fine-grained do GitHub', () => {
+    expect(encontrarSegredos('github_pat_11ABCDEFG0aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890')).not.toHaveLength(0);
+  });
+
   it('acha chave da OpenAI', () => {
     expect(encontrarSegredos('sk-proj-abcdefghijklmnopqrstuvwxyz1234567890')).not.toHaveLength(0);
   });
@@ -541,8 +545,15 @@ const PADROES: Array<[string, RegExp]> = [
   ['chave Google', /\bAIza[0-9A-Za-z_-]{30,}/],
   ['token OAuth Google', /\bya29\.[0-9A-Za-z_-]{20,}/],
   ['token GitHub', /\bgh[pousr]_[0-9A-Za-z]{30,}/],
+  // O padrão acima cobre só os tokens clássicos. Fine-grained PAT começa com
+  // outro prefixo e é o formato recomendado pelo GitHub desde 2022 — sem esta
+  // segunda entrada, um token atual passaria pela trava em silêncio.
+  ['token GitHub fine-grained', /\bgithub_pat_[0-9A-Za-z_]{20,}/],
   ['chave OpenAI', /\bsk-[0-9A-Za-z_-]{20,}/],
   ['chave Anthropic', /\bsk-ant-[0-9A-Za-z_-]{20,}/],
+  // Os dois abaixo casam sintaxe JSON apenas ("nome": "valor"). encontrarSegredos
+  // é exportado genericamente: quem alimentar com texto estilo .env, sem aspas,
+  // não será protegido por estas duas entradas.
   ['refresh token', /"refresh_token"\s*:\s*"[^"]+"/],
   ['client secret', /"client_secret"\s*:\s*"[^"]+"/],
   ['chave privada', /-----BEGIN [A-Z ]*PRIVATE KEY-----/],
@@ -556,7 +567,7 @@ export function encontrarSegredos(texto: string): string[] {
 - [ ] **Step 5: Rodar e confirmar que passa**
 
 Run: `npx vitest run src/__tests__/baseline-snapshot.test.ts`
-Expected: PASS — 9 testes (a pasta de snapshots ainda está vazia, então o laço final não gera caso).
+Expected: PASS — 10 testes (a pasta de snapshots ainda está vazia, então o laço final não gera caso).
 
 - [ ] **Step 6: Commit**
 
