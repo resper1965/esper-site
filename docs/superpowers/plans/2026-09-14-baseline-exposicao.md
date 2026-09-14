@@ -282,6 +282,21 @@ describe('detectarCitacao', () => {
     expect(r.confundiuHomonimo).toBe(false);
   });
 
+  // Os três abaixo existem porque a asserção acima NÃO basta: a frase dela tem
+  // `auditor` e `ciso`, que casam sozinhos e mascaram um defeito no número da
+  // norma. Cada um destes deixa o número como único marcador da frase.
+  it('reconhece 27001 como contexto certo sem outra palavra-marcador', () => {
+    expect(detectarCitacao('Ricardo Esper tem ISO 27001.').confundiuHomonimo).toBe(false);
+  });
+
+  it('reconhece 27701 como contexto certo sem outra palavra-marcador', () => {
+    expect(detectarCitacao('Ricardo Esper tem ISO 27701.').confundiuHomonimo).toBe(false);
+  });
+
+  it('reconhece 42001 como contexto certo sem outra palavra-marcador', () => {
+    expect(detectarCitacao('Ricardo Esper tem ISO 42001.').confundiuHomonimo).toBe(false);
+  });
+
   it('não confunde outro domínio que contém o nome', () => {
     expect(detectarCitacao('veja ricardoesper.com.br.fake.example').citouSite).toBe(false);
   });
@@ -331,7 +346,7 @@ const NOME = /ricardo\s+esper/i;
  * Marcadores do domínio correto. A ausência de todos, junto com a presença do
  * nome, é o sinal de que o modelo respondeu sobre outra pessoa.
  */
-const CONTEXTO_CERTO = /\b(ciso|cibersegurança|cybersecurity|iso\s*2770?1|iso\s*42001|lgpd|gdpr|forense|ness|ionic|auditor|contraespionagem|tscm|segurança da informação)\b/i;
+const CONTEXTO_CERTO = /\b(ciso|cibersegurança|cybersecurity|iso\s*(?:27001|27701|42001)|lgpd|gdpr|forense|ness|ionic|auditor|contraespionagem|tscm|segurança da informação)\b/i;
 
 export function detectarCitacao(resposta: string): Citacao {
   const urls = [...resposta.matchAll(DOMINIO)].map((m) => m[0]);
@@ -349,7 +364,7 @@ export function detectarCitacao(resposta: string): Citacao {
 - [ ] **Step 4: Rodar e confirmar que passa**
 
 Run: `npx vitest run src/__tests__/baseline-citacao.test.ts`
-Expected: PASS — 9 testes.
+Expected: PASS — 12 testes.
 
 - [ ] **Step 5: Commit**
 
