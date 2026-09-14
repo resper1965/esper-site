@@ -12,6 +12,7 @@ import { filterPostsByLanguage } from "@/lib/utils";
 const categoryMap: Record<string, { pt: string; en: string }> = {
   cybersecurity: { pt: 'Cibersegurança', en: 'Cybersecurity' },
   counterespionage: { pt: 'Contraespionagem', en: 'Counterespionage' },
+  privacy: { pt: 'Privacidade', en: 'Privacy' },
   forensics: { pt: 'Forense Digital', en: 'Digital Forensics' },
   intelligence: { pt: 'Inteligência', en: 'Intelligence' },
   compliance: { pt: 'Compliance', en: 'Compliance' },
