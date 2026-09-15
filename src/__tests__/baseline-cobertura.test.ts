@@ -58,4 +58,9 @@ describe('calcularCobertura', () => {
     expect(r.alcance).toBe('parcial');
     expect(r.controle).toBe('você');
   });
+
+  it('recusa esperados vazio em vez de devolver NaN', () => {
+    const vazia: Fonte = { ...fonte, esperados: [] };
+    expect(() => calcularCobertura(vazia, 'Ricardo Esper', fatos)).toThrow(/esperados vazio/);
+  });
 });

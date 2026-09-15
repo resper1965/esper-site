@@ -35,6 +35,10 @@ export function calcularCobertura(
   html: string,
   fatos: ConjuntoFatos,
 ): CoberturaFonte {
+  if (fonte.esperados.length === 0) {
+    throw new Error(`fonte ${fonte.id}: esperados vazio, não há como calcular cobertura`);
+  }
+
   const noTexto = new Set(fatosPresentes(textoVisivel(html), fatos));
 
   const presentes = fonte.esperados.filter((id) => noTexto.has(id));
