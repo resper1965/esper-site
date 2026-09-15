@@ -16,6 +16,7 @@
     "setup-gemini-vercel": "tsx scripts/setup-gemini-vercel.ts",
     "baseline:gsc": "tsx --env-file=.env.baseline scripts/baseline-gsc.ts",
     "baseline:sonda": "tsx --env-file=.env.baseline scripts/baseline-sonda.ts",
+    "baseline:busca-csv": "tsx scripts/baseline-busca-csv.ts",
     "baseline:links": "tsx scripts/baseline-links.ts",
     "build:cf": "npx opennextjs-cloudflare build",
     "deploy": "npm run build:cf && wrangler deploy",

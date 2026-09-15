@@ -7,35 +7,11 @@
  * não suportado, e quebra sem aviso.
  */
 
+import { campos } from './csv';
+import { parseContagem, type Idioma } from './numero';
 import type { LinhaLink } from './snapshot';
 
-/** CSV mínimo: campo entre aspas pode conter vírgula; aspas duplas escapam. */
-const campos = (linha: string): string[] => {
-  const out: string[] = [];
-  let atual = '';
-  let dentro = false;
-
-  for (let i = 0; i < linha.length; i++) {
-    const c = linha[i];
-    if (c === '"') {
-      if (dentro && linha[i + 1] === '"') {
-        atual += '"';
-        i++;
-      } else {
-        dentro = !dentro;
-      }
-    } else if (c === ',' && !dentro) {
-      out.push(atual);
-      atual = '';
-    } else {
-      atual += c;
-    }
-  }
-  out.push(atual);
-  return out;
-};
-
-export function parseLinksCsv(csv: string): LinhaLink[] {
+export function parseLinksCsv(csv: string, idioma: Idioma = 'pt'): LinhaLink[] {
   const linhas = csv.split(/\r?\n/).filter((l) => l.trim().length > 0);
   if (linhas.length <= 1) return [];
 
@@ -45,14 +21,17 @@ export function parseLinksCsv(csv: string): LinhaLink[] {
       throw new Error(`linha com ${partes.length} campos, esperado 2: "${linha}"`);
     }
     const [dominio, bruto] = partes;
-    // Só dígitos, e a checagem é sobre o texto cru — nunca sobre o que Number()
-    // devolve. Number.isInteger não serve: rejeita "1.234" mas aceita "1.000"
-    // como 1, que é o milhar redondo mais comum da exportação pt-BR e a mesma
-    // contagem dividida por mil, passando por toda guarda. Pelo mesmo caminho
-    // entravam "0x10" como 16, "1e3" como 1000 e "-5" como contagem negativa.
-    if (!/^\d+$/.test(bruto.trim())) {
+    // A checagem é sobre o texto cru, no idioma declarado da exportação —
+    // nunca sobre o que Number() devolve. Number.isInteger não serve: aceita
+    // "1.000" como 1, que é o milhar redondo mais comum da exportação pt-BR e
+    // a mesma contagem dividida por mil, passando por toda guarda. Pelo mesmo
+    // caminho entravam "0x10" como 16, "1e3" como 1000 e "-5" como contagem
+    // negativa. Ler "1.000" como mil é `parseContagem` quem faz, porque o
+    // idioma é informado e não adivinhado.
+    try {
+      return { dominio, links: parseContagem(bruto, idioma) };
+    } catch {
       throw new Error(`contagem não numérica para "${dominio}": "${bruto}"`);
     }
-    return { dominio, links: Number(bruto.trim()) };
   });
 }

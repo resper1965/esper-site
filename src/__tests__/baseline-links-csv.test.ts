@@ -38,16 +38,33 @@ describe('parseLinksCsv', () => {
     expect(() => parseLinksCsv('Site,Links\nexemplo.com,\n')).toThrow(/numérica/);
   });
 
-  // Exportação pt-BR escreve 1.234 para mil duzentos e trinta e quatro. Aceitar
-  // isso dividiria a contagem por mil passando por todas as guardas.
-  it('rejeita contagem com separador de milhar em vez de dividir por mil', () => {
-    expect(() => parseLinksCsv('Site,Links\nexemplo.com,1.234\n')).toThrow(/numérica/);
+  // Exportação pt-BR escreve 1.234 para mil duzentos e trinta e quatro. A
+  // guarda antiga rejeitava — correto contra a divisão por mil, mas rejeitava
+  // junto todo dado legítimo acima de mil. Agora quem decide é o idioma
+  // declarado, não o formato do valor.
+  it('lê o separador de milhar pt-BR como milhar', () => {
+    expect(parseLinksCsv('Site,Links\nexemplo.com,1.234\n')).toEqual([
+      { dominio: 'exemplo.com', links: 1234 },
+    ]);
   });
 
   // "1.000" é o valor redondo mais comum da exportação pt-BR. Number() devolve
   // 1 — inteiro, e portanto invisível para uma guarda de Number.isInteger.
-  it('rejeita o milhar redondo "1.000" em vez de lê-lo como 1', () => {
-    expect(() => parseLinksCsv('Site,Links\nexemplo.com,1.000\n')).toThrow(/numérica/);
+  it('lê o milhar redondo "1.000" como mil, não como um', () => {
+    expect(parseLinksCsv('Site,Links\nexemplo.com,1.000\n')[0].links).toBe(1000);
+  });
+
+  // Em inglês os separadores trocam de papel, e o mesmo texto vira outro
+  // número. O parâmetro existe para isso não ser adivinhado.
+  it('lê o separador de milhar inglês quando o idioma é en', () => {
+    expect(parseLinksCsv('Site,Links\nexemplo.com,"1,234"\n', 'en')).toEqual([
+      { dominio: 'exemplo.com', links: 1234 },
+    ]);
+  });
+
+  // Grupo de dois dígitos não é milhar em idioma nenhum: é dado malformado.
+  it('rejeita separador de milhar em posição inválida', () => {
+    expect(() => parseLinksCsv('Site,Links\nexemplo.com,1.23\n')).toThrow(/numérica/);
   });
 
   it('rejeita hexadecimal em vez de lê-lo como 16', () => {
