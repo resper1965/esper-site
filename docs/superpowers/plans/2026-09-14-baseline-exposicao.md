@@ -1262,7 +1262,13 @@ Fecha o subprojeto. É a única tarefa que produz dado real, e a única que exig
 cp .env.baseline.example .env.baseline
 ```
 
-Preencha `GSC_CLIENT_ID`, `GSC_CLIENT_SECRET` e `GSC_REFRESH_TOKEN` com credenciais OAuth criadas no Google Cloud Console, escopo `https://www.googleapis.com/auth/webmasters.readonly`. Preencha ao menos uma chave de provedor de modelo.
+Preencha **ao menos uma chave de provedor de modelo** — `ANTHROPIC_API_KEY` ou
+`OPENAI_API_KEY`. É a única credencial obrigatória, e a sonda é o único coletor
+que gasta dinheiro. Ver `orm/baseline/chave-api.md` para custo, escolha de
+provedor e o que muda quando a chave é de conta organizacional.
+
+As três variáveis `GSC_*` são **opcionais**: só servem ao caminho automatizado
+de busca, que o passo 2 dispensa. Deixe em branco se for pelo CSV.
 
 Confirme que o arquivo não será commitado:
 
@@ -1272,19 +1278,38 @@ git check-ignore -v .env.baseline
 
 Expected: imprime a regra do `.gitignore` que o cobre. **Se não imprimir nada, pare** — o arquivo não está ignorado e nenhum passo seguinte pode rodar.
 
-- [ ] **Step 2: Coletar busca**
+- [ ] **Step 2: Exportar busca e links à mão**
 
-Run: `npm run baseline:gsc`
-Expected: imprime `gravado AAAA-MM-DD-busca.json — N do conjunto, M fora` e cria o arquivo.
+O caminho padrão é por CSV, e não por API. Decidido em 15/09/2026: o relatório
+de Links nunca teve API, então a exportação manual já era obrigatória para
+metade dos dados — fazer a outra metade no mesmo gesto evita criar um cliente
+OAuth que serviria a um comando por mês.
 
-- [ ] **Step 3: Exportar os links à mão**
+No Search Console, propriedade `ricardoesper.com.br`, duas exportações:
 
-Siga `orm/baseline/links/README.md`: Search Console, propriedade `sc-domain:ricardoesper.com.br`, Links, exportar "Sites com mais links" em CSV, salvar como `orm/baseline/links/AAAA-MM-DD-links.csv`.
+| Relatório | Salvar como |
+|---|---|
+| Desempenho → Exportar → CSV | `orm/baseline/busca/AAAA-MM-DD-busca.csv` |
+| Links → "Sites com mais links" → Exportar | `orm/baseline/links/AAAA-MM-DD-links.csv` |
+
+Os READMEs de cada pasta trazem o detalhe. O de `busca/` avisa que os nomes de
+coluna esperados são suposição: se o parser reclamar, a mensagem de erro nomeia
+os cabeçalhos que encontrou, e corrigir é uma linha na tabela.
+
+- [ ] **Step 3: Consolidar busca**
+
+Run: `npm run baseline:busca-csv`
+Expected: `gravado AAAA-MM-DD-busca-csv.json — idioma pt, N do conjunto, M fora`. Se disser "não medido", o CSV não está em `orm/baseline/busca/`.
 
 - [ ] **Step 4: Consolidar os links**
 
 Run: `npm run baseline:links`
 Expected: `gravado AAAA-MM-DD-links.json — N domínios`. Se disser "não medido", o CSV não foi salvo no lugar certo — volte ao passo anterior.
+
+**Alternativa automatizada, se um dia a cadência justificar:** `npm run
+baseline:gsc` faz a metade de busca por API, sem exportação manual. Exige o
+cliente OAuth do passo 1 e grava em `-busca.json`, nome diferente do CSV, para
+que os dois caminhos nunca se sobrescrevam em silêncio.
 
 - [ ] **Step 5: Rodar a sonda**
 

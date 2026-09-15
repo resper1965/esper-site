@@ -112,15 +112,25 @@ Sitemaps, Sites e URL Inspection. O relatório de Links existe apenas na
 interface. Isso divide o componente em duas metades com naturezas diferentes,
 e fingir o contrário produziria um plano que quebra na primeira execução.
 
-**Metade automática — desempenho de busca.** `POST` em
-`https://www.googleapis.com/webmasters/v3/sites/{siteUrl}/searchAnalytics/query`,
-autenticado por OAuth com refresh token, escopo `webmasters.readonly`. Coleta,
-para todo o histórico disponível:
+**Desempenho de busca.** Coleta, por consulta do conjunto, impressões, cliques,
+posição média e CTR; e também as consultas de maior impressão **fora** do
+conjunto — é como se descobre para o que o site já rankeia sem ninguém ter
+planejado, e costuma ser o dado mais útil da primeira medição.
 
-- por consulta do conjunto: impressões, cliques, posição média, CTR;
-- as consultas de maior impressão **fora** do conjunto — é como se descobre
-  para o que o site já rankeia sem ninguém ter planejado, e costuma ser o dado
-  mais útil da primeira medição.
+Dois caminhos, e o padrão mudou em 15/09/2026 para o manual:
+
+- **CSV, padrão.** Exportação do relatório de Desempenho, largada em
+  `orm/baseline/busca/`. O relatório de Links nunca teve API, então a
+  exportação manual já era obrigatória para metade dos dados; fazer a outra
+  metade no mesmo gesto evita criar um cliente OAuth que serviria a um comando
+  por mês. O parser infere o idioma pelo cabeçalho e lê os números conforme ele
+  — em pt-BR, `1.234` é mil duzentos e trinta e quatro, e adivinhar isso pelo
+  valor foi um defeito que já custou uma correção.
+- **API, alternativa.** `POST` em
+  `https://www.googleapis.com/webmasters/v3/sites/{siteUrl}/searchAnalytics/query`,
+  autenticado por OAuth com refresh token, escopo `webmasters.readonly`.
+  Continua implementada e typechecked. Grava com nome de arquivo distinto do
+  CSV, para que os dois caminhos nunca se sobrescrevam em silêncio.
 
 **Metade manual — links.** Exportação CSV do relatório de Links, feita no
 painel e largada em `orm/baseline/links/`, com a data no nome. Um parser lê o
