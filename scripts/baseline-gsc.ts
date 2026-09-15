@@ -8,7 +8,7 @@
  * Nenhuma credencial mora aqui. Tudo vem do ambiente.
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { validarConsultas, GRUPOS } from '../src/lib/baseline/consultas';
 import { naoMedido } from '../src/lib/baseline/snapshot';
@@ -70,6 +70,17 @@ async function main(): Promise<void> {
   // acumulado. As duas, no mesmo arquivo, medindo o mesmo `fim`.
   const inicio28d = new Date(Date.parse(fim) - 27 * 864e5).toISOString().slice(0, 10);
 
+  const destino = join(RAIZ, 'orm/baseline/snapshots');
+  const arquivo = join(destino, `${hoje}-busca.json`);
+
+  // Antes do token e das duas consultas, como já faz a sonda: descobrir só na
+  // hora de gravar que o arquivo de hoje existe gasta o OAuth e as duas
+  // chamadas de API para terminar em EEXIST. A flag 'wx' lá embaixo continua
+  // sendo a rede de segurança — esta checagem não substitui, antecipa.
+  if (existsSync(arquivo)) {
+    throw new Error(`já existe snapshot de hoje em ${arquivo} — renomeie ou mova antes de rodar de novo`);
+  }
+
   const token = await accessToken();
 
   // 25.000 é o teto por requisição. Nenhuma paginação aqui: o volume de
@@ -113,9 +124,7 @@ async function main(): Promise<void> {
   const historico = await coletar('histórico', inicioHistorico);
   const curto = await coletar('28 dias', inicio28d);
 
-  const destino = join(RAIZ, 'orm/baseline/snapshots');
   mkdirSync(destino, { recursive: true });
-  const arquivo = join(destino, `${hoje}-busca.json`);
   const conteudo =
     JSON.stringify(
       {
@@ -143,8 +152,14 @@ async function main(): Promise<void> {
     throw e;
   }
 
+  // Janela não medida imprime o motivo, não "0 do conjunto, 0 fora": zero
+  // medido e ausência de medição são coisas diferentes, e a linha de console é
+  // o que se lê ao rodar — dizer zero aqui é afirmar um número que não existe.
+  const resumo = (r: { medicao: Medido<LinhaBusca[]>; dentro: number; fora: number }): string =>
+    r.medicao.medido ? `${r.dentro} do conjunto, ${r.fora} fora` : `não medido — ${r.medicao.motivo}`;
+
   console.log(
-    `gravado ${hoje}-busca.json — histórico: ${historico.dentro} do conjunto, ${historico.fora} fora | 28d: ${curto.dentro} do conjunto, ${curto.fora} fora`,
+    `gravado ${hoje}-busca.json — histórico: ${resumo(historico)} | 28d: ${resumo(curto)}`,
   );
 }
 

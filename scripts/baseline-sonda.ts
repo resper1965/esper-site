@@ -105,8 +105,17 @@ async function main(): Promise<void> {
   }
 
   const resultados: ResultadoSonda[] = [];
-  /** Evidência crua. Sem ela, um número suspeito nunca mais pode ser conferido. */
-  const respostas: Array<{ modelo: string; prompt: string; execucao: number; resposta: string }> = [];
+  /**
+   * Evidência crua. Sem ela, um número suspeito nunca mais pode ser conferido.
+   *
+   * Toda execução entra aqui exatamente uma vez, inclusive a que falhou — com
+   * `erro` no lugar de `resposta`. Registrando só o sucesso, o arquivo
+   * reconciliava com as respostas em branco mas não com as falhas de rede: as
+   * `falhas` do resumo não tinham contrapartida nenhuma na evidência.
+   */
+  const respostas: Array<
+    { modelo: string; prompt: string; execucao: number } & ({ resposta: string } | { erro: string })
+  > = [];
 
   const gravar = (): void => {
     // Modelo que terminou sem nenhuma execução utilizável não foi medido —
@@ -157,7 +166,9 @@ async function main(): Promise<void> {
           citacoes.push(detectarCitacao(resposta));
         } catch (e) {
           falhas++;
-          console.warn(`  falha: ${modelo.nome} | execução ${i + 1} | ${e instanceof Error ? e.message : e}`);
+          const erro = e instanceof Error ? e.message : String(e);
+          respostas.push({ modelo: modelo.nome, prompt, execucao: i + 1, erro });
+          console.warn(`  falha: ${modelo.nome} | execução ${i + 1} | ${erro}`);
         }
       }
       const resumo = resumirCitacoes(prompt, modelo.nome, citacoes, falhas);

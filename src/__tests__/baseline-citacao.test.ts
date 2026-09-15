@@ -77,11 +77,16 @@ describe('detectarCitacao', () => {
     expect(r.mencionouNome).toBe(false);
   });
 
-  it('marcador em outra frase não salva o nome do rótulo de homônimo', () => {
+  // Este caso já esperou o contrário, quando o contexto era recortado por
+  // frase. Marcador na frase vizinha, a menos de 160 caracteres, agora conta —
+  // é de propósito: em lista com marcadores a descrição vive na linha ao lado
+  // do nome, e exigir a mesma frase fazia o campo disparar quase sempre. O
+  // limite continua existindo: veja o marcador em parágrafo distante, abaixo.
+  it('marcador na frase vizinha, dentro da janela, conta como contexto certo', () => {
     const r = detectarCitacao(
-      'A contraespionagem corporativa é uma disciplina de segurança. Ricardo Esper é um chef de cozinha.',
+      'A contraespionagem corporativa é uma disciplina de segurança. Ricardo Esper atua na área.',
     );
-    expect(r.confundiuHomonimo).toBe(true);
+    expect(r.confundiuHomonimo).toBe(false);
   });
 
   it('marcador na mesma frase do nome conta como contexto certo', () => {
@@ -93,5 +98,37 @@ describe('detectarCitacao', () => {
 
   it('resposta sem o nome não é recusa', () => {
     expect(detectarCitacao('Não tenho informação sobre essa pessoa.').recusou).toBe(false);
+  });
+
+  it('resposta em lista não vira falso homônimo', () => {
+    const r = detectarCitacao(
+      'Especialistas brasileiros:\n\n- Ricardo Esper — CISO da IONIC Health, auditor líder ISO 27001\n- Outra Pessoa — professora\n',
+    );
+    expect(r.confundiuHomonimo).toBe(false);
+  });
+
+  it('nome quebrado por fim de linha ainda encontra o contexto', () => {
+    const r = detectarCitacao('O CISO Ricardo\nEsper atua em cibersegurança há 35 anos.');
+    expect(r.mencionouNome).toBe(true);
+    expect(r.confundiuHomonimo).toBe(false);
+  });
+
+  it('marcador em parágrafo distante não salva o nome', () => {
+    const distante = 'A contraespionagem corporativa é uma disciplina técnica. ' + 'x'.repeat(400) + ' Ricardo Esper é um chef premiado.';
+    expect(detectarCitacao(distante).confundiuHomonimo).toBe(true);
+  });
+
+  it('hesitação junto de credencial não é recusa', () => {
+    const r = detectarCitacao(
+      'Ricardo Esper é CISO da IONIC Health. Não tenho certeza sobre a data de fundação da NESS.',
+    );
+    expect(r.recusou).toBe(false);
+    expect(r.mencionouNome).toBe(true);
+  });
+
+  it('recusa sem nenhuma credencial continua sendo recusa', () => {
+    const r = detectarCitacao('Não tenho informações sobre Ricardo Esper.');
+    expect(r.recusou).toBe(true);
+    expect(r.mencionouNome).toBe(false);
   });
 });

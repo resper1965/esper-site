@@ -29,9 +29,6 @@ const NOME = /ricardo\s+esper/i;
  */
 const CONTEXTO_CERTO = /\b(ciso|cibersegurança|cybersecurity|iso\s*(?:27001|27701|42001)|lgpd|gdpr|forense|ness|ionic|auditor|contraespionagem|tscm|segurança da informação)\b/i;
 
-/** Frase, para limitar o contexto ao trecho que de fato fala do nome. */
-const SENTENCA = /[^.!?\n]+[.!?\n]?/g;
-
 /**
  * Forma de recusa. O modelo que diz não conhecer a pessoa cita o nome sem
  * afirmar nada sobre ela: contar como menção infla a métrica, e contar como
@@ -39,23 +36,45 @@ const SENTENCA = /[^.!?\n]+[.!?\n]?/g;
  */
 const RECUSA = /\b(n[ãa]o (tenho|encontrei|disponho|possuo)|n[ãa]o (h[áa]|existem?) informa|sem informa|n[ãa]o (sei|conhe[çc]o)|(don't|do not) have|no information|couldn't find|could not find|unable to find|i'm not (aware|familiar)|not familiar with)\b/i;
 
+/**
+ * Quantos caracteres de cada lado do nome entram na janela de contexto.
+ *
+ * Janela, e não divisão em frases: dividir por pontuação quebra em lista com
+ * marcadores — que é a forma natural de responder "quem são..." — e separa o
+ * nome da descrição dele, fazendo o campo disparar quase sempre. A janela não
+ * depende de pontuação nenhuma.
+ */
+const JANELA = 160;
+
+/** O texto ao redor de cada ocorrência do nome, concatenado. */
+function janelaDoNome(resposta: string): string {
+  const trechos: string[] = [];
+  for (const m of resposta.matchAll(/ricardo\s+esper/gi)) {
+    const i = m.index ?? 0;
+    trechos.push(resposta.slice(Math.max(0, i - JANELA), i + m[0].length + JANELA));
+  }
+  return trechos.join(' ');
+}
+
 export function detectarCitacao(resposta: string): Citacao {
   const urls = [...resposta.matchAll(DOMINIO)].map((m) => m[0]);
   const nomePresente = NOME.test(resposta);
-  const recusou = nomePresente && RECUSA.test(resposta);
-  const mencionouNome = nomePresente && !recusou;
+  const janela = janelaDoNome(resposta);
+  const contextoCerto = CONTEXTO_CERTO.test(janela);
 
-  // O contexto é checado SÓ nas frases que contêm o nome. Checar a resposta
-  // inteira torna o campo inútil: quatro dos cinco prompts da sonda são sobre
-  // cibersegurança, então qualquer resposta a eles carrega palavra-marcador
-  // independentemente de sobre quem fale.
-  const trechosComNome = (resposta.match(SENTENCA) ?? []).filter((s) => NOME.test(s)).join(' ');
+  // Recusa e contexto são interdependentes de propósito. Quem afirma uma
+  // credencial não está recusando: "Ricardo Esper é CISO... não tenho certeza
+  // sobre a data" é resposta com hesitação, não "não conheço essa pessoa".
+  // Sem essa condição, hesitação normal zera uma menção real e deflaciona o
+  // marco zero — e marco zero baixo faz todo snapshot futuro parecer melhora.
+  const recusou = nomePresente && RECUSA.test(janela) && !contextoCerto;
+  const mencionouNome = nomePresente && !recusou;
 
   return {
     citouSite: urls.length > 0,
     urls,
     mencionouNome,
     recusou,
-    confundiuHomonimo: mencionouNome && !CONTEXTO_CERTO.test(trechosComNome),
+    confundiuHomonimo: mencionouNome && !contextoCerto,
   };
 }

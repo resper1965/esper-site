@@ -45,12 +45,14 @@ export function parseLinksCsv(csv: string): LinhaLink[] {
       throw new Error(`linha com ${partes.length} campos, esperado 2: "${linha}"`);
     }
     const [dominio, bruto] = partes;
-    const links = Number(bruto);
-    // Inteiro, não só finito: exportação pt-BR escreve "1.234" para 1234, que
-    // viraria 1.234 — a contagem dividida por mil, passando por toda guarda.
-    if (bruto.trim() === '' || !Number.isInteger(links)) {
+    // Só dígitos, e a checagem é sobre o texto cru — nunca sobre o que Number()
+    // devolve. Number.isInteger não serve: rejeita "1.234" mas aceita "1.000"
+    // como 1, que é o milhar redondo mais comum da exportação pt-BR e a mesma
+    // contagem dividida por mil, passando por toda guarda. Pelo mesmo caminho
+    // entravam "0x10" como 16, "1e3" como 1000 e "-5" como contagem negativa.
+    if (!/^\d+$/.test(bruto.trim())) {
       throw new Error(`contagem não numérica para "${dominio}": "${bruto}"`);
     }
-    return { dominio, links };
+    return { dominio, links: Number(bruto.trim()) };
   });
 }

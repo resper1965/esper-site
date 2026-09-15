@@ -44,6 +44,24 @@ describe('parseLinksCsv', () => {
     expect(() => parseLinksCsv('Site,Links\nexemplo.com,1.234\n')).toThrow(/numérica/);
   });
 
+  // "1.000" é o valor redondo mais comum da exportação pt-BR. Number() devolve
+  // 1 — inteiro, e portanto invisível para uma guarda de Number.isInteger.
+  it('rejeita o milhar redondo "1.000" em vez de lê-lo como 1', () => {
+    expect(() => parseLinksCsv('Site,Links\nexemplo.com,1.000\n')).toThrow(/numérica/);
+  });
+
+  it('rejeita hexadecimal em vez de lê-lo como 16', () => {
+    expect(() => parseLinksCsv('Site,Links\nexemplo.com,0x10\n')).toThrow(/numérica/);
+  });
+
+  it('rejeita notação científica em vez de lê-la como 1000', () => {
+    expect(() => parseLinksCsv('Site,Links\nexemplo.com,1e3\n')).toThrow(/numérica/);
+  });
+
+  it('rejeita contagem negativa', () => {
+    expect(() => parseLinksCsv('Site,Links\nexemplo.com,-5\n')).toThrow(/numérica/);
+  });
+
   it('rejeita linha com mais campos que o esperado', () => {
     expect(() => parseLinksCsv('Site,Links\nexemplo.com,3,sobra\n')).toThrow(/esperado 2/);
   });
