@@ -34,6 +34,15 @@ const RAIZ = join(__dirname, '..');
 const HOJE = new Date().toISOString().slice(0, 10);
 
 /**
+ * Pausa entre chamadas pagas. O faturamento unificado do Gateway tem limite de
+ * taxa, e a primeira execução real o estourou com chamadas sequenciais sem
+ * intervalo. Um segundo por chamada acrescenta menos de um minuto a uma rodada
+ * de 50 e evita perder metade delas.
+ */
+const PAUSA_MS = 1000;
+const dormir = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
  * Teto duro de chamadas pagas por rodada. Um erro de edição em prompts.json
  * que multiplique as execuções tem que falhar alto e de graça, não faturar em
  * silêncio. Se o conjunto de prompts crescer de propósito, suba isto de
@@ -126,7 +135,10 @@ async function openai(prompt: string): Promise<string> {
     headers: cabecalhosGateway(),
     body: JSON.stringify({
       model: 'openai/gpt-5.5',
-      max_tokens: MAX_TOKENS,
+      // `max_completion_tokens`, não `max_tokens`: o gpt-5.5 recusa o segundo com
+      // 400. A rota da Anthropic, em /ai/v1/messages, continua usando max_tokens,
+      // que é o nome dela lá — os dois nomes coexistem de propósito.
+      max_completion_tokens: MAX_TOKENS,
       messages: [{ role: 'user', content: prompt }],
     }),
   });
@@ -227,6 +239,8 @@ async function main(): Promise<void> {
   const respostas: Array<
     { modelo: string; prompt: string; execucao: number } & ({ resposta: string } | { erro: string })
   > = [];
+  /** Último erro observado por modelo, para o motivo em `naoMedidos` — ver Step 3. */
+  const ultimoErro: Record<string, string> = {};
 
   const gravar = (): void => {
     // Modelo que terminou sem nenhuma execução utilizável não foi medido —
@@ -237,7 +251,7 @@ async function main(): Promise<void> {
       return seus.length > 0 && seus.every((r) => r.execucoes === 0);
     }).map((m) => ({
       modelo: m.nome,
-      motivo: 'todas as chamadas falharam — id de modelo aposentado?',
+      motivo: `todas as chamadas falharam — último erro: ${ultimoErro[m.nome] ?? 'desconhecido'}`,
     }));
 
     const uteis = resultados.filter((r) => r.execucoes > 0);
@@ -290,15 +304,18 @@ async function main(): Promise<void> {
           if (!respostaUtilizavel(resposta)) {
             falhas++;
             console.warn(`  resposta em branco: ${modelo.nome} | execução ${i + 1}`);
+            await dormir(PAUSA_MS);
             continue;
           }
           citacoes.push(detectarCitacao(resposta));
         } catch (e) {
           falhas++;
           const erro = e instanceof Error ? e.message : String(e);
+          ultimoErro[modelo.nome] = erro;
           respostas.push({ modelo: modelo.nome, prompt, execucao: i + 1, erro });
           console.warn(`  falha: ${modelo.nome} | execução ${i + 1} | ${erro}`);
         }
+        await dormir(PAUSA_MS);
       }
       const resumo = resumirCitacoes(prompt, modelo.nome, citacoes, falhas);
       resultados.push(resumo);
