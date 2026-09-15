@@ -2,7 +2,7 @@
  * Lê a exportação CSV do relatório de Desempenho do Search Console, aba de
  * consultas.
  *
- * Existe porque exportar à mão não exige cliente OAuth. `scripts/baseline-gsc.ts`
+ * Existe porque exportar à mão não exige credencial. `scripts/baseline-gsc.ts`
  * continua sendo o caminho automatizado, para quem tiver credencial.
  *
  * AVISO: as grafias de cabeçalho abaixo são SUPOSIÇÃO — não foram conferidas

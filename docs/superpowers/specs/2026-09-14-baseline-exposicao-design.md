@@ -122,15 +122,19 @@ Dois caminhos, e o padrão mudou em 15/09/2026 para o manual:
 - **CSV, padrão.** Exportação do relatório de Desempenho, largada em
   `orm/baseline/busca/`. O relatório de Links nunca teve API, então a
   exportação manual já era obrigatória para metade dos dados; fazer a outra
-  metade no mesmo gesto evita criar um cliente OAuth que serviria a um comando
-  por mês. O parser infere o idioma pelo cabeçalho e lê os números conforme ele
-  — em pt-BR, `1.234` é mil duzentos e trinta e quatro, e adivinhar isso pelo
-  valor foi um defeito que já custou uma correção.
+  metade no mesmo gesto evita configurar uma credencial que serviria a um
+  comando por mês. O parser infere o idioma pelo cabeçalho e lê os números
+  conforme ele — em pt-BR, `1.234` é mil duzentos e trinta e quatro, e adivinhar
+  isso pelo valor foi um defeito que já custou uma correção.
 - **API, alternativa.** `POST` em
   `https://www.googleapis.com/webmasters/v3/sites/{siteUrl}/searchAnalytics/query`,
-  autenticado por OAuth com refresh token, escopo `webmasters.readonly`.
-  Continua implementada e typechecked. Grava com nome de arquivo distinto do
-  CSV, para que os dois caminhos nunca se sobrescrevam em silêncio.
+  autenticado por conta de serviço — JWT assinado com a chave privada, trocado
+  por access token no fluxo `jwt-bearer` —, escopo `webmasters.readonly`.
+  Trocado de OAuth para conta de serviço em 15/09/2026: refresh token exige
+  navegador e tela de consentimento, e expira em sete dias se a tela ficar em
+  External/Testing, o que quebraria um trabalho mensal em silêncio. Continua
+  implementada e typechecked. Grava com nome de arquivo distinto do CSV, para
+  que os dois caminhos nunca se sobrescrevam em silêncio.
 
 **Metade manual — links.** Exportação CSV do relatório de Links, feita no
 painel e largada em `orm/baseline/links/`, com a data no nome. Um parser lê o

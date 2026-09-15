@@ -14,9 +14,12 @@ import { validarConsultas, GRUPOS } from '../src/lib/baseline/consultas';
 import { naoMedido } from '../src/lib/baseline/snapshot';
 import type { LinhaBusca, Medido } from '../src/lib/baseline/snapshot';
 import { montarLinhasBusca, type LinhaApi } from '../src/lib/baseline/busca';
+import { assinarJwt, normalizarChavePrivada } from '../src/lib/baseline/jwt';
 
 const RAIZ = join(__dirname, '..');
 const API = 'https://www.googleapis.com/webmasters/v3/sites';
+const TOKEN = 'https://oauth2.googleapis.com/token';
+const ESCOPO = 'https://www.googleapis.com/auth/webmasters.readonly';
 
 const exigir = (nome: string): string => {
   const v = process.env[nome];
@@ -24,19 +27,59 @@ const exigir = (nome: string): string => {
   return v;
 };
 
-/** Troca o refresh token por um access token. Sem SDK: é um POST. */
+/**
+ * Corpo de erro do endpoint de token: redigido primeiro, truncado depois.
+ *
+ * A ordem não é arbitrária. Truncar antes decepa o `-----END`, o padrão deixa
+ * de casar e o bloco sobrevive pela metade — meia chave privada numa mensagem
+ * de erro ainda é uma chave privada vazada. Redigir primeiro remove o bloco
+ * inteiro; o corte que vem depois só limita o tamanho do ruído.
+ *
+ * Existe porque este arquivo agora manuseia chave privada, e um 400 de chave
+ * malformada pode ecoar de volta o material submetido. O `corpoDeErro` de
+ * `baseline-sonda.ts` é local àquele script e redige forma de chave de API,
+ * não bloco PEM — reaproveitá-lo exigiria exportá-lo e ampliá-lo, e o que se
+ * redige aqui é outra coisa.
+ */
+async function corpoDeErro(r: Response): Promise<string> {
+  return (await r.text())
+    .replace(/-----BEGIN[\s\S]*?-----END[^-]*-----/g, '[chave redigida]')
+    .slice(0, 200);
+}
+
+/**
+ * Troca um JWT assinado pela conta de serviço por um access token.
+ *
+ * Sem SDK e sem navegador: assina, posta, lê o token. A conta de serviço não
+ * precisa de papel nenhum no projeto GCP — o que dá acesso ao dado é o e-mail
+ * dela estar adicionado como usuário da propriedade no Search Console.
+ */
 async function accessToken(): Promise<string> {
-  const r = await fetch('https://oauth2.googleapis.com/token', {
+  const jwt = assinarJwt(
+    {
+      email: exigir('GSC_SA_EMAIL'),
+      escopo: ESCOPO,
+      audiencia: TOKEN,
+      agoraSegundos: Math.floor(Date.now() / 1000),
+    },
+    normalizarChavePrivada(exigir('GSC_SA_PRIVATE_KEY')),
+  );
+
+  const r = await fetch(TOKEN, {
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      client_id: exigir('GSC_CLIENT_ID'),
-      client_secret: exigir('GSC_CLIENT_SECRET'),
-      refresh_token: exigir('GSC_REFRESH_TOKEN'),
-      grant_type: 'refresh_token',
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: jwt,
     }),
   });
-  if (!r.ok) throw new Error(`oauth falhou: ${r.status} ${await r.text()}`);
+  // As duas falhas comuns aqui são indistinguíveis pela mensagem e apontam
+  // para lados opostos: 400 é quase sempre chave malformada — valor cortado na
+  // cópia, ou `\n` não escapado no `.env.baseline`; 403 é quase sempre a conta
+  // de serviço não adicionada como usuária da propriedade no Search Console.
+  if (!r.ok) {
+    throw new Error(`token da conta de serviço falhou: ${r.status} ${await corpoDeErro(r)}`);
+  }
   return ((await r.json()) as { access_token: string }).access_token;
 }
 
@@ -74,7 +117,7 @@ async function main(): Promise<void> {
   const arquivo = join(destino, `${hoje}-busca.json`);
 
   // Antes do token e das duas consultas, como já faz a sonda: descobrir só na
-  // hora de gravar que o arquivo de hoje existe gasta o OAuth e as duas
+  // hora de gravar que o arquivo de hoje existe gasta o token e as duas
   // chamadas de API para terminar em EEXIST. A flag 'wx' lá embaixo continua
   // sendo a rede de segurança — esta checagem não substitui, antecipa.
   if (existsSync(arquivo)) {

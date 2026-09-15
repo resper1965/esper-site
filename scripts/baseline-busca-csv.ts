@@ -1,6 +1,6 @@
 /**
  * Lê a exportação CSV mais recente em orm/baseline/busca/ e grava a metade de
- * busca do snapshot — o caminho padrão, porque não exige cliente OAuth.
+ * busca do snapshot — o caminho padrão, porque não exige credencial nenhuma.
  *
  * `scripts/baseline-gsc.ts` continua sendo a alternativa automatizada. Os dois
  * gravam arquivos de nome diferente (`-busca-csv.json` e `-busca.json`) de

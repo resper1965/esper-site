@@ -1,14 +1,14 @@
 # Exportação de desempenho de busca
 
 Este é o caminho padrão para a metade de busca do snapshot, porque não exige
-nada: nem cliente OAuth, nem credencial, nem variável de ambiente.
+nada: nem conta de serviço, nem credencial, nem variável de ambiente.
 
 A alternativa automatizada é `npm run baseline:gsc`, que fala com a Search
-Console API e precisa de um cliente OAuth configurado (`GSC_CLIENT_ID`,
-`GSC_CLIENT_SECRET`, `GSC_REFRESH_TOKEN`, `GSC_SITE_URL`). Ela continua no
-lugar e grava `AAAA-MM-DD-busca.json` — nome diferente do que este caminho
-grava, `AAAA-MM-DD-busca-csv.json`, para que rodar os dois no mesmo dia nunca
-apague uma medição com a outra.
+Console API e precisa de uma conta de serviço configurada (`GSC_SA_EMAIL`,
+`GSC_SA_PRIVATE_KEY`, `GSC_SITE_URL`). Ela continua no lugar e grava
+`AAAA-MM-DD-busca.json` — nome diferente do que este caminho grava,
+`AAAA-MM-DD-busca-csv.json`, para que rodar os dois no mesmo dia nunca apague
+uma medição com a outra.
 
 Uma vez por rodada de medição:
 

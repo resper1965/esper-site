@@ -10,7 +10,7 @@ Os outros três coletores não usam credencial nenhuma:
 |---|---|
 | `npm run baseline:busca-csv` | não — lê o CSV que você exporta |
 | `npm run baseline:links` | não — lê o CSV que você exporta |
-| `npm run baseline:gsc` | OAuth do Google, e só se você escolher o caminho automatizado |
+| `npm run baseline:gsc` | conta de serviço do Google, e só se você escolher o caminho automatizado |
 | `npm run baseline:sonda` | **sim** |
 
 ## Quanto a sonda gasta

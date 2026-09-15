@@ -882,11 +882,12 @@ Expected: já existe entrada cobrindo `.env*`. Se não existir, adicione `.env.b
 Crie `.env.baseline.example` — só nomes, nunca valores:
 
 ```bash
-# Credenciais OAuth do Google, escopo https://www.googleapis.com/auth/webmasters.readonly
-# Obtidas no Google Cloud Console. Copie para .env.baseline, que é ignorado pelo git.
-GSC_CLIENT_ID=
-GSC_CLIENT_SECRET=
-GSC_REFRESH_TOKEN=
+# Conta de serviço do Google, com o e-mail dela adicionado como usuário da
+# propriedade no Search Console. GSC_SA_PRIVATE_KEY é o campo `private_key` do
+# JSON da chave, numa linha só, com as quebras como \n literais e entre aspas.
+# Copie para .env.baseline, que é ignorado pelo git. Só nomes, nunca valores.
+GSC_SA_EMAIL=
+GSC_SA_PRIVATE_KEY=
 GSC_SITE_URL=sc-domain:ricardoesper.com.br
 ```
 
@@ -919,19 +920,38 @@ const exigir = (nome: string): string => {
   return v;
 };
 
-/** Troca o refresh token por um access token. Sem SDK: é um POST. */
+/** Corpo de erro: redige o bloco PEM antes de truncar, nunca ao contrário. */
+async function corpoDeErro(r: Response): Promise<string> {
+  return (await r.text())
+    .replace(/-----BEGIN[\s\S]*?-----END[^-]*-----/g, '[chave redigida]')
+    .slice(0, 200);
+}
+
+/** Troca um JWT assinado pela conta de serviço por um access token. */
 async function accessToken(): Promise<string> {
-  const r = await fetch('https://oauth2.googleapis.com/token', {
+  const jwt = assinarJwt(
+    {
+      email: exigir('GSC_SA_EMAIL'),
+      escopo: ESCOPO,
+      audiencia: TOKEN,
+      agoraSegundos: Math.floor(Date.now() / 1000),
+    },
+    normalizarChavePrivada(exigir('GSC_SA_PRIVATE_KEY')),
+  );
+
+  const r = await fetch(TOKEN, {
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      client_id: exigir('GSC_CLIENT_ID'),
-      client_secret: exigir('GSC_CLIENT_SECRET'),
-      refresh_token: exigir('GSC_REFRESH_TOKEN'),
-      grant_type: 'refresh_token',
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: jwt,
     }),
   });
-  if (!r.ok) throw new Error(`oauth falhou: ${r.status} ${await r.text()}`);
+  // 400 é quase sempre chave malformada; 403, a conta de serviço não
+  // adicionada como usuária da propriedade. A mensagem não distingue os dois.
+  if (!r.ok) {
+    throw new Error(`token da conta de serviço falhou: ${r.status} ${await corpoDeErro(r)}`);
+  }
   return ((await r.json()) as { access_token: string }).access_token;
 }
 
@@ -1267,8 +1287,9 @@ Preencha **ao menos uma chave de provedor de modelo** — `ANTHROPIC_API_KEY` ou
 que gasta dinheiro. Ver `orm/baseline/chave-api.md` para custo, escolha de
 provedor e o que muda quando a chave é de conta organizacional.
 
-As três variáveis `GSC_*` são **opcionais**: só servem ao caminho automatizado
-de busca, que o passo 2 dispensa. Deixe em branco se for pelo CSV.
+As variáveis `GSC_*` são **opcionais**: só servem ao caminho automatizado de
+busca, que o passo 2 dispensa. Deixe em branco se for pelo CSV. Se um dia
+quiser o automatizado, `orm/baseline/conta-de-servico.md` traz o roteiro.
 
 Confirme que o arquivo não será commitado:
 
@@ -1282,8 +1303,8 @@ Expected: imprime a regra do `.gitignore` que o cobre. **Se não imprimir nada, 
 
 O caminho padrão é por CSV, e não por API. Decidido em 15/09/2026: o relatório
 de Links nunca teve API, então a exportação manual já era obrigatória para
-metade dos dados — fazer a outra metade no mesmo gesto evita criar um cliente
-OAuth que serviria a um comando por mês.
+metade dos dados — fazer a outra metade no mesmo gesto evita configurar uma
+credencial que serviria a um comando por mês.
 
 No Search Console, propriedade `ricardoesper.com.br`, duas exportações:
 
@@ -1307,9 +1328,9 @@ Run: `npm run baseline:links`
 Expected: `gravado AAAA-MM-DD-links.json — N domínios`. Se disser "não medido", o CSV não foi salvo no lugar certo — volte ao passo anterior.
 
 **Alternativa automatizada, se um dia a cadência justificar:** `npm run
-baseline:gsc` faz a metade de busca por API, sem exportação manual. Exige o
-cliente OAuth do passo 1 e grava em `-busca.json`, nome diferente do CSV, para
-que os dois caminhos nunca se sobrescrevam em silêncio.
+baseline:gsc` faz a metade de busca por API, sem exportação manual. Exige a
+conta de serviço do passo 1 e grava em `-busca.json`, nome diferente do CSV,
+para que os dois caminhos nunca se sobrescrevam em silêncio.
 
 - [ ] **Step 5: Rodar a sonda**
 
