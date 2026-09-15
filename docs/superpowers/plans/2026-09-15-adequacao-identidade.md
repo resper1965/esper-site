@@ -217,6 +217,20 @@ export function validarFatos(dados: unknown): ConjuntoFatos {
   return d;
 }
 
+/** Escapa metacaractere para o termo entrar cru numa expressão regular. */
+const escapar = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Termo cercado por fronteira de palavra, e não continência solta.
+ *
+ * `"ness"` como substring casa com "nessa" e "nesse", que são palavras comuns
+ * em português; junto de um `1991` incidental — um ano de copyright basta —
+ * isso reportaria como presente um fato que a fonte nunca afirmou. O erro é
+ * para o otimismo, e um marco zero inflado é pior que medição nenhuma.
+ */
+const contemTermo = (texto: string, termo: string): boolean =>
+  new RegExp(`\\b${escapar(normalizar(termo))}\\b`).test(texto);
+
 /**
  * Os ids dos fatos que o texto carrega. Um fato só conta se TODOS os seus
  * termos estiverem presentes: "CISO" sozinho não prova "CISO da IONIC Health",
@@ -226,20 +240,56 @@ export function validarFatos(dados: unknown): ConjuntoFatos {
 export function fatosPresentes(texto: string, conjunto: ConjuntoFatos): string[] {
   const alvo = normalizar(texto);
   return conjunto.fatos
-    .filter((f) => f.termos.every((t) => alvo.includes(normalizar(t))))
+    .filter((f) => f.termos.every((t) => contemTermo(alvo, t)))
     .map((f) => f.id);
 }
+```
+
+Acrescente ao bloco `describe('fatosPresentes', …)` do passo 1 os três casos que
+provam a fronteira, e ao bloco do arquivo versionado os dois que exercitam
+acento e escapagem de ponto:
+
+```ts
+  it('"nessa" não satisfaz o termo "ness"', () => {
+    expect(fatosPresentes('Nessa época, em 1991, algo aconteceu', c)).toEqual([]);
+  });
+
+  it('"preciso" não satisfaz o termo "ciso"', () => {
+    expect(fatosPresentes('preciso falar com a IONIC', c)).toEqual([]);
+  });
+
+  it('número maior não satisfaz um termo numérico', () => {
+    const num = validarFatos({
+      versao: 1,
+      atualizado: '2026-09-15',
+      nome: 'Ricardo Esper',
+      fatos: [{ id: 'iso27001', rotulo: 'ISO 27001', termos: ['27001'] }],
+    });
+    expect(fatosPresentes('protocolo 127001 aprovado', num)).toEqual([]);
+    expect(fatosPresentes('auditor ISO 27001', num)).toEqual(['iso27001']);
+  });
+```
+
+```ts
+  it('os termos sem acento casam com texto acentuado de verdade', () => {
+    const texto = 'Escreve sobre cibersegurança, privacidade e contraespionagem.';
+    expect(fatosPresentes(texto, c)).toContain('eixos');
+  });
+
+  it('o termo do site casa dentro de uma URL completa', () => {
+    expect(fatosPresentes('veja https://www.ricardoesper.com.br/pt-BR/sobre', c)).toContain('site');
+  });
 ```
 
 - [ ] **Step 5: Rodar e confirmar que passa**
 
 Run: `npx vitest run src/__tests__/baseline-fatos.test.ts`
-Expected: PASS — 11 testes.
+Expected: PASS — 16 testes.
 
 - [ ] **Step 6: Rodar a suíte inteira**
 
 Run: `npm test`
-Expected: PASS, 311 testes em 34 arquivos. Confirma que o arquivo novo em `src/lib/` não acionou o `sem-terceiros.test.ts`.
+Expected: PASS, 316 testes em 34 arquivos. Confirma que o arquivo novo em `src/lib/` não acionou o `sem-terceiros.test.ts`.
 
 - [ ] **Step 7: Commit**
 
