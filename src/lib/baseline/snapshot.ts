@@ -40,13 +40,16 @@ export interface ResultadoSonda {
   execucoes: number;
   /** Chamadas que falharam ou voltaram em branco. Não são medição. */
   falhas: number;
-  /** Recusas: o modelo citou o nome para dizer que não o conhece. */
-  recusas: number;
   /** URLs do site efetivamente citadas, para conferência posterior. */
   urls: string[];
   citou: number;
+  /**
+   * Execuções em que o nome apareceu — inclusive dentro de uma recusa. A
+   * distinção entre recusa e resposta, e entre ele e o homônimo, não é
+   * automatizada: vive na classificação manual feita a partir das respostas
+   * cruas. Veja o cabeçalho de `citacao.ts`.
+   */
   mencionou: number;
-  homonimo: number;
 }
 
 export interface Snapshot {
@@ -71,11 +74,9 @@ export const resumirCitacoes = (
   modelo,
   execucoes: citacoes.length,
   falhas,
-  recusas: citacoes.filter((c) => c.recusou).length,
   urls: [...new Set(citacoes.flatMap((c) => c.urls))],
   citou: citacoes.filter((c) => c.citouSite).length,
   mencionou: citacoes.filter((c) => c.mencionouNome).length,
-  homonimo: citacoes.filter((c) => c.confundiuHomonimo).length,
 });
 
 /**

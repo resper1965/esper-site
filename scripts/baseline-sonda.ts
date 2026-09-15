@@ -1,6 +1,11 @@
 /**
  * Pergunta o mesmo conjunto de perguntas a cada modelo, N vezes, e conta
- * quantas vezes o site foi citado, o nome mencionado e o homônimo confundido.
+ * quantas vezes o site foi citado e o nome mencionado.
+ *
+ * Confusão com homônimo e recusa NÃO são contadas aqui: exigem julgamento
+ * sobre de quem o texto fala, que palavra-chave não decide. São classificadas
+ * à mão a partir do arquivo de respostas cruas, na conferência de sanidade —
+ * o cabeçalho de `src/lib/baseline/citacao.ts` registra por quê.
  *
  * RESSALVA, e ela precisa sobreviver a quem ler isto daqui a seis meses: a API
  * de um modelo NÃO é a mesma superfície que o produto de consumo. O ChatGPT
@@ -28,6 +33,18 @@ interface Modelo {
   perguntar: (prompt: string) => Promise<string>;
 }
 
+/**
+ * Corpo de erro do provedor, truncado antes de virar mensagem de exceção.
+ *
+ * O corpo do 401 da OpenAI devolve a chave submetida em forma mascarada
+ * (`sk-…***…`), que `encontrarSegredos` não casa — e esse texto acaba no
+ * arquivo de evidência, que é commitado. Truncar limita o que pode vazar por
+ * esse caminho: nunca embuta `await r.text()` cru em erro nenhum.
+ */
+async function corpoDeErro(r: Response): Promise<string> {
+  return (await r.text()).slice(0, 200);
+}
+
 async function anthropic(prompt: string): Promise<string> {
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -42,7 +59,7 @@ async function anthropic(prompt: string): Promise<string> {
       messages: [{ role: 'user', content: prompt }],
     }),
   });
-  if (!r.ok) throw new Error(`anthropic ${r.status}: ${await r.text()}`);
+  if (!r.ok) throw new Error(`anthropic ${r.status}: ${await corpoDeErro(r)}`);
   const j = (await r.json()) as { content: Array<{ text?: string }> };
   return j.content.map((c) => c.text ?? '').join('');
 }
@@ -59,7 +76,7 @@ async function openai(prompt: string): Promise<string> {
       messages: [{ role: 'user', content: prompt }],
     }),
   });
-  if (!r.ok) throw new Error(`openai ${r.status}: ${await r.text()}`);
+  if (!r.ok) throw new Error(`openai ${r.status}: ${await corpoDeErro(r)}`);
   const j = (await r.json()) as { choices?: Array<{ message?: { content?: string | null } }> };
   const texto = j.choices?.[0]?.message?.content;
   if (typeof texto !== 'string') throw new Error(`openai: resposta sem texto (${JSON.stringify(j).slice(0, 200)})`);
@@ -137,13 +154,24 @@ async function main(): Promise<void> {
     writeFileSync(
       arquivo,
       JSON.stringify(
-        { versao: 1, data: hoje, naoMedidos: [...semChave, ...semMedicao], modelos },
+        {
+          versao: 1,
+          data: hoje,
+          naoMedidos: [...semChave, ...semMedicao],
+          modelos,
+          classificacaoManual: naoMedido(
+            `confusão com homônimo e recusa não são medidas automaticamente: exigem julgamento sobre de quem o texto fala. Classificar à mão a partir de ${hoje}-modelos-respostas.json, na conferência de sanidade.`,
+          ),
+        },
         null,
         2,
       ) + '\n',
     );
-    // Respostas de modelo não carregam credencial, então a guarda
-    // encontrarSegredos sobre este diretório continua valendo para o arquivo.
+    // A resposta do modelo em si não carrega credencial, mas a entrada de erro
+    // carrega o corpo devolvido pelo provedor — e o 401 da OpenAI ecoa a chave
+    // submetida mascarada, que encontrarSegredos não casa. Por isso o corpo é
+    // truncado em corpoDeErro antes de chegar aqui: a guarda sobre este
+    // diretório não é suficiente sozinha.
     writeFileSync(
       arquivoRespostas,
       JSON.stringify({ versao: 1, data: hoje, respostas }, null, 2) + '\n',
@@ -174,7 +202,7 @@ async function main(): Promise<void> {
       const resumo = resumirCitacoes(prompt, modelo.nome, citacoes, falhas);
       resultados.push(resumo);
       console.log(
-        `${modelo.nome} | ${resumo.citou}/${resumo.execucoes} citou | ${resumo.mencionou} mencionou | ${resumo.homonimo} homônimo | ${resumo.recusas} recusas | ${resumo.falhas} falhas | ${prompt}`,
+        `${modelo.nome} | ${resumo.citou}/${resumo.execucoes} citou | ${resumo.mencionou} mencionou | ${resumo.falhas} falhas | ${prompt}`,
       );
       gravar();
     }

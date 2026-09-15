@@ -1,21 +1,56 @@
 /**
- * Lê a resposta de um modelo e diz o que aconteceu com a entidade.
+ * Lê a resposta de um modelo e reporta apenas o que uma regex decide com
+ * verdade: o site foi citado (com quais URLs) e o nome apareceu.
  *
- * Três resultados distintos, de propósito. Citar o site, mencionar o nome sem
- * link e confundir com homônimo são coisas diferentes: tratá-las como uma só
- * infla a métrica e faz o diff subir sem nada ter melhorado.
+ * ## Por que `recusou` e `confundiuHomonimo` não existem mais
+ *
+ * Os dois campos eram derivados por proximidade de palavras-chave e foram
+ * removidos por decisão do dono do projeto, depois de três tentativas de
+ * calibrar o recorte do teste — cada uma inverteu o viés para um lado
+ * diferente:
+ *
+ * 1. Resposta inteira: marcador vazava de qualquer ponto do texto, e o campo
+ *    nunca disparava.
+ * 2. Divisão por frase: resposta em lista com marcadores fragmenta, o nome se
+ *    separa da descrição, e o campo disparava quase sempre.
+ * 3. Janela de ±160 caracteres: em lista, as credenciais do item vizinho
+ *    entram na janela, e o campo voltava a nunca disparar.
+ *
+ * A causa não é o tamanho da janela. "Sobre quem este texto fala?" é um
+ * julgamento sobre referência, e proximidade de palavra-chave não decide
+ * referência — nenhum ajuste de recorte resolve isso, então não adianta tentar
+ * um quarto. Agravante concreto: quatro dos cinco prompts da sonda são eles
+ * próprios perguntas de cibersegurança, então a recusa típica ("Não tenho
+ * informações sobre Ricardo Esper no campo da cibersegurança") já contém um
+ * marcador do domínio correto — o sinal e o ruído são literalmente a mesma
+ * palavra.
+ *
+ * ## A regra que fica
+ *
+ * Este módulo reporta só o que uma regex decide com verdade. Se a resposta é
+ * sobre ele ou sobre um homônimo, e se foi recusa, é lido por uma pessoa a
+ * partir das respostas cruas — que já são persistidas em
+ * `AAAA-MM-DD-modelos-respostas.json` — na conferência de sanidade.
+ *
+ * Isto é o mesmo princípio de `Medido<T>`, aplicado ao instrumento: registrar
+ * "não medido" em vez de inventar um número. Um campo que dispara quase sempre
+ * ou quase nunca não é uma medição ruim; é uma medição falsa, e o subprojeto
+ * inteiro existe para que a afirmação seja falsificável.
+ *
+ * Portanto: **não reintroduza a heurística.** Nem com outra janela, nem com
+ * outra lista de marcadores, nem com um modelo pequeno "só para classificar".
+ * Se a classificação precisar deixar de ser manual, isso é uma decisão de
+ * escopo a ser tomada de novo, não um conserto a ser aplicado aqui.
+ *
+ * `mencionouNome` passa a significar exatamente "o nome apareceu no texto" —
+ * inclusive dentro de uma recusa. É de propósito: descontar a recusa exigiria
+ * justamente o julgamento que foi removido daqui.
  */
 
 export interface Citacao {
   citouSite: boolean;
   urls: string[];
   mencionouNome: boolean;
-  /**
-   * Recusa cita a pessoa sem afirmar nada sobre ela — contar como menção
-   * infla a métrica.
-   */
-  recusou: boolean;
-  confundiuHomonimo: boolean;
 }
 
 /** Fecha no fim do host para que `ricardoesper.com.br.fake.example` não case. */
@@ -23,58 +58,11 @@ const DOMINIO = /(?:https?:\/\/)?(?:www\.)?ricardoesper\.com\.br(?![a-z0-9.-])(?
 
 const NOME = /ricardo\s+esper/i;
 
-/**
- * Marcadores do domínio correto. A ausência de todos, junto com a presença do
- * nome, é o sinal de que o modelo respondeu sobre outra pessoa.
- */
-const CONTEXTO_CERTO = /\b(ciso|cibersegurança|cybersecurity|iso\s*(?:27001|27701|42001)|lgpd|gdpr|forense|ness|ionic|auditor|contraespionagem|tscm|segurança da informação)\b/i;
-
-/**
- * Forma de recusa. O modelo que diz não conhecer a pessoa cita o nome sem
- * afirmar nada sobre ela: contar como menção infla a métrica, e contar como
- * confusão com homônimo inventa uma confusão que não houve.
- */
-const RECUSA = /\b(n[ãa]o (tenho|encontrei|disponho|possuo)|n[ãa]o (h[áa]|existem?) informa|sem informa|n[ãa]o (sei|conhe[çc]o)|(don't|do not) have|no information|couldn't find|could not find|unable to find|i'm not (aware|familiar)|not familiar with)\b/i;
-
-/**
- * Quantos caracteres de cada lado do nome entram na janela de contexto.
- *
- * Janela, e não divisão em frases: dividir por pontuação quebra em lista com
- * marcadores — que é a forma natural de responder "quem são..." — e separa o
- * nome da descrição dele, fazendo o campo disparar quase sempre. A janela não
- * depende de pontuação nenhuma.
- */
-const JANELA = 160;
-
-/** O texto ao redor de cada ocorrência do nome, concatenado. */
-function janelaDoNome(resposta: string): string {
-  const trechos: string[] = [];
-  for (const m of resposta.matchAll(/ricardo\s+esper/gi)) {
-    const i = m.index ?? 0;
-    trechos.push(resposta.slice(Math.max(0, i - JANELA), i + m[0].length + JANELA));
-  }
-  return trechos.join(' ');
-}
-
 export function detectarCitacao(resposta: string): Citacao {
   const urls = [...resposta.matchAll(DOMINIO)].map((m) => m[0]);
-  const nomePresente = NOME.test(resposta);
-  const janela = janelaDoNome(resposta);
-  const contextoCerto = CONTEXTO_CERTO.test(janela);
-
-  // Recusa e contexto são interdependentes de propósito. Quem afirma uma
-  // credencial não está recusando: "Ricardo Esper é CISO... não tenho certeza
-  // sobre a data" é resposta com hesitação, não "não conheço essa pessoa".
-  // Sem essa condição, hesitação normal zera uma menção real e deflaciona o
-  // marco zero — e marco zero baixo faz todo snapshot futuro parecer melhora.
-  const recusou = nomePresente && RECUSA.test(janela) && !contextoCerto;
-  const mencionouNome = nomePresente && !recusou;
-
   return {
     citouSite: urls.length > 0,
     urls,
-    mencionouNome,
-    recusou,
-    confundiuHomonimo: mencionouNome && !contextoCerto,
+    mencionouNome: NOME.test(resposta),
   };
 }

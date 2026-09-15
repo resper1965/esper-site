@@ -1299,12 +1299,17 @@ Feita uma vez, à mão, nas interfaces de consumo. Não vira rotina: não é
 reprodutível e ninguém a mantém além do segundo mês. Existe para responder uma
 pergunta só — a sonda por API mede a mesma coisa que o leitor vê?
 
-| Prompt | Interface | Citou o site? | Confundiu homônimo? |
-|---|---|---|---|
-| Quem é Ricardo Esper? | ChatGPT | | |
-| Quem é Ricardo Esper? | Claude | | |
-| Quem é Ricardo Esper? | Perplexity | | |
-| Quem é Ricardo Esper? | Gemini | | |
+As colunas "É sobre ele?" e "Foi recusa?" não são produzidas por script nenhum:
+decidir de quem o texto fala é julgamento, não proximidade de palavra-chave — e
+é exatamente por isso que o arquivo de respostas cruas
+(`AAAA-MM-DD-modelos-respostas.json`) existe. Leia-o e responda à mão.
+
+| Prompt | Interface | Citou o site? | É sobre ele? | Foi recusa? | Confundiu homônimo? |
+|---|---|---|---|---|---|
+| Quem é Ricardo Esper? | ChatGPT | | | | |
+| Quem é Ricardo Esper? | Claude | | | | |
+| Quem é Ricardo Esper? | Perplexity | | | | |
+| Quem é Ricardo Esper? | Gemini | | | | |
 
 ## Divergência com a sonda por API
 
