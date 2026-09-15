@@ -68,6 +68,15 @@ describe('fatosPresentes', () => {
     expect(fatosPresentes('preciso falar com a IONIC', c)).toEqual([]);
   });
 
+  it('termos distantes não formam o fato', () => {
+    const longe = `CISO em outro contexto${' '.repeat(800)}IONIC aparece muito depois`;
+    expect(fatosPresentes(longe, c)).toEqual([]);
+  });
+
+  it('termos próximos formam o fato', () => {
+    expect(fatosPresentes('CISO da IONIC Health', c)).toEqual(['cargo']);
+  });
+
   it('número maior não satisfaz um termo numérico', () => {
     const num = validarFatos({
       versao: 1,

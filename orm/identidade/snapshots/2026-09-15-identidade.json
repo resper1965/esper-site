@@ -18,16 +18,17 @@
           "iso27701",
           "eixos"
         ],
+        "caracteres": 44350,
         "presentes": [
           "nome",
-          "cargo",
           "iso27001",
           "iso27701"
         ],
         "ausentes": [
+          "cargo",
           "eixos"
         ],
-        "cobertura": 0.8
+        "cobertura": 0.6
       },
       {
         "id": "github",
@@ -42,6 +43,7 @@
           "eixos",
           "site"
         ],
+        "caracteres": 5540,
         "presentes": [
           "nome",
           "cargo",
@@ -69,6 +71,7 @@
           "eixos",
           "site"
         ],
+        "caracteres": 2988,
         "presentes": [
           "nome",
           "ness_1991"
@@ -96,6 +99,7 @@
           "eixos",
           "site"
         ],
+        "caracteres": 863,
         "presentes": [
           "nome"
         ],
@@ -116,6 +120,7 @@
           "nome",
           "ness_1991"
         ],
+        "caracteres": 4654,
         "presentes": [
           "ness_1991"
         ],
@@ -133,6 +138,7 @@
           "nome",
           "cargo"
         ],
+        "caracteres": 4327,
         "presentes": [],
         "ausentes": [
           "nome",
@@ -148,6 +154,7 @@
         "esperados": [
           "nome"
         ],
+        "caracteres": 4383,
         "presentes": [],
         "ausentes": [
           "nome"
@@ -169,21 +176,22 @@
           "cciso",
           "eixos"
         ],
+        "caracteres": 13634,
         "presentes": [
           "nome",
           "cargo",
           "ness_1991",
           "iso27001",
           "iso27701",
+          "emissor",
           "cciso",
           "eixos"
         ],
-        "ausentes": [
-          "emissor"
-        ],
-        "cobertura": 0.875
+        "ausentes": [],
+        "cobertura": 1
       }
     ]
   },
-  "falhas": []
+  "falhas": [],
+  "tentadas": 8
 }

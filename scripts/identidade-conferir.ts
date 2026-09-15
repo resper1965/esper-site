@@ -81,18 +81,39 @@ async function main(): Promise<void> {
   writeFileSync(
     arquivo,
     JSON.stringify(
-      { versao: 1, data: hoje, fatosVersao: fatos.versao, fontesVersao: registro.versao, identidade, falhas },
+      {
+        versao: 1,
+        data: hoje,
+        fatosVersao: fatos.versao,
+        fontesVersao: registro.versao,
+        identidade,
+        falhas,
+        tentadas: registro.fontes.length,
+      },
       null,
       2,
     ) + '\n',
     { flag: 'wx' },
   );
 
-  const media =
-    coberturas.length > 0
-      ? Math.round((coberturas.reduce((s, c) => s + c.cobertura, 0) / coberturas.length) * 100)
-      : 0;
-  console.log(`\ngravado ${hoje}-identidade.json — cobertura média ${media}%, ${falhas.length} falha(s)`);
+  // A média só é reportada sem qualificação quando todas as fontes
+  // responderam. Dividir pelas sobreviventes e chamar isso de "cobertura
+  // média" sem dizer quantas responderam deixaria uma rodada com sete
+  // falhas de oito escrever um snapshot que parece 100% de cobertura.
+  if (coberturas.length === 0) {
+    console.log(`\ngravado ${hoje}-identidade.json — nenhuma fonte respondeu, ${falhas.length} falha(s)`);
+  } else {
+    const media = Math.round(
+      (coberturas.reduce((s, c) => s + c.cobertura, 0) / coberturas.length) * 100,
+    );
+    if (falhas.length === 0) {
+      console.log(`\ngravado ${hoje}-identidade.json — cobertura média ${media}%, 0 falha(s)`);
+    } else {
+      console.log(
+        `\ngravado ${hoje}-identidade.json — cobertura média das ${coberturas.length} que responderam: ${media}%, ${falhas.length} falha(s)`,
+      );
+    }
+  }
 }
 
 main().catch((e) => {

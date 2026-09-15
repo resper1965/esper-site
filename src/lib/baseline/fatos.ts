@@ -33,6 +33,18 @@ export const normalizar = (s: string): string =>
     .replace(/\s+/g, ' ')
     .trim();
 
+/**
+ * Minúscula e sem acento, como `normalizar`, mas SEM colapsar espaço.
+ *
+ * `fatosPresentes` mede distância real entre termos para decidir proximidade;
+ * colapsar uma sequência de espaços a um único caractere apagaria exatamente
+ * a distância que a janela de proximidade existe para respeitar. Usada só
+ * para preparar o texto-alvo da busca — o termo buscado continua normalizado
+ * por `normalizar`, e `contemTermo` tolera espaço variável no texto via
+ * `\s+` no lugar do espaço literal do termo.
+ */
+const normalizarAlvo = (s: string): string => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
 export function validarFatos(dados: unknown): ConjuntoFatos {
   const d = dados as ConjuntoFatos;
 
@@ -68,18 +80,41 @@ const escapar = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
  * isso reportaria como presente um fato que a fonte nunca afirmou. O erro é
  * para o otimismo, e um marco zero inflado é pior que medição nenhuma.
  */
+const padraoTermo = (termo: string): string => escapar(normalizar(termo)).replace(/ /g, '\\s+');
+
 const contemTermo = (texto: string, termo: string): boolean =>
-  new RegExp(`\\b${escapar(normalizar(termo))}\\b`).test(texto);
+  new RegExp(`\\b${padraoTermo(termo)}\\b`).test(texto);
+
+/**
+ * Distância máxima, em caracteres, entre os termos de um mesmo fato.
+ *
+ * Sem janela, "ciso" numa hashtag e "ionic" num repost a 400 KB de distância
+ * contam como "CISO da IONIC Health" — foi o que aconteceu na primeira medição
+ * real, inflando o LinkedIn em quatro vezes. Coocorrência numa página grande
+ * não é afirmação; proximidade é o que aproxima uma.
+ */
+const JANELA_FATO = 300;
+
+const termosProximos = (texto: string, termos: string[]): boolean => {
+  if (termos.length === 1) return contemTermo(texto, termos[0]);
+
+  const primeiro = new RegExp(`\\b${padraoTermo(termos[0])}\\b`, 'g');
+  for (const m of texto.matchAll(primeiro)) {
+    const i = m.index ?? 0;
+    const trecho = texto.slice(Math.max(0, i - JANELA_FATO), i + m[0].length + JANELA_FATO);
+    if (termos.slice(1).every((t) => contemTermo(trecho, t))) return true;
+  }
+  return false;
+};
 
 /**
  * Os ids dos fatos que o texto carrega. Um fato só conta se TODOS os seus
- * termos estiverem presentes: "CISO" sozinho não prova "CISO da IONIC Health",
- * e contar assim inflaria a cobertura de toda fonte que mencione o cargo
- * genérico.
+ * termos estiverem presentes E próximos entre si: "CISO" sozinho não prova
+ * "CISO da IONIC Health", e nem prova um "CISO" a centenas de caracteres de
+ * "IONIC" — contar assim inflaria a cobertura de toda fonte que mencione o
+ * cargo genérico em um lugar e a empresa em outro.
  */
 export function fatosPresentes(texto: string, conjunto: ConjuntoFatos): string[] {
-  const alvo = normalizar(texto);
-  return conjunto.fatos
-    .filter((f) => f.termos.every((t) => contemTermo(alvo, t)))
-    .map((f) => f.id);
+  const alvo = normalizarAlvo(texto);
+  return conjunto.fatos.filter((f) => termosProximos(alvo, f.termos)).map((f) => f.id);
 }

@@ -63,4 +63,23 @@ describe('calcularCobertura', () => {
     const vazia: Fonte = { ...fonte, esperados: [] };
     expect(() => calcularCobertura(vazia, 'Ricardo Esper', fatos)).toThrow(/esperados vazio/);
   });
+
+  it('conta fato declarado em JSON-LD', () => {
+    const html = `<html><body><p>nada</p><script type="application/ld+json">
+      {"name":"Ricardo Esper","jobTitle":"CISO da IONIC Health"}
+    </script></body></html>`;
+    const r = calcularCobertura(fonte, html, fatos);
+    expect(r.presentes.sort()).toEqual(['cargo', 'nome']);
+  });
+
+  it('script comum continua sendo descartado', () => {
+    const html = '<script>var x = "Ricardo Esper CISO IONIC";</script><p>nada</p>';
+    expect(calcularCobertura(fonte, html, fatos).presentes).toEqual([]);
+  });
+
+  it('registra quantos caracteres de texto visível sustentaram a medição', () => {
+    const r = calcularCobertura(fonte, '<p>Ricardo Esper</p>', fatos);
+    expect(r.caracteres).toBeGreaterThan(0);
+    expect(r.caracteres).toBeLessThan(60);
+  });
 });
