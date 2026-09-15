@@ -83,7 +83,7 @@ async function openai(prompt: string): Promise<string> {
       'content-type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4o',
+      model: 'gpt-5.6-terra',
       messages: [{ role: 'user', content: prompt }],
     }),
   });
@@ -94,9 +94,17 @@ async function openai(prompt: string): Promise<string> {
   return texto;
 }
 
+// O id de modelo abaixo é parâmetro de medição, não detalhe: comparar dois
+// snapshots tirados com modelos diferentes compara duas coisas diferentes,
+// não a mesma coisa em dois momentos. `gpt-4o` foi trocado por
+// `gpt-5.6-terra` porque foi aposentado do ChatGPT em fevereiro de 2026,
+// embora continuasse respondendo na API — medir um modelo que nenhum
+// consumidor alcança mais derrota o propósito da sonda. Quando um id
+// envelhecer de novo, o correto é registrar a troca no snapshot, não trocar
+// em silêncio.
 const MODELOS: Modelo[] = [
   { nome: 'claude-sonnet-5', chave: 'ANTHROPIC_API_KEY', perguntar: anthropic },
-  { nome: 'gpt-4o', chave: 'OPENAI_API_KEY', perguntar: openai },
+  { nome: 'gpt-5.6-terra', chave: 'OPENAI_API_KEY', perguntar: openai },
 ];
 
 async function main(): Promise<void> {

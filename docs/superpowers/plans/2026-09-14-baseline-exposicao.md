@@ -1155,7 +1155,7 @@ async function openai(prompt: string): Promise<string> {
       'content-type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4o',
+      model: 'gpt-5.6-terra',
       messages: [{ role: 'user', content: prompt }],
     }),
   });
@@ -1164,9 +1164,10 @@ async function openai(prompt: string): Promise<string> {
   return j.choices[0].message.content;
 }
 
+// `gpt-4o` foi trocado por `gpt-5.6-terra` porque foi aposentado do ChatGPT em fevereiro de 2026 e deixou de refletir o que um usuário comum vê.
 const MODELOS: Modelo[] = [
   { nome: 'claude-sonnet-5', chave: 'ANTHROPIC_API_KEY', perguntar: anthropic },
-  { nome: 'gpt-4o', chave: 'OPENAI_API_KEY', perguntar: openai },
+  { nome: 'gpt-5.6-terra', chave: 'OPENAI_API_KEY', perguntar: openai },
 ];
 
 async function main(): Promise<void> {
