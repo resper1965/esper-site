@@ -59,6 +59,25 @@ describe('fatosPresentes', () => {
   it('texto vazio não carrega fato nenhum', () => {
     expect(fatosPresentes('', c)).toEqual([]);
   });
+
+  it('"nessa" não satisfaz o termo "ness"', () => {
+    expect(fatosPresentes('Nessa época, em 1991, algo aconteceu', c)).toEqual([]);
+  });
+
+  it('"preciso" não satisfaz o termo "ciso"', () => {
+    expect(fatosPresentes('preciso falar com a IONIC', c)).toEqual([]);
+  });
+
+  it('número maior não satisfaz um termo numérico', () => {
+    const num = validarFatos({
+      versao: 1,
+      atualizado: '2026-09-15',
+      nome: 'Ricardo Esper',
+      fatos: [{ id: 'iso27001', rotulo: 'ISO 27001', termos: ['27001'] }],
+    });
+    expect(fatosPresentes('protocolo 127001 aprovado', num)).toEqual([]);
+    expect(fatosPresentes('auditor ISO 27001', num)).toEqual(['iso27001']);
+  });
 });
 
 describe('o arquivo de dados versionado', () => {
@@ -72,5 +91,14 @@ describe('o arquivo de dados versionado', () => {
   it('não declara a ISO 42001 como obtida', () => {
     const ids = c.fatos.map((f) => f.id).join(' ');
     expect(ids).not.toMatch(/42001/);
+  });
+
+  it('os termos sem acento casam com texto acentuado de verdade', () => {
+    const texto = 'Escreve sobre cibersegurança, privacidade e contraespionagem.';
+    expect(fatosPresentes(texto, c)).toContain('eixos');
+  });
+
+  it('o termo do site casa dentro de uma URL completa', () => {
+    expect(fatosPresentes('veja https://www.ricardoesper.com.br/pt-BR/sobre', c)).toContain('site');
   });
 });

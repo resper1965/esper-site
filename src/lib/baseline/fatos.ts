@@ -57,6 +57,20 @@ export function validarFatos(dados: unknown): ConjuntoFatos {
   return d;
 }
 
+/** Escapa metacaractere para o termo entrar cru numa expressão regular. */
+const escapar = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Termo cercado por fronteira de palavra, e não continência solta.
+ *
+ * `"ness"` como substring casa com "nessa" e "nesse", que são palavras comuns
+ * em português; junto de um `1991` incidental — um ano de copyright basta —
+ * isso reportaria como presente um fato que a fonte nunca afirmou. O erro é
+ * para o otimismo, e um marco zero inflado é pior que medição nenhuma.
+ */
+const contemTermo = (texto: string, termo: string): boolean =>
+  new RegExp(`\\b${escapar(normalizar(termo))}\\b`).test(texto);
+
 /**
  * Os ids dos fatos que o texto carrega. Um fato só conta se TODOS os seus
  * termos estiverem presentes: "CISO" sozinho não prova "CISO da IONIC Health",
@@ -66,6 +80,6 @@ export function validarFatos(dados: unknown): ConjuntoFatos {
 export function fatosPresentes(texto: string, conjunto: ConjuntoFatos): string[] {
   const alvo = normalizar(texto);
   return conjunto.fatos
-    .filter((f) => f.termos.every((t) => alvo.includes(normalizar(t))))
+    .filter((f) => f.termos.every((t) => contemTermo(alvo, t)))
     .map((f) => f.id);
 }
