@@ -76,6 +76,13 @@ describe('corpoAssinavel', () => {
   });
 });
 
+// Prazo generoso para os casos que dependem de RSA. Gerar par de 2048 bits é
+// caro, e a suíte inteira roda com ambiente jsdom em 33 arquivos — sob carga,
+// o padrão de 5s estoura e o teste falha por lentidão, não por defeito. Teste
+// que passa quando alguém olha e falha quando ninguém olha é pior que teste
+// ausente: ensina a ignorar vermelho.
+const PRAZO_RSA = 30_000;
+
 describe('assinarJwt', () => {
   // Par de chaves descartável, gerado na hora: nenhum material de chave entra
   // no repositório, nem de teste.
@@ -96,7 +103,7 @@ describe('assinarJwt', () => {
       .end()
       .verify(publicKey, Buffer.from(partes[2], 'base64url'));
     expect(ok).toBe(true);
-  });
+  }, PRAZO_RSA);
 
   it('a assinatura não confere se o corpo for adulterado', () => {
     const jwt = assinarJwt(entrada(), privateKey);
