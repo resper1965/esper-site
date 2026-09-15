@@ -228,13 +228,25 @@ git commit -m "feat(baseline): conjunto de consultas versionado e validado"
 
 O componente com a lógica mais fácil de errar, e o único onde um erro infla a métrica em vez de quebrá-la. Tem tarefa própria por isso.
 
+> **Histórico — leia antes de "consertar" a lacuna que você acha que viu.** Uma
+> versão anterior desta task derivava `confundiuHomonimo` e `recusou` por
+> heurística de palavra-chave. Três tentativas de calibrar o recorte do teste
+> falharam, cada uma invertendo o viés para um lado diferente: resposta inteira
+> nunca disparava; divisão por frase disparava quase sempre; janela de ±160
+> caracteres voltava a nunca disparar. Os dois campos foram removidos, e o
+> julgamento — se a resposta é sobre ele ou sobre um homônimo, e se foi recusa —
+> passou a ser classificação manual feita a partir das respostas cruas
+> persistidas em `AAAA-MM-DD-modelos-respostas.json` (Task 7). O raciocínio
+> completo está no comentário de cabeçalho de `src/lib/baseline/citacao.ts`:
+> leia-o antes de mexer neste detector.
+
 **Files:**
 - Create: `src/lib/baseline/citacao.ts`
 - Test: `src/__tests__/baseline-citacao.test.ts`
 
 **Interfaces:**
 - Consumes: nada.
-- Produces: `interface Citacao { citouSite: boolean; urls: string[]; mencionouNome: boolean; confundiuHomonimo: boolean }`; `function detectarCitacao(resposta: string): Citacao`.
+- Produces: `interface Citacao { citouSite: boolean; urls: string[]; mencionouNome: boolean }`; `function detectarCitacao(resposta: string): Citacao`.
 
 - [ ] **Step 1: Escrever o teste que falha**
 
@@ -272,29 +284,8 @@ describe('detectarCitacao', () => {
     expect(detectarCitacao('ricardo  esper').mencionouNome).toBe(true);
   });
 
-  it('marca confusão com homônimo', () => {
-    const r = detectarCitacao('Ricardo Esper é um jogador de futebol aposentado.');
-    expect(r.confundiuHomonimo).toBe(true);
-  });
-
-  it('não marca homônimo quando o contexto é o correto', () => {
-    const r = detectarCitacao('Ricardo Esper é auditor líder ISO 27001 e CISO.');
-    expect(r.confundiuHomonimo).toBe(false);
-  });
-
-  // Os três abaixo existem porque a asserção acima NÃO basta: a frase dela tem
-  // `auditor` e `ciso`, que casam sozinhos e mascaram um defeito no número da
-  // norma. Cada um destes deixa o número como único marcador da frase.
-  it('reconhece 27001 como contexto certo sem outra palavra-marcador', () => {
-    expect(detectarCitacao('Ricardo Esper tem ISO 27001.').confundiuHomonimo).toBe(false);
-  });
-
-  it('reconhece 27701 como contexto certo sem outra palavra-marcador', () => {
-    expect(detectarCitacao('Ricardo Esper tem ISO 27701.').confundiuHomonimo).toBe(false);
-  });
-
-  it('reconhece 42001 como contexto certo sem outra palavra-marcador', () => {
-    expect(detectarCitacao('Ricardo Esper tem ISO 42001.').confundiuHomonimo).toBe(false);
+  it('nome quebrado por fim de linha ainda conta como menção', () => {
+    expect(detectarCitacao('O CISO Ricardo\nEsper atua em cibersegurança há 35 anos.').mencionouNome).toBe(true);
   });
 
   it('não confunde outro domínio que contém o nome', () => {
@@ -308,6 +299,16 @@ describe('detectarCitacao', () => {
   it('opera apenas sobre o argumento recebido', () => {
     expect(detectarCitacao('').citouSite).toBe(false);
     expect(detectarCitacao('').urls).toEqual([]);
+  });
+
+  // Fixa a escolha deliberada: `mencionouNome` é "o nome apareceu", e nada
+  // mais. Descontar a recusa exigiria julgar sobre quem o texto fala — que é
+  // exatamente o julgamento que saiu deste módulo e virou classificação
+  // manual. Veja o cabeçalho de citacao.ts antes de "consertar" isto.
+  it('nome dentro de uma recusa ainda conta como aparição do nome', () => {
+    const r = detectarCitacao('Não tenho informações sobre Ricardo Esper.');
+    expect(r.mencionouNome).toBe(true);
+    expect(r.citouSite).toBe(false);
   });
 });
 ```
@@ -323,18 +324,58 @@ Crie `src/lib/baseline/citacao.ts`:
 
 ```ts
 /**
- * Lê a resposta de um modelo e diz o que aconteceu com a entidade.
+ * Lê a resposta de um modelo e reporta apenas o que uma regex decide com
+ * verdade: o site foi citado (com quais URLs) e o nome apareceu.
  *
- * Três resultados distintos, de propósito. Citar o site, mencionar o nome sem
- * link e confundir com homônimo são coisas diferentes: tratá-las como uma só
- * infla a métrica e faz o diff subir sem nada ter melhorado.
+ * ## Por que `recusou` e `confundiuHomonimo` não existem mais
+ *
+ * Os dois campos eram derivados por proximidade de palavras-chave e foram
+ * removidos por decisão do dono do projeto, depois de três tentativas de
+ * calibrar o recorte do teste — cada uma inverteu o viés para um lado
+ * diferente:
+ *
+ * 1. Resposta inteira: marcador vazava de qualquer ponto do texto, e o campo
+ *    nunca disparava.
+ * 2. Divisão por frase: resposta em lista com marcadores fragmenta, o nome se
+ *    separa da descrição, e o campo disparava quase sempre.
+ * 3. Janela de ±160 caracteres: em lista, as credenciais do item vizinho
+ *    entram na janela, e o campo voltava a nunca disparar.
+ *
+ * A causa não é o tamanho da janela. "Sobre quem este texto fala?" é um
+ * julgamento sobre referência, e proximidade de palavra-chave não decide
+ * referência — nenhum ajuste de recorte resolve isso, então não adianta tentar
+ * um quarto. Agravante concreto: quatro dos cinco prompts da sonda são eles
+ * próprios perguntas de cibersegurança, então a recusa típica ("Não tenho
+ * informações sobre Ricardo Esper no campo da cibersegurança") já contém um
+ * marcador do domínio correto — o sinal e o ruído são literalmente a mesma
+ * palavra.
+ *
+ * ## A regra que fica
+ *
+ * Este módulo reporta só o que uma regex decide com verdade. Se a resposta é
+ * sobre ele ou sobre um homônimo, e se foi recusa, é lido por uma pessoa a
+ * partir das respostas cruas — que já são persistidas em
+ * `AAAA-MM-DD-modelos-respostas.json` — na conferência de sanidade.
+ *
+ * Isto é o mesmo princípio de `Medido<T>`, aplicado ao instrumento: registrar
+ * "não medido" em vez de inventar um número. Um campo que dispara quase sempre
+ * ou quase nunca não é uma medição ruim; é uma medição falsa, e o subprojeto
+ * inteiro existe para que a afirmação seja falsificável.
+ *
+ * Portanto: **não reintroduza a heurística.** Nem com outra janela, nem com
+ * outra lista de marcadores, nem com um modelo pequeno "só para classificar".
+ * Se a classificação precisar deixar de ser manual, isso é uma decisão de
+ * escopo a ser tomada de novo, não um conserto a ser aplicado aqui.
+ *
+ * `mencionouNome` passa a significar exatamente "o nome apareceu no texto" —
+ * inclusive dentro de uma recusa. É de propósito: descontar a recusa exigiria
+ * justamente o julgamento que foi removido daqui.
  */
 
 export interface Citacao {
   citouSite: boolean;
   urls: string[];
   mencionouNome: boolean;
-  confundiuHomonimo: boolean;
 }
 
 /** Fecha no fim do host para que `ricardoesper.com.br.fake.example` não case. */
@@ -342,21 +383,12 @@ const DOMINIO = /(?:https?:\/\/)?(?:www\.)?ricardoesper\.com\.br(?![a-z0-9.-])(?
 
 const NOME = /ricardo\s+esper/i;
 
-/**
- * Marcadores do domínio correto. A ausência de todos, junto com a presença do
- * nome, é o sinal de que o modelo respondeu sobre outra pessoa.
- */
-const CONTEXTO_CERTO = /\b(ciso|cibersegurança|cybersecurity|iso\s*(?:27001|27701|42001)|lgpd|gdpr|forense|ness|ionic|auditor|contraespionagem|tscm|segurança da informação)\b/i;
-
 export function detectarCitacao(resposta: string): Citacao {
   const urls = [...resposta.matchAll(DOMINIO)].map((m) => m[0]);
-  const mencionouNome = NOME.test(resposta);
-
   return {
     citouSite: urls.length > 0,
     urls,
-    mencionouNome,
-    confundiuHomonimo: mencionouNome && !CONTEXTO_CERTO.test(resposta),
+    mencionouNome: NOME.test(resposta),
   };
 }
 ```
@@ -364,13 +396,13 @@ export function detectarCitacao(resposta: string): Citacao {
 - [ ] **Step 4: Rodar e confirmar que passa**
 
 Run: `npx vitest run src/__tests__/baseline-citacao.test.ts`
-Expected: PASS — 12 testes.
+Expected: PASS — 9 testes.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add src/lib/baseline/citacao.ts src/__tests__/baseline-citacao.test.ts
-git commit -m "feat(baseline): detector de citação, menção e homônimo"
+git commit -m "feat(baseline): detector de citação do site e de menção ao nome"
 ```
 
 ---
@@ -384,7 +416,7 @@ git commit -m "feat(baseline): detector de citação, menção e homônimo"
 
 **Interfaces:**
 - Consumes: `Citacao` da Task 2.
-- Produces: `type Medido<T> = { medido: true; valor: T } | { medido: false; motivo: string }`; `interface Snapshot { versao: number; data: string; busca: Medido<LinhaBusca[]>; links: Medido<LinhaLink[]>; modelos: Medido<ResultadoSonda[]>; rastreio: Medido<LinhaRastreio[]> }`; `interface LinhaBusca { consulta: string; grupo: string; impressoes: number; cliques: number; posicao: number; ctr: number }`; `interface LinhaLink { dominio: string; links: number }`; `interface LinhaRastreio { robo: string; requisicoes: number }`; `interface ResultadoSonda { prompt: string; modelo: string; execucoes: number; citou: number; mencionou: number; homonimo: number }`; `function naoMedido(motivo: string): Medido<never>`; `function encontrarSegredos(texto: string): string[]`; `function resumirCitacoes(prompt: string, modelo: string, citacoes: Citacao[]): ResultadoSonda`.
+- Produces: `type Medido<T> = { medido: true; valor: T } | { medido: false; motivo: string }`; `interface Snapshot { versao: number; data: string; busca: Medido<LinhaBusca[]>; links: Medido<LinhaLink[]>; modelos: Medido<ResultadoSonda[]>; rastreio: Medido<LinhaRastreio[]> }`; `interface LinhaBusca { consulta: string; grupo: string; impressoes: number; cliques: number; posicao: number; ctr: number }`; `interface LinhaLink { dominio: string; links: number }`; `interface LinhaRastreio { robo: string; requisicoes: number }`; `interface ResultadoSonda { prompt: string; modelo: string; execucoes: number; citou: number; mencionou: number }`; `function naoMedido(motivo: string): Medido<never>`; `function encontrarSegredos(texto: string): string[]`; `function resumirCitacoes(prompt: string, modelo: string, citacoes: Citacao[]): ResultadoSonda`.
 
 - [ ] **Step 1: Escrever o teste que falha**
 
@@ -511,8 +543,8 @@ export interface ResultadoSonda {
   modelo: string;
   execucoes: number;
   citou: number;
+  /** Aparições do nome, inclusive dentro de recusa — veja a Task 2. */
   mencionou: number;
-  homonimo: number;
 }
 
 export interface Snapshot {
@@ -534,7 +566,6 @@ export const resumirCitacoes = (
   execucoes: citacoes.length,
   citou: citacoes.filter((c) => c.citouSite).length,
   mencionou: citacoes.filter((c) => c.mencionouNome).length,
-  homonimo: citacoes.filter((c) => c.confundiuHomonimo).length,
 });
 
 /**
@@ -1065,7 +1096,12 @@ Crie `scripts/baseline-sonda.ts`:
 ```ts
 /**
  * Pergunta o mesmo conjunto de perguntas a cada modelo, N vezes, e conta
- * quantas vezes o site foi citado, o nome mencionado e o homônimo confundido.
+ * quantas vezes o site foi citado e o nome mencionado.
+ *
+ * Confusão com homônimo e recusa NÃO são contadas aqui: exigem julgamento
+ * sobre de quem o texto fala, que palavra-chave não decide. São classificadas
+ * à mão a partir do arquivo de respostas cruas, na conferência de sanidade —
+ * o cabeçalho de `src/lib/baseline/citacao.ts` registra por quê.
  *
  * RESSALVA, e ela precisa sobreviver a quem ler isto daqui a seis meses: a API
  * de um modelo NÃO é a mesma superfície que o produto de consumo. O ChatGPT
@@ -1155,7 +1191,7 @@ async function main(): Promise<void> {
       const resumo = resumirCitacoes(prompt, modelo.nome, citacoes);
       resultados.push(resumo);
       console.log(
-        `${modelo.nome} | ${resumo.citou}/${resumo.execucoes} citou | ${resumo.homonimo} homônimo | ${prompt}`,
+        `${modelo.nome} | ${resumo.citou}/${resumo.execucoes} citou | ${resumo.mencionou} mencionou | ${prompt}`,
       );
     }
   }

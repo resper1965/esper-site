@@ -34,15 +34,26 @@ interface Modelo {
 }
 
 /**
- * Corpo de erro do provedor, truncado antes de virar mensagem de exceção.
+ * Corpo de erro do provedor: redigido primeiro, truncado depois, antes de
+ * virar mensagem de exceção.
  *
  * O corpo do 401 da OpenAI devolve a chave submetida em forma mascarada
- * (`sk-…***…`), que `encontrarSegredos` não casa — e esse texto acaba no
- * arquivo de evidência, que é commitado. Truncar limita o que pode vazar por
- * esse caminho: nunca embuta `await r.text()` cru em erro nenhum.
+ * (`sk-proj-abcd****…`), e esse texto acaba no arquivo de evidência, que é
+ * commitado. `encontrarSegredos` não pega essa forma: o padrão dele exige 20+
+ * caracteres de classe depois de `sk-`, e antes dos asteriscos há só nove.
+ *
+ * A ordem importa. Truncar sozinho não resolveria: num 401 real a chave
+ * mascarada começa por volta do índice 49, bem dentro dos 200 caracteres que
+ * sobrevivem ao corte. Por isso a redação vem primeiro — o corte existe para
+ * limitar o tamanho do ruído, não para conter segredo, e um corte que só
+ * "às vezes" decepa a chave é pior que nenhum, porque parece proteção.
+ *
+ * Redigir aqui, e não acrescentar o padrão mascarado a `PADROES`, é
+ * deliberado: a guarda só detectaria o vazamento depois de ele já estar em
+ * disco. Nunca embuta `await r.text()` cru em erro nenhum.
  */
 async function corpoDeErro(r: Response): Promise<string> {
-  return (await r.text()).slice(0, 200);
+  return (await r.text()).replace(/sk-[A-Za-z0-9_*-]+/gi, 'sk-[redigido]').slice(0, 200);
 }
 
 async function anthropic(prompt: string): Promise<string> {
@@ -170,7 +181,7 @@ async function main(): Promise<void> {
     // A resposta do modelo em si não carrega credencial, mas a entrada de erro
     // carrega o corpo devolvido pelo provedor — e o 401 da OpenAI ecoa a chave
     // submetida mascarada, que encontrarSegredos não casa. Por isso o corpo é
-    // truncado em corpoDeErro antes de chegar aqui: a guarda sobre este
+    // redigido e truncado em corpoDeErro antes de chegar aqui: a guarda sobre este
     // diretório não é suficiente sozinha.
     writeFileSync(
       arquivoRespostas,
