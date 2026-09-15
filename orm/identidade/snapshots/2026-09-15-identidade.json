@@ -1,0 +1,189 @@
+{
+  "versao": 1,
+  "data": "2026-09-15",
+  "fatosVersao": 1,
+  "fontesVersao": 1,
+  "identidade": {
+    "medido": true,
+    "valor": [
+      {
+        "id": "linkedin",
+        "url": "https://www.linkedin.com/in/ricardoesper",
+        "alcance": "parcial",
+        "controle": "você",
+        "esperados": [
+          "nome",
+          "cargo",
+          "iso27001",
+          "iso27701",
+          "eixos"
+        ],
+        "presentes": [
+          "nome",
+          "cargo",
+          "iso27001",
+          "iso27701"
+        ],
+        "ausentes": [
+          "eixos"
+        ],
+        "cobertura": 0.8
+      },
+      {
+        "id": "github",
+        "url": "https://github.com/resper1965",
+        "alcance": "total",
+        "controle": "você",
+        "esperados": [
+          "nome",
+          "cargo",
+          "iso27001",
+          "iso27701",
+          "eixos",
+          "site"
+        ],
+        "presentes": [
+          "nome",
+          "cargo",
+          "iso27001",
+          "iso27701",
+          "eixos",
+          "site"
+        ],
+        "ausentes": [],
+        "cobertura": 1
+      },
+      {
+        "id": "aboutme",
+        "url": "https://about.me/resper",
+        "alcance": "total",
+        "controle": "você",
+        "esperados": [
+          "nome",
+          "cargo",
+          "ness_1991",
+          "iso27001",
+          "iso27701",
+          "emissor",
+          "cciso",
+          "eixos",
+          "site"
+        ],
+        "presentes": [
+          "nome",
+          "ness_1991"
+        ],
+        "ausentes": [
+          "cargo",
+          "iso27001",
+          "iso27701",
+          "emissor",
+          "cciso",
+          "eixos",
+          "site"
+        ],
+        "cobertura": 0.2222222222222222
+      },
+      {
+        "id": "youtube",
+        "url": "https://www.youtube.com/ricardoesper",
+        "alcance": "parcial",
+        "controle": "você",
+        "esperados": [
+          "nome",
+          "cargo",
+          "ness_1991",
+          "eixos",
+          "site"
+        ],
+        "presentes": [
+          "nome"
+        ],
+        "ausentes": [
+          "cargo",
+          "ness_1991",
+          "eixos",
+          "site"
+        ],
+        "cobertura": 0.2
+      },
+      {
+        "id": "ness",
+        "url": "https://www.ness.com.br/sobre",
+        "alcance": "total",
+        "controle": "quem edita o site da NESS",
+        "esperados": [
+          "nome",
+          "ness_1991"
+        ],
+        "presentes": [
+          "ness_1991"
+        ],
+        "ausentes": [
+          "nome"
+        ],
+        "cobertura": 0.5
+      },
+      {
+        "id": "ionic",
+        "url": "https://ionic.health",
+        "alcance": "total",
+        "controle": "quem edita o site da IONIC",
+        "esperados": [
+          "nome",
+          "cargo"
+        ],
+        "presentes": [],
+        "ausentes": [
+          "nome",
+          "cargo"
+        ],
+        "cobertura": 0
+      },
+      {
+        "id": "forense",
+        "url": "https://forense.io",
+        "alcance": "total",
+        "controle": "quem edita o site da forense.io",
+        "esperados": [
+          "nome"
+        ],
+        "presentes": [],
+        "ausentes": [
+          "nome"
+        ],
+        "cobertura": 0
+      },
+      {
+        "id": "site",
+        "url": "https://www.ricardoesper.com.br/pt-BR/sobre",
+        "alcance": "total",
+        "controle": "você",
+        "esperados": [
+          "nome",
+          "cargo",
+          "ness_1991",
+          "iso27001",
+          "iso27701",
+          "emissor",
+          "cciso",
+          "eixos"
+        ],
+        "presentes": [
+          "nome",
+          "cargo",
+          "ness_1991",
+          "iso27001",
+          "iso27701",
+          "cciso",
+          "eixos"
+        ],
+        "ausentes": [
+          "emissor"
+        ],
+        "cobertura": 0.875
+      }
+    ]
+  },
+  "falhas": []
+}
