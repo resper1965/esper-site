@@ -23,6 +23,7 @@ Fora do eixo, mantidos de propósito: viagem, vida, automação residencial.
 ## Estrutura
 
     baseline/     medição de exposição: consultas, prompts, snapshots datados
+    identidade/   textos canônicos das fontes externas e a medição da cobertura
     linkedin/     banner, gerador e os textos publicados
     marca/        sistema visual e os geradores das peças
     referencia/   posicionamento, memória operacional, credenciais

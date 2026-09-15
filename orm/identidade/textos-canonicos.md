@@ -147,6 +147,32 @@ cuja tese é que tudo é conferível.
 
 ---
 
+## Como saber se funcionou
+
+    npm run identidade:conferir
+
+Busca cada fonte do registro e grava, em `orm/identidade/snapshots/`, quantos
+dos fatos canônicos ela carrega. Rode **antes** de preencher qualquer coisa: o
+número de hoje é o marco zero da Fase A, e sem ele o "melhorou" depois é
+opinião.
+
+Fonte marcada como alcance parcial — o LinkedIn, por muro de login, e o YouTube
+— mostra menos do que tem. Ali, ausência no relatório não é ausência na página,
+e o campo `alcance` no snapshot existe para que ninguém leia o número errado.
+
+O número do LinkedIn tem viés para cima, e é conhecido. Dois fatos — as duas
+normas ISO — são detectados por um termo só, o número da norma. Quando alguém
+no feed publica sobre certificação, esse número aparece na página e conta,
+ainda que a afirmação seja sobre outra pessoa ou sobre uma empresa. Na primeira
+medição foi exatamente o que houve: o post de um colega sobre a IONIC ter se
+certificado.
+
+Separar isso exigiria decidir **sobre quem** a frase fala, que é julgamento de
+referência — a mesma pergunta que já saiu da automação na sonda, depois de três
+tentativas com heurística, cada uma invertendo o viés numa direção diferente.
+Não vale repetir aquele erro aqui. Leia o LinkedIn pela tendência, não pelo
+valor absoluto.
+
 ## O que medir depois, e quando
 
 Nada disto muda o conhecimento paramétrico de um modelo neste mês — isso
