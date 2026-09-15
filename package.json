@@ -16,6 +16,8 @@
     "setup-gemini-vercel": "tsx scripts/setup-gemini-vercel.ts",
     "baseline:gsc": "tsx --env-file=.env.baseline scripts/baseline-gsc.ts",
     "baseline:sonda": "tsx --env-file=.env.baseline scripts/baseline-sonda.ts",
+    "baseline:sonda:plano": "tsx --env-file=.env.baseline scripts/baseline-sonda.ts --plano",
+    "baseline:classificar": "tsx --env-file=.env.baseline scripts/baseline-classificar.ts",
     "baseline:busca-csv": "tsx scripts/baseline-busca-csv.ts",
     "baseline:links": "tsx scripts/baseline-links.ts",
     "build:cf": "npx opennextjs-cloudflare build",

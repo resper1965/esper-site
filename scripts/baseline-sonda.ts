@@ -2,10 +2,11 @@
  * Pergunta o mesmo conjunto de perguntas a cada modelo, N vezes, e conta
  * quantas vezes o site foi citado e o nome mencionado.
  *
- * Confusão com homônimo e recusa NÃO são contadas aqui: exigem julgamento
- * sobre de quem o texto fala, que palavra-chave não decide. São classificadas
- * à mão a partir do arquivo de respostas cruas, na conferência de sanidade —
- * o cabeçalho de `src/lib/baseline/citacao.ts` registra por quê.
+ * Todos os modelos são alcançados pelo AI Gateway da Cloudflare, com uma
+ * credencial só. Confusão com homônimo e recusa NÃO são contadas aqui: exigem
+ * julgamento sobre de quem o texto fala, que palavra-chave não decide. São
+ * classificadas por `npm run baseline:classificar`, a partir do arquivo de
+ * respostas cruas que esta sonda grava.
  *
  * RESSALVA, e ela precisa sobreviver a quem ler isto daqui a seis meses: a API
  * de um modelo NÃO é a mesma superfície que o produto de consumo. O ChatGPT
@@ -16,6 +17,10 @@
  *
  * O resultado é distribuição, não booleano: modelo é não-determinístico, e é
  * por isso que existem N execuções por prompt.
+ *
+ * CUSTO: esta sonda gasta crédito da Cloudflare. O plano é impresso e conferido
+ * contra MAX_CHAMADAS_PAGAS antes de qualquer chamada, `--plano` imprime e sai
+ * sem gastar, e cada chamada aparece numerada na saída.
  */
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -26,11 +31,46 @@ import type { ResultadoSonda, Medido } from '../src/lib/baseline/snapshot';
 import { respostaUtilizavel } from '../src/lib/baseline/sonda';
 
 const RAIZ = join(__dirname, '..');
+const HOJE = new Date().toISOString().slice(0, 10);
+
+/**
+ * Teto duro de chamadas pagas por rodada. Um erro de edição em prompts.json
+ * que multiplique as execuções tem que falhar alto e de graça, não faturar em
+ * silêncio. Se o conjunto de prompts crescer de propósito, suba isto de
+ * propósito — no mesmo commit.
+ */
+const MAX_CHAMADAS_PAGAS = 60;
+
+/** Folga para uma citação inteira, teto para uma resposta patológica. */
+const MAX_TOKENS = 1024;
+
+const BASE = (): string =>
+  `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}`;
 
 interface Modelo {
   nome: string;
-  chave: string;
   perguntar: (prompt: string) => Promise<string>;
+}
+
+/**
+ * Cabeçalhos de toda chamada ao Gateway.
+ *
+ * `cf-aig-skip-cache` é questão de correção, não de custo. O cache do gateway
+ * está desligado hoje; se alguém ligar amanhã, as N execuções repetidas de um
+ * mesmo prompt voltariam todas da mesma resposta em cache, e a distribuição —
+ * que é a única razão de repetir — viraria ficção, sem erro nenhum para
+ * alguém notar. O snapshot pareceria certo e estaria errado.
+ *
+ * `cf-aig-metadata` marca estas chamadas no log do gateway, para que a
+ * auditoria de custo consiga separar o que foi do baseline do que não foi.
+ */
+function cabecalhosGateway(): Record<string, string> {
+  return {
+    authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN ?? ''}`,
+    'content-type': 'application/json',
+    'cf-aig-skip-cache': 'true',
+    'cf-aig-metadata': JSON.stringify({ projeto: 'baseline-orm', rodada: HOJE }),
+  };
 }
 
 /**
@@ -56,77 +96,112 @@ async function corpoDeErro(r: Response): Promise<string> {
   return (await r.text()).replace(/sk-[A-Za-z0-9_*-]+/gi, 'sk-[redigido]').slice(0, 200);
 }
 
+/**
+ * Rota nativa da Anthropic no Gateway. Ela existe porque
+ * `/ai/v1/chat/completions` devolve 400 `Required value missing: max_tokens`
+ * para modelo Anthropic — a forma OpenAI não carrega o campo do jeito que a
+ * Anthropic exige. Não unifique as duas numa chamada só sem reconfirmar isso.
+ */
 async function anthropic(prompt: string): Promise<string> {
-  const r = await fetch('https://api.anthropic.com/v1/messages', {
+  const r = await fetch(`${BASE()}/ai/v1/messages`, {
     method: 'POST',
-    headers: {
-      'x-api-key': process.env.ANTHROPIC_API_KEY ?? '',
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
+    headers: cabecalhosGateway(),
     body: JSON.stringify({
-      model: 'claude-sonnet-5',
-      max_tokens: 1024,
+      model: 'anthropic/claude-sonnet-5',
+      max_tokens: MAX_TOKENS,
       messages: [{ role: 'user', content: prompt }],
     }),
   });
   if (!r.ok) throw new Error(`anthropic ${r.status}: ${await corpoDeErro(r)}`);
-  const j = (await r.json()) as { content: Array<{ text?: string }> };
-  return j.content.map((c) => c.text ?? '').join('');
+  const j = (await r.json()) as { content?: Array<{ text?: string }> };
+  const texto = (j.content ?? []).map((c) => c.text ?? '').join('');
+  if (texto === '')
+    throw new Error(`anthropic: resposta sem texto (${JSON.stringify(j).slice(0, 200)})`);
+  return texto;
 }
 
 async function openai(prompt: string): Promise<string> {
-  const r = await fetch('https://api.openai.com/v1/chat/completions', {
+  const r = await fetch(`${BASE()}/ai/v1/chat/completions`, {
     method: 'POST',
-    headers: {
-      authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ''}`,
-      'content-type': 'application/json',
-    },
+    headers: cabecalhosGateway(),
     body: JSON.stringify({
-      model: 'gpt-5.6-terra',
+      model: 'openai/gpt-5.5',
+      max_tokens: MAX_TOKENS,
       messages: [{ role: 'user', content: prompt }],
     }),
   });
   if (!r.ok) throw new Error(`openai ${r.status}: ${await corpoDeErro(r)}`);
   const j = (await r.json()) as { choices?: Array<{ message?: { content?: string | null } }> };
   const texto = j.choices?.[0]?.message?.content;
-  if (typeof texto !== 'string') throw new Error(`openai: resposta sem texto (${JSON.stringify(j).slice(0, 200)})`);
+  if (typeof texto !== 'string')
+    throw new Error(`openai: resposta sem texto (${JSON.stringify(j).slice(0, 200)})`);
   return texto;
 }
 
 // O id de modelo abaixo é parâmetro de medição, não detalhe: comparar dois
 // snapshots tirados com modelos diferentes compara duas coisas diferentes,
-// não a mesma coisa em dois momentos. `gpt-4o` foi trocado por
-// `gpt-5.6-terra` porque foi aposentado do ChatGPT em fevereiro de 2026,
-// embora continuasse respondendo na API — medir um modelo que nenhum
-// consumidor alcança mais derrota o propósito da sonda. Quando um id
-// envelhecer de novo, o correto é registrar a troca no snapshot, não trocar
-// em silêncio.
+// não a mesma coisa em dois momentos. Por isso `nome` é o identificador exato
+// que o Gateway recebe, e é ele que vai para o snapshot. Quando um id
+// envelhecer, o correto é registrar a troca no snapshot, não trocar em
+// silêncio.
 const MODELOS: Modelo[] = [
-  { nome: 'claude-sonnet-5', chave: 'ANTHROPIC_API_KEY', perguntar: anthropic },
-  { nome: 'gpt-5.6-terra', chave: 'OPENAI_API_KEY', perguntar: openai },
+  { nome: 'anthropic/claude-sonnet-5', perguntar: anthropic },
+  { nome: 'openai/gpt-5.5', perguntar: openai },
+];
+
+/** Modelo que o Gateway alcançaria e que não foi medido, com o motivo. */
+const FORA_DA_MEDICAO = [
+  {
+    modelo: 'google-ai-studio/gemini-2.5-flash',
+    motivo: 'identificador não confirmado — 404 Model not found em 15/09/2026',
+  },
 ];
 
 async function main(): Promise<void> {
-  const cfg = JSON.parse(
-    readFileSync(join(RAIZ, 'orm/baseline/prompts.json'), 'utf8'),
-  ) as { execucoes: number; prompts: string[] };
+  const cfg = JSON.parse(readFileSync(join(RAIZ, 'orm/baseline/prompts.json'), 'utf8')) as {
+    execucoes: number;
+    prompts: string[];
+  };
 
-  const disponiveis = MODELOS.filter((m) => process.env[m.chave]);
-  if (disponiveis.length === 0) {
-    throw new Error('nenhuma chave de provedor no ambiente — nada a medir');
+  const chamadas = cfg.prompts.length * cfg.execucoes * MODELOS.length;
+
+  console.log('plano da rodada:');
+  console.log(
+    `  ${cfg.prompts.length} prompts × ${cfg.execucoes} execuções × ${MODELOS.length} modelos = ${chamadas} chamadas pagas de sonda`,
+  );
+  console.log(
+    `  + até ${chamadas} chamadas de classificação depois, em npm run baseline:classificar`,
+  );
+  console.log(`  teto configurado: MAX_CHAMADAS_PAGAS = ${MAX_CHAMADAS_PAGAS}`);
+  console.log(`  max_tokens por resposta: ${MAX_TOKENS}`);
+
+  // A conferência vem antes de qualquer chamada: plano estourado tem que
+  // custar zero.
+  if (chamadas > MAX_CHAMADAS_PAGAS) {
+    throw new Error(
+      `plano de ${chamadas} chamadas excede MAX_CHAMADAS_PAGAS = ${MAX_CHAMADAS_PAGAS} — ` +
+        `${cfg.prompts.length} prompts × ${cfg.execucoes} execuções × ${MODELOS.length} modelos. ` +
+        'Reduza prompts.json ou suba o teto de propósito, no mesmo commit.',
+    );
   }
 
-  const semChave = MODELOS.filter((m) => !process.env[m.chave]).map((m) => ({
-    modelo: m.nome,
-    motivo: `sem ${m.chave} no ambiente`,
-  }));
+  if (process.argv.includes('--plano')) {
+    console.log('--plano: nada foi chamado, nada foi gasto.');
+    return;
+  }
 
-  const hoje = new Date().toISOString().slice(0, 10);
+  // Uma credencial só para todos os modelos: ou o Gateway está configurado e
+  // todos estão disponíveis, ou nenhum está.
+  if (!process.env.CLOUDFLARE_API_TOKEN || !process.env.CLOUDFLARE_ACCOUNT_ID) {
+    throw new Error(
+      'sem CLOUDFLARE_API_TOKEN e CLOUDFLARE_ACCOUNT_ID no ambiente — nada a medir; ver orm/baseline/chave-api.md',
+    );
+  }
+
   const destino = join(RAIZ, 'orm/baseline/snapshots');
   mkdirSync(destino, { recursive: true });
-  const arquivo = join(destino, `${hoje}-modelos.json`);
-  const arquivoRespostas = join(destino, `${hoje}-modelos-respostas.json`);
+  const arquivo = join(destino, `${HOJE}-modelos.json`);
+  const arquivoRespostas = join(destino, `${HOJE}-modelos-respostas.json`);
 
   // A sonda reescreve o próprio arquivo a cada prompt, então não dá para usar
   // flag 'wx' como os outros coletores: a checagem é aqui, antes do laço. Um
@@ -157,12 +232,13 @@ async function main(): Promise<void> {
     // Modelo que terminou sem nenhuma execução utilizável não foi medido —
     // é o que um id de modelo aposentado produz, e ficaria invisível se
     // aparecesse na lista de medidos com tudo zero.
-    const semMedicao = disponiveis
-      .filter((m) => {
-        const seus = resultados.filter((r) => r.modelo === m.nome);
-        return seus.length > 0 && seus.every((r) => r.execucoes === 0);
-      })
-      .map((m) => ({ modelo: m.nome, motivo: 'todas as chamadas falharam — id de modelo aposentado?' }));
+    const semMedicao = MODELOS.filter((m) => {
+      const seus = resultados.filter((r) => r.modelo === m.nome);
+      return seus.length > 0 && seus.every((r) => r.execucoes === 0);
+    }).map((m) => ({
+      modelo: m.nome,
+      motivo: 'todas as chamadas falharam — id de modelo aposentado?',
+    }));
 
     const uteis = resultados.filter((r) => r.execucoes > 0);
     const modelos: Medido<ResultadoSonda[]> =
@@ -175,11 +251,12 @@ async function main(): Promise<void> {
       JSON.stringify(
         {
           versao: 1,
-          data: hoje,
-          naoMedidos: [...semChave, ...semMedicao],
+          data: HOJE,
+          via: 'cloudflare-ai-gateway',
+          naoMedidos: [...FORA_DA_MEDICAO, ...semMedicao],
           modelos,
-          classificacaoManual: naoMedido(
-            `confusão com homônimo e recusa não são medidas automaticamente: exigem julgamento sobre de quem o texto fala. Classificar à mão a partir de ${hoje}-modelos-respostas.json, na conferência de sanidade.`,
+          classificacao: naoMedido(
+            `de quem o texto fala, e se houve recusa, são classificados em passo separado: rode npm run baseline:classificar sobre ${HOJE}-modelos-respostas.json.`,
           ),
         },
         null,
@@ -193,15 +270,20 @@ async function main(): Promise<void> {
     // diretório não é suficiente sozinha.
     writeFileSync(
       arquivoRespostas,
-      JSON.stringify({ versao: 1, data: hoje, respostas }, null, 2) + '\n',
+      JSON.stringify({ versao: 1, data: HOJE, respostas }, null, 2) + '\n',
     );
   };
 
-  for (const modelo of disponiveis) {
+  let n = 0;
+  for (const modelo of MODELOS) {
     for (const prompt of cfg.prompts) {
       const citacoes = [];
       let falhas = 0;
       for (let i = 0; i < cfg.execucoes; i++) {
+        // O contador sai antes da chamada: uma disparada tem que ficar visível
+        // enquanto acontece, não no total ao final.
+        n++;
+        console.log(`[${n}/${chamadas}] ${modelo.nome} | execução ${i + 1} | ${prompt}`);
         try {
           const resposta = await modelo.perguntar(prompt);
           respostas.push({ modelo: modelo.nome, prompt, execucao: i + 1, resposta });
@@ -227,7 +309,7 @@ async function main(): Promise<void> {
     }
   }
 
-  console.log(`gravado ${hoje}-modelos.json e ${hoje}-modelos-respostas.json`);
+  console.log(`gravado ${HOJE}-modelos.json e ${HOJE}-modelos-respostas.json — ${n} chamadas pagas`);
 }
 
 main().catch((e) => {

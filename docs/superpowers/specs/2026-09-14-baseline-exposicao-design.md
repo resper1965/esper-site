@@ -166,6 +166,20 @@ modelo, registrando para cada resposta:
 - a atribuição está correta — papel, credenciais, ano de fundação?
 - houve confusão com homônimo?
 
+Todos os modelos são alcançados pelo **AI Gateway da Cloudflare**, com uma
+credencial só: uma fatura, um log, uma revogação. Toda chamada leva
+`cf-aig-skip-cache` — não por custo, mas por correção: se alguém ligar o cache
+do gateway, as N execuções repetidas voltariam da mesma resposta e a
+distribuição viraria ficção, sem erro nenhum para alguém notar.
+
+As duas últimas perguntas — de quem o texto fala, e se foi recusa — não são
+decididas por regex, e por três tentativas fracassadas sabemos que nenhum
+ajuste de recorte resolve. Quem decide é um modelo aberto e barato no Workers
+AI, num passo separado (`npm run baseline:classificar`), lendo as respostas
+cruas. Ele faz trabalho, não está sendo medido, e de propósito não é nenhum dos
+dois que responderam. Confiança abaixo do piso vira `incerto`, e uma coluna
+inteira de `incerto` é gravada como `naoMedido` — não é medição.
+
 Os prompts são perguntas que uma pessoa real faria, não consultas de busca:
 
     Quem é Ricardo Esper?

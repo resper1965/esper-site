@@ -1074,12 +1074,28 @@ git commit -m "feat(baseline): coletor de desempenho de busca do search console"
 **Files:**
 - Create: `orm/baseline/prompts.json`
 - Create: `scripts/baseline-sonda.ts`
-- Modify: `package.json` — adicionar script `baseline:sonda`
-- Modify: `.env.baseline.example` — adicionar as chaves dos provedores
+- Modify: `package.json` — adicionar scripts `baseline:sonda`, `baseline:sonda:plano` e `baseline:classificar`
+- Modify: `.env.baseline.example` — a credencial da Cloudflare
 
 **Interfaces:**
 - Consumes: `detectarCitacao` (Task 2); `resumirCitacoes`, `ResultadoSonda`, `Medido` (Task 3).
 - Produces: arquivo `orm/baseline/snapshots/AAAA-MM-DD-modelos.json`.
+
+> **Atualizado depois da execução.** A sonda não fala mais com cada provedor
+> direto: todos os modelos vão pelo AI Gateway da Cloudflare, com uma
+> credencial só — `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID`. As chaves
+> `ANTHROPIC_API_KEY` e `OPENAI_API_KEY` saíram do `.env.baseline.example`,
+> porque nada no repositório as lê. Os ids de modelo passaram a ser
+> `anthropic/claude-sonnet-5` (rota nativa `/ai/v1/messages`, porque a forma
+> OpenAI devolve 400 `Required value missing: max_tokens` para modelo
+> Anthropic) e `openai/gpt-5.5` (`/ai/v1/chat/completions`);
+> `google-ai-studio/gemini-2.5-flash` ficou de fora, em `naoMedidos`, por 404
+> `Model not found`. Junto entraram as travas de custo — `MAX_CHAMADAS_PAGAS`,
+> o ensaio `npm run baseline:sonda:plano` e o contador por chamada — e o passo
+> de classificação (`scripts/baseline-classificar.ts` mais
+> `src/lib/baseline/classificacao.ts`), que recupera as duas medidas que a
+> Task 2 tinha deixado como "não medido". Detalhes em
+> `orm/baseline/chave-api.md`.
 
 - [ ] **Step 1: Criar o conjunto de prompts**
 
@@ -1104,9 +1120,9 @@ Crie `orm/baseline/prompts.json`. São perguntas que uma pessoa faria, não cons
 Acrescente ao fim de `.env.baseline.example`:
 
 ```bash
-# Sonda de modelo. Só os provedores que você quiser medir precisam estar preenchidos.
-ANTHROPIC_API_KEY=
-OPENAI_API_KEY=
+# Sonda e classificação. Credencial única, pelo AI Gateway e pelo Workers AI.
+CLOUDFLARE_API_TOKEN=
+CLOUDFLARE_ACCOUNT_ID=
 ```
 
 - [ ] **Step 3: Escrever a sonda**
@@ -1282,10 +1298,11 @@ Fecha o subprojeto. É a única tarefa que produz dado real, e a única que exig
 cp .env.baseline.example .env.baseline
 ```
 
-Preencha **ao menos uma chave de provedor de modelo** — `ANTHROPIC_API_KEY` ou
-`OPENAI_API_KEY`. É a única credencial obrigatória, e a sonda é o único coletor
-que gasta dinheiro. Ver `orm/baseline/chave-api.md` para custo, escolha de
-provedor e o que muda quando a chave é de conta organizacional.
+Preencha `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID`. É a única credencial
+obrigatória, e é ela que paga tanto a sonda quanto a classificação. Ver
+`orm/baseline/chave-api.md` para custo, as travas de custo (o ensaio
+`npm run baseline:sonda:plano` e os tetos) e o que muda quando o token é de
+conta organizacional.
 
 As variáveis `GSC_*` são **opcionais**: só servem ao caminho automatizado de
 busca, que o passo 2 dispensa. Deixe em branco se for pelo CSV. Se um dia
