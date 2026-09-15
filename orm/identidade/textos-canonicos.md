@@ -93,8 +93,10 @@ Limite de 160 caracteres na bio.
     bio:   CISO da IONIC Health · Auditor Líder ISO/IEC 27001 e 27701 · Cibersegurança, privacidade e contraespionagem desde 1991
     site:  https://www.ricardoesper.com.br
 
-O campo de site estava vazio: um perfil muito indexado que não apontava para o
-seu domínio.
+O campo de site **já está preenchido**, e é por isso que o GitHub mede 100% no
+marco zero: a bio acima e o link para o domínio estão no ar. Ou seja, o zero
+ponto do GitHub já é pós-preenchimento — não há o que corrigir aqui, e ler o
+100% como erro do instrumento seria ler ao contrário.
 
 ## 5. about.me
 
@@ -160,18 +162,32 @@ Fonte marcada como alcance parcial — o LinkedIn, por muro de login, e o YouTub
 — mostra menos do que tem. Ali, ausência no relatório não é ausência na página,
 e o campo `alcance` no snapshot existe para que ninguém leia o número errado.
 
-O número do LinkedIn tem viés para cima, e é conhecido. Dois fatos — as duas
-normas ISO — são detectados por um termo só, o número da norma. Quando alguém
-no feed publica sobre certificação, esse número aparece na página e conta,
-ainda que a afirmação seja sobre outra pessoa ou sobre uma empresa. Na primeira
-medição foi exatamente o que houve: o post de um colega sobre a IONIC ter se
-certificado.
+As duas normas ISO são fatos de **um termo só**, o número da norma. Com um
+termo só não há janela de proximidade para comparar: o número conta onde quer
+que apareça na página. Isso é propriedade do fato, não do LinkedIn —
+`ness.com.br/sobre` carrega "ISO 27001" na própria lista de serviços em JSON-LD,
+e contaria do mesmo jeito.
 
-Separar isso exigiria decidir **sobre quem** a frase fala, que é julgamento de
-referência — a mesma pergunta que já saiu da automação na sonda, depois de três
-tentativas com heurística, cada uma invertendo o viés numa direção diferente.
-Não vale repetir aquele erro aqui. Leia o LinkedIn pela tendência, não pelo
-valor absoluto.
+No LinkedIn o efeito era grosseiro porque a página inclui o feed: os números
+vinham de corpo de post e do post de um colega anunciando que uma EMPRESA se
+certificou. O perfil não afirma nenhuma das duas. Pior, o conjunto detectado
+anda sozinho — uma nova busca detectou `cciso` que a rodada anterior não
+detectou, sem ninguém ter editado o perfil.
+
+**A correção aplicada foi parar de esperar esses dois fatos do LinkedIn**, não
+detectá-los com mais esperteza. Separar "esta página afirma X sobre esta
+pessoa" de "esta página contém X" é julgamento de referência — a mesma pergunta
+que já saiu da automação na sonda, depois de três tentativas com heurística,
+cada uma invertendo o viés numa direção diferente. Esperar de uma fonte o que
+não se mede nela é o defeito; as certificações continuam na conferência manual,
+onde sempre estiveram previstas.
+
+Pelo mesmo critério, `ness.com.br/sobre` espera apenas o nome. "NESS" e "1991"
+aparecem lá na marca e no "since 1991" do próprio site, sem pessoa nenhuma
+atrelada — nome de empresa perto de um ano de fundação não é o fato "fundada
+por Ricardo Esper em 1991". A página não traz o nome uma única vez, então ness
+mede 0%, que é o piso honesto: quando a frase da seção 7 for publicada, ness
+vai de 0 a 100 e o delta é a melhora real.
 
 ## O que medir depois, e quando
 

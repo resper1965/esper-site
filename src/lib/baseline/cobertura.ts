@@ -9,6 +9,7 @@
 import { fatosPresentes } from './fatos';
 import type { ConjuntoFatos } from './fatos';
 import type { Alcance, Fonte } from './fontes';
+import type { Medido } from './snapshot';
 
 export interface CoberturaFonte {
   id: string;
@@ -20,6 +21,29 @@ export interface CoberturaFonte {
   ausentes: string[];
   cobertura: number;
   caracteres: number;
+}
+
+/** Uma linha por fonte tentada: medida, ou declaradamente não medida. */
+export type LinhaIdentidade =
+  | CoberturaFonte
+  | { id: string; url: string; medido: false; motivo: string };
+
+/**
+ * Forma do snapshot de identidade.
+ *
+ * Existe pelo mesmo motivo que `Snapshot`: um arquivo cuja única função é
+ * comparação mês a mês precisa de algo afirmando que a forma continua
+ * comparável. `identidade` traz uma linha por fonte TENTADA — nunca só as que
+ * responderam, ou uma média futura sobre a lista seria média de sobreviventes.
+ */
+export interface SnapshotIdentidade {
+  versao: number;
+  data: string;
+  fatosVersao: number;
+  fontesVersao: number;
+  tentadas: number;
+  identidade: Medido<LinhaIdentidade[]>;
+  falhas: Array<{ id: string; url: string; erro: string }>;
 }
 
 /**
@@ -37,12 +61,28 @@ export const textoVisivel = (html: string): string => {
     .join(' ');
 
   const corpo = html
+    // Comentário sai inteiro, ANTES do descarte de marcação. O descarte
+    // genérico para no primeiro `>`, então um `>` literal dentro do comentário
+    // deixava o resto dele vazar para o texto medido. Mesma coisa com `>`
+    // dentro de valor de atributo entre aspas (variante arbitrária do
+    // Tailwind, `class="[&>p]:mt-4"`), e por isso o descarte abaixo entende
+    // aspas. Os dois vazam PARA DENTRO do texto: os dois inflam a cobertura.
+    .replace(/<!--[\s\S]*?-->/g, ' ')
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
     .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/gi, ' ');
+    .replace(/<[^>"]*(?:"[^"]*"[^>"]*)*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 
-  return `${corpo} ${ld}`.replace(/\s+/g, ' ');
+  if (ld.length === 0) return corpo;
+
+  // Separador maior que a janela de proximidade (300). Com um espaço só, um
+  // termo no fim do corpo e outro no início do JSON-LD caíam na mesma janela
+  // sendo partes sem relação do documento — proximidade falsa, e no sentido
+  // que infla. O colapso de espaço acontece de cada lado antes da junção,
+  // justamente para o separador sobreviver.
+  return corpo + ' '.repeat(400) + ld.replace(/\s+/g, ' ').trim();
 };
 
 export function calcularCobertura(

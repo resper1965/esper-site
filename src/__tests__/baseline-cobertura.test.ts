@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { calcularCobertura } from '@/lib/baseline/cobertura';
 import { validarFatos } from '@/lib/baseline/fatos';
+import type { LinhaIdentidade, SnapshotIdentidade } from '@/lib/baseline/cobertura';
 import type { Fonte } from '@/lib/baseline/fontes';
+
+const SNAPSHOTS_IDENTIDADE = join(__dirname, '..', '..', 'orm', 'identidade', 'snapshots');
 
 const fatos = validarFatos({
   versao: 1,
@@ -82,4 +87,56 @@ describe('calcularCobertura', () => {
     expect(r.caracteres).toBeGreaterThan(0);
     expect(r.caracteres).toBeLessThan(60);
   });
+
+  // As duas formas do mesmo vazamento: um `>` literal onde o descarte genérico
+  // de marcação não o espera. Ambas vazam PARA DENTRO do texto medido, ou
+  // seja, ambas inflam — e cobertura inflada é o pior defeito deste marco zero.
+  it('descarta o comentário inteiro, inclusive o que carrega > no meio', () => {
+    const html = '<p>nada</p><!-- rascunho: a > b, Ricardo Esper é CISO da IONIC -->';
+    expect(calcularCobertura(fonte, html, fatos).presentes).toEqual([]);
+  });
+
+  it('atributo com > entre aspas não vaza CSS para o texto medido', () => {
+    const html = '<div class="[&>a]:text-ciso [&>b]:bg-ionic">nada</div>';
+    const r = calcularCobertura(fonte, html, fatos);
+    expect(r.presentes).toEqual([]);
+    expect(r.caracteres).toBeLessThan(20);
+  });
+});
+
+describe('LinhaIdentidade', () => {
+  it('aceita tanto uma cobertura medida quanto uma linha declaradamente não medida', () => {
+    const medida: LinhaIdentidade = calcularCobertura(fonte, '<p>Ricardo Esper</p>', fatos);
+    const naoMedida: LinhaIdentidade = {
+      id: 'ionic',
+      url: 'https://ionic.health',
+      medido: false,
+      motivo: 'http 403',
+    };
+    expect('cobertura' in medida).toBe(true);
+    expect('cobertura' in naoMedida).toBe(false);
+  });
+});
+
+describe('snapshot de identidade commitado', () => {
+  const arquivos = readdirSync(SNAPSHOTS_IDENTIDADE).filter((f) => f.endsWith('.json'));
+
+  for (const arquivo of arquivos) {
+    it(`${arquivo}: toda fonte tentada aparece uma vez, medida ou não medida`, () => {
+      const snap = JSON.parse(
+        readFileSync(join(SNAPSHOTS_IDENTIDADE, arquivo), 'utf8'),
+      ) as SnapshotIdentidade;
+
+      if (!snap.identidade.medido) return;
+
+      // O consumidor que tirar média desta lista precisa ver as oito, não as
+      // sobreviventes: uma fonte que falhou continua na lista, declarada.
+      expect(snap.identidade.valor).toHaveLength(snap.tentadas);
+
+      for (const linha of snap.identidade.valor) {
+        const declarada = 'cobertura' in linha ? typeof linha.cobertura === 'number' : !linha.medido;
+        expect(declarada, `${arquivo}/${linha.id}: sem cobertura e sem medido:false`).toBe(true);
+      }
+    });
+  }
 });

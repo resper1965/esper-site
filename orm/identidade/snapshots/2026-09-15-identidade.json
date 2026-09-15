@@ -14,21 +14,17 @@
         "esperados": [
           "nome",
           "cargo",
-          "iso27001",
-          "iso27701",
           "eixos"
         ],
-        "caracteres": 44350,
+        "caracteres": 42104,
         "presentes": [
-          "nome",
-          "iso27001",
-          "iso27701"
+          "nome"
         ],
         "ausentes": [
           "cargo",
           "eixos"
         ],
-        "cobertura": 0.6
+        "cobertura": 0.3333333333333333
       },
       {
         "id": "github",
@@ -43,7 +39,7 @@
           "eixos",
           "site"
         ],
-        "caracteres": 5540,
+        "caracteres": 5534,
         "presentes": [
           "nome",
           "cargo",
@@ -71,7 +67,7 @@
           "eixos",
           "site"
         ],
-        "caracteres": 2988,
+        "caracteres": 3386,
         "presentes": [
           "nome",
           "ness_1991"
@@ -99,7 +95,7 @@
           "eixos",
           "site"
         ],
-        "caracteres": 863,
+        "caracteres": 1261,
         "presentes": [
           "nome"
         ],
@@ -117,17 +113,14 @@
         "alcance": "total",
         "controle": "quem edita o site da NESS",
         "esperados": [
-          "nome",
-          "ness_1991"
+          "nome"
         ],
-        "caracteres": 4654,
-        "presentes": [
-          "ness_1991"
-        ],
+        "caracteres": 5052,
+        "presentes": [],
         "ausentes": [
           "nome"
         ],
-        "cobertura": 0.5
+        "cobertura": 0
       },
       {
         "id": "ionic",
@@ -138,7 +131,7 @@
           "nome",
           "cargo"
         ],
-        "caracteres": 4327,
+        "caracteres": 4325,
         "presentes": [],
         "ausentes": [
           "nome",
@@ -154,7 +147,7 @@
         "esperados": [
           "nome"
         ],
-        "caracteres": 4383,
+        "caracteres": 4781,
         "presentes": [],
         "ausentes": [
           "nome"
@@ -176,7 +169,7 @@
           "cciso",
           "eixos"
         ],
-        "caracteres": 13634,
+        "caracteres": 14032,
         "presentes": [
           "nome",
           "cargo",

@@ -3,7 +3,10 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { encontrarSegredos, naoMedido } from '@/lib/baseline/snapshot';
 
-const SNAPSHOTS = join(__dirname, '..', '..', 'orm', 'baseline', 'snapshots');
+const RAIZ = join(__dirname, '..', '..', 'orm');
+// Toda pasta que recebe arquivo gravado por script. A varredura acompanha quem
+// grava: o coletor de identidade escreve fora de `baseline/` e ficaria de fora.
+const SNAPSHOTS = [join(RAIZ, 'baseline', 'snapshots'), join(RAIZ, 'identidade', 'snapshots')];
 
 describe('encontrarSegredos', () => {
   it('acha chave do Google', () => {
@@ -50,16 +53,20 @@ describe('naoMedido', () => {
 });
 
 describe('nenhum snapshot commitado contém credencial', () => {
-  const arquivos = readdirSync(SNAPSHOTS).filter((f) => f.endsWith('.json'));
+  const arquivos = SNAPSHOTS.flatMap((pasta) =>
+    readdirSync(pasta)
+      .filter((f) => f.endsWith('.json'))
+      .map((f) => join(pasta, f)),
+  );
 
-  it('a pasta de snapshots existe e é legível', () => {
+  it('as pastas de snapshots existem e são legíveis', () => {
     expect(Array.isArray(arquivos)).toBe(true);
   });
 
-  for (const arquivo of arquivos) {
-    it(`${arquivo} está limpo`, () => {
-      const achados = encontrarSegredos(readFileSync(join(SNAPSHOTS, arquivo), 'utf8'));
-      expect(achados, `segredo em ${arquivo}: ${achados.join(', ')}`).toHaveLength(0);
+  for (const caminho of arquivos) {
+    it(`${caminho.split(/[\\/]/).slice(-3).join('/')} está limpo`, () => {
+      const achados = encontrarSegredos(readFileSync(caminho, 'utf8'));
+      expect(achados, `segredo em ${caminho}: ${achados.join(', ')}`).toHaveLength(0);
     });
   }
 });

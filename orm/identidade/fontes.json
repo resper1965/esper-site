@@ -6,7 +6,7 @@
       "id": "linkedin",
       "url": "https://www.linkedin.com/in/ricardoesper",
       "alcance": "parcial",
-      "esperados": ["nome", "cargo", "iso27001", "iso27701", "eixos"],
+      "esperados": ["nome", "cargo", "eixos"],
       "controle": "você"
     },
     {
@@ -34,7 +34,7 @@
       "id": "ness",
       "url": "https://www.ness.com.br/sobre",
       "alcance": "total",
-      "esperados": ["nome", "ness_1991"],
+      "esperados": ["nome"],
       "controle": "quem edita o site da NESS"
     },
     {

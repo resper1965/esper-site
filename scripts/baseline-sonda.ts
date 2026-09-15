@@ -243,9 +243,10 @@ async function main(): Promise<void> {
   const ultimoErro: Record<string, string> = {};
 
   const gravar = (): void => {
-    // Modelo que terminou sem nenhuma execução utilizável não foi medido —
-    // é o que um id de modelo aposentado produz, e ficaria invisível se
-    // aparecesse na lista de medidos com tudo zero.
+    // Modelo que terminou sem nenhuma execução utilizável não foi medido, e
+    // ficaria invisível se aparecesse na lista de medidos com tudo zero. Por
+    // que as chamadas falharam fica no erro registrado — adivinhar a causa
+    // aqui foi justamente o que saiu do motivo gravado.
     const semMedicao = MODELOS.filter((m) => {
       const seus = resultados.filter((r) => r.modelo === m.nome);
       return seus.length > 0 && seus.every((r) => r.execucoes === 0);
