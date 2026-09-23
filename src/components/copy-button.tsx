@@ -33,11 +33,10 @@ export function CopyButton({ value, label, copiedLabel }: CopyButtonProps) {
       type="button"
       onClick={handleCopy}
       aria-live="polite"
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono flex-shrink-0
-        border border-[rgba(0,180,216,0.3)] text-primary hover:bg-[rgba(0,180,216,0.08)] hover:border-primary
-        transition-all duration-200"
+      className="btn btn-primary flex-shrink-0"
+      style={{ fontSize: 12, padding: "5px 10px" }}
     >
-      {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+      {copied ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
       {copied ? copiedLabel : label}
     </button>
   )

@@ -269,3 +269,72 @@ export function getCategoryConfig(tag: string): CategoryConfig {
     };
 }
 
+
+/**
+ * O nome da categoria no idioma da página.
+ *
+ * O mapa acima só traduz do inglês para o português, porque o resto do
+ * arquivo existe para escolher ícone e cor — e para isso basta chegar a uma
+ * chave canônica. O card e o cabeçalho do post precisam do contrário
+ * também: um post em inglês não pode dizer "Cibersegurança".
+ */
+const nomePorIdioma: Record<string, { 'pt-BR': string; en: string }> = {
+    "Cibersegurança": { 'pt-BR': 'Segurança da Informação', en: 'Information Security' },
+    "Segurança": { 'pt-BR': 'Segurança da Informação', en: 'Information Security' },
+    "Contraespionagem": { 'pt-BR': 'Contraespionagem', en: 'Counter-espionage' },
+    "Automação Residencial": { 'pt-BR': 'Automação Residencial', en: 'Home Automation' },
+    "Viagens": { 'pt-BR': 'Viagens', en: 'Travel' },
+    "Vida": { 'pt-BR': 'Vida', en: 'Life' },
+    "Privacidade": { 'pt-BR': 'Privacidade', en: 'Privacy' },
+    "IA": { 'pt-BR': 'Inteligência Artificial', en: 'Artificial Intelligence' },
+    "Carreira": { 'pt-BR': 'Carreira', en: 'Career' },
+    "Forense Digital": { 'pt-BR': 'Forense Digital', en: 'Digital Forensics' },
+    "Inteligência": { 'pt-BR': 'Inteligência', en: 'Intelligence' },
+    "Compliance": { 'pt-BR': 'Compliance', en: 'Compliance' },
+    "Liderança": { 'pt-BR': 'Governança', en: 'Governance' },
+    "Geral": { 'pt-BR': 'Geral', en: 'General' },
+};
+
+export function categoryLabel(tag: string, lang: 'pt-BR' | 'en' = 'pt-BR'): string {
+    const canonica = categoryNameMap[tag] || tag;
+    return nomePorIdioma[canonica]?.[lang] ?? tag;
+}
+
+/**
+ * Slug de rota ↔ nome da categoria.
+ *
+ * Morava dentro de `app/[lang]/categoria/[category]/page.tsx`, onde só a
+ * própria rota o enxergava — e por isso o rodapé linkava
+ * `/categoria/automation`, slug que nunca existiu, dando 404 em toda página
+ * do site. Aqui a rota e quem monta o link leem a mesma tabela.
+ */
+export const categoryRoutes: Record<string, { pt: string; en: string }> = {
+    cybersecurity: { pt: 'Cibersegurança', en: 'Cybersecurity' },
+    counterespionage: { pt: 'Contraespionagem', en: 'Counterespionage' },
+    privacy: { pt: 'Privacidade', en: 'Privacy' },
+    forensics: { pt: 'Forense Digital', en: 'Digital Forensics' },
+    intelligence: { pt: 'Inteligência', en: 'Intelligence' },
+    compliance: { pt: 'Compliance', en: 'Compliance' },
+    leadership: { pt: 'Liderança', en: 'Leadership' },
+    homeautomation: { pt: 'Automação Residencial', en: 'Home Automation' },
+    general: { pt: 'Geral', en: 'General' },
+    vida: { pt: 'Vida', en: 'Life' },
+    travel: { pt: 'Viagens', en: 'Travel' },
+};
+
+/**
+ * O slug de rota de uma categoria, ou `undefined` quando ela não tem página.
+ *
+ * Aceita o nome como está gravado no post — em qualquer dos dois idiomas —
+ * porque é isso que o `category` do D1 traz.
+ */
+export function categorySlug(tag: string): string | undefined {
+    const canonica = categoryNameMap[tag] || tag;
+    return Object.keys(categoryRoutes).find(
+        (slug) =>
+            categoryRoutes[slug].pt === canonica ||
+            categoryRoutes[slug].en === canonica ||
+            categoryRoutes[slug].en === tag ||
+            categoryRoutes[slug].pt === tag
+    );
+}

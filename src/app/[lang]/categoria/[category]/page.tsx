@@ -1,4 +1,4 @@
-import { BlogCard } from "@/components/blog-card";
+import { BlogCard, toCardPost } from "@/components/blog-card";
 import { getDictionary } from "@/i18n/dictionaries";
 import { Locale } from "@/i18n/config";
 import { generatePageMetadata, generateCollectionPageSchema } from "@/lib/metadata";
@@ -6,22 +6,11 @@ import { siteConfig, yearsInSecurity } from '@/lib/site';
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPostsByCategory, type Post } from "@/lib/posts";
-import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
 import { filterPostsByLanguage } from "@/lib/utils";
+// A tabela de slugs mora em lib/categories.ts — a rota e quem monta o
+// link leem a mesma fonte.
+import { categoryRoutes as categoryMap } from "@/lib/categories";
 
-const categoryMap: Record<string, { pt: string; en: string }> = {
-  cybersecurity: { pt: 'Cibersegurança', en: 'Cybersecurity' },
-  counterespionage: { pt: 'Contraespionagem', en: 'Counterespionage' },
-  privacy: { pt: 'Privacidade', en: 'Privacy' },
-  forensics: { pt: 'Forense Digital', en: 'Digital Forensics' },
-  intelligence: { pt: 'Inteligência', en: 'Intelligence' },
-  compliance: { pt: 'Compliance', en: 'Compliance' },
-  leadership: { pt: 'Liderança', en: 'Leadership' },
-  homeautomation: { pt: 'Automação Residencial', en: 'Home Automation' },
-  general: { pt: 'Geral', en: 'General' },
-  vida: { pt: 'Vida', en: 'Life' },
-  travel: { pt: 'Viagens', en: 'Travel' },
-};
 
 interface CategoryPageProps {
   params: Promise<{ lang: Locale; category: string }>;
@@ -91,57 +80,38 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
       />
-      <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-        <div className="mb-12">
-          <h1 className="text-3xl font-bold text-foreground sm:text-4xl md:text-5xl mb-4">
-            {categoryName}
-          </h1>
-          <p className="text-base sm:text-lg text-muted-foreground">
-            {categoryPosts.length} {lang === 'pt-BR' ? 'artigo(s)' : 'article(s)'}
-          </p>
-        </div>
 
-        {categoryPosts.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              {lang === 'pt-BR' ? 'Nenhum artigo encontrado nesta categoria.' : 'No articles found in this category.'}
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {categoryPosts.map((post) => {
-              const description = post.frontMatter.description || post.frontMatter.excerpt || '';
-              const readingTime = calculateReadingTime(description + " " + post.frontMatter.title + " " + (post.content || ""));
-              const isNew = isNewPost(post.frontMatter.date);
-              
-              return (
-                <BlogCard
-                  key={post.slug}
-                  url={`/${lang}/blog/${post.slug}`}
-                  title={post.frontMatter.title}
-                  description={description}
-                  date={new Date(post.frontMatter.date).toLocaleDateString(lang, {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                  thumbnail={post.frontMatter.coverImage}
-                  tags={post.frontMatter.tags || []}
-                  readingTime={readingTime}
-                  isNew={isNew}
-                  lang={lang}
-                />
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
+      <header className="flex flex-col gap-3">
+        <h6 style={{ color: "var(--color-accent)" }}>
+          {lang === 'pt-BR' ? 'Categoria' : 'Category'}
+        </h6>
+        <h1>{categoryName}</h1>
+        <p style={{ fontSize: 16, color: "var(--color-neutral-400)" }}>
+          {categoryPosts.length} {lang === 'pt-BR' ? 'artigo(s)' : 'article(s)'}
+        </p>
+      </header>
+
+      {categoryPosts.length === 0 ? (
+        <p style={{ fontSize: 14, color: "var(--color-neutral-500)" }}>
+          {lang === 'pt-BR'
+            ? 'Nenhum artigo encontrado nesta categoria.'
+            : 'No articles found in this category.'}
+        </p>
+      ) : (
+        <div
+          className="grid gap-5"
+          style={{ gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))" }}
+        >
+          {categoryPosts.map((post) => (
+            <BlogCard key={post.slug} post={toCardPost(post, lang)} />
+          ))}
+        </div>
+      )}
+    </>
   );
 }
-

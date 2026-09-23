@@ -1,83 +1,99 @@
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowUpRight, ChevronLeft, Linkedin } from "lucide-react";
 
-import { TableOfContents } from "@/components/table-of-contents";
-import { MobileTableOfContents } from "@/components/mobile-toc";
-import { ReadMoreSection } from "@/components/read-more-section";
-import { HashScrollHandler } from "@/components/hash-scroll-handler";
-import { Breadcrumbs } from "@/components/breadcrumbs";
-import { ReadingProgress } from "@/components/reading-progress";
-import { BackToTop } from "@/components/back-to-top";
 import { CodeCopyButtons } from "@/components/code-copy-button";
+import { HashScrollHandler } from "@/components/hash-scroll-handler";
+import { toCardPost, type CardPost } from "@/components/blog-card";
 import { generateArticleSchema, generateBreadcrumbSchema } from "@/lib/metadata";
-import { siteConfig, yearsInSecurity } from '@/lib/site';
-import { formatDate } from "@/lib/utils";
+import { categoryLabel, categorySlug } from "@/lib/categories";
+import { getAllPosts, type Post } from "@/lib/posts";
+import { siteConfig } from "@/lib/site";
+import { formatDateShort, filterPostsByLanguage } from "@/lib/utils";
 import { getAuthor } from "@/lib/authors";
 import { sanitizeHtml } from "@/lib/sanitize";
-import type { Post } from "@/lib/posts";
 import type { Locale } from "@/i18n/config";
+
+const LINKEDIN = "https://www.linkedin.com/in/ricardoesper";
 
 interface BlogPostContentProps {
   post: Post;
   slug: string;
   lang: Locale;
-  // Narrowed to the keys actually read below. The full dictionary is nested
-  // deeper than one level, so a Record<string, Record<string, string>> does
-  // not accept it.
   dict: {
     nav: { home: string };
     blog: { backToArticles: string };
   };
 }
 
-export function BlogPostContent({ post, slug, lang, dict }: BlogPostContentProps) {
-  const date = new Date(post.frontMatter.date);
-  const formattedDate = formatDate(date, lang);
+/**
+ * A página de um artigo.
+ *
+ * Uma coluna só, com três medidas: 760px no cabeçalho, 880px na capa e
+ * 660px no corpo. A medida do corpo é a que importa — é o que sustenta uma
+ * linha de leitura confortável no tamanho 17px.
+ *
+ * O sumário lateral e a barra de progresso saíram: com o perfil ocupando a
+ * coluna da esquerda em todas as páginas, um terceiro trilho vertical deixa
+ * o artigo espremido entre dois painéis de navegação.
+ */
+export async function BlogPostContent({ post, slug, lang, dict }: BlogPostContentProps) {
+  const fm = post.frontMatter;
+  const pt = lang === "pt-BR";
+  const L = (a: string, b: string) => (pt ? a : b);
+
+  const categoria = categoryLabel(fm.category, lang);
+  // O link para a página da categoria: é o único lugar do site que aponta
+  // para /categoria/<slug> desde que o rodapé encolheu, e sem ele aquelas
+  // rotas ficam sem nenhuma ligação interna.
+  const slugCategoria = categorySlug(fm.category);
+  const hrefCategoria = slugCategoria ? `/${lang}/categoria/${slugCategoria}` : undefined;
+  const data = formatDateShort(fm.date, lang);
+  const autor = getAuthor("ricardo");
+  const lead = fm.description || fm.excerpt || "";
 
   const url = `${siteConfig.url}/${lang}/blog/${slug}`;
-  const postImage = post.frontMatter.coverImage;
-  // Sem capa, o schema caía na imagem genérica do site — a mesma para todo
-  // post, o que não descreve nada. A rota `opengraph-image` gera um cartão
-  // com o título deste post; é o que deve representá-lo em resultado rico,
-  // em pré-visualização de link e em resposta de IA.
-  const image = postImage
-    ? `${siteConfig.url}${postImage}`
-    : `${url}/opengraph-image`;
+  const image = fm.coverImage ? `${siteConfig.url}${fm.coverImage}` : `${url}/opengraph-image`;
 
-  const contentText = post.htmlContent?.toString() || "";
-  const wordCount = contentText.split(/\s+/).filter((word: string) => word.length > 0).length;
-  const readingTimeMinutes = Math.ceil(wordCount / 200);
-  const timeRequired = readingTimeMinutes > 0 ? `PT${readingTimeMinutes}M` : undefined;
+  const conteudo = post.htmlContent?.toString() || "";
+  const palavras = conteudo.split(/\s+/).filter((p: string) => p.length > 0).length;
+  const minutos = Math.max(1, Math.ceil(palavras / 200));
 
   const articleSchema = generateArticleSchema({
-    title: post.frontMatter.title,
-    description: post.frontMatter.description || post.frontMatter.excerpt || "",
+    title: fm.title,
+    description: lead,
     url,
     image,
-    datePublished: post.frontMatter.date,
-    dateModified: post.frontMatter.date,
-    keywords: post.frontMatter.keywords || [],
+    datePublished: fm.date,
+    dateModified: fm.date,
+    keywords: fm.keywords || [],
     lang,
-    wordCount,
-    timeRequired,
+    wordCount: palavras,
+    timeRequired: `PT${minutos}M`,
   });
 
-  const breadcrumbItems = [
+  const breadcrumbSchema = generateBreadcrumbSchema([
     { name: dict.nav.home, url: `/${lang}` },
-    ...(post.frontMatter.tags && post.frontMatter.tags.length > 0
-      ? [{ name: post.frontMatter.tags[0], url: `/${lang}?tag=${post.frontMatter.tags[0]}` }]
-      : []),
-    { name: post.frontMatter.title, url },
-  ];
-  const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
+    { name: "Blog", url: `/${lang}/blog` },
+    { name: fm.title, url },
+  ]);
 
-  const author = getAuthor("ricardo");
-  const sanitizedContent = sanitizeHtml(post.htmlContent);
+  // Continue lendo: dois artigos, mesma categoria primeiro. Buscar aqui e
+  // não na página evita passar a lista inteira como prop só para reduzi-la.
+  let relacionados: CardPost[] = [];
+  try {
+    const outros = filterPostsByLanguage(await getAllPosts(), lang).filter(
+      (p) => p.slug !== slug
+    );
+    const mesmaCategoria = outros.filter((p) => p.frontMatter.category === fm.category);
+    const resto = outros.filter((p) => p.frontMatter.category !== fm.category);
+    relacionados = [...mesmaCategoria, ...resto].slice(0, 2).map((p) => toCardPost(p, lang));
+  } catch (error) {
+    console.error("Erro ao buscar relacionados:", error);
+  }
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
@@ -86,132 +102,132 @@ export function BlogPostContent({ post, slug, lang, dict }: BlogPostContentProps
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <ReadingProgress />
-      <BackToTop />
       <CodeCopyButtons />
       <HashScrollHandler />
 
-      <div className="space-y-4 border-b border-border">
-        <div className="max-w-7xl mx-auto flex flex-col gap-6 p-6">
-          <Breadcrumbs
-            items={[
-              { label: dict.nav.home, href: `/${lang}` },
-              ...(post.frontMatter.tags && post.frontMatter.tags.length > 0
-                ? [{ label: post.frontMatter.tags[0], href: `/${lang}?tag=${post.frontMatter.tags[0]}` }]
-                : []),
-              { label: post.frontMatter.title },
-            ]}
-          />
+      <article className="flex flex-col gap-9">
+        <nav
+          aria-label="Breadcrumb"
+          className="flex items-center gap-1"
+          style={{ fontSize: 13, color: "var(--color-neutral-500)" }}
+        >
+          <Link href={`/${lang}/blog`} className="inline-flex items-center gap-1 row-link">
+            <ChevronLeft size={14} aria-hidden />
+            Blog
+          </Link>
+          <span aria-hidden>/</span>
+          {hrefCategoria ? (
+            <Link href={hrefCategoria} className="row-link">
+              {categoria}
+            </Link>
+          ) : (
+            <span>{categoria}</span>
+          )}
+        </nav>
 
-          <div className="flex flex-wrap items-center gap-3 gap-y-5 text-sm text-muted-foreground">
-            <Button variant="outline" asChild className="h-6 w-6">
-              <Link href={`/${lang}`}>
-                <ArrowLeft className="w-4 h-4" />
-                <span className="sr-only">{dict.blog.backToArticles}</span>
-              </Link>
-            </Button>
-            {post.frontMatter.tags && post.frontMatter.tags.length > 0 && (
-              <div className="flex flex-wrap gap-3 text-muted-foreground">
-                {post.frontMatter.tags.map((tag: string) => (
-                  <span
-                    key={tag}
-                    className="h-6 w-fit px-3 text-sm font-medium bg-muted text-muted-foreground rounded-md border flex items-center justify-center"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-            <time className="font-medium text-muted-foreground">
-              {formattedDate}
-            </time>
-          </div>
-
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-medium tracking-tight text-balance">
-            {post.frontMatter.title}
-          </h1>
-
-          {post.frontMatter.description && (
-            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-4xl md:text-balance">
-              {post.frontMatter.description}
+        <header className="flex flex-col gap-4" style={{ maxWidth: 760 }}>
+          <span className="card-kicker" style={{ fontSize: 11 }}>
+            {categoria}
+          </span>
+          <h1>{fm.title}</h1>
+          {lead && (
+            <p style={{ fontSize: 19, lineHeight: 1.5, color: "var(--color-neutral-300)" }}>
+              {lead}
             </p>
           )}
 
-          {/* A capa so aparecia no cartao de compartilhamento; dentro do
-              artigo nao era exibida em lugar nenhum. As capas sao 1200x630,
-              entao `aspect-[1200/630]` reserva o espaco e evita o salto de
-              layout no carregamento. `priority` porque e a maior imagem
-              acima da dobra. */}
-          {postImage && (
-            <div className="relative w-full max-w-4xl aspect-[1200/630] overflow-hidden rounded-lg border border-border">
-              <Image
-                src={postImage}
-                alt={post.frontMatter.imageAlt || post.frontMatter.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 896px"
-                className="object-cover"
-                priority
-              />
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="flex divide-x divide-border relative max-w-7xl mx-auto px-4 md:px-0">
-        <div className="absolute max-w-7xl mx-auto left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] lg:w-full h-full border-x border-border p-0 pointer-events-none" />
-        <main className="w-full p-0 overflow-hidden">
-          <div className="p-4 sm:p-6 lg:p-8">
-            <div className="prose prose-sm sm:prose-base md:prose-lg dark:prose-invert max-w-none prose-headings:scroll-mt-8 prose-headings:font-semibold prose-a:no-underline prose-headings:tracking-tight prose-headings:text-balance prose-p:tracking-tight prose-p:text-balance prose-h1:hidden prose-headings:text-xl sm:prose-headings:text-2xl md:prose-headings:text-3xl prose-h2:text-lg sm:prose-h2:text-xl md:prose-h2:text-2xl prose-h3:text-base sm:prose-h3:text-lg md:prose-h3:text-xl prose-p:text-sm sm:prose-p:text-base md:prose-p:text-lg prose-p:leading-relaxed prose-li:text-sm sm:prose-li:text-base md:prose-li:text-lg">
-              <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
-            </div>
-          </div>
-          <div className="mt-10">
-            <ReadMoreSection
-              currentSlug={[slug]}
-              currentTags={post.frontMatter.tags}
+          <div className="flex items-center gap-3">
+            <Image
+              src={autor.avatar}
+              alt=""
+              width={28}
+              height={28}
+              className="lighten rounded-full"
             />
+            <span style={{ fontSize: 13, color: "var(--color-neutral-300)" }}>{autor.name}</span>
+            <span style={{ fontSize: 13, color: "var(--color-neutral-500)" }}>
+              {data} · {minutos} {L("min de leitura", "min read")}
+            </span>
           </div>
-        </main>
+        </header>
 
-        <aside className="hidden lg:block w-[350px] flex-shrink-0 p-6 lg:p-10 bg-muted/60 dark:bg-muted/20">
-          <div className="sticky top-20 space-y-8">
-            <div className="border border-border rounded-lg p-6 bg-card">
-              <div className="flex flex-col items-center text-center space-y-4">
-                <div className="relative w-24 h-24 rounded-full overflow-hidden bg-muted">
-                  {author.avatar ? (
-                    <Image
-                      src={author.avatar}
-                      alt={author.name}
-                      width={96}
-                      height={96}
-                      className="w-full h-full object-cover"
+        {fm.coverImage && (
+          <Image
+            src={fm.coverImage}
+            alt={fm.imageAlt || fm.title}
+            width={1200}
+            height={630}
+            priority
+            style={{ maxWidth: 880, width: "100%", height: "auto", borderRadius: "var(--radius-lg)" }}
+          />
+        )}
+
+        <div
+          className="post-body"
+          style={{ maxWidth: 660 }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.htmlContent) }}
+        />
+
+        <section
+          className="rule-t flex flex-wrap items-center justify-between gap-4"
+          style={{ paddingTop: 28, maxWidth: 760 }}
+        >
+          <p style={{ fontSize: 16 }}>
+            {L(
+              "Quer discutir este tema com a sua equipe ou conselho?",
+              "Want to discuss this with your team or board?"
+            )}
+          </p>
+          <a
+            href={LINKEDIN}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary"
+          >
+            <Linkedin size={16} aria-hidden />
+            {L("Falar comigo no LinkedIn", "Talk to me on LinkedIn")}
+            <ArrowUpRight size={16} aria-hidden />
+          </a>
+        </section>
+
+        {relacionados.length > 0 && (
+          <section className="flex flex-col gap-4">
+            <h4>{L("Continue lendo", "Keep reading")}</h4>
+            <div className="flex flex-col">
+              {relacionados.map((r) => (
+                <Link
+                  key={r.slug}
+                  href={r.href}
+                  className="flex items-center gap-4 rule row-link"
+                  style={{ padding: "14px 0" }}
+                >
+                  {r.cover ? (
+                    <span
+                      className="card-cover"
+                      style={{
+                        width: 140,
+                        flex: "none",
+                        borderRadius: "var(--radius-md)",
+                        backgroundImage: `url(${r.cover})`,
+                      }}
+                      {...(r.coverAlt ? { role: "img", "aria-label": r.coverAlt } : {})}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-muted-foreground">
-                      RE
-                    </div>
+                    <span
+                      className="card-cover card-cover-empty"
+                      style={{ width: 140, flex: "none", borderRadius: "var(--radius-md)" }}
+                    />
                   )}
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-1">
-                    {author.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {author.position}
-                  </p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Mais de {yearsInSecurity()} anos de experiência em cibersegurança, CISO da IONIC Health e fundador da NESS. Especialista em privacidade e compliance (LGPD/GDPR).
-                  </p>
-                </div>
-              </div>
+                  <span className="flex flex-col gap-1">
+                    <span className="card-kicker">{r.category}</span>
+                    <span style={{ fontSize: 15, fontWeight: 500 }}>{r.title}</span>
+                  </span>
+                </Link>
+              ))}
             </div>
-            <div className="border border-border rounded-lg p-6 bg-card">
-              <TableOfContents />
-            </div>
-          </div>
-        </aside>
-      </div>
-
-      <MobileTableOfContents />
-    </div>
+          </section>
+        )}
+      </article>
+    </>
   );
 }

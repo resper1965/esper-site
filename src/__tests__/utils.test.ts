@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { cn, formatDate, normalizeLanguage, filterPostsByLanguage } from '@/lib/utils'
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { cn, formatDate, formatDateShort, normalizeLanguage, filterPostsByLanguage } from '@/lib/utils'
 
 describe('cn', () => {
   it('merges class names', () => {
@@ -65,3 +65,37 @@ describe('filterPostsByLanguage', () => {
     expect(filterPostsByLanguage(posts, 'es')).toHaveLength(0)
   })
 })
+
+describe('formatDateShort: a data do card não pode virar o dia', () => {
+  // O bug que isto tranca: `new Date('2026-09-07')` é meia-noite UTC, e
+  // meia-noite UTC em São Paulo é 21h do dia 6. Formatada no fuso local, a
+  // data gravada como 7 de setembro aparecia como 6 em todo card do site.
+  const FUSO = process.env.TZ;
+
+  beforeAll(() => {
+    process.env.TZ = 'America/Sao_Paulo';
+  });
+
+  afterAll(() => {
+    process.env.TZ = FUSO;
+  });
+
+  it('data sem hora mantém o dia gravado, mesmo a oeste de Greenwich', () => {
+    expect(formatDateShort('2026-09-07', 'pt-BR')).toContain('7');
+    expect(formatDateShort('2026-09-07', 'pt-BR')).not.toContain('6 set');
+  });
+
+  it('abrevia o mês e tira o "de" no português', () => {
+    expect(formatDateShort('2026-09-07', 'pt-BR')).toBe('7 set 2026');
+  });
+
+  it('em inglês sai na ordem do idioma', () => {
+    expect(formatDateShort('2026-09-07', 'en')).toBe('Sep 7, 2026');
+  });
+
+  it('instante completo continua sendo convertido — aí o fuso é a informação', () => {
+    // 07/09 às 00:30 UTC é ainda dia 6 em São Paulo, e aqui isso é correto:
+    // a string declara um instante, não uma data de calendário.
+    expect(formatDateShort('2026-09-07T00:30:00Z', 'pt-BR')).toBe('6 set 2026');
+  });
+});

@@ -82,6 +82,12 @@ export const talks: Talk[] = [
     // divulgaram, então é o que declaramos. Sem `accessUrl`: o link da sala
     // não é público, e inventar um seria pior que omitir.
     registrationUrl: 'https://ibdee.org.br',
+    // Curso de formação: quem dá a aula é professor convidado, não
+    // palestrante. Confirmado pelo Ricardo em 09/2026.
+    role: {
+      'pt-BR': 'Professor convidado',
+      en: 'Guest lecturer',
+    },
     summary: {
       'pt-BR':
         'O que já se usa hoje para apurar fraude, o que a inteligência artificial entrega — e o que ela quebra — e as primeiras 48 horas de uma investigação interna.',
@@ -130,8 +136,11 @@ export const talks: Talk[] = [
     },
     // Data completa, do próprio material de divulgação.
     startDate: '2024-04-18',
-    // O card não informa o formato. Sem `mode`, o schema omite o campo em
-    // vez de chutar entre presencial e online.
+    // O card não informava o formato, e por um tempo o campo ficou ausente
+    // em vez de chutado. Deixou de ser chute: o Ricardo confirmou em 09/2026
+    // que o congresso foi presencial. A regra continua valendo — declara-se
+    // o que se sabe —, e agora se sabe.
+    mode: 'presencial',
     role: {
       'pt-BR': 'Palestrante, ao lado da RD Saúde e da Polícia Civil de São Paulo',
       en: 'Speaker, alongside RD Saúde and the São Paulo Civil Police',
@@ -165,8 +174,8 @@ export const talks: Talk[] = [
     mode: 'online',
     registrationUrl: 'https://bit.ly/Get-13-09-22',
     role: {
-      'pt-BR': 'Convidado',
-      en: 'Guest speaker',
+      'pt-BR': 'Palestrante',
+      en: 'Speaker',
     },
     summary: {
       'pt-BR':
