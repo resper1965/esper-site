@@ -57,3 +57,10 @@ next-env.d.ts
 # Estado local do wrangler (bundles e assets temporários do `wrangler dev`)
 .wrangler/
 cloudflare-env.d.ts
+
+# Marca da Web do Windows. São metadados de 25 bytes que o Explorer cria ao
+# baixar um arquivo ("[ZoneTransfer] ZoneId=3"), e dois deles foram commitados
+# em assets/ por acidente. Não servem para nada no repositório e tornavam o
+# clone impossível no Windows: `:` é caractere ilegal em nome de arquivo no
+# NTFS, e o git recusa a árvore inteira por causa deles.
+*:Zone.Identifier

@@ -1,0 +1,22 @@
+# Fim de linha, uma regra só para os dois sistemas.
+#
+# O clone vive no WSL e é editado também do Windows. Sem isto, uma ferramenta
+# que escreva CRLF faz um arquivo inteiro aparecer como reescrito: aconteceu
+# com src/lib/talks.ts, que saiu num commit com 501 linhas alteradas quando a
+# mudança real eram 52.
+#
+# `text=auto` deixa o git decidir o que é texto; `eol=lf` fixa LF tanto no
+# repositório quanto na árvore de trabalho, dos dois lados. Custa zero hoje:
+# os 624 arquivos de texto versionados já estão todos em LF.
+* text=auto eol=lf
+
+# Binário é binário, em qualquer sistema.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
