@@ -41,7 +41,9 @@ export function toCardPost(post: Post, lang: Locale): CardPost {
     title: fm.title,
     excerpt,
     category: categoryLabel(fm.category, lang),
-    date: formatDateShort(new Date(fm.date), lang),
+    // A string crua, não um Date: é ela que diz se a data tem hora, e
+    // formatDateShort precisa saber disso para não virar o dia.
+    date: formatDateShort(fm.date, lang),
     minutes: calculateReadingTime(`${excerpt} ${fm.title} ${post.content || ""}`),
     cover: fm.coverImage,
     coverAlt: fm.imageAlt,
@@ -57,11 +59,14 @@ export function BlogCard({ post }: { post: CardPost }) {
   return (
     <Link href={post.href} className="card card-post elev-sm" aria-label={post.title}>
       {post.cover ? (
+        // Com alt, a capa é conteúdo e se anuncia como imagem. Sem alt — que
+        // é o caso da maioria dos posts — ela é decorativa, e um role="img"
+        // com nome acessível vazio faria o leitor de tela parar num elemento
+        // que não tem o que dizer. O título do artigo já nomeia o link.
         <div
           className="card-cover"
-          role="img"
-          aria-label={post.coverAlt || ""}
           style={{ backgroundImage: `url(${post.cover})` }}
+          {...(post.coverAlt ? { role: "img", "aria-label": post.coverAlt } : {})}
         />
       ) : (
         <div className="card-cover card-cover-empty">{post.category}</div>

@@ -48,7 +48,7 @@ export async function BlogPostContent({ post, slug, lang, dict }: BlogPostConten
   // rotas ficam sem nenhuma ligação interna.
   const slugCategoria = categorySlug(fm.category);
   const hrefCategoria = slugCategoria ? `/${lang}/categoria/${slugCategoria}` : undefined;
-  const data = formatDateShort(new Date(fm.date), lang);
+  const data = formatDateShort(fm.date, lang);
   const autor = getAuthor("ricardo");
   const lead = fm.description || fm.excerpt || "";
 
@@ -204,14 +204,13 @@ export async function BlogPostContent({ post, slug, lang, dict }: BlogPostConten
                   {r.cover ? (
                     <span
                       className="card-cover"
-                      role="img"
-                      aria-label={r.coverAlt || ""}
                       style={{
                         width: 140,
                         flex: "none",
                         borderRadius: "var(--radius-md)",
                         backgroundImage: `url(${r.cover})`,
                       }}
+                      {...(r.coverAlt ? { role: "img", "aria-label": r.coverAlt } : {})}
                     />
                   ) : (
                     <span

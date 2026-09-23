@@ -53,14 +53,29 @@ export function filterPostsByLanguage<T extends { frontMatter: { language?: stri
  * `formatDate` escreve o mês por extenso, e "7 de setembro de 2026" ocupa
  * meia linha de metadado num card de 300px. Aqui o mês é abreviado e a
  * ordem segue o idioma.
+ *
+ * O fuso é a parte que erra em silêncio. `2026-09-07` é uma data de
+ * calendário, mas `new Date()` a lê como meia-noite UTC — e meia-noite UTC
+ * em São Paulo é 21h do dia 6. Formatada no fuso local, a data do post sai
+ * um dia antes da que está gravada. Por isso data sem hora é formatada em
+ * UTC, que é como a string foi lida; já um instante completo, com hora e
+ * deslocamento, é convertido normalmente, porque aí o fuso é a informação.
+ *
+ * `palestras/page.tsx` faz a mesma distinção pelo mesmo motivo.
  */
+const SO_DATA = /^\d{4}-\d{2}-\d{2}$/;
+
 export function formatDateShort(date: Date | string, locale: string = 'pt-BR'): string {
+  const semHora = typeof date === 'string' && SO_DATA.test(date);
   const dateObj = typeof date === 'string' ? new Date(date) : date;
+
   const texto = dateObj.toLocaleDateString(locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+    ...(semHora ? { timeZone: 'UTC' } : {}),
   });
+
   // pt-BR devolve "7 de set. de 2026"; en-US, "Sep 7, 2026".
   return texto.replace(/ de /g, ' ').replace(/\.(?=\s|$)/g, '');
 }

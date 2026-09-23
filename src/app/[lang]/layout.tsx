@@ -1,11 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { i18n, type Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/dictionaries';
-import { Sidebar } from "@/components/sidebar";
+import { Sidebar, MobileBar } from "@/components/sidebar";
 import { CommandPalette } from "@/components/command-palette";
 import Footer from "@/components/footer";
-import { getAllPosts } from "@/lib/posts";
-import { filterPostsByLanguage } from "@/lib/utils";
+import { countPublishedPosts } from "@/lib/posts";
 
 import { generatePageMetadata, generatePersonSchema, generateWebSiteSchema, generateOrganizationSchema, generateProfilePageSchema } from "@/lib/metadata";
 import "../globals.css";
@@ -76,10 +75,12 @@ export default async function LangLayout({
     lang = 'pt-BR';
   }
   // A dica "N artigos" ao lado de Blog, na sidebar. Um número escrito à mão
-  // aqui envelheceria em silêncio a cada post publicado.
+  // aqui envelheceria em silêncio a cada post publicado — e um
+  // `getAllPosts().length` traria a tabela inteira, com o remark rodando
+  // sobre cada corpo, só para medir o comprimento da lista.
   let postCount = 0;
   try {
-    postCount = filterPostsByLanguage(await getAllPosts(), lang).length;
+    postCount = await countPublishedPosts(lang);
   } catch (error) {
     console.error('Erro ao contar posts para a sidebar:', error);
   }
@@ -116,6 +117,10 @@ export default async function LangLayout({
       <div className="shell">
         <Sidebar lang={lang} postCount={postCount} />
         <main id="main-content" className="main">
+          {/* A barra do celular mora aqui dentro: é o que a faz grudar no
+              topo e o que torna correta a margem negativa com que ela
+              compensa o padding do `.main`. */}
+          <MobileBar lang={lang} />
           {children}
           <Footer lang={lang} />
         </main>

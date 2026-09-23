@@ -23,4 +23,5 @@ export {
   publishPost,
   deletePost,
   getAllPostsIncludingDrafts,
+  countPublishedPosts,
 } from './cloudflare/posts';

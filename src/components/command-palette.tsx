@@ -46,6 +46,7 @@ export function CommandPalette({ lang }: { lang: Locale }) {
   const [selected, setSelected] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounce = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const emVoo = useRef<AbortController | undefined>(undefined);
   const router = useRouter();
 
   useEffect(() => {
@@ -75,18 +76,31 @@ export function CommandPalette({ lang }: { lang: Locale }) {
     return () => clearTimeout(id);
   }, [open]);
 
+  // Cada busca cancela a anterior. Sem isso, digitar depressa deixa duas
+  // requisições no ar e quem manda na tela é quem chega por último — que é
+  // frequentemente a mais antiga, respondendo a um termo que já não está no
+  // campo.
   const buscar = useCallback(async (q: string) => {
+    emVoo.current?.abort();
+    const controle = new AbortController();
+    emVoo.current = controle;
+
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`, {
+        signal: controle.signal,
+      });
       if (res.ok) setResults(await res.json());
-    } catch {
-      setResults([]);
+    } catch (erro) {
+      // Um abort é o fluxo normal aqui: quem cancelou já disparou a busca
+      // seguinte, e zerar a lista faria a tela piscar entre as teclas.
+      if ((erro as Error)?.name !== "AbortError") setResults([]);
     }
   }, []);
 
   useEffect(() => {
     clearTimeout(debounce.current);
     if (query.trim().length < 2) {
+      emVoo.current?.abort();
       setResults([]);
       return;
     }
