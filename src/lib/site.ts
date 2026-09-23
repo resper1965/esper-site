@@ -147,6 +147,18 @@ export const identityProfiles: Record<string, IdentityProfile> = {
     backlink: 'inverificavel',
     nota: 'Devolve 403 a acesso automatizado. URL fornecida pelo Ricardo.',
   },
+  orcid: {
+    url: "https://orcid.org/0009-0003-9329-3761",
+    backlink: 'medido',
+    nota:
+      'Segundo backlink medido do grafo, e o primeiro numa base de autoridade ' +
+      'em vez de rede social: a API pública do ORCID responde 200 sem ' +
+      'autenticação e devolve o link de volta no JSON, o que torna a ' +
+      'reciprocidade conferível por script — diferente de LinkedIn, GitHub, ' +
+      'YouTube e Crunchbase, que bloqueiam robô ou renderizam link por ' +
+      'JavaScript. Criado em 23/09/2026 como "Ricardo Esper", sem inicial do ' +
+      'meio, para não repetir a forma do homônimo (ver `knownHomonyms`).',
+  },
 };
 
 /**
@@ -157,7 +169,6 @@ export const identityProfiles: Record<string, IdentityProfile> = {
  */
 export const pendingIdentityProfiles: Record<string, string> = {
   // wikidata: "https://www.wikidata.org/wiki/Q...",
-  // orcid: "https://orcid.org/0000-...",
   // lattes: "http://lattes.cnpq.br/...",
 };
 
@@ -198,8 +209,10 @@ export const knownHomonyms: Homonym[] = [
     nota:
       'Item com quatro declarações e nenhum sitelink: ORCID, "instância de: ser humano" ' +
       'e "ocupação: pesquisador". Gerado a partir da importação da base ORCID, não ' +
-      'escrito por alguém. O ORCID é dele, não do Ricardo deste site — o que torna esse ' +
-      'identificador o jeito mais barato de separar os dois quando houver item para cá.',
+      'escrito por alguém. O ORCID 0000-0003-2125-7924 é dele; o do Ricardo deste site ' +
+      'é 0009-0003-9329-3761, criado depois justamente para que os dois se separem por ' +
+      'identificador em vez de por descrição. Num item futuro, é o que sustenta a ' +
+      'declaração P1889 ("diferente de") apontando para cá.',
   },
 ];
 
