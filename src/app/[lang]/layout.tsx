@@ -1,14 +1,17 @@
 import type { Metadata, Viewport } from "next";
 import { i18n, type Locale } from '@/i18n/config';
 import { getDictionary } from '@/i18n/dictionaries';
-import { SiteNav } from "@/components/site-nav";
+import { Sidebar } from "@/components/sidebar";
+import { CommandPalette } from "@/components/command-palette";
 import Footer from "@/components/footer";
+import { getAllPosts } from "@/lib/posts";
+import { filterPostsByLanguage } from "@/lib/utils";
 
 import { generatePageMetadata, generatePersonSchema, generateWebSiteSchema, generateOrganizationSchema, generateProfilePageSchema } from "@/lib/metadata";
 import "../globals.css";
 
 export const viewport: Viewport = {
-  themeColor: "#0B0F14",
+  themeColor: "#0b0c13",
 };
 
 export async function generateStaticParams() {
@@ -72,7 +75,14 @@ export default async function LangLayout({
     console.error('Error in layout params:', error);
     lang = 'pt-BR';
   }
-  const dict = await getDictionary(lang);
+  // A dica "N artigos" ao lado de Blog, na sidebar. Um número escrito à mão
+  // aqui envelheceria em silêncio a cada post publicado.
+  let postCount = 0;
+  try {
+    postCount = filterPostsByLanguage(await getAllPosts(), lang).length;
+  } catch (error) {
+    console.error('Erro ao contar posts para a sidebar:', error);
+  }
 
   // Generate structured data for the site
   const personSchema = generatePersonSchema(lang);
@@ -103,11 +113,14 @@ export default async function LangLayout({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
       />
 
-      <SiteNav lang={lang} dict={dict} />
-      <main id="main-content">
-        {children}
-      </main>
-      <Footer lang={lang} />
+      <div className="shell">
+        <Sidebar lang={lang} postCount={postCount} />
+        <main id="main-content" className="main">
+          {children}
+          <Footer lang={lang} />
+        </main>
+      </div>
+      <CommandPalette lang={lang} />
     </>
   );
 }
