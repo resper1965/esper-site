@@ -12,6 +12,126 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================================
+   NOCTURNE — tema Noite
+   ------------------------------------------------------------
+   Fundo quase neutro, Inter em peso máximo 500, raios de 8px e um
+   acento usado como linha e brilho, nunca como enchimento. As réguas
+   somem nas pontas, sobre 48px de cada lado; marcas curtas de acento
+   ficam sólidas.
+
+   "Noite" é o aterramento escuro do Nocturne: os tokens abaixo já
+   trazem as sobrescritas (bg, surface, neutral-900/800, divider,
+   section e as duas sombras) aplicadas sobre a base do sistema.
+   ============================================================ */
+
+:root {
+  /* — base — */
+  --color-bg: #0b0c13;
+  --sb-top: #0b0c13;            /* topo da sidebar; no Noite é plano */
+  --color-surface: #12131b;
+  --color-text: #e9e9ed;
+  --color-accent: #9184d9;
+  --color-divider: color-mix(in srgb, #e9e9ed 11%, transparent);
+
+  /* — rampas tonais (OKLCH, uma escala de luminosidade compartilhada) — */
+  --color-neutral-100: #f3f5fe;
+  --color-neutral-200: #e4e7f5;
+  --color-neutral-300: #cfd3e5;
+  --color-neutral-400: #b2b6ca;
+  --color-neutral-500: #9397ab;
+  --color-neutral-600: #75798c;
+  --color-neutral-700: #595d6c;
+  --color-neutral-800: #262833;
+  --color-neutral-900: #181921;
+
+  --color-accent-100: #f5f4ff;
+  --color-accent-200: #e7e5fe;
+  --color-accent-300: #d2cefd;
+  --color-accent-400: #b5abfc;
+  --color-accent-500: #968ae0;
+  --color-accent-600: #796cbf;
+  --color-accent-700: #5d5294;
+  --color-accent-800: #423a6a;
+  --color-accent-900: #2b2741;
+
+  /* Faixa de presença — saturação em escala de página, não de interface. */
+  --color-section: #141633;
+  --color-section-glow: #1d2050;
+
+  /* — tipografia — */
+  /* Inter no título e no corpo; Montserrat fica só para as marcas. */
+  --font-heading: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-body: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-brand: var(--font-montserrat), "Montserrat", system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-heading-weight: 500;
+
+  /* — espaço e raio (densidade 0,7×) — */
+  --space-1: 2.8px;
+  --space-2: 5.6px;
+  --space-3: 8.4px;
+  --space-4: 11.2px;
+  --space-6: 16.8px;
+  --space-8: 22.4px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* — elevação: uma aresta de fio de cabelo mais escuridão ambiente — */
+  --shadow-sm: 0 0 0 1px #1a1b24, 0 2px 8px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 0 0 1px #20212b, 0 8px 24px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 0 0 1px #9397ab, 0 16px 40px rgba(0, 0, 0, 0.65);
+
+  /* — marca ness. — exceção deliberada ao "sem branco puro" — */
+  --brand-ink: #ffffff;
+  --brand-dot: #00ADE8;
+
+  /* ── Ponte para o shadcn/Tailwind ────────────────────────────
+     O admin e os componentes de UI consomem estes nomes. Apontá-los
+     para os tokens do Nocturne mantém aquelas telas coerentes com o
+     site sem reescrevê-las. ── */
+  --radius: 0.5rem;
+  --font-sans: var(--font-body);
+
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-accent);
+  --primary-foreground: var(--color-bg);
+  --secondary: var(--color-neutral-900);
+  --secondary-foreground: var(--color-text);
+  --muted: var(--color-neutral-900);
+  --muted-foreground: var(--color-neutral-500);
+  --accent: var(--color-neutral-900);
+  --accent-foreground: var(--color-text);
+  --destructive: #d98a8a;
+  --success: #8ad9a5;
+  --warning: #d9c48a;
+  --border: var(--color-divider);
+  --input: var(--color-neutral-900);
+  --ring: var(--color-accent);
+
+  --chart-1: var(--color-accent-400);
+  --chart-2: var(--color-accent-600);
+  --chart-3: var(--color-neutral-400);
+  --chart-4: var(--color-neutral-600);
+  --chart-5: var(--color-accent-800);
+
+  --sidebar: var(--color-bg);
+  --sidebar-foreground: var(--color-text);
+  --sidebar-primary: var(--color-accent);
+  --sidebar-primary-foreground: var(--color-bg);
+  --sidebar-accent: var(--color-neutral-900);
+  --sidebar-accent-foreground: var(--color-text);
+  --sidebar-border: var(--color-divider);
+  --sidebar-ring: var(--color-accent);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -33,21 +153,13 @@
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
@@ -62,385 +174,361 @@
 }
 
 /* ============================================================
-   DESIGN SYSTEM: CYBER COMMAND CENTER
-   Ricardo Esper — Cybersecurity Authority
-   ============================================================ */
-
-:root {
-  --font-sans: var(--font-montserrat);
-  --font-mono: var(--font-geist-mono);
-  --radius: 0.5rem;
-
-  /* ── Deep Cyber Dark (default / forced dark) ── */
-  --background: #0B0F14;  /* tinta neutra; era #0B0F14, azulado */
-  --foreground: #e2e8f0;
-  --card: #0d1520;
-  --card-foreground: #e2e8f0;
-  --popover: #0d1520;
-  --popover-foreground: #e2e8f0;
-
-  /* ── Cyber Cyan (brand) ── */
-  --primary: #00ADE8;   /* acento da ness — era #00b4d8, quase certo */
-  --primary-foreground: #0B0F14;
-  --primary-glow: rgba(0, 173, 232, 0.18);
-
-  /* ── Security Purple (accent) ── */
-  --secondary: #161f2e;
-  --secondary-foreground: #e2e8f0;
-  --purple: #7c3aed;
-  --purple-glow: rgba(124, 58, 237, 0.25);
-
-  /* ── Emerald (success/secure) ── */
-  --secure: #10b981;
-  --secure-glow: rgba(16, 185, 129, 0.2);
-
-  /* ── Muted ── */
-  --muted: #161f2e;
-  --muted-foreground: #64748b;
-
-  /* ── Accent ── */
-  --accent: #161f2e;
-  --accent-foreground: #e2e8f0;
-
-  /* ── States ── */
-  --destructive: #ef4444;
-  --success: #10b981;
-  --warning: #f59e0b;
-
-  /* ── Borders + inputs ── */
-  --border: rgba(255, 255, 255, 0.07);
-  --border-strong: rgba(0, 180, 216, 0.3);
-  --input: #161f2e;
-  --ring: rgba(0, 180, 216, 0.5);
-
-  /* ── Charts ── */
-  --chart-1: #00ADE8;
-  --chart-2: #7c3aed;
-  --chart-3: #10b981;
-  --chart-4: #f59e0b;
-  --chart-5: #ef4444;
-
-  /* ── Sidebar ── */
-  --sidebar: #0d1520;
-  --sidebar-foreground: #e2e8f0;
-  --sidebar-primary: #00ADE8;
-  --sidebar-primary-foreground: #0B0F14;
-  --sidebar-accent: #161f2e;
-  --sidebar-accent-foreground: #e2e8f0;
-  --sidebar-border: rgba(255, 255, 255, 0.07);
-  --sidebar-ring: rgba(0, 180, 216, 0.5);
-
-  /* ── Category accent colors ── */
-  --cat-cyber: #00ADE8;
-  --cat-counter: #7c3aed;
-  --cat-automation: #10b981;
-  --cat-travel: #f59e0b;
-  --cat-general: #64748b;
-}
-
-/* ============================================================
-   KEYFRAME ANIMATIONS
-   ============================================================ */
-@keyframes scan-line {
-  0%   { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
-}
-
-@keyframes terminal-blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
-}
-
-@keyframes float-up {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-8px); }
-}
-
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px var(--primary-glow), 0 0 40px var(--primary-glow); }
-  50%       { box-shadow: 0 0 40px var(--primary-glow), 0 0 80px var(--primary-glow); }
-}
-
-@keyframes grid-pan {
-  0%   { background-position: 0 0; }
-  100% { background-position: 60px 60px; }
-}
-
-@keyframes typewriter {
-  from { width: 0; }
-  to   { width: 100%; }
-}
-
-@keyframes count-up {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
-@keyframes border-flow {
-  0%, 100% { border-color: var(--primary); }
-  50%       { border-color: var(--purple); }
-}
-
-@keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes glow-pulse {
-  0%, 100% { opacity: 0.6; }
-  50%       { opacity: 1; }
-}
-
-@keyframes slide-in-left {
-  from { opacity: 0; transform: translateX(-20px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-/* ============================================================
-   UTILITY CLASSES
-   ============================================================ */
-
-/* Cyber grid background */
-.bg-cyber-grid {
-  background-image:
-    linear-gradient(rgba(0, 173, 232, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 173, 232, 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-  /* Sem animação: um fundo que desliza sozinho é inquietação, não textura. */
-}
-
-/* Scanline overlay */
-.scanlines::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.05) 2px,
-    rgba(0, 0, 0, 0.05) 4px
-  );
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Glow text */
-/* Texto não brilha. O que era text-shadow vira uma mudança de cor no
-   hover — o mesmo sinal de "isto responde ao mouse", sem o halo. */
-.text-glow,
-.text-glow-sm {
-  color: var(--primary);
-  filter: brightness(1.25);
-}
-
-/* Shimmer gradient text */
-/* Era um gradiente ciano→branco→roxo varrendo o próprio nome, animado.
-   Um nome que brilha sozinho é a coisa mais "gamer" da página. Agora é
-   texto — que é o que um nome é. */
-.text-shimmer {
-  color: var(--foreground);
-}
-
-/* Glass card effect */
-.glass-card {
-  background: rgba(13, 21, 32, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-.glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.14);
-  box-shadow:
-    0 8px 40px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-}
-
-/* Cyber border */
-.border-cyber {
-  border: 1px solid rgba(255, 255, 255, 0.09);
-}
-
-/* Stat card accent */
-.stat-card {
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(0, 173, 232, 0.45), transparent);
-}
-
-/* Pulsing glow ring for avatar */
-/* O anel fica — dá foco ao retrato. O halo de 40px e a pulsação saem. */
-.avatar-glow {
-  box-shadow:
-    0 0 0 1px rgba(0, 173, 232, 0.45),
-    0 0 0 5px rgba(0, 173, 232, 0.08);
-}
-
-/* Terminal cursor */
-.cursor-blink::after {
-  content: '|';
-  animation: terminal-blink 1s step-end infinite;
-  color: var(--primary);
-  margin-left: 2px;
-}
-
-/* Category pill colors */
-/* Quatro matizes concorrentes (ciano, roxo, esmeralda, âmbar) eram o que
-   mais fazia a página parecer HUD de jogo — mais que os brilhos. Agora a
-   categoria se distingue por peso dentro de uma família só. */
-.cat-cyber     { color: #7FD8F2; border-color: rgba(0, 173, 232, 0.28); background: rgba(0, 173, 232, 0.07); }
-.cat-counter   { color: #A8C6D4; border-color: rgba(168, 198, 212, 0.22); background: rgba(168, 198, 212, 0.05); }
-.cat-automation{ color: #8FB4C4; border-color: rgba(143, 180, 196, 0.22); background: rgba(143, 180, 196, 0.05); }
-.cat-travel    { color: #B9C6CD; border-color: rgba(185, 198, 205, 0.20); background: rgba(185, 198, 205, 0.05); }
-.cat-general   { color: #8C979F; border-color: rgba(140, 151, 159, 0.22); background: rgba(140, 151, 159, 0.05); }
-
-/* Animate in */
-.animate-fade-in-up {
-  animation: fade-in-up 0.6s ease-out forwards;
-}
-.animate-count-up {
-  animation: count-up 0.8s ease-out forwards;
-}
-.animate-slide-in-left {
-  animation: slide-in-left 0.5s ease-out forwards;
-}
-
-/* Staggered children */
-.stagger > *:nth-child(1) { animation-delay: 0ms; }
-.stagger > *:nth-child(2) { animation-delay: 100ms; }
-.stagger > *:nth-child(3) { animation-delay: 200ms; }
-.stagger > *:nth-child(4) { animation-delay: 300ms; }
-.stagger > *:nth-child(5) { animation-delay: 400ms; }
-.stagger > *:nth-child(6) { animation-delay: 500ms; }
-
-/* ============================================================
-   BASE STYLES
+   BASE
    ============================================================ */
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  html {
-    scroll-behavior: smooth;
-  }
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
   body {
-    @apply bg-background text-foreground font-sans;
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.55;
+    font-weight: 400;
     font-feature-settings: "kern" 1, "liga" 1;
-    text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: var(--background);
   }
 
-  /* Typography */
-  h1 {
-    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
-    font-family: var(--font-montserrat);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin: 0;
   }
-  h2 {
-    @apply text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight;
-    font-family: var(--font-montserrat);
-    line-height: 1.2;
-    letter-spacing: -0.01em;
+  /* Hierarquia aqui é tamanho e espaço — nunca peso acima de 500. */
+  h1 { font-size: 44px; line-height: 1.08; letter-spacing: -0.025em; text-wrap: balance; }
+  h2 { font-size: 28px; line-height: 1.14; letter-spacing: -0.02em; }
+  h3 { font-size: 24px; }
+  h4 { font-size: 20px; }
+  h5 { font-size: 16px; }
+  h6 { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  p { margin: 0; }
+  a { color: inherit; text-decoration: none; text-underline-offset: 3px; }
+  img { display: block; max-width: 100%; }
+  figure { margin: 0; }
+
+  :focus { outline: none; }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+  ::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-neutral-800);
+    border-radius: 4px;
   }
-  h3 {
-    @apply text-xl sm:text-2xl font-semibold;
-    font-family: var(--font-montserrat);
-    line-height: 1.3;
-  }
-  p {
-    @apply text-base sm:text-base md:text-lg font-normal leading-relaxed;
-    font-family: var(--font-montserrat);
-  }
-  blockquote {
-    @apply border-l-4 pl-4 sm:pl-6 my-4 sm:my-6 italic;
-    border-color: var(--primary);
-    font-family: var(--font-montserrat);
-    font-size: 1rem;
-    font-weight: 500;
-    line-height: 1.6;
-    background: var(--muted);
-    padding: 1rem;
-    border-radius: var(--radius);
-  }
-  @media (min-width: 640px) {
-    blockquote { font-size: 1.125rem; padding: 1.25rem; }
-  }
-  @media (min-width: 768px) {
-    blockquote { font-size: 1.25rem; padding: 1.5rem; }
-  }
-  time, .metadata {
-    @apply text-sm font-medium tracking-wide uppercase;
-    font-family: var(--font-montserrat);
-    font-weight: 500;
-    letter-spacing: 0.01em;
-  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-neutral-700); }
+
   code {
     font-family: var(--font-mono);
     font-size: 0.9em;
-    color: var(--primary);
-    background: rgba(0, 180, 216, 0.08);
+    color: var(--color-accent-300);
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
     padding: 0.1em 0.3em;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
   }
   pre {
-    @apply bg-card border rounded-lg p-6 overflow-x-auto;
-    border-color: var(--border);
+    background: var(--color-surface);
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    overflow-x: auto;
     font-family: var(--font-mono);
   }
-  pre code {
-    background: transparent;
-    padding: 0;
-    color: inherit;
-  }
+  pre code { background: transparent; padding: 0; color: inherit; }
 
-  /* Smooth transitions */
-  * {
-    transition-property: color, background-color, border-color,
-      text-decoration-color, fill, stroke, opacity, box-shadow, transform;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
-  }
-
-  /* Selection */
-  ::selection {
-    background: rgba(0, 180, 216, 0.3);
-    color: #fff;
-  }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: var(--background);
-  }
-  ::-webkit-scrollbar-thumb {
-    background: rgba(0, 180, 216, 0.3);
-    border-radius: 3px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 180, 216, 0.6);
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
+
+/* ============================================================
+   COMPONENTES NOCTURNE
+   ============================================================ */
+
+/* — imagem —
+   Toda fotografia passa por aqui: o que for mais escuro que o fundo
+   simplesmente desaparece, e o retrato se funde à página. */
+.lighten { mix-blend-mode: lighten; background-color: transparent; }
+
+/* — régua —
+   A assinatura do sistema: a linha some nas pontas, sobre 48px de cada
+   lado, em vez de terminar seca. `.rule` pinta embaixo; `.rule-t`, em
+   cima (itens de lista que abrem com uma régua). */
+.rule {
+  background: linear-gradient(to right,
+    transparent, var(--color-divider) 48px,
+    var(--color-divider) calc(100% - 48px), transparent) no-repeat bottom / 100% 1px;
+}
+.rule-t {
+  background: linear-gradient(to right,
+    transparent, var(--color-divider) 48px,
+    var(--color-divider) calc(100% - 48px), transparent) no-repeat top / 100% 1px;
+}
+.hr {
+  height: 1px; border: 0; margin: var(--space-4) 0;
+  background: linear-gradient(to right,
+    transparent, var(--color-divider) 48px,
+    var(--color-divider) calc(100% - 48px), transparent);
+}
+
+/* — marca —
+   ness., forense.io e trustness. sempre em Montserrat 500, branco puro,
+   com o ponto no ciano da ness. É exceção declarada à regra "sem branco
+   puro" do Nocturne: é identidade, não cor de interface. */
+.brand {
+  font-family: var(--font-brand);
+  font-weight: 500;
+  color: var(--brand-ink);
+}
+.brand-dot { color: var(--brand-dot); }
+
+/* — botões — o primário é contorno de acento, nunca preenchimento — */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer; text-decoration: none;
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 14px; line-height: 1.2; color: var(--color-text);
+  background: transparent; border: 1px solid transparent;
+  padding: var(--space-2) calc(var(--space-3) * 1.2);
+  border-radius: var(--radius-md);
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-primary { color: var(--color-accent); border-color: var(--color-accent); }
+.btn-primary:hover { background: color-mix(in srgb, var(--color-accent) 12%, transparent); }
+.btn-primary:active { background: color-mix(in srgb, var(--color-accent) 22%, transparent); }
+.btn-secondary { border-color: var(--color-divider); }
+.btn-secondary:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+.btn-secondary:active { background: color-mix(in srgb, var(--color-text) 14%, transparent); }
+.btn-ghost { color: var(--color-accent); padding-inline: var(--space-1); }
+.btn-ghost:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+.btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 18%, transparent); }
+.btn-icon { width: 36px; height: 36px; padding: 0; }
+.btn-block { width: 100%; }
+
+/* — campos — */
+.input {
+  width: 100%; min-height: 36px; padding: 6px 10px; font: inherit;
+  font-size: 14px; color: var(--color-text); caret-color: var(--color-accent);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider); border-radius: var(--radius-md);
+}
+.input::placeholder { color: var(--color-neutral-600); }
+.input:hover { border-color: color-mix(in srgb, var(--color-text) 45%, transparent); }
+.input:focus-visible { border-color: var(--color-accent); outline-offset: 0; }
+
+.seg {
+  display: inline-flex; overflow: hidden;
+  border: 1px solid var(--color-divider); border-radius: var(--radius-md);
+}
+.seg-opt {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px; font-size: 13px; cursor: pointer;
+  color: var(--color-neutral-300);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.seg-opt + .seg-opt { border-left: 1px solid var(--color-divider); }
+.seg-opt[aria-current="true"] {
+  color: var(--color-accent);
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+.seg-opt:not([aria-current="true"]):hover {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+
+/* — cards — */
+.card {
+  display: flex; flex-direction: column; gap: var(--space-2);
+  padding: var(--space-3); border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.card-kicker {
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--color-accent);
+}
+.card-title {
+  font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+  font-size: 17px; line-height: 1.2; text-wrap: pretty;
+}
+.card-body { margin: 0; font-size: 13px; opacity: 0.8; flex: 1; }
+.card-meta {
+  display: flex; align-items: center; gap: 6px; font-size: 11px;
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--color-text) 50%, transparent);
+}
+.elev-sm { box-shadow: var(--shadow-sm); }
+.elev-md { box-shadow: var(--shadow-md); }
+.elev-lg { box-shadow: var(--shadow-lg); }
+
+/* Card de artigo: a capa encosta na borda, o corpo respira por dentro. */
+.card-post {
+  padding: 0; overflow: hidden; gap: 0;
+  transition: box-shadow 200ms ease, transform 200ms ease;
+}
+.card-post:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.card-cover {
+  aspect-ratio: 1200 / 630;
+  background-size: cover; background-position: center;
+}
+/* Sem capa, o gradiente da faixa de presença com o nome da categoria. */
+.card-cover-empty {
+  display: flex; align-items: flex-end;
+  padding: 14px 16px;
+  font-size: 13px; color: var(--color-accent-200);
+  background: radial-gradient(ellipse 80% 90% at 15% 0%,
+    var(--color-section-glow), var(--color-section) 75%);
+}
+
+/* — etiquetas — */
+.tag {
+  display: inline-flex; align-items: center; font-size: 11px;
+  letter-spacing: 0.02em; padding: 3px 10px;
+  border-radius: calc(var(--radius-md) * 0.75);
+}
+.tag-accent { background: var(--color-accent-800); color: var(--color-accent-100); }
+.tag-neutral { background: var(--color-neutral-800); color: var(--color-neutral-100); }
+.tag-outline { border: 1px solid var(--color-accent); color: var(--color-accent); }
+
+/* — faixa de presença — o único campo saturado da página — */
+.band {
+  border-radius: var(--radius-lg);
+  background: radial-gradient(ellipse 60% 140% at 10% 0%,
+    var(--color-section-glow), var(--color-section) 70%);
+}
+
+/* — item de navegação da sidebar — */
+.nav-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 9px 10px; margin: 0 -10px;
+  border-radius: var(--radius-md);
+  font-size: 14px; color: var(--color-neutral-300);
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.nav-item:hover { background: color-mix(in srgb, var(--color-text) 6%, transparent); }
+.nav-item[aria-current="page"] {
+  color: var(--color-accent-200);
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  box-shadow: inset 2px 0 0 var(--color-accent);
+}
+.nav-hint { font-size: 12px; color: var(--color-neutral-600); }
+
+/* — marca curta de acento (sob os números da faixa) — */
+.accent-mark { width: 20px; height: 2px; background: var(--color-accent); }
+
+/* ============================================================
+   CORPO DO POST
+   O prose do Tailwind herda estes valores; a medida de 660px e o
+   17px/1.72 vêm do handoff.
+   ============================================================ */
+.post-body {
+  font-size: 17px;
+  line-height: 1.72;
+  color: var(--color-neutral-200);
+}
+.post-body > * + * { margin-top: 18px; }
+.post-body h2, .post-body h3, .post-body h4 {
+  font-size: 22px; line-height: 1.2; margin-top: 36px;
+  color: var(--color-text);
+}
+.post-body a { color: var(--color-accent-300); text-decoration: underline; }
+.post-body a:hover { color: var(--color-accent-200); }
+.post-body blockquote {
+  padding-left: 20px; box-shadow: inset 2px 0 0 var(--color-accent);
+  font-size: 20px; line-height: 1.5; color: var(--color-text);
+}
+.post-body ul, .post-body ol { padding-left: 20px; }
+.post-body li + li { margin-top: 8px; }
+.post-body img { border-radius: var(--radius-lg); }
+.post-body hr {
+  height: 1px; border: 0;
+  background: linear-gradient(to right,
+    transparent, var(--color-divider) 48px,
+    var(--color-divider) calc(100% - 48px), transparent);
+}
+
+/* ============================================================
+   CASCA DA PÁGINA
+   ------------------------------------------------------------
+   Perfil fixo à esquerda, conteúdo à direita. O ponto de virada é
+   900px de largura útil: abaixo disso a sidebar vira gaveta e o topo
+   do conteúdo ganha uma barra própria.
+   ============================================================ */
+.shell {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.sb {
+  position: sticky; top: 0;
+  height: 100vh; overflow-y: auto;
+  padding: 36px 32px;
+  display: flex; flex-direction: column; gap: 26px;
+  background: linear-gradient(180deg, var(--sb-top), var(--color-bg) 90%);
+  box-shadow: inset -1px 0 0 color-mix(in srgb, var(--color-divider) 60%, transparent);
+}
+.sb-close { display: none; }
+
+.main {
+  padding: 40px 56px 32px;
+  max-width: 1000px;
+  display: flex; flex-direction: column; gap: 44px;
+}
+/* O rodapé desce até o fim mesmo quando a página é curta. */
+.main > footer { margin-top: auto; }
+
+.mobile-bar { display: none; }
+
+@media (max-width: 899px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+
+  /* A sidebar desaparece e volta inteira como gaveta — mesmo conteúdo,
+     mesmo nó no DOM, para não manter duas navegações em sincronia. */
+  .sb { display: none; }
+  .sb.is-open {
+    display: flex;
+    position: fixed; inset: 0; z-index: 50;
+    height: 100dvh;
+    padding: 24px 20px 32px;
+    background: var(--color-bg);
+    box-shadow: none;
+  }
+  .sb.is-open .sb-close {
+    display: inline-flex;
+    position: absolute; top: 16px; right: 16px;
+  }
+
+  .mobile-bar {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px 10px 20px;
+    margin: -20px -20px 0;
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    box-shadow: inset 0 -1px 0 var(--color-divider);
+  }
+
+  .main { padding: 20px 20px 28px; gap: 36px; }
+}
+
+/* — linha clicável de lista (Home "Como posso ajudar", relacionados) — */
+.row-link { transition: color 150ms ease; }
+.row-link:hover { color: var(--color-accent-200); }
+
+/* — FAQ — o marcador nativo sai; o chevron gira 90 graus ao abrir. */
+.faq summary { list-style: none; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq-caret { transition: transform 150ms ease; }
+.faq[open] .faq-caret { transform: rotate(90deg); }

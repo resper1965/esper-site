@@ -46,3 +46,21 @@ export function filterPostsByLanguage<T extends { frontMatter: { language?: stri
   });
 }
 
+
+/**
+ * A data curta dos cards e do cabeçalho do post — "7 set 2026", "Sep 7, 2026".
+ *
+ * `formatDate` escreve o mês por extenso, e "7 de setembro de 2026" ocupa
+ * meia linha de metadado num card de 300px. Aqui o mês é abreviado e a
+ * ordem segue o idioma.
+ */
+export function formatDateShort(date: Date | string, locale: string = 'pt-BR'): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  const texto = dateObj.toLocaleDateString(locale, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+  // pt-BR devolve "7 de set. de 2026"; en-US, "Sep 7, 2026".
+  return texto.replace(/ de /g, ' ').replace(/\.(?=\s|$)/g, '');
+}
