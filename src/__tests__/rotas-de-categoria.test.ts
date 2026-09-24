@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { categoryRoutes, categorySlug } from '@/lib/categories';
 
 /**
  * Dois defeitos medidos em produção:
@@ -11,54 +12,74 @@ import { join } from 'node:path';
  *     editoriais e de `lib/categories.ts` já trazer cor, ícone e rótulo para
  *     ela. Posts de LGPD e privacidade estavam em `general`.
  *
- * Este teste garante que todo link de categoria no rodapé aponta para uma
- * rota que existe — o que pega qualquer link novo que erre o slug.
+ * O rodapé encolheu no redesign e não linka mais categoria nenhuma — quem
+ * aponta para `/categoria/<slug>` agora é o cabeçalho de cada post. O que
+ * este arquivo guarda não mudou: nenhuma rota de categoria pode ficar sem
+ * ligação interna, e nenhum link pode apontar para um slug inexistente.
+ *
+ * O slug também deixou de ser escrito à mão em quem monta o link: sai de
+ * `categorySlug()`, sobre a mesma tabela que a rota consome. Era a origem do
+ * defeito 1 — duas listas de slug, uma em cada arquivo.
  */
 
 const SRC = join(__dirname, '..');
 const rota = readFileSync(join(SRC, 'app', '[lang]', 'categoria', '[category]', 'page.tsx'), 'utf8');
-const rodape = readFileSync(join(SRC, 'components', 'footer.tsx'), 'utf8');
+const post = readFileSync(join(SRC, 'components', 'blog-post-content.tsx'), 'utf8');
 
-/** Slugs aceitos pela rota, lidos do `categoryMap`. */
-const slugsDaRota = (): string[] => {
-  const bloco = rota.match(/const categoryMap[^=]*=\s*\{([\s\S]*?)\n\};/);
-  expect(bloco, 'categoryMap não encontrado na rota').not.toBeNull();
-  return [...bloco![1].matchAll(/^\s*([a-z]+):/gm)].map((m) => m[1]);
-};
-
-/** Slugs que o rodapé linka em /categoria/<slug>. */
-const slugsDoRodape = (): string[] =>
-  [...rodape.matchAll(/categoria\/([a-z]+)`/g)].map((m) => m[1]);
-
-describe('links de categoria do rodapé', () => {
-  it('o rodapé linka pelo menos três categorias', () => {
-    expect(slugsDoRodape().length).toBeGreaterThanOrEqual(3);
+describe('a rota e quem linka leem a mesma tabela', () => {
+  it('a rota importa os slugs de lib/categories', () => {
+    expect(rota).toMatch(/import \{ categoryRoutes[^}]*\} from ["']@\/lib\/categories["']/);
   });
 
-  it('todo link do rodapé existe no categoryMap da rota', () => {
-    const validos = slugsDaRota();
-    const quebrados = slugsDoRodape().filter((s) => !validos.includes(s));
-    expect(quebrados, `sem rota: ${quebrados.join(', ')}`).toHaveLength(0);
+  it('não sobrou um segundo categoryMap escrito à mão na rota', () => {
+    expect(rota).not.toMatch(/const categoryMap[^=]*=\s*\{/);
+  });
+});
+
+describe('as rotas de categoria têm ligação interna', () => {
+  it('o cabeçalho do post linka a categoria', () => {
+    expect(post).toMatch(/categoria\/\$\{slugCategoria\}/);
   });
 
-  it('não sobrou o slug `automation`, que nunca existiu', () => {
-    expect(slugsDoRodape()).not.toContain('automation');
+  it('o slug vem de categorySlug, não escrito à mão', () => {
+    expect(post).toMatch(/categorySlug\(fm\.category\)/);
+  });
+});
+
+describe('categorySlug resolve os nomes que os posts trazem', () => {
+  it('resolve o nome em inglês, que é como o D1 grava', () => {
+    expect(categorySlug('Cybersecurity')).toBe('cybersecurity');
+    expect(categorySlug('Home Automation')).toBe('homeautomation');
+  });
+
+  it('resolve o nome em português', () => {
+    expect(categorySlug('Privacidade')).toBe('privacy');
+  });
+
+  it('não inventa slug para categoria sem rota', () => {
+    expect(categorySlug('Categoria Que Não Existe')).toBeUndefined();
+  });
+
+  it('nunca devolve `automation`, que nunca existiu', () => {
+    const todos = Object.values(categoryRoutes).flatMap((n) => [n.pt, n.en]);
+    for (const nome of todos) {
+      expect(categorySlug(nome)).not.toBe('automation');
+    }
   });
 });
 
 describe('a categoria privacy existe', () => {
-  it('a rota conhece privacy', () => {
-    expect(slugsDaRota()).toContain('privacy');
+  it('a tabela conhece privacy', () => {
+    expect(Object.keys(categoryRoutes)).toContain('privacy');
   });
 
   it('privacy tem rótulo nos dois idiomas', () => {
-    expect(rota).toMatch(/privacy:\s*\{\s*pt:\s*'Privacidade',\s*en:\s*'Privacy'\s*\}/);
+    expect(categoryRoutes.privacy).toEqual({ pt: 'Privacidade', en: 'Privacy' });
   });
 
   it('os três eixos editoriais têm rota', () => {
-    const validos = slugsDaRota();
     for (const eixo of ['cybersecurity', 'privacy', 'counterespionage']) {
-      expect(validos, `${eixo} sem rota`).toContain(eixo);
+      expect(Object.keys(categoryRoutes), `${eixo} sem rota`).toContain(eixo);
     }
   });
 });

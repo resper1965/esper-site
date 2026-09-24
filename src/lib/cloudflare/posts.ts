@@ -412,3 +412,22 @@ export async function getPostStats(): Promise<{
     categoryCounts,
   };
 }
+
+/**
+ * Quantos posts publicados existem num idioma.
+ *
+ * Existe porque a sidebar mostra "N artigos" em toda página, e o jeito
+ * óbvio de descobrir esse N — `getAllPosts().length` — traz a tabela inteira
+ * e roda o remark sobre o corpo de cada post só para contar as linhas. Numa
+ * página de artigo isso acontecia duas vezes no mesmo request.
+ *
+ * `LOWER()` nos dois lados porque `filterPostsByLanguage` compara sem
+ * distinguir maiúsculas, e as duas contagens precisam bater.
+ */
+export async function countPublishedPosts(language: string): Promise<number> {
+  const row = await db().first<{ n: number }>(
+    `SELECT COUNT(*) AS n FROM posts WHERE published = 1 AND LOWER(language) = LOWER(?)`,
+    [language]
+  );
+  return row?.n ?? 0;
+}

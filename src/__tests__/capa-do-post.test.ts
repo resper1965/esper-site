@@ -13,6 +13,10 @@ import { join } from 'node:path';
  *  2. A capa não era exibida em nenhum lugar dentro do artigo.
  *  3. `image_alt` era gravado no D1 e nunca mapeado para o frontMatter, então
  *     o texto alternativo se perdia entre o banco e a página.
+ *
+ * O redesign trocou a marcação — a capa passou a ser um `next/image` com as
+ * dimensões declaradas, em vez de uma div com `aspect-[1200/630]` —, e as
+ * asserções seguem a marcação nova. As três propriedades são as mesmas.
  */
 
 const SRC = join(__dirname, '..');
@@ -35,16 +39,20 @@ describe('og:image usa a capa quando ela existe', () => {
 });
 
 describe('a capa é exibida dentro do artigo', () => {
-  it('o componente renderiza postImage', () => {
-    expect(componente).toMatch(/\{postImage\s*&&/);
+  it('o componente renderiza a capa quando ela existe', () => {
+    expect(componente).toMatch(/\{fm\.coverImage\s*&&/);
   });
 
-  it('reserva a proporção 1200x630 para não saltar o layout', () => {
-    expect(componente).toContain('aspect-[1200/630]');
+  it('declara 1200x630 para não saltar o layout', () => {
+    // Com width e height, o navegador reserva a proporção antes de baixar a
+    // imagem — o mesmo efeito que o `aspect-[1200/630]` tinha na versão
+    // anterior, e o que evita o salto de layout.
+    expect(componente).toMatch(/width=\{1200\}/);
+    expect(componente).toMatch(/height=\{630\}/);
   });
 
   it('o alt cai no título quando não há imageAlt', () => {
-    expect(componente).toMatch(/imageAlt\s*\|\|\s*post\.frontMatter\.title/);
+    expect(componente).toMatch(/fm\.imageAlt\s*\|\|\s*fm\.title/);
   });
 });
 

@@ -1,176 +1,135 @@
-import { Suspense } from "react"
-import { BlogCard } from "@/components/blog-card"
-import { BlogCardSkeleton } from "@/components/blog-card-skeleton"
-import { TagFilter } from "@/components/tag-filter"
-import { FadeIn } from "@/components/fade-in"
-import { getDictionary } from "@/i18n/dictionaries"
-import { HeroCommand } from "@/components/ui/hero-command"
-import { calculateReadingTime, isNewPost } from "@/lib/reading-time"
-import { getAllPosts, type Post } from "@/lib/posts"
-import { formatDate, filterPostsByLanguage } from "@/lib/utils"
-import { Shield, Rss } from "lucide-react"
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { BlogCard, toCardPost } from "@/components/blog-card";
+import { getAllPosts, type Post } from "@/lib/posts";
+import { foundedOrganizations } from "@/lib/career";
+import { certifications } from "@/lib/credentials";
+import { COUNTRIES_VISITED, yearsInSecurity } from "@/lib/site";
+import { filterPostsByLanguage } from "@/lib/utils";
+import type { Locale } from "@/i18n/config";
 
+/**
+ * Home.
+ *
+ * Quem ele é agora mora na sidebar, que fica em todas as páginas — então a
+ * home não precisa se apresentar outra vez. Ela mostra o que ele escreveu,
+ * o que ele faz e, no fim, os quatro números que sustentam as duas coisas.
+ *
+ * Os quatro saem das fontes únicas: nenhum está escrito à mão aqui, que era
+ * como eles envelheciam errado antes.
+ */
 export default async function HomePage({
   params,
-  searchParams,
 }: {
-  params: Promise<{ lang: string }>
-  searchParams: Promise<{ tag?: string }>
+  params: Promise<{ lang: string }>;
 }) {
-  const resolvedParams = await params
-  const langParam = resolvedParams?.lang || "pt-BR"
-  const lang = (langParam === "pt-BR" || langParam === "en" ? langParam : "pt-BR") as "pt-BR" | "en"
-  const resolvedSearchParams = await searchParams
-  const dict = await getDictionary(lang)
+  const { lang: langParam } = await params;
+  const lang = (langParam === "en" ? "en" : "pt-BR") as Locale;
+  const pt = lang === "pt-BR";
+  const L = (a: string, b: string) => (pt ? a : b);
 
-  let allPosts: Post[] = []
+  let allPosts: Post[] = [];
   try {
-    allPosts = await getAllPosts()
+    allPosts = await getAllPosts();
   } catch (error) {
-    console.error("Error fetching posts from Supabase:", error)
-    allPosts = []
+    console.error("Erro ao buscar posts:", error);
   }
+  const recentes = filterPostsByLanguage(allPosts, lang)
+    .slice(0, 4)
+    .map((post) => toCardPost(post, lang));
 
-  const filteredByLanguage = filterPostsByLanguage(allPosts, lang)
-  const sortedBlogs = filteredByLanguage
-
-  const allTags = [
-    dict.home.allTags,
-    ...Array.from(
-      new Set(sortedBlogs.flatMap((blog) => blog.frontMatter.tags || []))
-    ).sort(),
-  ]
-
-  const selectedTag = resolvedSearchParams.tag || dict.home.allTags
-  const filteredBlogs =
-    selectedTag === dict.home.allTags
-      ? sortedBlogs
-      : sortedBlogs.filter((blog) => blog.frontMatter.tags?.includes(selectedTag))
-
-  const tagCounts = allTags.reduce(
-    (acc, tag) => {
-      acc[tag] =
-        tag === dict.home.allTags
-          ? sortedBlogs.length
-          : sortedBlogs.filter((blog) => blog.frontMatter.tags?.includes(tag)).length
-      return acc
+  const ajuda = [
+    {
+      href: `/${lang}/servicos`,
+      title: L("Serviços", "Services"),
+      text: L(
+        "CISO as a service, perícia e forense digital, adequação LGPD/GDPR, varredura TSCM.",
+        "CISO as a service, digital forensics, LGPD/GDPR compliance, TSCM sweeps."
+      ),
     },
-    {} as Record<string, number>
-  )
+    {
+      href: `/${lang}/palestras`,
+      title: L("Palestras", "Talks"),
+      text: L(
+        "Risco explicado para conselhos, eventos e equipes técnicas.",
+        "Risk explained for boards, events and technical teams."
+      ),
+    },
+    {
+      href: `/${lang}/imprensa`,
+      title: L("Imprensa", "Press"),
+      text: L(
+        "Bios prontas, dados verificáveis e temas para entrevista.",
+        "Ready bios, verifiable facts and interview topics."
+      ),
+    },
+  ];
+
+  const numeros = [
+    { n: yearsInSecurity(), label: L("anos em segurança", "years in security") },
+    { n: foundedOrganizations().length, label: L("empresas fundadas", "companies founded") },
+    { n: certifications.length, label: L("certificações", "certifications") },
+    { n: COUNTRIES_VISITED, label: L("países visitados", "countries visited") },
+  ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* WOW Hero */}
-      <HeroCommand
-        title="Ricardo Esper"
-        subtitle={dict.home.hero.subtitle}
-        lang={lang}
-        actions={[
-          { label: dict.home.hero.readArticles, href: "#posts" },
-        ]}
-      />
-
-      {/* Posts section */}
-      <section
-        id="posts"
-        className="relative max-w-7xl mx-auto w-full px-6 lg:px-8 py-16 lg:py-24"
-      >
-        {/* Section header */}
-        <div className="flex items-center justify-between mb-10">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-              <Rss className="w-4 h-4 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-foreground">
-                {lang === "pt-BR" ? "Artigos Recentes" : "Recent Articles"}
-              </h2>
-              <p className="text-xs text-muted-foreground font-mono">
-                {filteredBlogs.length}{" "}
-                {lang === "pt-BR" ? "publicações" : "publications"}
-              </p>
-            </div>
-          </div>
-
-          {/* Verification badge */}
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[rgba(16,185,129,0.2)] bg-[rgba(16,185,129,0.04)]">
-            <Shield className="w-3.5 h-3.5 text-[#10b981]" />
-            <span className="text-xs font-mono text-[#10b981]">
-              {lang === "pt-BR" ? "Conteúdo verificado" : "Verified content"}
-            </span>
-          </div>
+    <>
+      {/* 1 — artigos recentes */}
+      <section className="flex flex-col gap-5">
+        <div className="flex items-baseline justify-between gap-4">
+          <h3>{L("Artigos recentes", "Recent articles")}</h3>
+          <Link href={`/${lang}/blog`} className="btn btn-ghost">
+            {L("Ver todos", "See all")} →
+          </Link>
         </div>
-
-        {/* Tag filter */}
-        {allTags.length > 1 && (
-          <div className="mb-8 flex justify-center">
-            <TagFilter
-              tags={allTags}
-              selectedTag={selectedTag}
-              tagCounts={tagCounts}
-            />
-          </div>
-        )}
-
-        {/* Blog grid */}
-        <Suspense
-          fallback={
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <BlogCardSkeleton key={i} showRightBorder={false} />
-              ))}
-            </div>
-          }
+        <div
+          className="grid gap-5"
+          style={{ gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))" }}
         >
-          <div
-            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center ${
-              filteredBlogs.length < 3 ? "max-w-2xl mx-auto" : ""
-            }`}
-          >
-            {filteredBlogs.map((post, index) => {
-              const date = new Date(post.frontMatter.date)
-              const formattedDate = formatDate(date, lang)
-              const description =
-                post.frontMatter.description || post.frontMatter.excerpt || ""
-              const readingTime = calculateReadingTime(
-                description +
-                  " " +
-                  post.frontMatter.title +
-                  " " +
-                  (post.content || "")
-              )
-              const isNew = isNewPost(post.frontMatter.date)
-
-              return (
-                <FadeIn key={post.slug} delay={index * 80}>
-                  <BlogCard
-                    url={`/${lang}/blog/${post.slug}`}
-                    title={post.frontMatter.title}
-                    description={description}
-                    date={formattedDate}
-                    thumbnail={post.frontMatter.coverImage}
-                    tags={post.frontMatter.tags}
-                    readingTime={readingTime}
-                    isNew={isNew}
-                    lang={lang}
-                  />
-                </FadeIn>
-              )
-            })}
-          </div>
-        </Suspense>
-
-        {filteredBlogs.length === 0 && (
-          <div className="text-center py-16">
-            <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-30" />
-            <p className="text-muted-foreground font-mono text-sm">
-              {lang === "pt-BR"
-                ? "Nenhum artigo encontrado"
-                : "No articles found"}
-            </p>
-          </div>
-        )}
+          {recentes.map((post) => (
+            <BlogCard key={post.slug} post={post} />
+          ))}
+        </div>
       </section>
-    </div>
-  )
+
+      {/* 2 — como posso ajudar */}
+      <section className="flex flex-col gap-2">
+        <h3 style={{ marginBottom: 10 }}>{L("Como posso ajudar", "How I can help")}</h3>
+        {ajuda.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="grid items-baseline gap-5 rule row-link"
+            style={{
+              gridTemplateColumns: "minmax(100px, 140px) minmax(0, 1fr) auto",
+              padding: "16px 0",
+            }}
+          >
+            <span style={{ fontSize: 16, fontWeight: 500 }}>{item.title}</span>
+            <span style={{ fontSize: 14, color: "var(--color-neutral-400)" }}>{item.text}</span>
+            <ArrowRight size={16} style={{ color: "var(--color-neutral-600)" }} aria-hidden />
+          </Link>
+        ))}
+      </section>
+
+      {/* 3 — a faixa de números fecha a página */}
+      <section
+        className="band grid gap-6"
+        style={{
+          padding: "32px 36px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+        }}
+      >
+        {numeros.map((item) => (
+          <div key={item.label} className="flex flex-col gap-3">
+            <span style={{ fontSize: 40, fontWeight: 500, letterSpacing: "-0.03em", lineHeight: 1 }}>
+              {item.n}
+            </span>
+            <span className="accent-mark" aria-hidden />
+            <span style={{ fontSize: 13, color: "var(--color-accent-200)" }}>{item.label}</span>
+          </div>
+        ))}
+      </section>
+    </>
+  );
 }

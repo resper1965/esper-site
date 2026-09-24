@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
-import { Montserrat } from "next/font/google";
+import { Inter, Montserrat } from "next/font/google";
 import { getDictionary } from '@/i18n/dictionaries';
 import { ThemeProvider } from "@/components/theme-provider";
 import { generatePageMetadata } from "@/lib/metadata";
@@ -12,9 +12,28 @@ import "./globals.css";
 
 const LANG = i18n.defaultLocale;
 
+/**
+ * Inter é a tipografia do Nocturne — título e corpo, peso máximo 500.
+ * Montserrat fica só para as marcas (ness., forense.io, trustness.), que
+ * têm identidade própria e não seguem a fonte da interface.
+ *
+ * As duas vêm por `next/font`: baixadas no build e servidas do próprio
+ * domínio. Fonte remota seria um terceiro, e o site declara não ter nenhum.
+ */
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-inter",
+  display: "swap",
+  fallback: ["system-ui", "arial"],
+  preload: true,
+  adjustFontFallback: true,
+});
+
 const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  // Só o 500: Montserrat aqui existe para as marcas, e elas têm um peso só.
+  weight: ["500"],
   variable: "--font-montserrat",
   display: "swap",
   fallback: ["system-ui", "arial"],
@@ -23,7 +42,7 @@ const montserrat = Montserrat({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#0B0F14",
+  themeColor: "#0b0c13",
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -70,7 +89,7 @@ export default async function RootLayout({
   return (
     <html
       lang={lang}
-      className={`${montserrat.variable} ${GeistSans.variable} ${GeistMono.variable} antialiased dark`}
+      className={`${inter.variable} ${montserrat.variable} ${GeistSans.variable} ${GeistMono.variable} antialiased dark`}
       suppressHydrationWarning
     >
       <head>

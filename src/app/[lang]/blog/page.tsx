@@ -1,9 +1,7 @@
-import { BlogCard } from "@/components/blog-card";
-import { TagFilter } from "@/components/tag-filter";
-import { getDictionary } from "@/i18n/dictionaries";
+import { toCardPost } from "@/components/blog-card";
+import { BlogList } from "@/components/blog-list";
 import { getAllPosts, type Post } from "@/lib/posts";
-import { calculateReadingTime, isNewPost } from "@/lib/reading-time";
-import { formatDate, filterPostsByLanguage } from "@/lib/utils";
+import { filterPostsByLanguage } from "@/lib/utils";
 import { generatePageMetadata } from "@/lib/metadata";
 import type { Metadata } from "next";
 import type { Locale } from "@/i18n/config";
@@ -33,90 +31,35 @@ export async function generateMetadata({
 
 export default async function BlogListPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ lang: string }>;
-  searchParams: Promise<{ tag?: string }>;
 }) {
-  const resolvedParams = await params;
-  const resolvedSearchParams = await searchParams;
-  const langParam = resolvedParams?.lang || 'pt-BR';
-  // Validate and cast to Locale type
-  const lang = (langParam === 'pt-BR' || langParam === 'en' ? langParam : 'pt-BR') as 'pt-BR' | 'en';
-  const dict = await getDictionary(lang);
+  const { lang: langParam } = await params;
+  const lang = (langParam === "en" ? "en" : "pt-BR") as Locale;
+  const pt = lang === "pt-BR";
 
-  // Buscar posts do Supabase
   let allPosts: Post[] = [];
   try {
     allPosts = await getAllPosts();
   } catch (error) {
-    console.error('Error fetching posts from Supabase:', error);
-    allPosts = [];
+    console.error("Erro ao buscar posts:", error);
   }
 
-  // Filter posts by language
-  const filteredByLanguage = filterPostsByLanguage(allPosts, lang);
-
-  // Posts já vêm ordenados do Supabase (mais recente primeiro)
-  const sortedBlogs = filteredByLanguage;
-
-  const allTags = [
-    dict.home.allTags || "Todos",
-    ...Array.from(
-      new Set(sortedBlogs.flatMap((blog) => blog.frontMatter.tags || []))
-    ).sort(),
-  ];
-
-  const selectedTag = resolvedSearchParams.tag || dict.home.allTags || "Todos";
-  const filteredBlogs =
-    selectedTag === (dict.home.allTags || "Todos")
-      ? sortedBlogs
-      : sortedBlogs.filter((blog) => blog.frontMatter.tags?.includes(selectedTag));
+  const posts = filterPostsByLanguage(allPosts, lang).map((post) => toCardPost(post, lang));
 
   return (
     <>
-      <main className="min-h-screen">
-        <div className="container mx-auto px-4 py-16">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8">Blog</h1>
-          <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8">
-            {lang === 'pt-BR' 
-              ? 'Artigos sobre cibersegurança, contraespionagem e tecnologia.'
-              : 'Articles about cybersecurity, counterespionage and technology.'}
-          </p>
+      <header className="flex flex-col gap-3">
+        <h6 style={{ color: "var(--color-accent)" }}>Blog</h6>
+        <h1>{pt ? "Artigos" : "Articles"}</h1>
+        <p style={{ fontSize: 16, color: "var(--color-neutral-400)", maxWidth: 620 }}>
+          {pt
+            ? "Risco, forense, privacidade e IA — escrito por quem responde por eles."
+            : "Risk, forensics, privacy and AI — written by someone accountable for them."}
+        </p>
+      </header>
 
-          <div className="flex justify-center">
-            <TagFilter
-              tags={allTags}
-              selectedTag={selectedTag}
-            />
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-8 justify-items-center">
-            {filteredBlogs.map((post) => {
-              const formattedDate = formatDate(new Date(post.frontMatter.date), lang);
-              const description = post.frontMatter.description || post.frontMatter.excerpt || "";
-              const readingTime = calculateReadingTime(description + " " + post.frontMatter.title + " " + (post.content || ""));
-              const isNew = isNewPost(post.frontMatter.date);
-
-              return (
-                <BlogCard
-                  key={post.slug}
-                  url={`/${lang}/blog/${post.slug}`}
-                  title={post.frontMatter.title}
-                  description={description}
-                  date={formattedDate}
-                  tags={post.frontMatter.tags}
-                  readingTime={readingTime}
-                  isNew={isNew}
-                  lang={lang}
-                  thumbnail={post.frontMatter.coverImage}
-                />
-              );
-            })}
-          </div>
-        </div>
-      </main>
+      <BlogList posts={posts} lang={lang} />
     </>
   );
 }
-

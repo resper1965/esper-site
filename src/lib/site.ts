@@ -147,6 +147,18 @@ export const identityProfiles: Record<string, IdentityProfile> = {
     backlink: 'inverificavel',
     nota: 'Devolve 403 a acesso automatizado. URL fornecida pelo Ricardo.',
   },
+  orcid: {
+    url: "https://orcid.org/0009-0003-9329-3761",
+    backlink: 'medido',
+    nota:
+      'Segundo backlink medido do grafo, e o primeiro numa base de autoridade ' +
+      'em vez de rede social: a API pública do ORCID responde 200 sem ' +
+      'autenticação e devolve o link de volta no JSON, o que torna a ' +
+      'reciprocidade conferível por script — diferente de LinkedIn, GitHub, ' +
+      'YouTube e Crunchbase, que bloqueiam robô ou renderizam link por ' +
+      'JavaScript. Criado em 23/09/2026 como "Ricardo Esper", sem inicial do ' +
+      'meio, para não repetir a forma do homônimo (ver `knownHomonyms`).',
+  },
 };
 
 /**
@@ -157,9 +169,52 @@ export const identityProfiles: Record<string, IdentityProfile> = {
  */
 export const pendingIdentityProfiles: Record<string, string> = {
   // wikidata: "https://www.wikidata.org/wiki/Q...",
-  // orcid: "https://orcid.org/0000-...",
   // lattes: "http://lattes.cnpq.br/...",
 };
+
+/**
+ * Homônimos conhecidos — outras pessoas com o mesmo nome, já presentes nas
+ * bases que decidem quem é quem.
+ *
+ * Isto não é curiosidade. Quando um buscador ou um modelo tenta resolver a
+ * entidade "Ricardo Esper", ele consulta a Wikidata; e hoje o que existe lá
+ * é um homônimo. Um item de quatro declarações, sem artigo em wikipédia
+ * nenhuma, importado em massa a partir da base da ORCID — mas é o único, e
+ * na ausência de outro ele ganha a disputa por padrão.
+ *
+ * Registrar aqui serve a três coisas: o classificador da sonda ganha o caso
+ * concreto que ele tenta separar (`Sujeito = 'homonimo'` deixa de ser
+ * categoria abstrata), o item futuro nasce sabendo de quem precisa se
+ * distinguir, e ninguém precisa redescobrir isto numa busca manual.
+ *
+ * Levantado em 23/09/2026 pela API pública da Wikidata. Confirmado pelo
+ * Ricardo como não sendo ele.
+ */
+export interface Homonym {
+  /** Como a base o nomeia — raramente igual ao nome que ele usa. */
+  name: string;
+  /** Onde ele existe, com identificador estável. */
+  url: string;
+  /** Como aquela base o descreve. */
+  description: string;
+  /** Por que ele não é o Ricardo deste site. */
+  nota: string;
+}
+
+export const knownHomonyms: Homonym[] = [
+  {
+    name: 'Ricardo J Esper',
+    url: 'https://www.wikidata.org/wiki/Q92681457',
+    description: 'researcher (ORCID 0000-0003-2125-7924)',
+    nota:
+      'Item com quatro declarações e nenhum sitelink: ORCID, "instância de: ser humano" ' +
+      'e "ocupação: pesquisador". Gerado a partir da importação da base ORCID, não ' +
+      'escrito por alguém. O ORCID 0000-0003-2125-7924 é dele; o do Ricardo deste site ' +
+      'é 0009-0003-9329-3761, criado depois justamente para que os dois se separem por ' +
+      'identificador em vez de por descrição. Num item futuro, é o que sustenta a ' +
+      'declaração P1889 ("diferente de") apontando para cá.',
+  },
+];
 
 /** As URLs que entram no `sameAs` — tudo menos os backlinks ausentes. */
 export const sameAsUrls: string[] = [

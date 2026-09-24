@@ -3,10 +3,8 @@ import { generatePageMetadata, generateEventSchema, generateAppearanceSchema, ge
 import { talksByDate, upcomingTalks, isYearOnly, isDateOnly } from "@/lib/talks"
 import { appearancesByDate } from "@/lib/appearances"
 import { worksByYear } from "@/lib/works"
-import { postUrl } from "@/lib/urls"
 import type { Metadata } from "next"
-import { Mic, Calendar, ExternalLink, Video, MapPin, ArrowRight, Radio, BookOpen } from "lucide-react"
-import Link from "next/link"
+import { ArrowUpRight, MapPin, Video } from "lucide-react"
 
 export async function generateStaticParams() {
   return i18n.locales.map((locale) => ({ lang: locale }))
@@ -83,236 +81,158 @@ export default async function Palestras({
 }) {
   const lang = await resolveLang(params)
   const isPT = lang === "pt-BR"
+  const L = (a: string, b: string) => (isPT ? a : b)
   const talks = talksByDate()
-  const upcoming = new Set(upcomingTalks().map((t) => t.id))
+  const proximas = new Set(upcomingTalks().map((t) => t.id))
   const appearances = appearancesByDate()
   const works = worksByYear()
 
   return (
-    <div className="min-h-screen bg-[#0B0F14]">
-      <div className="fixed inset-0 bg-cyber-grid opacity-20 pointer-events-none" aria-hidden />
-
-      <div className="relative z-10 max-w-4xl mx-auto px-6 py-16 space-y-12">
-        <header className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Mic className="w-4 h-4 text-primary" />
-            <span className="text-sm font-mono uppercase tracking-widest text-primary opacity-80">
-              {isPT ? "Palestras e aulas" : "Talks and lectures"}
-            </span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-bold">
-            {isPT ? "Onde eu falo" : "Where I speak"}
-          </h1>
-          <p className="text-muted-foreground leading-relaxed max-w-2xl">
-            {isPT
-              ? "Aulas e palestras sobre fraude, forense digital, privacidade e resposta a incidentes. Para convites, a página de imprensa tem o contato e os temas que consigo cobrir com pouca antecedência."
-              : "Lectures and talks on fraud, digital forensics, privacy and incident response. For invitations, the press page has the contact details and the topics I can cover at short notice."}
-          </p>
-        </header>
-
-        <ul className="space-y-6">
-          {talks.map((talk) => (
-            <li key={talk.id} className="glass-card rounded-2xl p-6 sm:p-8 space-y-4">
-              {upcoming.has(talk.id) && (
-                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono uppercase tracking-widest border border-[rgba(16,185,129,0.3)] bg-[rgba(16,185,129,0.05)] text-[#10b981]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
-                  {isPT ? "Em breve" : "Upcoming"}
-                </span>
-              )}
-
-              <div>
-                {talk.program && (
-                  <p className="text-xs font-mono uppercase tracking-widest text-primary opacity-80 mb-2">
-                    {talk.program[lang]}
-                  </p>
-                )}
-                <h2 className="text-xl font-semibold leading-snug">{talk.title[lang]}</h2>
-                {talk.role && (
-                  <p className="text-sm text-muted-foreground mt-1">{talk.role[lang]}</p>
-                )}
-              </div>
-
-              <p className="text-muted-foreground leading-relaxed">{talk.summary[lang]}</p>
-
-              <dl className="grid sm:grid-cols-3 gap-4 text-sm pt-2 border-t border-white/5">
-                <div>
-                  <dt className="text-xs font-mono uppercase tracking-wide text-muted-foreground mb-1">
-                    {isPT ? "Quando" : "When"}
-                  </dt>
-                  <dd className="flex items-center gap-2">
-                    <Calendar className="w-3.5 h-3.5 text-primary shrink-0" />
-                    {formatDate(talk.startDate, lang)}
-                  </dd>
-                </div>
-                {talk.mode && (
-                  <div>
-                    <dt className="text-xs font-mono uppercase tracking-wide text-muted-foreground mb-1">
-                      {isPT ? "Formato" : "Format"}
-                    </dt>
-                    <dd className="flex items-center gap-2">
-                      {talk.mode === "online" ? (
-                        <>
-                          <Video className="w-3.5 h-3.5 text-primary shrink-0" />
-                          Online
-                        </>
-                      ) : (
-                        <>
-                          <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
-                          {talk.location ?? (isPT ? "Presencial" : "In person")}
-                        </>
-                      )}
-                    </dd>
-                  </div>
-                )}
-                <div>
-                  <dt className="text-xs font-mono uppercase tracking-wide text-muted-foreground mb-1">
-                    {isPT ? "Realização" : "Host"}
-                  </dt>
-                  <dd>
-                    {talk.host.url ? (
-                      <a
-                        href={talk.host.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-primary hover:underline"
-                      >
-                        {talk.host.name}
-                        <ExternalLink className="w-3 h-3 shrink-0" />
-                      </a>
-                    ) : (
-                      talk.host.name
-                    )}
-                  </dd>
-                </div>
-              </dl>
-
-              {talk.relatedPostSlug && (
-                <Link
-                  href={postUrl(lang, talk.relatedPostSlug)}
-                  className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
-                >
-                  {isPT ? "Li sobre o tema no blog" : "Read about the topic on the blog"}
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              )}
-            </li>
-          ))}
-        </ul>
-
-        {/* ── APARIÇÕES ─────────────────────────────────────── */}
-        {/* Separado das palestras porque a natureza é outra: aqui ele é o
-            assunto, não quem ensina. É o que responde "quem mais fala dessa
-            pessoa?" — e a resposta vem de fora, que é o que dá peso. */}
-        {appearances.length > 0 && (
-          <section className="space-y-6">
-            <div className="flex items-center gap-2">
-              <Radio className="w-4 h-4 text-primary" />
-              <h2 className="text-sm font-mono uppercase tracking-widest text-primary opacity-80">
-                {isPT ? "Aparições" : "Appearances"}
-              </h2>
-            </div>
-            <p className="text-muted-foreground leading-relaxed max-w-2xl">
-              {isPT
-                ? "Entrevistas e conversas em veículos de terceiros."
-                : "Interviews and conversations on third-party outlets."}
-            </p>
-            <ul className="space-y-4">
-              {appearances.map((a) => (
-                <li key={a.id} className="glass-card rounded-2xl p-6 space-y-3">
-                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <h3 className="text-lg font-semibold leading-snug">{a.title[lang]}</h3>
-                    {a.publishedDate && (
-                      <span className="text-xs font-mono text-muted-foreground">
-                        {new Date(a.publishedDate + "T12:00:00Z").getFullYear()}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{a.summary[lang]}</p>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm pt-1">
-                    <span className="text-muted-foreground">{a.series ?? a.outlet.name}</span>
-                    <a
-                      href={a.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-primary hover:underline"
-                    >
-                      {isPT ? "Assistir" : "Watch"}
-                      <ExternalLink className="w-3 h-3 shrink-0" />
-                    </a>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {/* ── PUBLICAÇÕES ───────────────────────────────────── */}
-        {/* A categoria mais durável das três: evento passa, livro fica em
-            catálogo. Um prefácio é escolha do autor — ele decidiu que aquele
-            nome dá lastro ao livro dele. */}
-        {works.length > 0 && (
-          <section className="space-y-6">
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-primary" />
-              <h2 className="text-sm font-mono uppercase tracking-widest text-primary opacity-80">
-                {isPT ? "Publicações" : "Publications"}
-              </h2>
-            </div>
-            <ul className="space-y-4">
-              {works.map((w) => (
-                <li key={w.id} className="glass-card rounded-2xl p-6 space-y-2">
-                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <h3 className="text-lg font-semibold leading-snug">{w.title}</h3>
-                    {w.year && (
-                      <span className="text-xs font-mono text-muted-foreground">{w.year}</span>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {isPT ? "de" : "by"} {w.author}
-                    {w.publisher ? ` · ${w.publisher}` : ""}
-                  </p>
-                  {w.note && (
-                    <p className="text-sm text-muted-foreground leading-relaxed">{w.note[lang]}</p>
-                  )}
-                  <p className="text-sm">
-                    <span className="text-primary font-medium">{w.role[lang]}</span>
-                    {w.attributedTo ? (
-                      <span className="text-muted-foreground"> — {w.attributedTo}</span>
-                    ) : null}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-      </div>
-
-      {/* Um Event por palestra, cada um apontando para o mesmo @id do Person.
-          É o que faz "fui convidado a falar" virar dado conferível em vez de
-          adjetivo. */}
+    <>
+      {/* O grafo: cada palestra é um Event, cada aparição um VideoObject e
+          cada obra um Book. É o que faz um convite de terceiro valer como
+          sinal, e não como mais uma frase do site sobre si mesmo. */}
       {talks.map((talk) => (
         <script
-          key={`schema-${talk.id}`}
+          key={`evt-${talk.id}`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(generateEventSchema(talk, lang)) }}
         />
       ))}
-
       {appearances.map((a) => (
         <script
-          key={`schema-${a.id}`}
+          key={`apr-${a.id}`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(generateAppearanceSchema(a, lang)) }}
         />
       ))}
-
       {works.map((w) => (
         <script
-          key={`schema-${w.id}`}
+          key={`obr-${w.id}`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(generateWorkSchema(w, lang)) }}
         />
       ))}
-    </div>
+
+      <header className="flex flex-col gap-4">
+        <h6 style={{ color: "var(--color-accent)" }}>
+          {L("Palestras e aulas", "Talks and lectures")}
+        </h6>
+        <h1>{L("Onde eu falo", "Where I speak")}</h1>
+        <p style={{ fontSize: 16, lineHeight: 1.7, color: "var(--color-neutral-300)", maxWidth: 680 }}>
+          {L(
+            "Aulas e palestras sobre fraude, forense digital, privacidade e resposta a incidentes. Para convites, a página de imprensa tem o contato e os temas que consigo cobrir com pouca antecedência.",
+            "Lectures and talks on fraud, digital forensics, privacy and incident response. For invitations, the press page has the contact details and the topics I can cover at short notice."
+          )}
+        </p>
+      </header>
+
+      <section className="flex flex-col">
+        {talks.map((talk) => {
+          const online = talk.mode === "online"
+          const formato = talk.mode
+            ? online
+              ? "Online"
+              : L("Presencial", "In person")
+            : L("Formato não informado", "Format not stated")
+
+          return (
+            <article key={talk.id} className="rule-t flex flex-col gap-2" style={{ padding: "26px 0" }}>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                <span style={{ fontSize: 15, fontWeight: 500 }}>{formatDate(talk.startDate, lang)}</span>
+                <span
+                  className="inline-flex items-center gap-1.5"
+                  style={{ fontSize: 12, color: "var(--color-neutral-500)" }}
+                >
+                  {online ? <Video size={13} aria-hidden /> : <MapPin size={13} aria-hidden />}
+                  {formato}
+                </span>
+                {proximas.has(talk.id) && (
+                  <span className="tag tag-outline">{L("Em breve", "Upcoming")}</span>
+                )}
+              </div>
+
+              {talk.program && (
+                <span style={{ fontSize: 12, color: "var(--color-accent-300)" }}>
+                  {talk.program[lang]}
+                </span>
+              )}
+
+              <h4 style={{ textWrap: "balance" }}>{talk.title[lang]}</h4>
+
+              {talk.role && (
+                <span style={{ fontSize: 13, color: "var(--color-neutral-400)" }}>
+                  {talk.role[lang]}
+                </span>
+              )}
+
+              <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--color-neutral-300)", maxWidth: 620 }}>
+                {talk.summary[lang]}
+              </p>
+
+              <span style={{ fontSize: 13, color: "var(--color-neutral-500)" }}>
+                {talk.host.url ? (
+                  <a href={talk.host.url} target="_blank" rel="noopener noreferrer" className="row-link">
+                    {talk.host.name}
+                  </a>
+                ) : (
+                  talk.host.name
+                )}
+              </span>
+            </article>
+          )
+        })}
+      </section>
+
+      {appearances.length > 0 && (
+        <section className="flex flex-col gap-5">
+          <h3>{L("Aparições", "Appearances")}</h3>
+          <div
+            className="grid gap-5"
+            style={{ gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))" }}
+          >
+            {appearances.map((a) => (
+              <a
+                key={a.id}
+                href={a.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="card elev-sm"
+                style={{ padding: "16px 18px 18px", gap: 8 }}
+              >
+                {a.series && <span className="card-kicker">{a.series}</span>}
+                <span className="card-title">{a.title[lang]}</span>
+                <p className="card-body">{a.summary[lang]}</p>
+                <span className="card-meta" style={{ color: "var(--color-accent)" }}>
+                  {L("Assistir", "Watch")}
+                  <ArrowUpRight size={13} aria-hidden />
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {works.length > 0 && (
+        <section className="flex flex-col gap-5">
+          <h3>{L("Publicações", "Publications")}</h3>
+          {works.map((w) => (
+            <article key={w.id} className="rule-t flex flex-col gap-2" style={{ padding: "22px 0" }}>
+              <span style={{ fontSize: 12, color: "var(--color-accent-300)" }}>{w.role[lang]}</span>
+              <h4>{w.title}</h4>
+              <span style={{ fontSize: 13, color: "var(--color-neutral-400)" }}>
+                {L("de", "by")} {w.author}
+                {w.publisher ? ` · ${w.publisher}` : ""}
+              </span>
+              {w.note && (
+                <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--color-neutral-300)", maxWidth: 620 }}>
+                  {w.note[lang]}
+                </p>
+              )}
+            </article>
+          ))}
+        </section>
+      )}
+    </>
   )
 }
