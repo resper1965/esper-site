@@ -1,0 +1,23 @@
+Fui procurar meu nome na Wikidata. Encontrei outro Ricardo Esper.
+
+Um item com quatro declarações — identificador ORCID, "instância de: ser humano", "ocupação: pesquisador" — e nenhum artigo em wikipédia nenhuma. Não foi escrito por ninguém: veio de importação em massa de base acadêmica, dessas que criam milhões de registros de uma vez.
+
+É a única entrada que existe lá com esse nome.
+
+Isso importa porque a Wikidata não é mais uma enciclopédia. É a base estruturada que o Knowledge Graph do Google lê e que está em praticamente todo corpus de treino de modelo de linguagem. Quando um sistema precisa decidir quem é determinado nome, é ali que ele olha primeiro.
+
+Três coisas que eu não sabia, e que provavelmente valem para você:
+
+1. Você não precisa ter criado nada para já estar lá. Bases acadêmicas, de patente e de publicação são importadas em bloco. Se você tem ORCID ou Lattes, ou assinou um artigo, é provável que exista um registro seu — ou de um homônimo — sem que você tenha digitado uma letra.
+
+2. Perfil não é identidade. Executivo cuida do texto do LinkedIn, da bio, da foto. Nada disso é legível por máquina no sentido que importa: não tem identificador estável, não é consultável, não desfaz ambiguidade. Um registro de quatro linhas numa base estruturada pesa mais na resolução de entidade do que um perfil caprichado.
+
+3. Homônimo não se resolve escrevendo melhor. Resolve-se com identificador. Criei o meu ORCID — deliberadamente sem a inicial do meio que o outro usa — porque dois identificadores distintos separam duas pessoas de um jeito que descrição nenhuma separa.
+
+O que me incomoda não é o caso pessoal. É que passei 35 anos ajudando organização a saber o que responde no perímetro dela, e a superfície da minha própria identidade eu nunca tinha inventariado.
+
+Para quem responde por reputação, própria ou da empresa: você sabe o que as bases estruturadas afirmam sobre você hoje?
+
+Não é o que o seu site diz. É o que respondem quando perguntam a uma máquina.
+
+#ResoluçãoDeEntidade #Wikidata #ReputaçãoDigital #CISO #Identidade #OSINT
