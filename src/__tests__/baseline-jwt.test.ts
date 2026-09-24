@@ -119,7 +119,7 @@ describe('assinarJwt', () => {
 });
 
 describe('normalizarChavePrivada', () => {
-  const corpoPem = '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBg\n-----END PRIVATE KEY-----\n';
+  const corpoPem = '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBg\n-----END PRIVATE KEY-----\n'; // fixture-de-teste
 
   it('transforma \\n literal em quebra de linha real', () => {
     const escapada = corpoPem.replace(/\n/g, '\\n');

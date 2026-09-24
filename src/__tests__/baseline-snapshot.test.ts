@@ -14,7 +14,7 @@ describe('encontrarSegredos', () => {
   });
 
   it('acha token do GitHub', () => {
-    expect(encontrarSegredos('ghp_1234567890abcdefghijklmnopqrstuvwxyz')).not.toHaveLength(0);
+    expect(encontrarSegredos('ghp_1234567890abcdefghijklmnopqrstuvwxyz')).not.toHaveLength(0); // fixture-de-teste
   });
 
   it('acha token fine-grained do GitHub', () => {
@@ -32,7 +32,7 @@ describe('encontrarSegredos', () => {
   });
 
   it('acha bloco de chave privada', () => {
-    expect(encontrarSegredos('-----BEGIN PRIVATE KEY-----')).not.toHaveLength(0);
+    expect(encontrarSegredos('-----BEGIN PRIVATE KEY-----')).not.toHaveLength(0); // fixture-de-teste
   });
 
   it('não acusa texto comum', () => {
