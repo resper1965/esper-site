@@ -21,6 +21,7 @@
     "baseline:busca-csv": "tsx scripts/baseline-busca-csv.ts",
     "baseline:links": "tsx scripts/baseline-links.ts",
     "identidade:conferir": "tsx scripts/identidade-conferir.ts",
+    "linkedin:janela": "tsx scripts/linkedin-proxima-janela.ts",
     "build:cf": "npx opennextjs-cloudflare build",
     "deploy": "npm run build:cf && wrangler deploy",
     "preview:cf": "npm run build:cf && npx opennextjs-cloudflare preview",
