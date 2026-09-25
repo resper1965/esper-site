@@ -1,3 +1,9 @@
+[APAGADO em 25/09/2026 — urn:li:share:7509000717962219520.
+ Decisão: o eixo editorial é cibersegurança, privacidade e contraespionagem;
+ posts sobre a identidade do próprio Ricardo, sem o texto conferível que o
+ posicionamento exige, não entram nesse eixo. Não repetir o gênero.
+ Texto original abaixo, mantido como registro do que foi publicado.]
+
 Fui procurar meu nome na Wikidata. Encontrei outro Ricardo Esper.
 
 Um item com quatro declarações — identificador ORCID, "instância de: ser humano", "ocupação: pesquisador" — e nenhum artigo em wikipédia nenhuma. Não foi escrito por ninguém: veio de importação em massa de base acadêmica, dessas que criam milhões de registros de uma vez.
