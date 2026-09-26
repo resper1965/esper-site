@@ -1,0 +1,11 @@
+{
+  "versao": 1,
+  "execucoes": 5,
+  "prompts": [
+    "Quem é Ricardo Esper?",
+    "Quem são especialistas brasileiros em contraespionagem corporativa?",
+    "Quem pode auditar ISO 42001 no Brasil?",
+    "Que profissionais brasileiros escrevem sobre governança de IA e segurança?",
+    "Who are notable CISOs working in Brazilian healthtech?"
+  ]
+}

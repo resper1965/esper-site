@@ -1,0 +1,26 @@
+{
+  "versao": 1,
+  "atualizado": "2026-09-14",
+  "grupos": {
+    "navegacional": [
+      "ricardo esper",
+      "ricardo esper ciso",
+      "ricardo esper ness",
+      "ricardo esper segurança da informação"
+    ],
+    "categoria_pt": [
+      "auditor líder iso 27001",
+      "auditor líder iso 27701",
+      "iso 42001 governança de ia",
+      "contraespionagem corporativa",
+      "varredura eletrônica tscm",
+      "consultor lgpd",
+      "prompt injection indireta"
+    ],
+    "categoria_en": [
+      "iso 42001 lead auditor",
+      "tscm counter-espionage brazil",
+      "indirect prompt injection case"
+    ]
+  }
+}

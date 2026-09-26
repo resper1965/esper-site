@@ -22,9 +22,17 @@ Fora do eixo, mantidos de propósito: viagem, vida, automação residencial.
 
 ## Estrutura
 
+    baseline/     medição de exposição: consultas, prompts, snapshots datados
+    identidade/   textos canônicos das fontes externas e a medição da cobertura
     linkedin/     banner, gerador e os textos publicados
     marca/        sistema visual e os geradores das peças
     referencia/   posicionamento, memória operacional, credenciais
+
+`baseline/` é o instrumento, não o conteúdo: guarda o conjunto de consultas e
+de prompts, as exportações que alimentam os coletores, e um snapshot datado por
+rodada. O valor não está no primeiro snapshot — está na diferença entre ele e o
+próximo, medida do mesmo jeito. Ver `baseline/chave-api.md` antes da primeira
+execução da sonda, que é o único coletor que gasta dinheiro.
 
 ## Onde cada coisa mora
 

@@ -39,9 +39,42 @@ credencial verificável nos dois primeiros.
 > Automação residencial não é um problema de dispositivo. É um problema de
 > arquitetura de rede que as pessoas resolvem comprando dispositivo.
 
+## Domínios: três apontando para um
+
+Medido em 15/09/2026, em produção e no DNS.
+
+    esper.ws          ─┐
+    ricardoesper.com  ─┼─ 301 ─→  www.ricardoesper.com.br   (canônico)
+                       ┘
+
+Os três estão na mesma conta Cloudflare — nameservers `carol` e `jaime` nos
+três. `ricardoesper.com` e `ricardoesper.com.br` recebem e-mail por Google
+Workspace e têm, cada um, registro próprio de verificação do Search Console.
+O salto seguinte, de `/` para `/pt-BR`, é `307` e é a negociação de idioma do
+Next.js: temporário está certo ali, porque o destino depende de quem pede.
+
+**A decisão, e o motivo:** `.com` pesa mais que `.com.br` fora do Brasil, e
+mesmo assim ele aponta para cá. Um sinal consolidado vale mais que três
+divididos, e com 39 posts em `pt-BR` contra 7 em `/en` não há massa para
+sustentar presença internacional separada. Manter o `.com` de pé como site
+próprio dividiria a entidade justamente quando o objetivo é consolidá-la.
+
+**Quando reabrir:** se o acervo em inglês crescer a ponto de justificar
+presença internacional própria. O `.com` é a peça guardada para esse dia — não
+é domínio esquecido, é opção com prazo em aberto. Enquanto o inglês for
+subconjunto restrito de termos de diferencial raro, o redirecionamento é o
+certo.
+
 ## Pendências
 
 - [ ] Headline e "Sobre" do LinkedIn reescritos
 - [ ] Certificações na seção Licenças e Certificados
 - [ ] Posts em Destaque no perfil
 - [ ] Decidir o `/en`: traduzir os melhores ou desligar
+- [x] Os três domínios no Search Console — feito em 15/09/2026
+
+O que esperar de cada propriedade, já que duas só redirecionam: `esper.ws` e
+`ricardoesper.com` devem mostrar pouco ou nada. Impressão ali significa URL
+antiga ainda indexada, esperando consolidar; silêncio significa que o 301 fez
+o serviço e não há mais o que acompanhar. O dado que alimenta a medição vem da
+propriedade `ricardoesper.com.br`.

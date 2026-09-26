@@ -1,0 +1,24 @@
+Uma pergunta separa métrica de indicador: se esse número piorar, é problema agora ou incidente depois?
+
+Se for problema agora, é KPI — desempenho do que você já faz. Se for incidente depois, é KRI — exposição que está crescendo. A maioria dos painéis de segurança confunde os dois, e o resultado é relatório bonito que nunca move orçamento.
+
+Um exemplo do que muda quando você separa certo:
+
+Cobertura de EDR em 98% é KPI, e é confortável. Mas os 2% que faltam não são aleatórios — costumam ser o servidor legado, a máquina que ninguém quer reiniciar. O KRI pergunta outra coisa: quais endpoints estão sem proteção, e há quanto tempo. Taxa conforta. Contagem incomoda. É a contagem que move orçamento.
+
+Três coisas transformam um número em indicador de verdade:
+
+1. Limiar declarado antes do resultado aparecer — decidido depois, é justificativa, não controle.
+2. Dono nomeado — pessoa, não área. "Infraestrutura" não responde por nada.
+3. Consequência combinada — o que acontece quando o limiar é rompido. Se for "discutimos na próxima reunião", o limiar é decorativo.
+
+Sem os três, você tem um gráfico. Com os três, você tem um controle.
+
+A cláusula 9.1 da ISO 27001 já exige isso — e a 42001, para sistemas de IA, repete a mesma estrutura. Só que quase ninguém tem KRI de agente de IA ainda: quantos existem no ambiente, quais têm credencial própria, quantos alcançam produção sem dono declarado. É onde a exposição está crescendo mais rápido, e onde menos gente está medindo.
+
+Se o seu painel nunca produziu uma conversa desconfortável na diretoria, ele não está medindo risco. Está medindo esforço.
+
+Artigo completo, com os pares de indicador por domínio e os seis que eu levaria para um comitê:
+https://www.ricardoesper.com.br/pt-BR/blog/kpis-kris-indicadores-seguranca
+
+#Cibersegurança #GestãoDeRisco #ISO27001 #ISO42001 #CISO #Compliance

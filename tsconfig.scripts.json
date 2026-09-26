@@ -1,0 +1,12 @@
+// O tsconfig raiz exclui scripts/, então "tsc --noEmit limpo" não dizia nada
+// sobre os três arquivos que falam com a rede e gastam dinheiro. Este projeto
+// cobre exatamente esses.
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "incremental": false
+  },
+  "include": ["scripts/**/*.ts", "src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

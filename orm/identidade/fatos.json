@@ -1,0 +1,16 @@
+{
+  "versao": 1,
+  "atualizado": "2026-09-15",
+  "nome": "Ricardo Esper",
+  "fatos": [
+    { "id": "nome", "rotulo": "o nome aparece", "termos": ["ricardo esper"] },
+    { "id": "cargo", "rotulo": "CISO da IONIC Health", "termos": ["ciso", "ionic"] },
+    { "id": "ness_1991", "rotulo": "fundador da NESS em 1991", "termos": ["ness", "1991"] },
+    { "id": "iso27001", "rotulo": "Auditor Líder ISO/IEC 27001", "termos": ["27001"] },
+    { "id": "iso27701", "rotulo": "Auditor Líder ISO/IEC 27701", "termos": ["27701"] },
+    { "id": "emissor", "rotulo": "emissor e número da certificação", "termos": ["global pcs", "pc01e090056"] },
+    { "id": "cciso", "rotulo": "CCISO", "termos": ["cciso"] },
+    { "id": "eixos", "rotulo": "os três eixos editoriais", "termos": ["ciberseguranca", "privacidade", "contraespionagem"] },
+    { "id": "site", "rotulo": "aponta para o site", "termos": ["ricardoesper.com.br"] }
+  ]
+}
